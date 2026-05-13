@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "448479382614",
+    "project_id": "tirtir-mcommerce",
+    "storage_bucket": "tirtir-mcommerce.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:448479382614:android:30c07d4e684381789b7ff7",
+        "android_client_info": {
+          "package_name": "com.example.tirtir_mcommerce"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBDHCUHEzjaeCSZlDRp6f-0IINLPnyYos"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
