@@ -1,12 +1,16 @@
 package com.example.tirtir_mcommerce.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 public class Product {
     private String id;                    // Product_ID
+    @SerializedName("Product_Name")
     private String name;
     private String brand;                 // mặc định "TIRTIR"
     private String category;
+    @SerializedName("Price")
     private double price;
     private double salePrice;
     private String volumeSize;
