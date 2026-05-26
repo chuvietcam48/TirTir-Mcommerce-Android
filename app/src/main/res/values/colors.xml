@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="tirtir_red_primary">#D32027</color>
+    <color name="tirtir_red_dark">#A8181E</color>
+    <color name="tirtir_black_cover">#1A1A1A</color>
+    <color name="tirtir_aura_pink">#F7C8D4</color>
+    <color name="tirtir_cushion_beige">#F2E2D2</color>
+    <color name="tirtir_silver_gray">#B0B5B9</color>
+    <color name="tirtir_milk_white">#FFFFFF</color>
+    <color name="tirtir_bg_gray">#F5F7FA</color>
+    <color name="tirtir_text_primary">#0D0D0D</color>
+    <color name="tirtir_text_secondary">#737373</color>
+    <color name="tirtir_error">#E63946</color>
+    <color name="tirtir_success">#2A9D8F</color>
+    <color name="tirtir_warning">#E9C46A</color>
 </resources>

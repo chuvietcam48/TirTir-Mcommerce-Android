@@ -8,18 +8,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 
-import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-// Import 3 file mà bạn đã tạo ở các bước trước
-import com.example.tirtir_mcommerce.model.Product;
-import com.example.tirtir_mcommerce.model.ProductResponse;
-import com.example.tirtir_mcommerce.network.ApiService;
-import com.example.tirtir_mcommerce.network.RetrofitClient;
+import com.example.tirtir_mcommerce.ui.fragments.HomeFragment;
+import com.example.tirtir_mcommerce.ui.fragments.ProfileFragment;
+import com.example.tirtir_mcommerce.ui.fragments.RoutineFragment;
+import com.example.tirtir_mcommerce.ui.fragments.ShopFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,7 +24,6 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        // Đoạn này của bạn giữ nguyên để giao diện tràn viền đẹp
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -37,30 +31,35 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // ==========================================
-        // BẮT ĐẦU GỌI API LẤY DỮ LIỆU TỪ MONGODB VỀ
+        // KHỞI TẠO BOTTOM NAVIGATION
         // ==========================================
-        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
-        apiService.getProducts().enqueue(new Callback<ProductResponse>() {
-            @Override
-            public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
 
-                    // KHUI THÙNG NÈ: Lấy cái ruột "data" ra và nhét vào List
-                    List<Product> productList = response.body().getData();
+        bottomNav.setOnItemSelectedListener(item -> {
+            Fragment selectedFragment = null;
 
-                    if (productList != null && !productList.isEmpty()) {
-                        Log.d("TIRTIR_API", "🎉 Thành công! Sản phẩm đầu tiên là: " + productList.get(0).getName());
-                        Log.d("TIRTIR_API", "📦 Tổng số sản phẩm lấy được: " + productList.size());
-                    }
-                } else {
-                    Log.e("TIRTIR_API", "⚠️ Web từ chối! Mã lỗi: " + response.code());
-                }
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_home) {
+                selectedFragment = new HomeFragment();
+            } else if (itemId == R.id.nav_shop) {
+                selectedFragment = new ShopFragment();
+            } else if (itemId == R.id.nav_routine) {
+                selectedFragment = new RoutineFragment();
+            } else if (itemId == R.id.nav_profile) {
+                selectedFragment = new ProfileFragment();
             }
 
-            @Override
-            public void onFailure(Call<ProductResponse> call, Throwable t) {
-                Log.e("TIRTIR_API", "❌ Lỗi: " + t.getMessage());
+            if (selectedFragment != null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.frame_container, selectedFragment)
+                        .commit();
             }
+            return true;
         });
+
+        // Hiển thị HomeFragment lúc mới mở app
+        if (savedInstanceState == null) {
+            bottomNav.setSelectedItemId(R.id.nav_home);
+        }
     }
 }

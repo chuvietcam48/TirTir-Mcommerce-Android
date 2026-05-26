@@ -1,0 +1,27 @@
+{
+  "status": 200,
+  "message": "SUCCESS",
+  "data": [
+    {
+      "ma_dich_vu": "SCTT",
+      "ten_dich_vu": "Chuyển Tiêu Chuẩn",
+      "gia_cuoc": 30000,
+      "thoi_gian_du_kien": "3-5 ngày làm việc",
+      "mo_ta": "Giao hàng tiêu chuẩn toàn quốc"
+    },
+    {
+      "ma_dich_vu": "SCBN",
+      "ten_dich_vu": "Chuyển Nhanh",
+      "gia_cuoc": 45000,
+      "thoi_gian_du_kien": "1-2 ngày làm việc",
+      "mo_ta": "Giao hàng nhanh nội thành và liên tỉnh"
+    },
+    {
+      "ma_dich_vu": "SCPN",
+      "ten_dich_vu": "Phát Nhanh",
+      "gia_cuoc": 25000,
+      "thoi_gian_du_kien": "2-3 ngày làm việc",
+      "mo_ta": "Dành cho hàng nhỏ dưới 500g"
+    }
+  ]
+}

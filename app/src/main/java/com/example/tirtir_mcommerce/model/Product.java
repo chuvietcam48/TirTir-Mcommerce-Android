@@ -5,41 +5,103 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class Product {
-    private String id;                    // Product_ID
-    @SerializedName("Product_Name")
-    private String name;
-    private String brand;                 // mặc định "TIRTIR"
+
+    @SerializedName("_id")
+    private String id; // Lưu ý: API Node.js phải làm phẳng "$oid" thành chuỗi "696b48..." nhé!
+
+    @SerializedName("Product_ID")
+    private String productId;
+
+    @SerializedName("Parent_ID")
+    private String parentId;
+
+    @SerializedName("Category")
     private String category;
+
+    @SerializedName("Category_Slug")
+    private String categorySlug;
+
+    @SerializedName("Name")
+    private String name;
+
+    @SerializedName("Product_Slug")
+    private String productSlug;
+
     @SerializedName("Price")
     private double price;
+
+    @SerializedName("Sale_Price")
     private double salePrice;
+
+    @SerializedName("Volume_Size")
     private String volumeSize;
-    private boolean isSkincare;
+
+    @SerializedName("Is_Skincare")
+    private String isSkincare; // Từ MongoDB trả về chuỗi "FALSE" hoặc "TRUE"
+
+    @SerializedName("Skin_Type_Target")
     private String skinTypeTarget;
+
+    @SerializedName("Main_Concern")
     private String mainConcern;
-    private List<String> keyIngredients;  // tách từ Key_Ingredients nếu cần
+
+    @SerializedName("Key_Ingredients")
+    private String keyIngredients;
+
+    @SerializedName("Description_Short")
     private String descriptionShort;
+
+    @SerializedName("How_To_Use")
+    private String howToUse;
+
+    @SerializedName("Status")
+    private String status;
+
+    @SerializedName("Stock_Quantity")
+    private int stockQuantity;
+
+    @SerializedName("Full_Description")
     private String fullDescription;
-    private List<String> images;          // Gallery_Images
-    private String thumbnail;
-    private int stock;
-    private boolean isActive;
 
-    // Constructor rỗng bắt buộc cho Firestore
-    public Product() {}
+    @SerializedName("Description_Images")
+    private List<String> descriptionImages;
 
-    // Getter & Setter (bạn có thể generate bằng Alt + Insert)
+    @SerializedName("Thumbnail_Images")
+    private String thumbnailImages;
+
+    @SerializedName("Gallery_Images")
+    private List<String> galleryImages;
+
+    @SerializedName("slug")
+    private String slug;
+
+    @SerializedName("Stock_Reserved")
+    private int stockReserved;
+
+    public Product() {
+    }
+
+    // Getters and Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+
+    public String getProductId() { return productId; }
+    public void setProductId(String productId) { this.productId = productId; }
+
+    public String getParentId() { return parentId; }
+    public void setParentId(String parentId) { this.parentId = parentId; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+
+    public String getCategorySlug() { return categorySlug; }
+    public void setCategorySlug(String categorySlug) { this.categorySlug = categorySlug; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
-    public String getBrand() { return brand != null ? brand : "TIRTIR"; }
-    public void setBrand(String brand) { this.brand = brand; }
-
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
+    public String getProductSlug() { return productSlug; }
+    public void setProductSlug(String productSlug) { this.productSlug = productSlug; }
 
     public double getPrice() { return price; }
     public void setPrice(double price) { this.price = price; }
@@ -50,8 +112,8 @@ public class Product {
     public String getVolumeSize() { return volumeSize; }
     public void setVolumeSize(String volumeSize) { this.volumeSize = volumeSize; }
 
-    public boolean isSkincare() { return isSkincare; }
-    public void setSkincare(boolean skincare) { isSkincare = skincare; }
+    public String getIsSkincare() { return isSkincare; }
+    public void setIsSkincare(String isSkincare) { this.isSkincare = isSkincare; }
 
     public String getSkinTypeTarget() { return skinTypeTarget; }
     public void setSkinTypeTarget(String skinTypeTarget) { this.skinTypeTarget = skinTypeTarget; }
@@ -59,21 +121,36 @@ public class Product {
     public String getMainConcern() { return mainConcern; }
     public void setMainConcern(String mainConcern) { this.mainConcern = mainConcern; }
 
+    public String getKeyIngredients() { return keyIngredients; }
+    public void setKeyIngredients(String keyIngredients) { this.keyIngredients = keyIngredients; }
+
     public String getDescriptionShort() { return descriptionShort; }
     public void setDescriptionShort(String descriptionShort) { this.descriptionShort = descriptionShort; }
+
+    public String getHowToUse() { return howToUse; }
+    public void setHowToUse(String howToUse) { this.howToUse = howToUse; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public int getStockQuantity() { return stockQuantity; }
+    public void setStockQuantity(int stockQuantity) { this.stockQuantity = stockQuantity; }
 
     public String getFullDescription() { return fullDescription; }
     public void setFullDescription(String fullDescription) { this.fullDescription = fullDescription; }
 
-    public List<String> getImages() { return images; }
-    public void setImages(List<String> images) { this.images = images; }
+    public List<String> getDescriptionImages() { return descriptionImages; }
+    public void setDescriptionImages(List<String> descriptionImages) { this.descriptionImages = descriptionImages; }
 
-    public String getThumbnail() { return thumbnail; }
-    public void setThumbnail(String thumbnail) { this.thumbnail = thumbnail; }
+    public String getThumbnailImages() { return thumbnailImages; }
+    public void setThumbnailImages(String thumbnailImages) { this.thumbnailImages = thumbnailImages; }
 
-    public int getStock() { return stock; }
-    public void setStock(int stock) { this.stock = stock; }
+    public List<String> getGalleryImages() { return galleryImages; }
+    public void setGalleryImages(List<String> galleryImages) { this.galleryImages = galleryImages; }
 
-    public boolean isActive() { return isActive; }
-    public void setActive(boolean active) { isActive = active; }
+    public String getSlug() { return slug; }
+    public void setSlug(String slug) { this.slug = slug; }
+
+    public int getStockReserved() { return stockReserved; }
+    public void setStockReserved(int stockReserved) { this.stockReserved = stockReserved; }
 }

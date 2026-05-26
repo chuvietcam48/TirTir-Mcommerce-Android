@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
+
 }
 
 android {
@@ -56,6 +57,9 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-analytics")
+
+    // ksoap2 - SOAP client cho Viettel Post shipping API
+    implementation("com.google.code.ksoap2-android:ksoap2-android:3.6.4@aar")
 
     // Testing
     testImplementation(libs.junit)

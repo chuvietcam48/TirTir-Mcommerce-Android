@@ -18,14 +18,28 @@
         android:usesCleartextTraffic="true">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.activities.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ui.activities.RegisterActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+
+        <!-- ContentProvider: WishlistContentProvider (Android Component - Syllabus) -->
+        <provider
+            android:name=".WishlistContentProvider"
+            android:authorities="com.example.tirtir_mcommerce.provider"
+            android:exported="false" />
+
     </application>
 
 </manifest>

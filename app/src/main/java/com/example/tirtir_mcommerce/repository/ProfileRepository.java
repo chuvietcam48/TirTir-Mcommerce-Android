@@ -1,0 +1,175 @@
+package com.example.tirtir_mcommerce.repository;
+
+import android.content.Context;
+
+import com.example.tirtir_mcommerce.model.Address;
+import com.example.tirtir_mcommerce.model.ApiResponse;
+import com.example.tirtir_mcommerce.model.User;
+import com.example.tirtir_mcommerce.network.ApiService;
+import com.example.tirtir_mcommerce.network.RetrofitClient;
+import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
+
+import java.util.List;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+/**
+ * Repository xử lý toàn bộ logic liên quan đến Profile và Địa chỉ người dùng.
+ * Dùng authenticated Retrofit client (kèm JWT token trong header).
+ */
+public class ProfileRepository {
+
+    private final ApiService authApiService;
+    private final SharedPrefsManager prefsManager;
+
+    public ProfileRepository(Context context) {
+        this.authApiService = RetrofitClient.getAuthClient(context).create(ApiService.class);
+        this.prefsManager = new SharedPrefsManager(context);
+    }
+
+    // ===========================
+    // PROFILE
+    // ===========================
+
+    public void getProfile(OnSuccessListener<User> onSuccess, OnErrorListener onError) {
+        authApiService.getProfile().enqueue(new Callback<ApiResponse<User>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<User>> call, Response<ApiResponse<User>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    User user = response.body().getData();
+                    // Cập nhật cache
+                    if (user != null) prefsManager.saveUser(user);
+                    onSuccess.onSuccess(user);
+                } else {
+                    onError.onError("Không thể tải thông tin tài khoản");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<User>> call, Throwable t) {
+                // Trả về cache nếu không có mạng
+                User cachedUser = prefsManager.getCachedUser();
+                if (cachedUser != null) {
+                    onSuccess.onSuccess(cachedUser);
+                } else {
+                    onError.onError("Lỗi kết nối: " + t.getMessage());
+                }
+            }
+        });
+    }
+
+    public void updateProfile(Map<String, String> body, OnSuccessListener<User> onSuccess, OnErrorListener onError) {
+        authApiService.updateProfile(body).enqueue(new Callback<ApiResponse<User>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<User>> call, Response<ApiResponse<User>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    User updatedUser = response.body().getData();
+                    if (updatedUser != null) prefsManager.saveUser(updatedUser);
+                    onSuccess.onSuccess(updatedUser);
+                } else {
+                    onError.onError("Cập nhật thất bại");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<User>> call, Throwable t) {
+                onError.onError("Lỗi kết nối: " + t.getMessage());
+            }
+        });
+    }
+
+    // ===========================
+    // ADDRESS
+    // ===========================
+
+    public void getAddresses(OnSuccessListener<List<Address>> onSuccess, OnErrorListener onError) {
+        authApiService.getAddresses().enqueue(new Callback<ApiResponse<List<Address>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Address>>> call, Response<ApiResponse<List<Address>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    onSuccess.onSuccess(response.body().getData());
+                } else {
+                    onError.onError("Không thể tải danh sách địa chỉ");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<Address>>> call, Throwable t) {
+                onError.onError("Lỗi kết nối: " + t.getMessage());
+            }
+        });
+    }
+
+    public void addAddress(Address address, OnSuccessListener<User> onSuccess, OnErrorListener onError) {
+        authApiService.addAddress(address).enqueue(new Callback<ApiResponse<User>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<User>> call, Response<ApiResponse<User>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    User updatedUser = response.body().getData();
+                    if (updatedUser != null) prefsManager.saveUser(updatedUser);
+                    onSuccess.onSuccess(updatedUser);
+                } else {
+                    onError.onError("Thêm địa chỉ thất bại");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<User>> call, Throwable t) {
+                onError.onError("Lỗi kết nối: " + t.getMessage());
+            }
+        });
+    }
+
+    public void deleteAddress(String addressId, OnSuccessListener<Void> onSuccess, OnErrorListener onError) {
+        authApiService.deleteAddress(addressId).enqueue(new Callback<ApiResponse<Void>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Void>> call, Response<ApiResponse<Void>> response) {
+                if (response.isSuccessful()) {
+                    onSuccess.onSuccess(null);
+                } else {
+                    onError.onError("Xóa địa chỉ thất bại");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {
+                onError.onError("Lỗi kết nối: " + t.getMessage());
+            }
+        });
+    }
+
+    public void setDefaultAddress(String addressId, OnSuccessListener<User> onSuccess, OnErrorListener onError) {
+        authApiService.setDefaultAddress(addressId).enqueue(new Callback<ApiResponse<User>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<User>> call, Response<ApiResponse<User>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    User updatedUser = response.body().getData();
+                    if (updatedUser != null) prefsManager.saveUser(updatedUser);
+                    onSuccess.onSuccess(updatedUser);
+                } else {
+                    onError.onError("Thao tác thất bại");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<User>> call, Throwable t) {
+                onError.onError("Lỗi kết nối: " + t.getMessage());
+            }
+        });
+    }
+
+    // ===========================
+    // CALLBACK INTERFACES
+    // ===========================
+
+    public interface OnSuccessListener<T> {
+        void onSuccess(T result);
+    }
+
+    public interface OnErrorListener {
+        void onError(String message);
+    }
+}

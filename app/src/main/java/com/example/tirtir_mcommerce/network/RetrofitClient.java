@@ -1,21 +1,67 @@
 package com.example.tirtir_mcommerce.network;
 
+import android.content.Context;
+
+import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
+
+import okhttp3.OkHttpClient;
+import java.util.concurrent.TimeUnit;
+
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+/**
+ * Singleton cung cấp instance Retrofit đã được cấu hình đầy đủ.
+ *
+ * Tính năng:
+ * - AuthInterceptor: Tự động đính kèm JWT token vào mọi request
+ * - Timeout 60s: Xử lý trường hợp Render free-tier ngủ giấc
+ * - Singleton: Chỉ tạo 1 instance duy nhất trong toàn app (tiết kiệm bộ nhớ)
+ */
 public class RetrofitClient {
-    // NẾU CHẠY MÁY ẢO ANDROID STUDIO (Emulator): Dùng 10.0.2.2 thay cho localhost
-    // Chú ý: Đổi số 5001 thành cái cổng mà Web Node.js cũ của bạn đang chạy
-    private static final String BASE_URL = "http://10.0.2.2:5001/";
+
+    private static final String BASE_URL = "https://tirtir-project.onrender.com/";
     private static Retrofit retrofit = null;
 
+    /**
+     * Lấy instance Retrofit không có xác thực (dùng cho Login/Register).
+     */
     public static Retrofit getClient() {
         if (retrofit == null) {
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .connectTimeout(60, TimeUnit.SECONDS)
+                    .readTimeout(60, TimeUnit.SECONDS)
+                    .writeTimeout(60, TimeUnit.SECONDS)
+                    .build();
+
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
+                    .client(okHttpClient)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
         return retrofit;
+    }
+
+    /**
+     * Lấy instance Retrofit có AuthInterceptor (dùng cho mọi API yêu cầu đăng nhập).
+     * Phải truyền Context để SharedPrefsManager đọc được token đã lưu.
+     */
+    public static Retrofit getAuthClient(Context context) {
+        SharedPrefsManager prefsManager = new SharedPrefsManager(context);
+        AuthInterceptor authInterceptor = new AuthInterceptor(prefsManager);
+
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .addInterceptor(authInterceptor)
+                .build();
+
+        return new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
     }
 }

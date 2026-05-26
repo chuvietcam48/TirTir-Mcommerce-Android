@@ -1,3 +1,92 @@
 <resources>
-    <string name="app_name">TirTir-MCommerce</string>
+    <!-- App -->
+    <string name="app_name">TirTir</string>
+    <string name="app_tagline">Mỹ phẩm thông minh</string>
+
+    <!-- ===== AUTH ===== -->
+    <string name="login_title">Đăng nhập</string>
+    <string name="login_subtitle">Chào mừng bạn quay trở lại!</string>
+    <string name="register_title">Đăng ký</string>
+    <string name="register_subtitle">Tạo tài khoản mới</string>
+    <string name="hint_email">Địa chỉ email</string>
+    <string name="hint_password">Mật khẩu</string>
+    <string name="hint_confirm_password">Xác nhận mật khẩu</string>
+    <string name="hint_first_name">Tên</string>
+    <string name="hint_last_name">Họ</string>
+    <string name="hint_phone">Số điện thoại</string>
+    <string name="btn_login">Đăng nhập</string>
+    <string name="btn_register">Đăng ký</string>
+    <string name="btn_logout">Đăng xuất</string>
+    <string name="text_no_account">Chưa có tài khoản? </string>
+    <string name="text_has_account">Đã có tài khoản? </string>
+    <string name="text_sign_up">Đăng ký ngay</string>
+    <string name="text_sign_in">Đăng nhập</string>
+    <string name="text_forgot_password">Quên mật khẩu?</string>
+
+    <!-- ===== VALIDATION ===== -->
+    <string name="error_email_empty">Email không được để trống</string>
+    <string name="error_email_invalid">Email không hợp lệ</string>
+    <string name="error_password_empty">Mật khẩu không được để trống</string>
+    <string name="error_password_short">Mật khẩu phải có ít nhất 8 ký tự</string>
+    <string name="error_password_mismatch">Mật khẩu xác nhận không khớp</string>
+    <string name="error_name_empty">Tên không được để trống</string>
+    <string name="error_field_required">Trường này là bắt buộc</string>
+
+    <!-- ===== PROFILE ===== -->
+    <string name="profile_title">Tài khoản</string>
+    <string name="profile_my_orders">Đơn hàng của tôi</string>
+    <string name="profile_my_addresses">Địa chỉ của tôi</string>
+    <string name="profile_my_wishlist">Danh sách yêu thích</string>
+    <string name="profile_settings">Cài đặt</string>
+    <string name="profile_language">Ngôn ngữ</string>
+    <string name="profile_edit">Chỉnh sửa hồ sơ</string>
+    <string name="profile_change_avatar">Thay ảnh đại diện</string>
+    <string name="profile_update">Cập nhật</string>
+
+    <!-- ===== ADDRESS ===== -->
+    <string name="address_title">Địa chỉ giao hàng</string>
+    <string name="address_add">Thêm địa chỉ mới</string>
+    <string name="address_edit">Chỉnh sửa địa chỉ</string>
+    <string name="address_delete">Xóa địa chỉ</string>
+    <string name="address_set_default">Đặt làm mặc định</string>
+    <string name="address_default_label">Mặc định</string>
+    <string name="address_empty">Bạn chưa có địa chỉ nào</string>
+    <string name="hint_street">Số nhà, tên đường</string>
+    <string name="hint_ward">Phường/Xã</string>
+    <string name="hint_district">Quận/Huyện</string>
+    <string name="hint_city">Tỉnh/Thành phố</string>
+    <string name="hint_full_name">Họ và tên người nhận</string>
+
+    <!-- ===== DIALOG ===== -->
+    <string name="dialog_confirm_title">Xác nhận</string>
+    <string name="dialog_delete_address">Bạn có muốn xóa địa chỉ này không?</string>
+    <string name="dialog_logout_confirm">Bạn có muốn đăng xuất không?</string>
+    <string name="btn_confirm">Xác nhận</string>
+    <string name="btn_cancel">Hủy</string>
+    <string name="btn_delete">Xóa</string>
+    <string name="btn_save">Lưu</string>
+
+    <!-- ===== TOAST ===== -->
+    <string name="toast_login_success">Đăng nhập thành công!</string>
+    <string name="toast_register_success">Đăng ký thành công! Vui lòng kiểm tra email để xác thực.</string>
+    <string name="toast_logout_success">Đã đăng xuất</string>
+    <string name="toast_update_success">Cập nhật thành công!</string>
+    <string name="toast_address_added">Đã thêm địa chỉ mới</string>
+    <string name="toast_address_deleted">Đã xóa địa chỉ</string>
+    <string name="toast_error_network">Lỗi kết nối mạng, vui lòng thử lại</string>
+    <string name="toast_error_server">Lỗi máy chủ, vui lòng thử lại sau</string>
+    <string name="toast_invalid_credentials">Email hoặc mật khẩu không đúng</string>
+    <string name="toast_loading">Đang xử lý...</string>
+
+    <!-- ===== GENERAL ===== -->
+    <string name="loading">Đang tải...</string>
+    <string name="retry">Thử lại</string>
+    <string name="empty_state">Không có dữ liệu</string>
+    <string name="back">Quay lại</string>
+
+    <!-- ===== BOTTOM NAV ===== -->
+    <string name="nav_home">Trang chủ</string>
+    <string name="nav_shop">Cửa hàng</string>
+    <string name="nav_routine">Routine</string>
+    <string name="nav_profile">Tài khoản</string>
 </resources>

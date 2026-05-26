@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_edit_address"
+        android:title="Chỉnh sửa" />
+    <item
+        android:id="@+id/menu_set_default"
+        android:title="Đặt làm mặc định" />
+    <item
+        android:id="@+id/menu_delete_address"
+        android:title="Xóa địa chỉ" />
+</menu>
