@@ -190,41 +190,6 @@ File [`firestore.rules`](firestore.rules) đã được cấu hình với các q
 
 ---
 
-## Đánh giá nền tảng (Foundation Status)
-
-### Đã hoàn thiện (stable)
-
-| Module | Ghi chú |
-|---|---|
-| ✅ Network layer | Retrofit + AuthInterceptor tự động gắn JWT |
-| ✅ Authentication | Login, Register, Logout, auto-redirect |
-| ✅ MVVM pattern | ViewModel → Repository → API đầy đủ |
-| ✅ Bottom Navigation | 4 tabs: Home, Shop, Routine, Profile |
-| ✅ Shop — danh sách sản phẩm | Fetch API + cache SQLite offline (Singleton DB) |
-| ✅ Profile — xem thông tin | Load từ API, hiển thị avatar/initials |
-| ✅ Logout với AlertDialog | Xóa token local + invalidate server |
-| ✅ WishlistContentProvider | SQLite ContentProvider đúng chuẩn Android |
-| ✅ Firebase integration | Firestore, Auth, FCM, Storage, Analytics |
-| ✅ ingredient_conflicts FTS4 | Virtual table full-text search, DB v3 |
-| ✅ Firestore Security Rules | Rules cơ bản cho users/products/orders/wishlists |
-
-### Còn thiếu / chưa implement (TODO)
-
-| Feature | Ưu tiên | Ghi chú |
-|---|---|---|
-| HomeFragment — nội dung | 🔴 Cao | Hiện chỉ inflate layout rỗng |
-| RoutineFragment — nội dung | 🔴 Cao | Hiện chỉ inflate layout rỗng |
-| Product detail screen | 🔴 Cao | Chưa có Activity/Fragment |
-| Cart & Checkout flow | 🔴 Cao | Chưa có |
-| ~~SOAP client Viettel Post~~ | ✅ Done | `ViettelPostSoapClient` + `ShippingOption` model, stub fallback |
-| WishlistFragment (UI) | 🟡 Trung bình | ContentProvider đã có, UI chưa |
-| AddressFragment | 🟡 Trung bình | Toast placeholder |
-| OrderHistoryFragment | 🟡 Trung bình | Toast placeholder |
-| EditProfileActivity | 🟡 Trung bình | Toast placeholder |
-| Language switching thực sự | 🟢 Thấp | UI dialog có rồi nhưng chưa đổi locale |
-| Forgot password | 🟢 Thấp | Toast placeholder |
-
----
 
 ## Biến môi trường / Config
 
