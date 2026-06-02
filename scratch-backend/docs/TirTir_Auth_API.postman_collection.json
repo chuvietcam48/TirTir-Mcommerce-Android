@@ -1,0 +1,136 @@
+{
+  "info": {
+    "_postman_id": "tirtir-auth-v1",
+    "name": "TirTir Auth API — Sprint 1.1",
+    "description": "Endpoints xác thực JWT cho SCR-10 LoginActivity & SCR-11 RegisterActivity.\n\nBase URL: {{baseUrl}}\nCollection variable: baseUrl = http://localhost:5000",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "refreshToken", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/register", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Nguyễn\",\n  \"lastName\": \"Văn An\",\n  \"email\": \"test@tirtir.vn\",\n  \"password\": \"Password123\"\n}"
+            },
+            "description": "SCR-11 RegisterActivity\nRequest: RegisterRequest.java { firstName, lastName, email, password }\n201: { success: true, message }\n409: email đã tồn tại"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('success = true', () => pm.expect(pm.response.json().success).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/login", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@tirtir.vn\",\n  \"password\": \"Password123\"\n}"
+            },
+            "description": "SCR-10 LoginActivity\nRequest: LoginRequest.java { email, password }\nResponse: LoginResponse.java { success, token, refreshToken, user }\n401: sai email/password\n403: tài khoản bị khóa"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const { token, refreshToken } = pm.response.json();",
+                  "  pm.collectionVariables.set('token', token);",
+                  "  pm.collectionVariables.set('refreshToken', refreshToken);",
+                  "  pm.test('Has token', () => pm.expect(token).to.be.a('string'));",
+                  "  pm.test('Has user._id', () => pm.expect(pm.response.json().user._id).to.exist);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Me (Protected)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/me", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","me"] },
+            "description": "Response: ApiResponse<User> { success, data: User }\n401: token hết hạn"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has data._id', () => pm.expect(pm.response.json().data._id).to.exist);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/refresh", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","refresh"] },
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+            "description": "Phase 1: Android chưa dùng. Phase 2: implement trong AuthRepository.java."
+          }
+        },
+        {
+          "name": "Logout (Protected)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/logout", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","logout"] },
+            "description": "Thu hồi refreshToken server-side. Android vẫn xóa SharedPreferences dù server trả gì."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('token', '');",
+                  "pm.collectionVariables.set('refreshToken', '');"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+          }
+        }
+      ]
+    }
+  ]
+}
