@@ -1,0 +1,91 @@
+@import '../../styles/admin-variables.css';
+
+.page {
+    font-family: var(--admin-font);
+}
+
+.page-header h1 {
+    font-size: var(--fs-2xl);
+    font-weight: var(--fw-bold);
+    margin: 0 0 var(--space-lg);
+}
+
+.table-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-base);
+}
+
+.admin-table th {
+    text-align: left;
+    padding: 10px var(--space-md);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--admin-text-secondary);
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--admin-border);
+    white-space: nowrap;
+}
+
+.admin-table td {
+    padding: 10px var(--space-md);
+    border-bottom: 1px solid var(--admin-border-light);
+    vertical-align: middle;
+}
+
+.admin-table tbody tr:hover {
+    background: var(--admin-bg);
+}
+
+.bold {
+    font-weight: var(--fw-medium);
+}
+
+.muted {
+    color: var(--admin-text-muted);
+    font-size: var(--fs-sm);
+}
+
+.empty {
+    text-align: center;
+    color: var(--admin-text-muted);
+    padding: var(--space-xl) !important;
+}
+
+.stars {
+    color: #F57C00;
+    font-size: var(--fs-md);
+}
+
+.comment {
+    max-width: 250px;
+    color: var(--admin-text-secondary);
+    font-size: var(--fs-sm);
+}
+
+.link-btn {
+    background: none;
+    border: none;
+    font-size: var(--fs-sm);
+    cursor: pointer;
+    font-family: var(--admin-font);
+}
+
+.link-btn.danger {
+    color: var(--admin-danger);
+}
+
+.link-btn:hover {
+    text-decoration: underline;
+}

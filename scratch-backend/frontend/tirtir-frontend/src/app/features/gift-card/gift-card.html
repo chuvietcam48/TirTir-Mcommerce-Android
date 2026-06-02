@@ -1,0 +1,44 @@
+<div class="gift-card-container">
+    <div class="gift-card-content" *ngIf="!loading && giftCardProduct">
+        <!-- Left: Image -->
+        <div class="gift-card-image">
+            <img src="/assets/images/additional/giftcard/GifCardMain.jpeg" alt="TIRTIR Gift Card">
+        </div>
+
+        <!-- Right: Details -->
+        <div class="gift-card-details">
+            <h1 class="gift-card-title">{{ giftCardProduct.name }}</h1>
+
+            <div class="gift-card-price">
+                ${{ selectedAmount | number:'1.2-2' }} USD
+            </div>
+
+            <div class="gift-card-description">
+                {{ giftCardProduct.description }}
+            </div>
+
+            <div class="amount-selector">
+                <label>Amount</label>
+                <div class="amount-options">
+                    <button *ngFor="let amount of amounts" [class.active]="selectedAmount === amount"
+                        (click)="selectAmount(amount)">
+                        ${{ amount }}
+                    </button>
+                </div>
+            </div>
+
+            <button class="add-to-cart-btn" (click)="addToCart()">
+                Add to cart
+            </button>
+        </div>
+    </div>
+    <div class="loading-state" *ngIf="loading && !giftCardProduct">
+        <app-loading-spinner></app-loading-spinner>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading && !giftCardProduct" style="text-align: center; padding: 60px 20px;">
+        <h2>🎁 Gift Cards are updating!</h2>
+        <p style="margin-top: 10px; color: #666;">Please check back later for exciting new options.</p>
+    </div>
+</div>

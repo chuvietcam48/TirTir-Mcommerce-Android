@@ -1,0 +1,61 @@
+<div class="review-detail-container">
+  <div class="page-header">
+    <a [routerLink]="['/reviews']" class="back-link">← Back to reviews</a>
+    <h1>Review Detail</h1>
+  </div>
+
+  <div *ngIf="loading" class="state-card">
+    <div class="spinner"></div>
+    <p>Loading review...</p>
+  </div>
+
+  <div *ngIf="error && !loading" class="state-card error">
+    <p>{{ error }}</p>
+    <a [routerLink]="['/reviews']" class="btn-outline">Back to Reviews</a>
+  </div>
+
+  <div *ngIf="review && !loading" class="detail-grid">
+    <section class="detail-card review-card">
+      <p class="section-label">REVIEW CONTENT</p>
+      <div class="rating-row">
+        <span class="stars">{{ getStars(review.rating) }}</span>
+        <span class="rating-num">{{ review.rating }}/5</span>
+      </div>
+      <h2 class="review-title">{{ review.title || 'Customer review' }}</h2>
+      <p class="review-text">{{ review.comment || 'No review text.' }}</p>
+      <div class="meta">
+        <div><strong>Customer:</strong> {{ review.user?.name || 'Anonymous' }}</div>
+        <div><strong>Email:</strong> {{ review.user?.email || 'N/A' }}</div>
+        <div><strong>Date:</strong> {{ formatDate(review.createdAt) }}</div>
+      </div>
+    </section>
+
+    <section class="detail-card product-card">
+      <p class="section-label">REVIEWED PRODUCT</p>
+      <div class="product-row" *ngIf="reviewProduct; else noProduct">
+        <img
+          class="product-thumb"
+          [src]="resolveProductImage(reviewProduct.Thumbnail_Images)"
+          alt="Product thumbnail"
+          onerror="this.style.display='none'"
+        />
+        <div class="product-meta">
+          <h3>{{ reviewProduct.Name || 'Unknown product' }}</h3>
+          <a
+            class="btn-view-product"
+            [href]="getProductUrl()"
+            target="_blank"
+            rel="noopener noreferrer"
+            [class.disabled]="getProductUrl() === '#'"
+            (click)="getProductUrl() === '#' && $event.preventDefault()"
+          >
+            View Product ↗
+          </a>
+        </div>
+      </div>
+      <ng-template #noProduct>
+        <p class="muted">Product information is unavailable.</p>
+      </ng-template>
+    </section>
+  </div>
+</div>

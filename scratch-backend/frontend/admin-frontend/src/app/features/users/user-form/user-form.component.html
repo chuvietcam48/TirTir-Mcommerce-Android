@@ -1,0 +1,46 @@
+<div class="page-header">
+  <h2>Add New Staff Member</h2>
+  <a routerLink="/users" class="btn btn-secondary">Cancel</a>
+</div>
+
+<div class="content-card">
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" formControlName="name" class="form-control" placeholder="Enter full name">
+      <div *ngIf="userForm.get('name')?.touched && userForm.get('name')?.invalid" class="error-text">
+        Name is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" formControlName="email" class="form-control" placeholder="Enter email address">
+      <div *ngIf="userForm.get('email')?.touched && userForm.get('email')?.invalid" class="error-text">
+        Valid email is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" formControlName="password" class="form-control" placeholder="Enter password">
+      <div *ngIf="userForm.get('password')?.touched && userForm.get('password')?.invalid" class="error-text">
+        Password must be at least 6 characters
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Role</label>
+      <select formControlName="role" class="form-control">
+        <option *ngFor="let role of roles" [value]="role.value">{{ role.label }}</option>
+      </select>
+    </div>
+
+    <div class="form-actions">
+      <div *ngIf="error" class="error-message">{{ error }}</div>
+      <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid || loading">
+        {{ loading ? 'Creating...' : 'Create User' }}
+      </button>
+    </div>
+  </form>
+</div>

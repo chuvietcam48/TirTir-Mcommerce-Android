@@ -1,0 +1,306 @@
+.deals-page {
+    padding: 80px 0 120px;
+    background: #fff;
+    min-height: 80vh;
+}
+
+.deals-header {
+    text-align: center;
+    margin-bottom: 80px;
+}
+
+.premium-title {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    margin-bottom: 12px;
+    color: #111;
+}
+
+.subtitle {
+    color: #888;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.deals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* Deal Card Vibe */
+.deal-card {
+    background: #fff;
+    border: 1px solid #efefef;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    border-radius: 4px;
+}
+
+.deal-card:hover {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06);
+}
+
+.deal-badge-row {
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.category-tag {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: #111;
+    background: #f5f5f5;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.discount-pill {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    background: #111;
+    padding: 4px 12px;
+}
+
+.deal-card-body {
+    padding: 0 40px 40px;
+    flex: 1;
+}
+
+.deal-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    letter-spacing: 1px;
+}
+
+.deal-desc {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+/* Products in Deal */
+.deal-products {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.deal-product {
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+}
+
+.product-img-box {
+    position: relative;
+    background: #fafafa;
+    padding: 15px;
+    margin-bottom: 12px;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.product-img-box img {
+    width: 100%;
+    height: 130px;
+    object-fit: contain;
+    transition: transform 0.3s;
+}
+
+.deal-product:hover .product-img-box img {
+    transform: scale(1.05);
+}
+
+.click-hint {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 6px;
+    opacity: 0;
+    transform: translateY(100%);
+    transition: all 0.2s;
+}
+
+.deal-product:hover .click-hint {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.product-name-short {
+    font-size: 11px;
+    font-weight: 600;
+    color: #555;
+    line-height: 1.4;
+    display: block;
+    height: 32px;
+    overflow: hidden;
+}
+
+/* Deal Footer */
+.deal-footer {
+    padding: 32px 40px;
+    background: #fafafa;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #efefef;
+}
+
+.price-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.old-price {
+    text-decoration: line-through;
+    color: #aaa;
+    font-size: 16px;
+}
+
+.new-price {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111;
+}
+
+.buy-combo-btn {
+    background: #111;
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.buy-combo-btn:hover {
+    background: #333;
+}
+
+/* Price Modal Overlay */
+.price-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.price-modal-card {
+    background: #fff;
+    width: 100%;
+    max-width: 650px;
+    position: relative;
+    padding: 40px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #aaa;
+}
+
+.modal-content {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 40px;
+    align-items: center;
+}
+
+.modal-img img {
+    width: 100%;
+    border-radius: 4px;
+}
+
+.modal-info h3 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.individual-price {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 12px;
+}
+
+.individual-price span {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111;
+}
+
+.modal-desc {
+    font-size: 14px;
+    color: #888;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
+.view-detail-link {
+    display: inline-block;
+    color: #111;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .deals-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .modal-img {
+        text-align: center;
+    }
+
+    .modal-img img {
+        width: 150px;
+    }
+
+    .premium-title {
+        font-size: 32px;
+    }
+}

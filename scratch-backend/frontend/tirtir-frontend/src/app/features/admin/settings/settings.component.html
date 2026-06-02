@@ -1,0 +1,26 @@
+<div class="admin-settings-container">
+    <h1>Store Settings</h1>
+
+    <div *ngIf="isLoading" class="loading">Loading settings...</div>
+
+    <div *ngIf="!isLoading" class="settings-card">
+        <div class="alert success" *ngIf="successMessage">{{ successMessage }}</div>
+        <div class="alert error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+        <div class="form-group">
+            <label for="threshold">Free Shipping Threshold (VND)</label>
+            <div class="input-wrapper">
+                <span class="currency-symbol">₫</span>
+                <input type="number" id="threshold" [(ngModel)]="freeShippingThreshold" name="threshold"
+                    class="form-control" min="0" />
+            </div>
+            <small class="help-text">Set the cart total required to unlock free shipping for customers.</small>
+        </div>
+
+        <div class="actions">
+            <button class="save-btn" (click)="saveSettings()" [disabled]="isSaving">
+                {{ isSaving ? 'Saving...' : 'Save Settings' }}
+            </button>
+        </div>
+    </div>
+</div>

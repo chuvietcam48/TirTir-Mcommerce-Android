@@ -1,0 +1,40 @@
+{
+  "study_date": "2026-03-22T10:48:22.134645Z",
+  "total_scans": 40,
+  "scan_period_days": 30,
+  "skin_tone_distribution": {
+    "Fair": 5,
+    "Light": 8,
+    "Medium": 12,
+    "Tan": 10,
+    "Deep": 5
+  },
+  "skin_tone_distribution_pct": {
+    "Fair": 12.5,
+    "Light": 20.0,
+    "Medium": 30.0,
+    "Tan": 25.0,
+    "Deep": 12.5
+  },
+  "concern_distribution": {
+    "Dark Circles": 6,
+    "Sensitive/Redness": 7,
+    "Oily Skin": 13,
+    "Acne/Blemishes": 3,
+    "Visible Pores": 4
+  },
+  "pct_with_concerns": 60.0,
+  "confidence_stats": {
+    "mean": 0.863,
+    "min": 0.72,
+    "max": 0.92
+  },
+  "processing_time_ms": {
+    "mean": 150.0,
+    "min": 128,
+    "max": 195,
+    "p50": 149,
+    "p95": 181
+  },
+  "methodology": "40 synthetic scan records generated to represent a realistic pilot study population (Vietnamese demographic focus for skin tone distribution). Processing times sampled from real AI service measurements during perf testing. All records flagged with source='pilot_study_synthetic' in database."
+}

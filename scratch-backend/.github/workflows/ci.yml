@@ -1,0 +1,104 @@
+name: TirTir CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ─── Backend: Lint + Test ─────────────────────────────────────
+  backend-test:
+    name: 🟢 Backend Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test --if-present
+        env:
+          NODE_ENV: test
+          JWT_SECRET: ci-test-secret
+          MONGO_URI: mongodb://localhost:27017/tirtir-test
+
+  # ─── AI Service: Pytest ───────────────────────────────────────
+  ai-test:
+    name: 🐍 AI Service Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./ai-service
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: ai-service/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: python -m pytest test_chatbot.py test_skin_analyzer.py -v --tb=short
+
+  # ─── Frontend: Build Check ───────────────────────────────────
+  frontend-build:
+    name: 🅰️ Frontend Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend/tirtir-frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: frontend/tirtir-frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Angular app
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+  # ─── Docker: Build Images ────────────────────────────────────
+  docker-build:
+    name: 🐳 Docker Build
+    runs-on: ubuntu-latest
+    needs: [backend-test, ai-test, frontend-build]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Backend image
+        run: docker build -t tirtir-backend ./backend
+
+      - name: Build AI Service image
+        run: docker build -t tirtir-ai ./ai-service
+
+      - name: Verify Docker Compose config
+        run: docker compose -f docker-compose.prod.yml config

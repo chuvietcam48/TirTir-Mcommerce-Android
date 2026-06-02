@@ -1,0 +1,203 @@
+@import '../../styles/admin-variables.css';
+
+/* ── Sidebar Container ──────────────────────────────────────── */
+.admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    background: var(--admin-sidebar-bg);
+    color: var(--admin-sidebar-text);
+    font-family: var(--admin-font);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    transition: width var(--transition-base);
+    overflow: hidden;
+}
+
+.admin-sidebar.collapsed {
+    width: var(--sidebar-collapsed-width);
+}
+
+/* ── Brand ───────────────────────────────────────────────────── */
+.sidebar-brand {
+    height: var(--topbar-height);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-lg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    flex-shrink: 0;
+}
+
+.brand-text {
+    font-size: var(--fs-md);
+    font-weight: var(--fw-bold);
+    color: #fff;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.brand-icon {
+    font-size: var(--fs-xl);
+    font-weight: var(--fw-bold);
+    color: var(--admin-primary);
+    margin: 0 auto;
+}
+
+/* ── Navigation List ─────────────────────────────────────────── */
+.sidebar-nav {
+    list-style: none;
+    margin: 0;
+    padding: var(--space-sm) 0;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+}
+
+/* ── Nav Link (both <a> and <button>) ────────────────────────── */
+.nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px var(--space-lg);
+    color: var(--admin-sidebar-text);
+    text-decoration: none;
+    font-size: var(--fs-base);
+    font-weight: var(--fw-medium);
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+    white-space: nowrap;
+    font-family: var(--admin-font);
+}
+
+.nav-link:hover {
+    background: var(--admin-sidebar-hover);
+    color: #fff;
+}
+
+.nav-link.active {
+    background: var(--admin-sidebar-active-bg);
+    color: #fff;
+    border-left: 3px solid var(--admin-primary);
+    padding-left: calc(var(--space-lg) - 3px);
+}
+
+.nav-arrow {
+    font-size: var(--fs-sm);
+    opacity: 0.6;
+    transition: opacity var(--transition-fast);
+}
+
+.nav-toggle.expanded {
+    color: #fff;
+}
+
+/* ── Submenu ─────────────────────────────────────────────────── */
+.nav-submenu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height var(--transition-base);
+}
+
+.nav-submenu.open {
+    max-height: 200px;
+}
+
+.nav-sublink {
+    display: block;
+    padding: 8px var(--space-lg) 8px 40px;
+    color: var(--admin-sidebar-text);
+    text-decoration: none;
+    font-size: var(--fs-sm);
+    transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.nav-sublink:hover {
+    color: #fff;
+    background: var(--admin-sidebar-hover);
+}
+
+.nav-sublink.active {
+    color: var(--admin-primary);
+    font-weight: var(--fw-semibold);
+}
+
+/* ── Collapse Toggle Button ──────────────────────────────────── */
+.sidebar-collapse-btn {
+    padding: var(--space-md) var(--space-lg);
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: none;
+    color: var(--admin-sidebar-text);
+    font-size: var(--fs-sm);
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--admin-font);
+    transition: color var(--transition-fast);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.sidebar-collapse-btn:hover {
+    color: #fff;
+}
+
+/* ── Collapsed State ─────────────────────────────────────────── */
+.collapsed .nav-label,
+.collapsed .nav-arrow,
+.collapsed .nav-submenu,
+.collapsed .sidebar-collapse-btn {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.collapsed .nav-link {
+    justify-content: center;
+    padding: 12px 0;
+}
+
+.collapsed .sidebar-brand {
+    justify-content: center;
+    padding: 0;
+}
+
+/* ── Tablet/Mobile ───────────────────────────────────────────── */
+@media (max-width: 1023px) {
+    .admin-sidebar {
+        width: var(--sidebar-collapsed-width);
+    }
+
+    .admin-sidebar:not(.collapsed) {
+        width: var(--sidebar-width);
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+    }
+}
+
+@media (max-width: 767px) {
+    .admin-sidebar {
+        transform: translateX(-100%);
+        width: var(--sidebar-width);
+    }
+
+    .admin-sidebar:not(.collapsed) {
+        transform: translateX(0);
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+    }
+}

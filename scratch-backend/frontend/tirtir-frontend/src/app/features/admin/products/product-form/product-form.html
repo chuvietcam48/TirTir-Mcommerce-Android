@@ -1,0 +1,127 @@
+<div class="form-page">
+    <div class="page-header">
+        <h1 class="page-title">{{ isEditMode ? 'Edit Product' : 'Add Product' }}</h1>
+        <a class="btn-text" routerLink="/admin/products">← Back to Products</a>
+    </div>
+
+    @if (loading) {
+    <div class="loading-state">Loading product data...</div>
+    }
+
+    @if (!loading) {
+    <form class="product-form" (ngSubmit)="onSubmit()">
+        <div class="form-grid">
+            <!-- Left Column: Basic Info -->
+            <div class="form-section">
+                <h2 class="section-title">Basic Information</h2>
+
+                <div class="form-group">
+                    <label class="form-label">Product Name *</label>
+                    <input class="form-input" type="text" [(ngModel)]="form.Name" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Product ID / SKU *</label>
+                    <input class="form-input" type="text" [(ngModel)]="form.Product_ID" name="productId" required
+                        [readonly]="isEditMode" [class.readonly]="isEditMode">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Category *</label>
+                        <select class="form-input" [(ngModel)]="form.Category" name="category"
+                            (change)="onCategoryChange()" required>
+                            <option value="">Select category</option>
+                            @for (cat of categoryOptions; track cat) {
+                            <option [value]="cat">{{ cat }}</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Volume / Size</label>
+                        <input class="form-input" type="text" [(ngModel)]="form.Volume_Size" name="volumeSize"
+                            placeholder="e.g. 30ml">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Short Description</label>
+                    <textarea class="form-input form-textarea" [(ngModel)]="form.Description_Short" name="descShort"
+                        rows="2"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Full Description</label>
+                    <textarea class="form-input form-textarea" [(ngModel)]="form.Full_Description" name="fullDesc"
+                        rows="5"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">How To Use</label>
+                    <textarea class="form-input form-textarea" [(ngModel)]="form.How_To_Use" name="howToUse"
+                        rows="3"></textarea>
+                </div>
+            </div>
+
+            <!-- Right Column: Pricing, Inventory, Status -->
+            <div class="form-section">
+                <h2 class="section-title">Pricing & Inventory</h2>
+
+                <div class="form-group">
+                    <label class="form-label">Price (₫) *</label>
+                    <input class="form-input" type="number" [(ngModel)]="form.Price" name="price" required min="0">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Stock Quantity</label>
+                    <input class="form-input" type="number" [(ngModel)]="form.Stock_Quantity" name="stock" min="0">
+                </div>
+
+                <h2 class="section-title">Status & Flags</h2>
+
+                <div class="form-group">
+                    <label class="form-label">Product Status</label>
+                    <select class="form-input" [(ngModel)]="form.Status" name="status">
+                        <option value="Active">Active</option>
+                        <option value="Draft">Draft</option>
+                        <option value="Hidden">Hidden</option>
+                    </select>
+                </div>
+
+                <div class="form-check-row">
+                    <label class="form-check">
+                        <input type="checkbox" [(ngModel)]="form.Is_Best_Seller" name="isBestSeller">
+                        <span>Best Seller</span>
+                    </label>
+                    <label class="form-check">
+                        <input type="checkbox" [(ngModel)]="form.Is_Skincare" name="isSkincare">
+                        <span>Skincare Product</span>
+                    </label>
+                </div>
+
+                <h2 class="section-title">Attributes</h2>
+
+                <div class="form-group">
+                    <label class="form-label">Skin Type Target</label>
+                    <input class="form-input" type="text" [(ngModel)]="form.Skin_Type_Target" name="skinType"
+                        placeholder="e.g. Oily, Dry, Combination">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Main Concern</label>
+                    <input class="form-input" type="text" [(ngModel)]="form.Main_Concern" name="concern"
+                        placeholder="e.g. Acne, Wrinkles, Hydration">
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="form-footer">
+            <a class="btn-secondary" routerLink="/admin/products">Cancel</a>
+            <button type="submit" class="btn-primary" [disabled]="saving">
+                {{ saving ? 'Saving...' : (isEditMode ? 'Update Product' : 'Create Product') }}
+            </button>
+        </div>
+    </form>
+    }
+</div>

@@ -1,0 +1,101 @@
+.gift-card-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 20px;
+}
+
+.gift-card-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+}
+
+.gift-card-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+}
+
+.gift-card-details {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.gift-card-title {
+    font-size: 32px;
+    font-weight: 500;
+    margin: 0;
+    font-family: 'Playfair Display', serif;
+}
+
+.gift-card-price {
+    font-size: 24px;
+    color: #333;
+}
+
+.gift-card-description {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #666;
+}
+
+.amount-selector label {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.amount-options {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.amount-options button {
+    padding: 12px 24px;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.amount-options button:hover {
+    border-color: #000;
+}
+
+.amount-options button.active {
+    border-color: #000;
+    background: #000;
+    color: white;
+}
+
+.add-to-cart-btn {
+    width: 100%;
+    padding: 16px;
+    background: #000;
+    color: white;
+    border: none;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    margin-top: 24px;
+    transition: background 0.2s;
+}
+
+.add-to-cart-btn:hover {
+    background: #333;
+}
+
+@media (max-width: 768px) {
+    .gift-card-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+}

@@ -1,0 +1,97 @@
+id,case_type,L,a,b,expected_tone,predicted_tone,tone_correct,expected_undertone,predicted_undertone,undertone_correct,both_correct,notes
+1,core,210,128,128,Fair,Fair,True,Neutral,Neutral,True,True,Fair neutral — no deviation
+2,core,200,135,128,Fair,Fair,True,Cool,Cool,True,True,Fair cool — a+ dominates
+3,core,195,128,136,Fair,Fair,True,Warm,Warm,True,True,Fair warm — b+ dominates
+4,core,215,132,125,Fair,Fair,True,Cool,Cool,True,True,"Fair cool — a slightly above, b below"
+5,core,205,126,135,Fair,Fair,True,Warm,Warm,True,True,"Fair warm — b above, a slightly below"
+6,core,220,129,129,Fair,Fair,True,Neutral,Neutral,True,True,Fair neutral — tiny equal deviation
+7,core,192,138,128,Fair,Fair,True,Cool,Cool,True,True,Fair borderline — a+ dominates
+8,core,198,128,140,Fair,Fair,True,Warm,Warm,True,True,Fair warm — b well above threshold
+9,core,212,133,134,Fair,Fair,True,Neutral,Warm,False,False,Fair neutral — both near equal
+10,core,225,128,128,Fair,Fair,True,Neutral,Neutral,True,True,"Fair very light, perfect neutral"
+11,core,203,140,130,Fair,Fair,True,Cool,Cool,True,True,Fair cool — a >> b
+12,core,208,127,142,Fair,Fair,True,Warm,Warm,True,True,Fair warm — b >> a
+13,core,196,131,131,Fair,Fair,True,Neutral,Neutral,True,True,Fair — symmetric small deviation
+14,core,218,136,128,Fair,Fair,True,Cool,Cool,True,True,Fair cool — a only
+15,core,191,128,135,Fair,Fair,True,Warm,Warm,True,True,"Fair just above boundary, warm"
+16,core,185,128,128,Light,Light,True,Neutral,Neutral,True,True,Light neutral
+17,core,170,135,126,Light,Light,True,Cool,Cool,True,True,Light cool — a positive
+18,core,175,127,137,Light,Light,True,Warm,Warm,True,True,Light warm — b positive
+19,core,180,132,128,Light,Light,True,Cool,Cool,True,True,Light cool — minor a deviation
+20,core,165,128,134,Light,Light,True,Warm,Warm,True,True,Light warm — minor b deviation
+21,core,188,128,128,Light,Light,True,Neutral,Neutral,True,True,Light upper boundary
+22,core,162,139,125,Light,Light,True,Cool,Cool,True,True,Light lower boundary cool
+23,core,177,126,141,Light,Light,True,Warm,Warm,True,True,Light warm strong
+24,core,183,133,133,Light,Light,True,Neutral,Neutral,True,True,Light — symmetric deviation
+25,core,168,137,130,Light,Light,True,Cool,Cool,True,True,Light cool — a > b
+26,core,172,128,136,Light,Light,True,Warm,Warm,True,True,Light warm — b only
+27,core,186,130,133,Light,Light,True,Neutral,Warm,False,False,Light — both within threshold from each other
+28,core,161,128,128,Light,Light,True,Neutral,Neutral,True,True,Light just above lower bound
+29,core,189,140,128,Light,Light,True,Cool,Cool,True,True,"Light upper boundary, cool"
+30,core,174,125,138,Light,Light,True,Warm,Warm,True,True,Light warm — b significantly above
+31,core,155,128,128,Medium,Medium,True,Neutral,Neutral,True,True,Medium neutral
+32,core,140,136,125,Medium,Medium,True,Cool,Cool,True,True,Medium cool
+33,core,145,126,140,Medium,Medium,True,Warm,Warm,True,True,Medium warm
+34,core,150,131,128,Medium,Medium,True,Cool,Neutral,False,False,Medium cool small deviation
+35,core,135,128,135,Medium,Medium,True,Warm,Warm,True,True,Medium warm small deviation
+36,core,158,128,128,Medium,Medium,True,Neutral,Neutral,True,True,Medium upper boundary
+37,core,132,140,124,Medium,Medium,True,Cool,Cool,True,True,Medium lower boundary cool
+38,core,148,124,142,Medium,Medium,True,Warm,Warm,True,True,Medium warm strong
+39,core,153,134,134,Medium,Medium,True,Neutral,Neutral,True,True,Medium symmetric
+40,core,143,138,129,Medium,Medium,True,Cool,Cool,True,True,Medium cool — a > b
+41,core,137,128,138,Medium,Medium,True,Warm,Warm,True,True,Medium warm — b only
+42,core,156,129,131,Medium,Medium,True,Neutral,Neutral,True,True,Medium near neutral
+43,core,131,128,128,Medium,Medium,True,Neutral,Neutral,True,True,Medium just above lower bound
+44,core,159,141,128,Medium,Medium,True,Cool,Cool,True,True,"Medium upper bound, cool"
+45,core,142,126,139,Medium,Medium,True,Warm,Warm,True,True,Medium warm predominant
+46,core,125,128,128,Tan,Tan,True,Neutral,Neutral,True,True,Tan neutral
+47,core,110,136,124,Tan,Tan,True,Cool,Cool,True,True,Tan cool
+48,core,115,124,140,Tan,Tan,True,Warm,Warm,True,True,Tan warm
+49,core,120,130,128,Tan,Tan,True,Cool,Neutral,False,False,Tan cool small deviation
+50,core,100,128,134,Tan,Tan,True,Warm,Warm,True,True,Tan warm small deviation
+51,core,128,128,128,Tan,Tan,True,Neutral,Neutral,True,True,Tan upper boundary
+52,core,92,140,122,Tan,Tan,True,Cool,Cool,True,True,Tan lower boundary cool
+53,core,112,122,143,Tan,Tan,True,Warm,Warm,True,True,Tan warm strong
+54,core,118,134,134,Tan,Tan,True,Neutral,Neutral,True,True,Tan symmetric
+55,core,105,138,128,Tan,Tan,True,Cool,Cool,True,True,Tan cool — a only
+56,core,108,127,139,Tan,Tan,True,Warm,Warm,True,True,Tan warm — b only
+57,core,122,128,128,Tan,Tan,True,Neutral,Neutral,True,True,Tan mid range neutral
+58,core,91,128,128,Tan,Tan,True,Neutral,Neutral,True,True,Tan just above lower bound
+59,core,129,142,127,Tan,Tan,True,Cool,Cool,True,True,Tan upper bound cool
+60,core,103,124,142,Tan,Tan,True,Warm,Warm,True,True,Tan warm predominant
+61,core,80,128,128,Deep,Deep,True,Neutral,Neutral,True,True,Deep neutral
+62,core,65,136,124,Deep,Deep,True,Cool,Cool,True,True,Deep cool
+63,core,70,124,140,Deep,Deep,True,Warm,Warm,True,True,Deep warm
+64,core,75,130,128,Deep,Deep,True,Cool,Neutral,False,False,Deep cool small deviation
+65,core,55,128,134,Deep,Deep,True,Warm,Warm,True,True,Deep warm small deviation
+66,core,88,128,128,Deep,Deep,True,Neutral,Neutral,True,True,Deep upper boundary
+67,core,30,138,120,Deep,Deep,True,Cool,Cool,True,True,Deep lower extreme cool
+68,core,60,120,145,Deep,Deep,True,Warm,Warm,True,True,Deep warm strong
+69,core,78,133,133,Deep,Deep,True,Neutral,Neutral,True,True,Deep symmetric
+70,core,50,140,126,Deep,Deep,True,Cool,Cool,True,True,Deep cool — a only
+71,core,68,126,140,Deep,Deep,True,Warm,Warm,True,True,Deep warm — b only
+72,core,82,128,128,Deep,Deep,True,Neutral,Neutral,True,True,Deep mid range neutral
+73,core,20,128,128,Deep,Deep,True,Neutral,Neutral,True,True,Deep very dark neutral
+74,core,89,144,127,Deep,Deep,True,Cool,Cool,True,True,Deep upper bound cool
+75,core,45,122,144,Deep,Deep,True,Warm,Warm,True,True,Deep warm predominant
+76,boundary,190,128,128,Light,Light,True,Neutral,Neutral,True,True,Boundary Fair/Light — L=190 → Light
+77,boundary,160,128,128,Medium,Medium,True,Neutral,Neutral,True,True,Boundary Light/Medium — L=160 → Medium
+78,boundary,130,128,128,Tan,Tan,True,Neutral,Neutral,True,True,Boundary Medium/Tan — L=130 → Tan
+79,boundary,90,128,128,Deep,Deep,True,Neutral,Neutral,True,True,Boundary Tan/Deep — L=90 → Deep
+80,boundary,165,130,128,Light,Light,True,Cool,Neutral,False,False,Undertone: a_norm=2 (just under threshold) — barely Cool
+81,boundary,165,131,128,Light,Light,True,Cool,Neutral,False,False,Undertone: a_norm=3 (exactly at threshold) — Cool
+82,boundary,165,128,131,Light,Light,True,Warm,Neutral,False,False,Undertone: b_norm=3 (exactly at threshold) — Warm
+83,boundary,165,130,130,Light,Light,True,Neutral,Neutral,True,True,Undertone: equal a/b below threshold — Neutral
+84,boundary,155,134,134,Medium,Medium,True,Neutral,Neutral,True,True,Tiebreaker: a_norm==b_norm → neither dominates → Neutral
+85,boundary,5,128,128,Deep,Deep,True,Neutral,Neutral,True,True,Extreme dark neutral
+86,boundary,252,128,128,Fair,Fair,True,Neutral,Neutral,True,True,Extreme light neutral
+87,boundary,175,131,132,Light,Light,True,Warm,Warm,True,True,Both near boundary — b_norm=4>a_norm=3 → Warm
+88,boundary,175,132,131,Light,Light,True,Cool,Cool,True,True,Both near boundary — a_norm=4>b_norm=3 → Cool
+89,boundary,175,123,128,Light,Light,True,Neutral,Neutral,True,True,a_norm=-5 — negative deviation not caught by Cool branch
+90,boundary,175,128,123,Light,Light,True,Neutral,Neutral,True,True,b_norm=-5 — negative deviation not caught by Warm branch
+91,boundary,175,120,120,Light,Light,True,Neutral,Neutral,True,True,"Both a_norm=-8,b_norm=-8 — equal negative → Neutral"
+92,boundary,140,145,145,Medium,Medium,True,Neutral,Neutral,True,True,Both very high but equal → Neutral
+93,boundary,140,150,135,Medium,Medium,True,Cool,Cool,True,True,"a_norm=22 > b_norm=7, both positive → Cool"
+94,boundary,140,135,150,Medium,Medium,True,Warm,Warm,True,True,"b_norm=22 > a_norm=7, both positive → Warm"
+95,boundary,100,155,128,Tan,Tan,True,Cool,Cool,True,True,a_norm=27 very strong cool
+96,boundary,100,128,155,Tan,Tan,True,Warm,Warm,True,True,b_norm=27 very strong warm

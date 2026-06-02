@@ -1,0 +1,241 @@
+<div class="inventory-dashboard-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Inventory Management</h1>
+            <p class="subtitle">Monitor stock levels and manage adjustments</p>
+        </div>
+        <div class="actions">
+            <a [routerLink]="['/inventory/logs']" class="btn btn-outline">View Full Logs</a>
+        </div>
+    </div>
+
+    <!-- Filter Banner: shown when navigated from General → Low Stock Alerts -->
+    <div class="filter-banner" *ngIf="activeFilter">
+        <span>🔍 Filtered: Showing <strong>{{ activeFilter }}</strong> items (from General dashboard)</span>
+        <button class="btn-clear" (click)="clearFilter()">Clear filter</button>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-state" *ngIf="error">
+        <p>{{ error }}</p>
+        <button class="btn btn-primary" (click)="loadAll()">Retry</button>
+    </div>
+
+    <!-- ── KPI Cards ───────────────────────────────────────────── -->
+    <div class="stats-grid" *ngIf="!statsLoading && stats">
+        <div class="stat-card">
+            <div class="stat-label">Total Products</div>
+            <div class="stat-value">{{ stats.totalProducts }}</div>
+        </div>
+
+        <div class="stat-card warning">
+            <div class="stat-label">Low Stock Items</div>
+            <div class="stat-value">{{ stats.lowStockItems }}</div>
+            <div class="stat-sub">Stock &lt; 10 units</div>
+        </div>
+
+        <div class="stat-card danger">
+            <div class="stat-label">Out of Stock</div>
+            <div class="stat-value">{{ stats.outOfStockItems }}</div>
+            <div class="stat-sub">Needs restock</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Total Inventory Value</div>
+            <div class="stat-value stat-value-md">{{ stats.totalValue | currency:'USD' }}</div>
+            <div class="stat-sub">Price × Stock Qty</div>
+        </div>
+    </div>
+    <div class="stats-loading-state" *ngIf="statsLoading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- ── Critical Stock Alerts ──────────────────────────────── -->
+    <div class="section-card alerts-section">
+        <div class="section-header">
+            <h2>Critical Stock Alerts</h2>
+            <span class="badge badge-danger" *ngIf="!alertsLoading && criticalAlerts.length > 0">
+                {{ criticalAlerts.length }} Need Attention
+            </span>
+            <span class="badge badge-success" *ngIf="!alertsLoading && criticalAlerts.length === 0">
+                All Clear
+            </span>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading-row" *ngIf="alertsLoading">
+            <div class="spinner"></div>
+            <span>Loading alerts...</span>
+        </div>
+
+        <!-- Critical Items Table -->
+        <div class="table-container" *ngIf="!alertsLoading && criticalAlerts.length > 0">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th>Category</th>
+                        <th class="text-center">Stock Qty</th>
+                        <th>Status</th>
+                        <th class="text-right">Quick Restock</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of criticalAlerts" [class.row-danger]="item.Stock_Quantity === 0"
+                        [class.row-warning]="item.Stock_Quantity > 0">
+                        <td class="product-cell">
+                            <img [src]="resolveImage(item.Thumbnail_Images || '')" [alt]="item.Name"
+                                class="product-thumb" onerror="this.src='/assets/placeholder-product.svg'" />
+                            <span class="product-name">{{ item.Name }}</span>
+                        </td>
+                        <td class="mono">{{ item.Product_ID || '—' }}</td>
+                        <td>{{ item.Category || '—' }}</td>
+                        <td class="text-center">
+                            <span class="stock-chip" [class.stock-zero]="item.Stock_Quantity === 0"
+                                [class.stock-low]="item.Stock_Quantity > 0">
+                                {{ item.Stock_Quantity }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge"
+                                [class.badge-danger]="item.Stock_Quantity === 0"
+                                [class.badge-warning]="item.Stock_Quantity > 0">
+                                {{ item.Stock_Quantity === 0 ? 'Out of Stock' : 'Low Stock' }}
+                            </span>
+                        </td>
+                        <td class="text-right restock-cell">
+                            <!-- Idle: show restock button -->
+                            <ng-container *ngIf="restockingId !== item._id">
+                                <button class="btn btn-sm btn-primary" (click)="openRestock(item)">
+                                    + Restock
+                                </button>
+                            </ng-container>
+                            <!-- Expanded: inline restock form -->
+                            <ng-container *ngIf="restockingId === item._id">
+                                <div class="restock-form">
+                                    <input type="number" [(ngModel)]="restockQty" min="1" placeholder="Add Qty"
+                                        class="restock-input" [disabled]="restocking" />
+                                    <input type="text" [(ngModel)]="restockReason" placeholder="Reason"
+                                        class="restock-reason" [disabled]="restocking" />
+                                    <button class="btn btn-sm btn-success" (click)="confirmRestock(item)"
+                                        [disabled]="restocking || !restockQty || restockQty < 1">
+                                        {{ restocking ? '...' : '✓' }}
+                                    </button>
+                                    <button class="btn btn-sm btn-ghost" (click)="cancelRestock()"
+                                        [disabled]="restocking">✕</button>
+                                </div>
+                            </ng-container>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- True empty state: only shown when there really are 0 critical items -->
+        <div class="empty-state" *ngIf="!alertsLoading && criticalAlerts.length === 0 && !error">
+            <p class="empty-icon">✅</p>
+            <p>All products are well-stocked. No critical items.</p>
+        </div>
+    </div>
+
+    <!-- ── Full Inventory List ───────────────────────────────── -->
+    <div class="section-card inventory-list-section">
+        <div class="section-header">
+            <h2>All Products</h2>
+            <span class="count-badge" *ngIf="!productsLoading">
+                {{ filteredProducts.length }} of {{ allProducts.length }} products
+            </span>
+        </div>
+
+        <!-- Filters Bar -->
+        <div class="filters-bar">
+            <div class="search-box">
+                <input type="text" placeholder="Search by name or SKU…" [(ngModel)]="searchQuery"
+                    (ngModelChange)="onSearchChange()" class="search-input" />
+            </div>
+
+            <select [(ngModel)]="selectedStatus" (ngModelChange)="onStatusChange()" class="filter-select">
+                <option value="all">All Stock Levels ({{ allProducts.length }})</option>
+                <option value="in-stock">In Stock ({{ countInStock }})</option>
+                <option value="low-stock">Low Stock ({{ countLowStock }})</option>
+                <option value="out-of-stock">Out of Stock ({{ countOutOfStock }})</option>
+            </select>
+
+            <select [(ngModel)]="selectedCategory" (ngModelChange)="onCategoryChange()" class="filter-select">
+                <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+            </select>
+        </div>
+
+        <!-- Products Loading -->
+        <div class="loading-row" *ngIf="productsLoading">
+            <div class="spinner"></div>
+            <span>Loading product inventory…</span>
+        </div>
+
+        <!-- Products Table -->
+        <div class="table-container" *ngIf="!productsLoading && filteredProducts.length > 0">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th>Category</th>
+                        <th class="text-right">Price</th>
+                        <th class="text-center">Stock Qty</th>
+                        <th>Status</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let p of paginatedProducts">
+                        <td class="product-cell">
+                            <img [src]="resolveImage(p.Thumbnail_Images || '')" [alt]="p.Name"
+                                class="product-thumb" onerror="this.src='/assets/placeholder-product.svg'" />
+                            <span class="product-name">{{ p.Name }}</span>
+                        </td>
+                        <td class="mono">{{ p.Product_ID || '—' }}</td>
+                        <td>{{ p.Category || '—' }}</td>
+                        <td class="text-right">{{ p.Price | currency:'USD' }}</td>
+                        <td class="text-center">
+                            <span class="stock-chip"
+                                [class.stock-zero]="(p.Stock_Quantity ?? 0) === 0"
+                                [class.stock-low]="(p.Stock_Quantity ?? 0) > 0 && (p.Stock_Quantity ?? 0) < 10"
+                                [class.stock-ok]="(p.Stock_Quantity ?? 0) >= 10">
+                                {{ p.Stock_Quantity ?? 0 }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge"
+                                [class.badge-danger]="getStockStatus(p.Stock_Quantity ?? 0) === 'out-of-stock'"
+                                [class.badge-warning]="getStockStatus(p.Stock_Quantity ?? 0) === 'low-stock'"
+                                [class.badge-success]="getStockStatus(p.Stock_Quantity ?? 0) === 'in-stock'">
+                                {{ getStockLabel(p.Stock_Quantity ?? 0) }}
+                            </span>
+                        </td>
+                        <td class="text-right">
+                            <a class="view-link"
+                                [routerLink]="['/products/edit', p._id || p.id]">Edit</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty filtered state -->
+        <div class="empty-state" *ngIf="!productsLoading && filteredProducts.length === 0 && !error">
+            <p>No products match your current filters.</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" *ngIf="!productsLoading && totalPages > 1">
+            <button class="pagination-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+                Previous
+            </button>
+            <span class="pagination-info">Page {{ currentPage }} of {{ totalPages }}</span>
+            <button class="pagination-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+                Next
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,19 @@
+<div class="revenue-chart-container">
+    <div class="chart-header">
+        <h3>Revenue Overview</h3>
+        <p class="subtitle">Last 7 days</p>
+    </div>
+
+    <div class="chart-content" [style.display]="loading || error ? 'none' : 'block'">
+        <canvas #revenueCanvas></canvas>
+    </div>
+
+    <div class="loading-state" *ngIf="loading">
+        <div class="spinner"></div>
+        <p>Loading revenue data...</p>
+    </div>
+
+    <div class="error-state" *ngIf="error">
+        <p class="error-message">{{ error }}</p>
+    </div>
+</div>

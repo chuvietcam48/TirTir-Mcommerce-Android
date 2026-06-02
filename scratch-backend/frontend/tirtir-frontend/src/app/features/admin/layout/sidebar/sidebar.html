@@ -1,0 +1,48 @@
+<nav class="admin-sidebar" [class.collapsed]="collapsed">
+  <!-- Logo / Brand -->
+  <div class="sidebar-brand">
+    <span class="brand-text" *ngIf="!collapsed">TIRTIR Admin</span>
+    <span class="brand-icon" *ngIf="collapsed">T</span>
+  </div>
+
+  <!-- Navigation -->
+  <ul class="sidebar-nav">
+    @for (item of navItems; track item.label) {
+    <li class="nav-item" [class.has-children]="item.children">
+      <!-- Items without children -->
+      @if (!item.children) {
+      <a class="nav-link" [routerLink]="item.route" routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.route === '/admin/dashboard' }">
+        <span class="nav-label">{{ item.label }}</span>
+      </a>
+      }
+
+      <!-- Items with children -->
+      @if (item.children) {
+      <button class="nav-link nav-toggle" [class.expanded]="expandedMenu === item.label"
+        (click)="toggleMenu(item.label)">
+        <span class="nav-label">{{ item.label }}</span>
+        <span class="nav-arrow" *ngIf="!collapsed">
+          {{ expandedMenu === item.label ? '−' : '+' }}
+        </span>
+      </button>
+      <ul class="nav-submenu" [class.open]="expandedMenu === item.label && !collapsed">
+        @for (child of item.children; track child.label) {
+        <li>
+          <a class="nav-sublink" [routerLink]="child.route" routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }">
+            {{ child.label }}
+          </a>
+        </li>
+        }
+      </ul>
+      }
+    </li>
+    }
+  </ul>
+
+  <!-- Collapse Toggle (bottom) -->
+  <button class="sidebar-collapse-btn" (click)="onToggleSidebar()">
+    {{ collapsed ? '→' : '← Collapse' }}
+  </button>
+</nav>

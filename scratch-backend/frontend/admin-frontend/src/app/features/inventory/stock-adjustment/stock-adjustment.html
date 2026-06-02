@@ -1,0 +1,92 @@
+<div class="adjustment-container">
+    <div class="page-header">
+        <div class="header-content">
+            <a [routerLink]="['/inventory']" class="back-link">← Back to Inventory</a>
+            <h1>Adjust Stock</h1>
+        </div>
+    </div>
+
+    <div *ngIf="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading product details...</p>
+    </div>
+
+    <div *ngIf="error && !loading" class="error-msg">
+        {{ error }}
+    </div>
+
+    <div class="form-card" *ngIf="!loading && product">
+        <div class="product-summary">
+            <div class="product-details">
+                <h2>{{ product.Name || product.name }}</h2>
+                <p class="sku">SKU: {{ product.SKU || product.sku || 'N/A' }}</p>
+            </div>
+            <div class="current-stock">
+                <span class="label">Current Stock</span>
+                <span class="value">{{ product.Stock_Quantity ?? product.stock ?? 0 }}</span>
+            </div>
+        </div>
+
+        <form [formGroup]="adjustmentForm" (ngSubmit)="onSubmit()">
+            <!-- Action Selection -->
+            <div class="form-group">
+                <label>Action</label>
+                <div class="action-options">
+                    <label class="radio-option" [class.selected]="adjustmentForm.get('action')?.value === 'add'">
+                        <input type="radio" formControlName="action" value="add">
+                        <span class="radio-label">Add Stock</span>
+                    </label>
+                    <label class="radio-option" [class.selected]="adjustmentForm.get('action')?.value === 'remove'">
+                        <input type="radio" formControlName="action" value="remove">
+                        <span class="radio-label">Remove Stock</span>
+                    </label>
+                    <label class="radio-option" [class.selected]="adjustmentForm.get('action')?.value === 'set'">
+                        <input type="radio" formControlName="action" value="set">
+                        <span class="radio-label">Set Quantity</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Quantity Input -->
+            <div class="form-group">
+                <label>Quantity</label>
+                <input type="number" formControlName="quantity" min="1"
+                    [class.error]="adjustmentForm.get('quantity')?.invalid && adjustmentForm.get('quantity')?.touched">
+                <div class="error-text" *ngIf="adjustmentForm.get('quantity')?.errors?.['min']">
+                    Must be at least 1
+                </div>
+            </div>
+
+            <!-- Projection -->
+            <div class="stock-projection">
+                <div class="arrow">↓</div>
+                <div class="projection-content">
+                    <span class="label">New Stock Level</span>
+                    <span class="value" [class.low]="projectedStock! < 5" [class.out]="projectedStock === 0">
+                        {{ projectedStock }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Reason -->
+            <div class="form-group">
+                <label>Reason <span class="required">*</span></label>
+                <textarea formControlName="reason" rows="3"
+                    placeholder="e.g. Restock shipment #123, Damaged goods, Stock take correction"
+                    [class.error]="adjustmentForm.get('reason')?.invalid && adjustmentForm.get('reason')?.touched"></textarea>
+                <div class="error-text"
+                    *ngIf="adjustmentForm.get('reason')?.errors?.['required'] && adjustmentForm.get('reason')?.touched">
+                    Reason is required for tracking purposes
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="form-actions">
+                <button type="button" class="cancel-btn" [routerLink]="['/inventory']">Cancel</button>
+                <button type="submit" class="submit-btn" [disabled]="submitting || adjustmentForm.invalid">
+                    {{ submitting ? 'Updating...' : 'Confirm Adjustment' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

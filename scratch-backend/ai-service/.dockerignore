@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+.git
+.venv
+venv
+venv_312
+venv_new
+*.egg-info
+.env

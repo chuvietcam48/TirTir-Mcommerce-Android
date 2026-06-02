@@ -1,0 +1,142 @@
+<div class="cart-container">
+    <div class="cart-content">
+        <!-- Loading State -->
+        <div *ngIf="loading" class="loading-container">
+            <app-loading-spinner></app-loading-spinner>
+        </div>
+
+        <!-- Empty Cart -->
+        <div *ngIf="!loading && cart && cart.items.length === 0" class="empty-cart">
+            <h2>YOUR BAG IS EMPTY</h2>
+            <p>Ready to find your new favorites?</p>
+            <button (click)="continueShoppping()" class="shop-button">SHOP BESTSELLERS</button>
+        </div>
+
+        <!-- Cart Content -->
+        <div *ngIf="!loading && cart && cart.items.length > 0">
+            <h1 class="page-title">SHOPPING BAG ({{ cart.items.length }} ITEMS)</h1>
+
+            <app-free-shipping-bar
+                [currentTotal]="(cartService.cart$ | async)?.totalPrice || 0"></app-free-shipping-bar>
+
+            <div class="cart-layout">
+                <!-- Main Bag Section -->
+                <div class="cart-main">
+                    <div class="product-table-header">
+                        <div class="header-product">PRODUCT</div>
+                        <div class="header-price">PRICE</div>
+                        <div class="header-total">TOTAL</div>
+                    </div>
+
+                    <div *ngFor="let item of cart.items" class="product-item">
+                        <div class="product-info">
+                            <a [routerLink]="['/products', item.product.slug]">
+                                <img [src]="getImageUrl(item.product.Thumbnail_Images)" [alt]="item.product.Name"
+                                    class="product-image" (error)="onImageError($event)" />
+                            </a>
+                            <div class="product-details">
+                                <a [routerLink]="['/products', item.product.slug]"
+                                    style="text-decoration: none; color: inherit;">
+                                    <h3 class="product-name">{{ item.product.Name }}</h3>
+                                </a>
+                                <p class="product-meta">ID: {{ item.product._id.substring(18) }}</p>
+
+                                <!-- Quick Edit Shade Logic -->
+                                <div class="shade-editor"
+                                    *ngIf="item.product.Product_Attributes && item.product.Product_Attributes.length > 0">
+                                    <ng-container *ngIf="!isEditingShade(item)">
+                                        <p class="product-meta clickable-meta" (click)="toggleEditShade(item)"
+                                            title="Click to edit Color">
+                                            COLOR: {{ item.shade || 'Standard' }}
+                                            <svg class="edit-icon" width="12" height="12" viewBox="0 0 24 24"
+                                                fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
+                                                </path>
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
+                                                </path>
+                                            </svg>
+                                        </p>
+                                    </ng-container>
+
+                                    <ng-container *ngIf="isEditingShade(item)">
+                                        <select class="shade-select" (change)="saveNewShade(item, $event)"
+                                            [value]="item.shade">
+                                            <option *ngFor="let option of item.product.Product_Attributes[0].Value"
+                                                [value]="option">{{ option }}</option>
+                                        </select>
+                                    </ng-container>
+                                </div>
+                                <p class="product-meta"
+                                    *ngIf="(!item.product.Product_Attributes || item.product.Product_Attributes.length === 0) && item.shade">
+                                    COLOR: {{ item.shade }}</p>
+                                <!-- End Quick Edit Logic -->
+
+                                <div class="qty-controls-mini">
+                                    <button (click)="updateQuantity(item, item.quantity - 1)">−</button>
+                                    <span class="qty-val">{{ item.quantity }}</span>
+                                    <button (click)="updateQuantity(item, item.quantity + 1)">+</button>
+                                </div>
+
+                                <div class="product-actions">
+                                    <button (click)="removeItem(item)" class="action-link">REMOVE</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="product-price">
+                            <span class="price-strike"
+                                *ngIf="item.product.Original_Price && item.product.Original_Price > item.product.Price">
+                                ${{ item.product.Original_Price }}
+                            </span>
+                            <span class="price-current">${{ item.product.Price }}</span>
+                        </div>
+
+                        <div class="product-total">
+                            ${{ (item.product.Price * item.quantity).toFixed(2) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary Sidebar -->
+                <div class="cart-summary">
+                    <h2 class="summary-title">ORDER SUMMARY</h2>
+
+                    <div class="summary-details">
+                        <div class="summary-row">
+                            <span>Bag Subtotal</span>
+                            <span class="summary-value">${{ getSubtotal().toFixed(2) }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Shipping</span>
+                            <span class="summary-value">FREE</span>
+                        </div>
+                        <div class="summary-row" *ngIf="cart.coupon">
+                            <span>Discount</span>
+                            <span class="summary-value discount-val">-${{ cart.discountAmount?.toFixed(2) }}</span>
+                        </div>
+                    </div>
+
+                    <div class="promo-section">
+                        <div class="promo-input-group">
+                            <input type="text" [(ngModel)]="promoCode" placeholder="Promo code" class="promo-input">
+                            <button (click)="applyPromoCode()" class="apply-btn">APPLY</button>
+                        </div>
+                        <p class="promo-msg success" *ngIf="promoMessage">{{ promoMessage }}</p>
+                        <p class="promo-msg error" *ngIf="promoError">{{ promoError }}</p>
+                    </div>
+
+                    <div class="summary-row summary-total">
+                        <span>ESTIMATED TOTAL</span>
+                        <span class="total-value">${{ getTotal().toFixed(2) }}</span>
+                    </div>
+
+                    <button (click)="goToCheckout()" class="checkout-button">PROCEED TO CHECKOUT</button>
+
+                    <p class="help-text">
+                        Questions? Call us at <a href="tel:1-877-707-6272">1-877-707-6272</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

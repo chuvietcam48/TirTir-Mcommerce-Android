@@ -1,0 +1,108 @@
+<div class="customer-list-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Customers</h1>
+            <p class="subtitle">Manage customer accounts and view purchase history</p>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filters-bar">
+        <div class="search-box">
+            <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()"
+                placeholder="Search by name, email or phone..." class="search-input" />
+        </div>
+
+        <select [(ngModel)]="selectedStatus" (change)="onStatusChange()" class="filter-select">
+            <option value="">All Customers</option>
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+        </select>
+
+        <span class="count-info" *ngIf="!loading">{{ filteredCustomers.length }} customers</span>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading customers...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="error-state">
+        <p>{{ error }}</p>
+        <button (click)="loadCustomers()" class="retry-btn">Retry</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card" *ngIf="!loading && !error">
+        <div class="table-container">
+            <table class="customers-table">
+                <colgroup>
+                    <col style="width: 220px">
+                    <col>
+                    <col style="width: 120px">
+                    <col style="width: 120px">
+                    <col style="width: 100px">
+                    <col style="width: 80px">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Joined</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let customer of paginatedCustomers" class="customer-row">
+                        <td>
+                            <div class="customer-name-cell">
+                                <div class="avatar">{{ (customer.name || '?').charAt(0).toUpperCase() }}</div>
+                                <span class="name-text">{{ customer.name || 'N/A' }}</span>
+                            </div>
+                        </td>
+                        <td class="email-cell">{{ customer.email || 'N/A' }}</td>
+                        <td class="muted-cell">{{ customer.phone || '—' }}</td>
+                        <td class="muted-cell">{{ formatDate(customer.createdAt) }}</td>
+                        <td>
+                            <span class="status-badge"
+                                [class.status-active]="!customer.isBlocked"
+                                [class.status-blocked]="customer.isBlocked">
+                                {{ customer.isBlocked ? 'Blocked' : 'Active' }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <a [routerLink]="['/customers', customer._id]" class="link-btn">View</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty state -->
+        <div *ngIf="filteredCustomers.length === 0" class="empty-state">
+            <p>No customers found</p>
+            <small>Try adjusting your search or status filter</small>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="filteredCustomers.length > pageSize" class="pagination">
+            <button [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)" class="page-btn">
+                Previous
+            </button>
+            <span class="page-info">
+                Showing {{ (currentPage - 1) * pageSize + 1 }}–{{
+                    currentPage * pageSize > filteredCustomers.length
+                        ? filteredCustomers.length
+                        : currentPage * pageSize
+                }} of {{ filteredCustomers.length }}
+            </span>
+            <button [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)" class="page-btn">
+                Next
+            </button>
+        </div>
+    </div>
+</div>

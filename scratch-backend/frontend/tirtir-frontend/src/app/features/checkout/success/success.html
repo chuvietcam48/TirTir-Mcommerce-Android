@@ -1,0 +1,37 @@
+<div class="success-container" *ngIf="!isProcessing">
+  <div class="success-card">
+    <div class="icon-circle">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+    
+    <h1 class="title">Thank You!</h1>
+    <p class="subtitle">Your order has been placed successfully.</p>
+    
+    <div class="order-details" *ngIf="orderId">
+      <div class="detail-row">
+        <span>Order Number</span>
+        <strong>#{{ orderId }}</strong>
+      </div>
+      <div class="detail-row" *ngIf="amount">
+        <span>Total Paid</span>
+        <strong>{{ amount | currency:'VND':'symbol':'1.0-0' }}</strong>
+      </div>
+    </div>
+    
+    <p class="email-notice">
+      We'll send you a shipping confirmation email as soon as your order ships.
+    </p>
+    
+    <div class="action-buttons">
+      <a [routerLink]="['/account/orders', orderId]" class="btn btn-primary" *ngIf="orderId">View Order Details</a>
+      <a routerLink="/" class="btn btn-secondary">Continue Shopping</a>
+    </div>
+  </div>
+</div>
+
+<div class="success-container loading-container" *ngIf="isProcessing">
+    <div class="spinner"></div>
+    <p>Verifying payment...</p>
+</div>

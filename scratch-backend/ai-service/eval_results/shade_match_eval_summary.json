@@ -1,0 +1,50 @@
+{
+  "evaluation": "shade_match_real_images",
+  "date": "2026-03-22T20:55:39.507112",
+  "n_images": 34,
+  "methodology": "Dominant skin colour extracted from central face ROI (35-70% height, 20-80% width) using HSV skin-hue masking. Fallback to full ROI mean when <50 skin pixels detected. RGB values submitted to POST /api/v1/shades/match. deltaE₀₀ sourced directly from CIE LAB distance computed in shade.controller.js.",
+  "top1_deltaE": {
+    "mean": 6.19,
+    "median": 6.039,
+    "p95": 9.007
+  },
+  "top3_min_deltaE": {
+    "mean": 5.893
+  },
+  "acceptability_pct": {
+    "top1_imperceptible_dE_lt_1": 0.0,
+    "top1_jnd_dE_lt_2": 0.0,
+    "top1_acceptable_dE_lt_3_5": 5.9,
+    "top1_noticeable_dE_lt_5": 29.4,
+    "top1_poor_dE_ge_5": 70.6,
+    "top3_acceptable_dE_lt_3_5": 5.9
+  },
+  "per_tone_breakdown": {
+    "Fair (I-II)": {
+      "n": 13,
+      "mean_deltaE": 6.123,
+      "pct_acceptable": 0.0
+    },
+    "Light (II-III)": {
+      "n": 9,
+      "mean_deltaE": 6.361,
+      "pct_acceptable": 11.1
+    },
+    "Medium (III-IV)": {
+      "n": 7,
+      "mean_deltaE": 6.516,
+      "pct_acceptable": 14.3
+    },
+    "Tan (IV-V)": {
+      "n": 2,
+      "mean_deltaE": 4.819,
+      "pct_acceptable": 0.0
+    },
+    "Deep (V-VI)": {
+      "n": 3,
+      "mean_deltaE": 6.114,
+      "pct_acceptable": 0.0
+    }
+  },
+  "limitation": "Skin colour extracted via geometric ROI without face landmark detection. Hair, background, and non-skin pixels may bias the mean RGB. Ground-truth 'correct shade' is unavailable; deltaE measures colour distance between extracted skin colour and recommended shade, not dermatologist-validated foundation match."
+}

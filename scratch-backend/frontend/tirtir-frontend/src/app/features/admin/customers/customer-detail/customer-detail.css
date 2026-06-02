@@ -1,0 +1,116 @@
+@import '../../styles/admin-variables.css';
+
+.page {
+    font-family: var(--admin-font);
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+}
+
+.page-header h1 {
+    font-size: var(--fs-2xl);
+    font-weight: var(--fw-bold);
+    margin: 0;
+}
+
+.back {
+    color: var(--admin-primary);
+    text-decoration: none;
+}
+
+.back:hover {
+    text-decoration: underline;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+}
+
+.card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.card h2 {
+    font-size: var(--fs-md);
+    font-weight: var(--fw-semibold);
+    margin: 0 0 var(--space-md);
+}
+
+.card p {
+    margin: 4px 0;
+    font-size: var(--fs-base);
+}
+
+.muted {
+    color: var(--admin-text-muted);
+}
+
+.order-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--admin-border-light);
+    font-size: var(--fs-sm);
+}
+
+.mono {
+    font-family: monospace;
+    color: var(--admin-text-muted);
+}
+
+.badge {
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
+    text-transform: uppercase;
+}
+
+.s-pending {
+    background: var(--admin-warning-bg);
+    color: var(--admin-warning);
+}
+
+.s-processing {
+    background: var(--admin-info-bg);
+    color: var(--admin-info);
+}
+
+.s-shipped {
+    background: rgba(123, 31, 162, .08);
+    color: #7B1FA2;
+}
+
+.s-delivered {
+    background: var(--admin-success-bg);
+    color: var(--admin-success);
+}
+
+.s-cancelled {
+    background: var(--admin-danger-bg);
+    color: var(--admin-danger);
+}
+
+.empty {
+    text-align: center;
+    color: var(--admin-text-muted);
+    padding: var(--space-2xl);
+    font-family: var(--admin-font);
+}
+
+@media (max-width: 1023px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}

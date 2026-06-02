@@ -1,0 +1,24 @@
+<header class="admin-topbar" [class.sidebar-collapsed]="sidebarCollapsed">
+    <!-- Hamburger / Sidebar toggle -->
+    <button class="topbar-toggle" (click)="onToggleSidebar()">
+        ☰
+    </button>
+
+    <!-- Breadcrumb / Title area -->
+    <div class="topbar-title">Admin Panel</div>
+
+    <!-- Right section -->
+    <div class="topbar-actions">
+        <!-- User menu -->
+        <div class="user-menu-wrapper">
+            <button class="user-btn" (click)="toggleUserMenu()">
+                <span class="user-avatar">{{ userName.charAt(0).toUpperCase() }}</span>
+                <span class="user-name">{{ userName }}</span>
+            </button>
+            <div class="user-dropdown" *ngIf="showUserMenu">
+                <a class="dropdown-item" href="/">View Store</a>
+                <button class="dropdown-item" (click)="logout()">Logout</button>
+            </div>
+        </div>
+    </div>
+</header>

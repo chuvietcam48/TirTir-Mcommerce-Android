@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"require\\(''./models/chat.history.model''\\)\")",
+      "Bash(\"d:/TirTir-Project/frontend/tirtir-frontend/src/app/shared/components/header/header.css\")"
+    ]
+  }
+}

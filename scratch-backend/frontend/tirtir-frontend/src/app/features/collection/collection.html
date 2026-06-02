@@ -1,0 +1,65 @@
+<div class="collection-page">
+    <!-- Collection Header -->
+    <section class="collection-header">
+        <div class="container">
+            <h1 class="collection-title">{{ collectionTitle }}</h1>
+            <p class="collection-description">{{ collectionDescription }}</p>
+        </div>
+    </section>
+
+    <!-- Collection Content -->
+    <section class="collection-content">
+        <div class="container">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="product-count">
+                    <span>{{ products.length }} products</span>
+                </div>
+                <div class="sort-options">
+                    <label for="sortBy">Sort by:</label>
+                    <select id="sortBy" [(ngModel)]="sortBy" class="sort-select">
+                        <option value="best-selling">Best Selling</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="newest">Newest</option>
+                        <option value="rating">Top Rated</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="products-grid" *ngIf="paginatedProducts.length > 0">
+                <app-product-card *ngFor="let product of paginatedProducts" [id]="product.id" [name]="product.name"
+                    [subtitle]="product.description" [price]="product.price" [originalPrice]="product.originalPrice"
+                    [image]="product.images[0]" [badges]="product.originalPrice ? ['SALE'] : []"
+                    [productSlug]="product.slug"></app-product-card>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" *ngIf="paginatedProducts.length === 0">
+                <p>No products found in this category.</p>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" *ngIf="totalPages > 1">
+                <button class="page-btn prev" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                </button>
+
+                <button *ngFor="let page of pages" class="page-btn" [class.active]="page === currentPage"
+                    (click)="goToPage(page)">
+                    {{ page }}
+                </button>
+
+                <button class="page-btn next" (click)="goToPage(currentPage + 1)"
+                    [disabled]="currentPage === totalPages">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </section>
+</div>

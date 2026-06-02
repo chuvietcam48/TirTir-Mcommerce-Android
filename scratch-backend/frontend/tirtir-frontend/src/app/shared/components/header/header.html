@@ -1,0 +1,264 @@
+<header class="site-header">
+    <!-- Announcement Bar -->
+    <div class="announcement-bar">
+        <a routerLink="/deals" class="announcement-link">
+            Buy Lip & Blush to get 10% Off Everything *minis excluded
+        </a>
+    </div>
+
+    <!-- Main Header -->
+    <div class="header-main">
+        <div class="header-container">
+            <!-- Logo (LEFT) -->
+            <a routerLink="/" class="logo">
+                <span class="logo-text">TIRTIR</span>
+            </a>
+
+            <!-- Center Navigation -->
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <!-- Shop All -->
+                    <li class="nav-item">
+                        <a routerLink="/shop" class="nav-link">Shop All</a>
+                    </li>
+
+                    <!-- Makeup with Mega Menu -->
+                    <li class="nav-item has-megamenu" (mouseenter)="onMakeupHover(true)"
+                        (mouseleave)="onMakeupHover(false)">
+                        <a routerLink="/shop" [queryParams]="{category: 'makeup'}" class="nav-link">Makeup</a>
+                        <app-makeup-mega-menu [class.visible]="showMakeupMenu"
+                            [categories]="makeupCategories"></app-makeup-mega-menu>
+                    </li>
+
+                    <!-- Skincare with Mega Menu (scoped class nav-skincare) -->
+                    <li class="nav-item nav-skincare" (mouseenter)="onSkincareHover(true)"
+                        (mouseleave)="onSkincareHover(false)">
+                        <a routerLink="/shop" [queryParams]="{category: 'skincare'}" class="nav-link">Skincare</a>
+                        <app-skincare-mega-menu [class.visible]="showSkincareMenu"
+                            [categories]="skincareCategories"></app-skincare-mega-menu>
+                    </li>
+
+                    <!-- Other items from menuItems (index 3+) -->
+                    <li class="nav-item" *ngFor="let item of menuItems.slice(3)">
+                        <a [routerLink]="item.routerLink" [queryParams]="item.queryParams || null" class="nav-link">
+                            {{ item.label }}
+                        </a>
+                        <div class="dropdown" *ngIf="item.children?.length">
+                            <div class="dropdown-content">
+                                <div class="dropdown-column" *ngFor="let column of item.children">
+                                    <div class="column-header">
+                                        <a [routerLink]="column.routerLink" [queryParams]="column.queryParams || null">
+                                            {{ column.label }}
+                                        </a>
+                                    </div>
+                                    <ul class="column-links" *ngIf="column.children?.length">
+                                        <li *ngFor="let product of column.children">
+                                            <a [routerLink]="product.routerLink"
+                                                [queryParams]="product.queryParams || null">
+                                                {{ product.label }}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Header Actions (RIGHT) -->
+            <div class="header-actions">
+                <!-- Account Icon + Dropdown -->
+                <div class="account-wrapper" (mouseenter)="toggleAccountMenu(true)"
+                    (mouseleave)="toggleAccountMenu(false)">
+                    <a routerLink="/account" class="action-btn" aria-label="Account">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </a>
+
+                    <div class="account-dropdown" [class.visible]="showAccountMenu">
+                        <ng-container *ngIf="authService.isAuthenticated(); else guestMenu">
+                            <a routerLink="/account/profile" class="account-dropdown-item"
+                                (click)="showAccountMenu = false">My Profile</a>
+                            <a routerLink="/account/orders" class="account-dropdown-item"
+                                (click)="showAccountMenu = false">My Orders</a>
+                            <div class="account-dropdown-divider"></div>
+                            <button class="account-dropdown-item account-dropdown-item--logout"
+                                (click)="logout()">Sign Out</button>
+                        </ng-container>
+                        <ng-template #guestMenu>
+                            <a routerLink="/login" class="account-dropdown-item"
+                                (click)="showAccountMenu = false">Sign In</a>
+                            <a routerLink="/register" class="account-dropdown-item"
+                                (click)="showAccountMenu = false">Create Account</a>
+                        </ng-template>
+                    </div>
+                </div>
+
+                <!-- Notification Icon -->
+                <div class="notification-wrapper" (mouseenter)="toggleNotifications(true)"
+                    (mouseleave)="toggleNotifications(false)">
+                    <a routerLink="/account/notifications" class="action-btn notif-btn" aria-label="Notifications">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <span class="badge" *ngIf="(unreadCount$ | async)! > 0">
+                            {{ (unreadCount$ | async) }}
+                        </span>
+                    </a>
+
+                    <!-- Notification Dropdown -->
+                    <div class="notif-dropdown" [class.visible]="showNotifications">
+                        <div class="notif-header">
+                            <span>Notifications</span>
+                            <button class="mark-read-btn" (click)="markAllRead($event)"
+                                *ngIf="(unreadCount$ | async)! > 0">
+                                Mark all read
+                            </button>
+                        </div>
+
+                        <div class="notif-list">
+                            <ng-container *ngIf="(recentNotifications$ | async) as notifications">
+                                <div class="notif-item" *ngFor="let item of notifications" [class.unread]="!item.isRead"
+                                    (click)="onNotificationClick(item)">
+                                    <div class="notif-icon" [ngClass]="item.type">
+                                        <ng-container [ngSwitch]="item.type">
+                                            <span *ngSwitchCase="'order'">📦</span>
+                                            <span *ngSwitchCase="'promotion'">🔥</span>
+                                            <span *ngSwitchDefault>🔔</span>
+                                        </ng-container>
+                                    </div>
+                                    <div class="notif-content">
+                                        <p class="notif-title">{{ item.title }}</p>
+                                        <p class="notif-message">{{ item.message }}</p>
+                                        <span class="notif-time">{{ item.createdAt | timeAgo }}</span>
+                                    </div>
+                                    <div class="unread-dot" *ngIf="!item.isRead"></div>
+                                </div>
+
+                                <div class="empty-notif" *ngIf="notifications.length === 0">
+                                    <p>No new notifications</p>
+                                </div>
+                            </ng-container>
+                        </div>
+
+                        <div class="notif-footer">
+                            <a routerLink="/account/notifications" (click)="showNotifications = false">View All</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart Icon -->
+                <div class="cart-wrapper" (mouseenter)="toggleMiniCart(true)" (mouseleave)="toggleMiniCart(false)">
+                    <a routerLink="/cart" class="action-btn cart-link" aria-label="Cart">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <path d="M16 10a4 4 0 0 1-8 0"></path>
+                        </svg>
+                        <span class="badge" *ngIf="cartCount() > 0">
+                            {{ cartCount() }}
+                        </span>
+                    </a>
+
+                    <!-- Mini Cart Dropdown -->
+                    <div class="mini-cart-dropdown" [class.visible]="showMiniCart" *ngIf="(cart$ | async) as cart">
+                        <ng-container *ngIf="cart.items && cart.items.length > 0">
+                            <div class="mini-cart-shipping">
+                                <app-free-shipping-bar [currentTotal]="cart.totalPrice || 0"></app-free-shipping-bar>
+                            </div>
+
+                            <div class="mini-cart-items">
+                                <!-- Show recent max 3-5 items -->
+                                <div class="mini-cart-item" *ngFor="let item of cart.items.slice(0, 3)">
+                                    <div class="mini-item-img">
+                                        <img [src]="item.product.Thumbnail_Images" [alt]="item.product.Name"
+                                            onerror="this.src='/assets/placeholder.png'">
+                                    </div>
+                                    <div class="mini-item-info">
+                                        <div class="mini-item-name">{{ item.product.Name }}</div>
+                                        <div class="mini-item-meta">{{ item.shade }} | Qty: {{ item.quantity }}</div>
+                                        <div class="mini-item-price">{{ item.product.Price | currency:'USD' }}</div>
+                                    </div>
+                                </div>
+                                <div class="mini-cart-more" *ngIf="cart.items.length > 3">
+                                    + {{ cart.items.length - 3 }} more item(s)...
+                                </div>
+                            </div>
+
+                            <div class="mini-cart-footer">
+                                <div class="mini-cart-total">
+                                    <span>Subtotal</span>
+                                    <span>{{ cart.totalPrice | currency:'USD' }}</span>
+                                </div>
+                                <button class="mini-cart-btn" routerLink="/cart" (click)="showMiniCart = false">VIEW
+                                    FULL BAG</button>
+                            </div>
+                        </ng-container>
+
+                        <div class="mini-cart-empty" *ngIf="!cart.items || cart.items.length === 0">
+                            <p>Your bag is empty.</p>
+                            <button class="mini-cart-btn-outline" routerLink="/shop" (click)="showMiniCart = false">SHOP
+                                NOW</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="search-wrapper">
+                    <button class="action-btn" aria-label="Search" (click)="toggleSearch()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </button>
+
+                    <!-- Search Dropdown -->
+                    <div class="search-dropdown" [class.active]="showSearch">
+                        <div class="search-input-wrapper-mini">
+                            <input type="text" [(ngModel)]="searchTerm" (input)="onSearchInput()"
+                                (keyup.enter)="onSearch()" placeholder="Search our products..." #searchInput>
+                            <button class="search-submit" (click)="onSearch()">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Suggestions List -->
+                        <div class="search-suggestions" *ngIf="suggestions().length > 0">
+                            <h3 class="suggestions-header">SUGGESTED PRODUCTS</h3>
+                            <div class="suggestions-list">
+                                <div class="suggestion-item" *ngFor="let product of suggestions()"
+                                    (click)="selectSuggestion(product)">
+                                    <div class="suggestion-image">
+                                        <img [src]="product.images[0]" [alt]="product.name">
+                                    </div>
+                                    <div class="suggestion-info">
+                                        <p class="suggestion-name">{{ product.name }}</p>
+                                        <p class="suggestion-price">${{ product.price }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="suggestions-footer">
+                                <button class="view-all-results" (click)="onSearch()">View all results</button>
+                            </div>
+                        </div>
+
+                        <div class="search-empty" *ngIf="searchTerm && suggestions().length === 0">
+                            No results found for "{{ searchTerm }}"
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

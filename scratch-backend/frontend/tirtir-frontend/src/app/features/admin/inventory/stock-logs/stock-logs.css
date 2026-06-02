@@ -1,0 +1,84 @@
+@import '../../styles/admin-variables.css';
+
+.page {
+    font-family: var(--admin-font);
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+}
+
+.page-header h1 {
+    font-size: var(--fs-2xl);
+    font-weight: var(--fw-bold);
+    margin: 0;
+}
+
+.back {
+    color: var(--admin-primary);
+    text-decoration: none;
+}
+
+.back:hover {
+    text-decoration: underline;
+}
+
+.table-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-base);
+}
+
+.admin-table th {
+    text-align: left;
+    padding: 10px var(--space-md);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--admin-text-secondary);
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--admin-border);
+}
+
+.admin-table td {
+    padding: 10px var(--space-md);
+    border-bottom: 1px solid var(--admin-border-light);
+}
+
+.admin-table tbody tr:hover {
+    background: var(--admin-bg);
+}
+
+.muted {
+    color: var(--admin-text-muted);
+    font-size: var(--fs-sm);
+}
+
+.positive {
+    color: var(--admin-success);
+    font-weight: var(--fw-semibold);
+}
+
+.negative {
+    color: var(--admin-danger);
+    font-weight: var(--fw-semibold);
+}
+
+.empty {
+    text-align: center;
+    color: var(--admin-text-muted);
+    padding: var(--space-xl) !important;
+}

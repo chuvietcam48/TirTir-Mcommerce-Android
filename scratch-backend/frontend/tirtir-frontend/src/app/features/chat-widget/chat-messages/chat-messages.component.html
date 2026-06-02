@@ -1,0 +1,39 @@
+<div class="messages-container">
+    <div class="header">
+        <h2>{{ langService.t('messages.header') }}</h2>
+    </div>
+
+    <div class="message-list">
+        <!-- Loading state -->
+        <div class="loading-state" *ngIf="isLoading">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state" *ngIf="!isLoading && !hasHistory">
+            <i class="fas fa-comment-slash"></i>
+            <p>Chưa có cuộc trò chuyện nào.</p>
+        </div>
+
+        <!-- Conversation entry — clicking opens the full conversation -->
+        <div class="message-item" *ngIf="!isLoading && hasHistory" (click)="openConversation()">
+            <div class="avatar">
+                <span>T/R</span>
+            </div>
+            <div class="content">
+                <div class="sender-name">
+                    TIRTIR Global
+                    <span class="time">{{ lastMessage?.timestamp | date:'dd/MM HH:mm' }}</span>
+                </div>
+                <div class="preview">{{ previewText }}</div>
+            </div>
+            <div class="chevron"><i class="fas fa-chevron-right"></i></div>
+        </div>
+    </div>
+
+    <button class="new-chat-fab" (click)="onStartNewChat()">
+        {{ langService.t('messages.newChat') }} <i class="fas fa-paper-plane"></i>
+    </button>
+</div>

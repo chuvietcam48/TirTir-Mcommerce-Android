@@ -1,0 +1,113 @@
+@import '../../styles/admin-variables.css';
+
+.page {
+    font-family: var(--admin-font);
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+}
+
+.page-header h1 {
+    font-size: var(--fs-2xl);
+    font-weight: var(--fw-bold);
+    margin: 0;
+}
+
+.btn-outline {
+    padding: 8px 16px;
+    border: 1px solid var(--admin-border);
+    border-radius: var(--radius-md);
+    background: var(--admin-surface);
+    cursor: pointer;
+    font-family: var(--admin-font);
+    font-size: var(--fs-sm);
+}
+
+.btn-outline:hover {
+    background: var(--admin-bg);
+}
+
+.table-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-base);
+}
+
+.admin-table th {
+    text-align: left;
+    padding: 10px var(--space-md);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--admin-text-secondary);
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--admin-border);
+}
+
+.admin-table td {
+    padding: 10px var(--space-md);
+    border-bottom: 1px solid var(--admin-border-light);
+    vertical-align: middle;
+}
+
+.admin-table tbody tr:hover {
+    background: var(--admin-bg);
+}
+
+.mono {
+    font-family: monospace;
+    font-size: var(--fs-sm);
+    color: var(--admin-text-muted);
+}
+
+.bold {
+    font-weight: var(--fw-medium);
+}
+
+.danger-text {
+    color: var(--admin-danger);
+    font-weight: var(--fw-bold);
+}
+
+.empty {
+    text-align: center;
+    color: var(--admin-text-muted);
+    padding: var(--space-xl) !important;
+}
+
+.badge {
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
+    text-transform: uppercase;
+}
+
+.ok {
+    background: var(--admin-success-bg);
+    color: var(--admin-success);
+}
+
+.low {
+    background: var(--admin-warning-bg);
+    color: var(--admin-warning);
+}
+
+.out {
+    background: var(--admin-danger-bg);
+    color: var(--admin-danger);
+}

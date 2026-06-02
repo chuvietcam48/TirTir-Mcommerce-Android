@@ -1,0 +1,108 @@
+@import '../../styles/admin-variables.css';
+
+.page {
+    font-family: var(--admin-font);
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+}
+
+.page-header h1 {
+    font-size: var(--fs-2xl);
+    font-weight: var(--fw-bold);
+    margin: 0;
+}
+
+.back {
+    color: var(--admin-primary);
+    text-decoration: none;
+}
+
+.back:hover {
+    text-decoration: underline;
+}
+
+.form-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.form-group label {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+    color: var(--admin-text-secondary);
+}
+
+.input {
+    padding: 8px 12px;
+    border: 1px solid var(--admin-border);
+    border-radius: var(--radius-md);
+    font-size: var(--fs-base);
+    font-family: var(--admin-font);
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+}
+
+.form-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+}
+
+.btn-primary {
+    padding: 10px 24px;
+    background: var(--admin-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: var(--fw-semibold);
+    cursor: pointer;
+    font-family: var(--admin-font);
+}
+
+.btn-primary:hover {
+    background: var(--admin-primary-hover);
+}
+
+.btn-primary:disabled {
+    opacity: .6;
+}
+
+.btn-sec {
+    padding: 10px 24px;
+    background: var(--admin-bg);
+    color: var(--admin-text-primary);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-family: var(--admin-font);
+}
+
+@media (max-width: 767px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}

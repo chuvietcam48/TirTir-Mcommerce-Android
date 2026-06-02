@@ -1,0 +1,145 @@
+<div class="dashboard-page">
+    <div class="page-header">
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Overview of your store performance</p>
+    </div>
+
+    <!-- ═══ KPI Cards ═══════════════════════════════════════════ -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <span class="kpi-label">Total Revenue</span>
+            <span class="kpi-value">{{ stats ? formatCurrency(stats.totalRevenue) : '—' }}</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Total Orders</span>
+            <span class="kpi-value">{{ stats?.totalOrders ?? '—' }}</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Customers</span>
+            <span class="kpi-value">{{ stats?.totalCustomers ?? '—' }}</span>
+        </div>
+        <div class="kpi-card kpi-card--warn">
+            <span class="kpi-label">Low Stock Products</span>
+            <span class="kpi-value">{{ stats?.lowStockProducts ?? '—' }}</span>
+        </div>
+    </div>
+
+    <!-- ═══ Charts Row ══════════════════════════════════════════ -->
+    <div class="charts-row">
+        <!-- Revenue Chart -->
+        <div class="chart-card">
+            <div class="card-header">
+                <h2 class="card-title">Revenue Trend</h2>
+                <span class="card-badge">Last 30 days</span>
+            </div>
+            <div class="chart-container">
+                <canvas #revenueCanvas></canvas>
+            </div>
+        </div>
+
+        <!-- Order Status Chart -->
+        <div class="chart-card chart-card--small">
+            <div class="card-header">
+                <h2 class="card-title">Orders by Status</h2>
+                <span class="card-badge">{{ totalOrderCount }} total</span>
+            </div>
+            <div class="chart-container">
+                <canvas #ordersCanvas></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Tables Row ══════════════════════════════════════════ -->
+    <div class="tables-row">
+        <!-- Recent Orders -->
+        <div class="table-card">
+            <div class="card-header">
+                <h2 class="card-title">Recent Orders</h2>
+                <a class="card-link" routerLink="/admin/orders">View all</a>
+            </div>
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (recentOrders.length === 0) {
+                        <tr>
+                            <td colspan="5" class="empty-state">No recent orders</td>
+                        </tr>
+                        }
+                        @for (order of recentOrders; track order._id) {
+                        <tr>
+                            <td class="order-id">{{ order._id | slice:0:8 }}...</td>
+                            <td>{{ order.user?.name || 'Guest' }}</td>
+                            <td class="amount">{{ formatCurrency(order.totalAmount) }}</td>
+                            <td><span class="status-badge" [class]="getStatusClass(order.status)">{{ order.status
+                                    }}</span></td>
+                            <td class="date">{{ order.createdAt | date:'dd/MM/yy' }}</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Low Stock Alerts -->
+        <div class="table-card">
+            <div class="card-header">
+                <h2 class="card-title">Low Stock Alerts</h2>
+                <a class="card-link" routerLink="/admin/inventory">View all</a>
+            </div>
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Stock</th>
+                            <th>Reserved</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (lowStockItems.length === 0) {
+                        <tr>
+                            <td colspan="4" class="empty-state">No low stock alerts</td>
+                        </tr>
+                        }
+                        @for (item of lowStockItems; track item.Product_ID) {
+                        <tr>
+                            <td class="product-cell">
+                                <span class="product-name">{{ item.Name }}</span>
+                            </td>
+                            <td class="stock-qty">{{ item.Stock_Quantity }}</td>
+                            <td>{{ item.Stock_Reserved }}</td>
+                            <td>
+                                <span class="status-badge"
+                                    [class]="item.Stock_Quantity === 0 ? 'status-cancelled' : 'status-pending'">
+                                    {{ item.Stock_Quantity === 0 ? 'Out of stock' : 'Low' }}
+                                </span>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Quick Actions ═══════════════════════════════════════ -->
+    <div class="quick-actions">
+        <h2 class="card-title">Quick Actions</h2>
+        <div class="actions-grid">
+            <a class="action-btn" routerLink="/admin/products/new">+ Add Product</a>
+            <a class="action-btn" routerLink="/admin/promotions/new">+ Create Coupon</a>
+            <a class="action-btn action-btn--outline" routerLink="/admin/orders">View Orders</a>
+            <a class="action-btn action-btn--outline" routerLink="/admin/inventory">Check Inventory</a>
+        </div>
+    </div>
+</div>

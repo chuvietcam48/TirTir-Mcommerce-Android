@@ -1,0 +1,501 @@
+case_id,target_concern,ground_truth,predicted,outcome,all_predicted,a_std,a_mean,dark_delta,lap_var,oily_ratio
+acne_pos_s12.0,Acne/Blemishes,1,1,TP,Acne/Blemishes,11.824,129.275,0.011,181.3,0.0
+acne_pos_s13.0,Acne/Blemishes,1,1,TP,Acne/Blemishes,13.028,129.599,0.014,182.7,0.0
+acne_pos_s14.0,Acne/Blemishes,1,1,TP,Acne/Blemishes,14.008,129.221,0.019,184.1,0.0
+acne_pos_s14.9,Acne/Blemishes,1,1,TP,Acne/Blemishes,14.9,129.151,0.024,186.5,0.0
+acne_pos_s15.9,Acne/Blemishes,1,1,TP,Acne/Blemishes,15.808,129.575,0.026,187.3,0.0
+acne_pos_s16.9,Acne/Blemishes,1,1,TP,Acne/Blemishes,16.844,129.502,0.032,191.1,0.0
+acne_pos_s17.9,Acne/Blemishes,1,1,TP,Acne/Blemishes,17.648,129.783,0.039,191.4,0.0
+acne_pos_s18.9,Acne/Blemishes,1,1,TP,Acne/Blemishes,18.53,129.283,0.049,195.8,0.0
+acne_pos_s19.8,Acne/Blemishes,1,1,TP,Acne/Blemishes,19.683,129.679,0.051,195.4,0.0
+acne_pos_s20.8,Acne/Blemishes,1,1,TP,Acne/Blemishes,20.463,129.543,0.066,199.8,0.0
+acne_pos_s21.8,Acne/Blemishes,1,1,TP,Acne/Blemishes,21.257,129.622,0.065,200.5,0.0
+acne_pos_s22.8,Acne/Blemishes,1,1,TP,Acne/Blemishes,22.298,129.62,0.087,205.6,0.0
+acne_pos_s23.8,Acne/Blemishes,1,1,TP,Acne/Blemishes,23.132,129.47,0.083,209.6,0.0
+acne_pos_s24.7,Acne/Blemishes,1,1,TP,Acne/Blemishes,24.153,130.21,0.066,211.2,0.0
+acne_pos_s25.7,Acne/Blemishes,1,1,TP,Acne/Blemishes,25.133,129.501,0.135,216.8,0.0
+acne_pos_s26.7,Acne/Blemishes,1,1,TP,Acne/Blemishes,25.779,129.887,0.122,219.8,0.0
+acne_pos_s27.7,Acne/Blemishes,1,1,TP,Acne/Blemishes,26.53,130.16,0.088,225.4,0.0
+acne_pos_s28.7,Acne/Blemishes,1,1,TP,Acne/Blemishes,27.248,129.957,0.122,228.4,0.0
+acne_pos_s29.6,Acne/Blemishes,1,1,TP,Acne/Blemishes,28.112,130.038,0.118,229.2,0.0
+acne_pos_s30.6,Acne/Blemishes,1,1,TP,Acne/Blemishes,28.761,130.121,0.131,230.7,0.0
+acne_pos_s31.6,Acne/Blemishes,1,1,TP,Acne/Blemishes,29.508,130.71,0.094,236.3,0.0
+acne_pos_s32.6,Acne/Blemishes,1,1,TP,Acne/Blemishes,30.321,130.841,0.073,238.4,0.0
+acne_pos_s33.6,Acne/Blemishes,1,1,TP,Acne/Blemishes,31.117,130.561,0.11,241.8,0.0
+acne_pos_s34.5,Acne/Blemishes,1,1,TP,Acne/Blemishes,31.527,129.86,0.143,250.6,0.0
+acne_pos_s35.5,Acne/Blemishes,1,1,TP,Acne/Blemishes,31.745,130.245,0.16,250.0,0.0
+acne_pos_s36.5,Acne/Blemishes,1,1,TP,Acne/Blemishes,32.987,130.625,0.126,256.6,0.0
+acne_pos_s37.5,Acne/Blemishes,1,1,TP,Acne/Blemishes,33.19,130.432,0.069,263.1,0.0
+acne_pos_s38.4,Acne/Blemishes,1,1,TP,Acne/Blemishes,33.933,130.888,0.02,261.0,0.0
+acne_pos_s39.4,Acne/Blemishes,1,1,TP,Acne/Blemishes,34.504,130.61,0.102,264.7,0.0
+acne_pos_s40.4,Acne/Blemishes,1,1,TP,Acne/Blemishes,35.466,131.869,-0.054,272.5,0.0
+acne_pos_s41.4,Acne/Blemishes,1,1,TP,Acne/Blemishes,35.622,131.543,0.052,267.8,0.0
+acne_pos_s42.4,Acne/Blemishes,1,1,TP,Acne/Blemishes,36.917,131.93,-0.12,277.5,0.0
+acne_pos_s43.3,Acne/Blemishes,1,1,TP,Acne/Blemishes,37.239,131.971,-0.047,283.8,0.0
+acne_pos_s44.3,Acne/Blemishes,1,1,TP,Acne/Blemishes,37.675,131.983,0.001,282.2,0.0
+acne_pos_s45.3,Acne/Blemishes,1,1,TP,Acne/Blemishes,38.08,131.767,-0.085,290.3,0.0
+acne_pos_s46.3,Acne/Blemishes,1,1,TP,Acne/Blemishes,38.782,132.222,-0.094,294.6,0.0
+acne_pos_s47.3,Acne/Blemishes,1,1,TP,Acne/Blemishes,39.056,132.604,-0.128,292.5,0.0
+acne_pos_s48.2,Acne/Blemishes,1,1,TP,Acne/Blemishes,39.275,132.32,-0.137,294.9,0.0
+acne_pos_s49.2,Acne/Blemishes,1,1,TP,Acne/Blemishes,40.156,132.738,-0.28,309.4,0.0
+acne_pos_s50.2,Acne/Blemishes,1,1,TP,Acne/Blemishes,40.817,132.848,-0.253,312.4,0.0
+acne_pos_s51.2,Acne/Blemishes,1,1,TP,Acne/Blemishes,40.816,132.935,-0.236,315.9,0.0
+acne_pos_s52.2,Acne/Blemishes,1,1,TP,Acne/Blemishes,41.728,133.112,-0.236,321.9,0.0
+acne_pos_s53.1,Acne/Blemishes,1,1,TP,Acne/Blemishes,41.906,132.823,-0.28,321.9,0.0
+acne_pos_s54.1,Acne/Blemishes,1,1,TP,Acne/Blemishes,42.23,133.598,-0.296,324.7,0.0
+acne_pos_s55.1,Acne/Blemishes,1,1,TP,Acne/Blemishes,42.786,132.763,-0.321,327.6,0.0
+acne_pos_s56.1,Acne/Blemishes,1,1,TP,Acne/Blemishes,42.981,133.223,-0.341,328.6,0.0
+acne_pos_s57.1,Acne/Blemishes,1,1,TP,Acne/Blemishes,43.716,133.789,-0.424,340.5,0.0
+acne_pos_s58.0,Acne/Blemishes,1,1,TP,Acne/Blemishes,43.75,133.334,-0.361,346.0,0.0
+acne_pos_s59.0,Acne/Blemishes,1,1,TP,Acne/Blemishes,44.206,133.782,-0.474,347.6,0.0
+acne_pos_s60.0,Acne/Blemishes,1,1,TP,Acne/Blemishes,44.433,133.653,-0.494,348.2,0.0
+acne_neg_s0.0,Acne/Blemishes,0,0,TN,None,0.0,130.0,0.0,177.8,0.0
+acne_neg_s0.2,Acne/Blemishes,0,0,TN,None,0.5,129.503,0.0,177.8,0.0
+acne_neg_s0.3,Acne/Blemishes,0,0,TN,None,0.504,129.498,0.0,177.8,0.0
+acne_neg_s0.5,Acne/Blemishes,0,0,TN,None,0.583,129.509,0.0,177.8,0.0
+acne_neg_s0.7,Acne/Blemishes,0,0,TN,None,0.721,129.5,0.0,177.8,0.0
+acne_neg_s0.8,Acne/Blemishes,0,0,TN,None,0.865,129.498,0.0,177.8,0.0
+acne_neg_s1.0,Acne/Blemishes,0,0,TN,None,1.016,129.516,0.0,177.9,0.0
+acne_neg_s1.1,Acne/Blemishes,0,0,TN,None,1.19,129.48,0.0,177.9,0.0
+acne_neg_s1.3,Acne/Blemishes,0,0,TN,None,1.33,129.482,0.0,178.0,0.0
+acne_neg_s1.5,Acne/Blemishes,0,0,TN,None,1.497,129.53,0.0,178.1,0.0
+acne_neg_s1.6,Acne/Blemishes,0,0,TN,None,1.642,129.528,0.0,178.1,0.0
+acne_neg_s1.8,Acne/Blemishes,0,0,TN,None,1.818,129.515,0.0,178.2,0.0
+acne_neg_s2.0,Acne/Blemishes,0,0,TN,None,1.996,129.496,0.0,178.3,0.0
+acne_neg_s2.1,Acne/Blemishes,0,0,TN,None,2.147,129.541,0.0,178.3,0.0
+acne_neg_s2.3,Acne/Blemishes,0,0,TN,None,2.278,129.516,0.0,178.3,0.0
+acne_neg_s2.4,Acne/Blemishes,0,0,TN,None,2.442,129.509,0.0,178.3,0.0
+acne_neg_s2.6,Acne/Blemishes,0,0,TN,None,2.659,129.493,0.0,178.2,0.0
+acne_neg_s2.8,Acne/Blemishes,0,0,TN,None,2.782,129.494,0.0,178.4,0.0
+acne_neg_s2.9,Acne/Blemishes,0,0,TN,None,2.948,129.487,0.0,178.5,0.0
+acne_neg_s3.1,Acne/Blemishes,0,0,TN,None,3.082,129.467,0.0,178.6,0.0
+acne_neg_s3.3,Acne/Blemishes,0,0,TN,None,3.266,129.512,0.0,178.5,0.0
+acne_neg_s3.4,Acne/Blemishes,0,0,TN,None,3.425,129.491,0.0,178.7,0.0
+acne_neg_s3.6,Acne/Blemishes,0,0,TN,None,3.577,129.479,0.0,178.7,0.0
+acne_neg_s3.8,Acne/Blemishes,0,0,TN,None,3.76,129.542,0.0,178.6,0.0
+acne_neg_s3.9,Acne/Blemishes,0,0,TN,None,3.887,129.481,0.0,178.8,0.0
+acne_neg_s4.1,Acne/Blemishes,0,0,TN,None,4.079,129.54,0.0,178.3,0.0
+acne_neg_s4.2,Acne/Blemishes,0,0,TN,None,4.278,129.5,0.0,178.5,0.0
+acne_neg_s4.4,Acne/Blemishes,0,0,TN,None,4.412,129.504,0.0,178.8,0.0
+acne_neg_s4.6,Acne/Blemishes,0,0,TN,None,4.527,129.51,0.0,178.9,0.0
+acne_neg_s4.7,Acne/Blemishes,0,0,TN,None,4.74,129.478,0.0,178.8,0.0
+acne_neg_s4.9,Acne/Blemishes,0,0,TN,None,4.876,129.495,0.0,178.7,0.0
+acne_neg_s5.1,Acne/Blemishes,0,0,TN,None,5.065,129.393,0.0,179.3,0.0
+acne_neg_s5.2,Acne/Blemishes,0,0,TN,None,5.256,129.511,0.0,178.9,0.0
+acne_neg_s5.4,Acne/Blemishes,0,0,TN,None,5.435,129.496,0.0,178.8,0.0
+acne_neg_s5.6,Acne/Blemishes,0,0,TN,None,5.571,129.508,0.0,179.0,0.0
+acne_neg_s5.7,Acne/Blemishes,0,0,TN,None,5.688,129.46,0.0,178.9,0.0
+acne_neg_s5.9,Acne/Blemishes,0,0,TN,None,5.859,129.395,0.0,179.3,0.0
+acne_neg_s6.0,Acne/Blemishes,0,0,TN,None,6.108,129.377,0.0,179.2,0.0
+acne_neg_s6.2,Acne/Blemishes,0,0,TN,None,6.212,129.568,0.0,179.5,0.0
+acne_neg_s6.4,Acne/Blemishes,0,0,TN,None,6.407,129.545,0.0,179.1,0.0
+acne_neg_s6.5,Acne/Blemishes,0,0,TN,None,6.515,129.51,0.0,179.0,0.0
+acne_neg_s6.7,Acne/Blemishes,0,0,TN,None,6.666,129.459,0.0,178.9,0.0
+acne_neg_s6.9,Acne/Blemishes,0,0,TN,None,6.794,129.536,0.0,179.5,0.0
+acne_neg_s7.0,Acne/Blemishes,0,0,TN,None,7.089,129.601,0.001,179.0,0.0
+acne_neg_s7.2,Acne/Blemishes,0,0,TN,None,7.21,129.452,0.001,179.3,0.0
+acne_neg_s7.3,Acne/Blemishes,0,0,TN,None,7.363,129.392,0.001,179.5,0.0
+acne_neg_s7.5,Acne/Blemishes,0,0,TN,None,7.526,129.527,0.001,179.4,0.0
+acne_neg_s7.7,Acne/Blemishes,0,0,TN,None,7.706,129.475,0.001,179.6,0.0
+acne_neg_s7.8,Acne/Blemishes,0,0,TN,None,7.803,129.473,0.001,179.5,0.0
+acne_neg_s8.0,Acne/Blemishes,0,0,TN,None,8.015,129.597,0.002,179.9,0.0
+red_pos_a147.0,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,147.0,0.0,184.6,0.0
+red_pos_a147.6,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,147.0,0.0,184.6,0.0
+red_pos_a148.1,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,148.0,0.0,184.6,0.0
+red_pos_a148.7,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,148.0,0.0,184.6,0.0
+red_pos_a149.3,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,149.0,0.0,184.6,0.0
+red_pos_a149.9,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,149.0,0.0,184.6,0.0
+red_pos_a150.4,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,150.0,0.0,184.6,0.0
+red_pos_a151.0,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,151.0,0.0,184.6,0.0
+red_pos_a151.6,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,151.0,0.0,184.6,0.0
+red_pos_a152.1,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,152.0,0.0,184.6,0.0
+red_pos_a152.7,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,152.0,0.0,184.6,0.0
+red_pos_a153.3,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,153.0,0.0,184.6,0.0
+red_pos_a153.9,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,153.0,0.0,184.6,0.0
+red_pos_a154.4,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,154.0,0.0,184.6,0.0
+red_pos_a155.0,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,155.0,0.0,184.6,0.0
+red_pos_a155.6,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,155.0,0.0,184.6,0.0
+red_pos_a156.1,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,156.0,0.0,184.6,0.0
+red_pos_a156.7,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,156.0,0.0,184.6,0.0
+red_pos_a157.3,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,156.0,0.0,184.6,0.0
+red_pos_a157.9,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,156.0,0.0,184.6,0.0
+red_pos_a158.4,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,158.0,0.0,184.6,0.0
+red_pos_a159.0,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,159.0,0.0,184.6,0.0
+red_pos_a159.6,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,159.0,0.0,184.6,0.0
+red_pos_a160.1,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,160.0,0.0,184.6,0.0
+red_pos_a160.7,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,160.0,0.0,184.6,0.0
+red_pos_a161.3,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,161.0,0.0,184.6,0.0
+red_pos_a161.9,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,161.0,0.0,184.6,0.0
+red_pos_a162.4,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,162.0,0.0,184.6,0.0
+red_pos_a163.0,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,163.0,1.0,186.9,0.0
+red_pos_a163.6,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,163.0,1.0,186.9,0.0
+red_pos_a164.1,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,164.0,0.0,184.6,0.0
+red_pos_a164.7,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,164.0,0.0,184.6,0.0
+red_pos_a165.3,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,165.0,0.0,184.6,0.0
+red_pos_a165.9,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,165.0,0.0,184.6,0.0
+red_pos_a166.4,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,166.0,0.0,184.6,0.0
+red_pos_a167.0,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,167.0,0.0,184.6,0.0
+red_pos_a167.6,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,167.0,0.0,184.6,0.0
+red_pos_a168.1,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,168.0,0.0,184.6,0.0
+red_pos_a168.7,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,168.0,0.0,184.6,0.0
+red_pos_a169.3,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,169.0,0.0,184.6,0.0
+red_pos_a169.9,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,169.0,0.0,184.6,0.0
+red_pos_a170.4,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,170.0,0.0,184.6,0.0
+red_pos_a171.0,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,171.0,0.0,182.3,0.0
+red_pos_a171.6,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,171.0,0.0,182.3,0.0
+red_pos_a172.1,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,172.0,0.0,182.3,0.0
+red_pos_a172.7,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,172.0,0.0,182.3,0.0
+red_pos_a173.3,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,173.0,0.0,184.6,0.0
+red_pos_a173.9,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,173.0,0.0,184.6,0.0
+red_pos_a174.4,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,174.0,0.0,184.6,0.0
+red_pos_a175.0,Sensitive/Redness,1,1,TP,Sensitive/Redness,0.0,175.0,0.0,182.3,0.0
+red_neg_a110.0,Sensitive/Redness,0,0,TN,None,0.0,110.0,0.0,164.6,0.0
+red_neg_a110.7,Sensitive/Redness,0,0,TN,None,0.0,110.0,0.0,164.6,0.0
+red_neg_a111.3,Sensitive/Redness,0,0,TN,None,0.0,111.0,0.0,166.7,0.0
+red_neg_a112.0,Sensitive/Redness,0,0,TN,None,0.0,112.0,0.0,166.7,0.0
+red_neg_a112.7,Sensitive/Redness,0,0,TN,None,0.0,112.0,0.0,166.7,0.0
+red_neg_a113.4,Sensitive/Redness,0,0,TN,None,0.0,113.0,0.0,168.9,0.0
+red_neg_a114.0,Sensitive/Redness,0,0,TN,None,0.0,114.0,0.0,168.9,0.0
+red_neg_a114.7,Sensitive/Redness,0,0,TN,None,0.0,114.0,0.0,168.9,0.0
+red_neg_a115.4,Sensitive/Redness,0,0,TN,None,0.0,115.0,0.0,168.9,0.0
+red_neg_a116.1,Sensitive/Redness,0,0,TN,None,0.0,116.0,0.0,168.9,0.0
+red_neg_a116.7,Sensitive/Redness,0,0,TN,None,0.0,116.0,0.0,168.9,0.0
+red_neg_a117.4,Sensitive/Redness,0,0,TN,None,0.0,117.0,0.0,171.1,0.0
+red_neg_a118.1,Sensitive/Redness,0,0,TN,None,0.0,118.0,0.0,171.1,0.0
+red_neg_a118.8,Sensitive/Redness,0,0,TN,None,0.0,118.0,0.0,171.1,0.0
+red_neg_a119.4,Sensitive/Redness,0,0,TN,None,0.0,119.0,0.0,173.3,0.0
+red_neg_a120.1,Sensitive/Redness,0,0,TN,None,0.0,120.0,0.0,173.3,0.0
+red_neg_a120.8,Sensitive/Redness,0,0,TN,None,0.0,120.0,0.0,173.3,0.0
+red_neg_a121.4,Sensitive/Redness,0,0,TN,None,0.0,121.0,0.0,173.3,0.0
+red_neg_a122.1,Sensitive/Redness,0,0,TN,None,0.0,122.0,0.0,173.3,0.0
+red_neg_a122.8,Sensitive/Redness,0,0,TN,None,0.0,122.0,0.0,173.3,0.0
+red_neg_a123.5,Sensitive/Redness,0,0,TN,None,0.0,123.0,0.0,175.6,0.0
+red_neg_a124.1,Sensitive/Redness,0,0,TN,None,0.0,124.0,0.0,175.6,0.0
+red_neg_a124.8,Sensitive/Redness,0,0,TN,None,0.0,124.0,0.0,175.6,0.0
+red_neg_a125.5,Sensitive/Redness,0,0,TN,None,0.0,125.0,0.0,177.8,0.0
+red_neg_a126.2,Sensitive/Redness,0,0,TN,None,0.0,126.0,0.0,177.8,0.0
+red_neg_a126.8,Sensitive/Redness,0,0,TN,None,0.0,126.0,0.0,177.8,0.0
+red_neg_a127.5,Sensitive/Redness,0,0,TN,None,0.0,127.0,0.0,177.8,0.0
+red_neg_a128.2,Sensitive/Redness,0,0,TN,None,0.0,128.0,0.0,177.8,0.0
+red_neg_a128.9,Sensitive/Redness,0,0,TN,None,0.0,128.0,0.0,177.8,0.0
+red_neg_a129.5,Sensitive/Redness,0,0,TN,None,0.0,129.0,0.0,177.8,0.0
+red_neg_a130.2,Sensitive/Redness,0,0,TN,None,0.0,130.0,0.0,177.8,0.0
+red_neg_a130.9,Sensitive/Redness,0,0,TN,None,0.0,130.0,0.0,177.8,0.0
+red_neg_a131.6,Sensitive/Redness,0,0,TN,None,0.0,131.0,0.0,177.8,0.0
+red_neg_a132.2,Sensitive/Redness,0,0,TN,None,0.0,132.0,0.0,180.1,0.0
+red_neg_a132.9,Sensitive/Redness,0,0,TN,None,0.0,132.0,0.0,180.1,0.0
+red_neg_a133.6,Sensitive/Redness,0,0,TN,None,0.0,133.0,0.0,180.1,0.0
+red_neg_a134.2,Sensitive/Redness,0,0,TN,None,0.0,134.0,0.0,180.1,0.0
+red_neg_a134.9,Sensitive/Redness,0,0,TN,None,0.0,134.0,0.0,180.1,0.0
+red_neg_a135.6,Sensitive/Redness,0,0,TN,None,0.0,135.0,0.0,180.1,0.0
+red_neg_a136.3,Sensitive/Redness,0,0,TN,None,0.0,136.0,0.0,182.3,0.0
+red_neg_a136.9,Sensitive/Redness,0,0,TN,None,0.0,136.0,0.0,182.3,0.0
+red_neg_a137.6,Sensitive/Redness,0,0,TN,None,0.0,137.0,0.0,182.3,0.0
+red_neg_a138.3,Sensitive/Redness,0,0,TN,None,0.0,138.0,0.0,182.3,0.0
+red_neg_a139.0,Sensitive/Redness,0,0,TN,None,0.0,138.0,0.0,182.3,0.0
+red_neg_a139.6,Sensitive/Redness,0,0,TN,None,0.0,139.0,0.0,182.3,0.0
+red_neg_a140.3,Sensitive/Redness,0,0,TN,None,0.0,140.0,0.0,182.3,0.0
+red_neg_a141.0,Sensitive/Redness,0,0,TN,None,0.0,140.0,0.0,182.3,0.0
+red_neg_a141.7,Sensitive/Redness,0,0,TN,None,0.0,141.0,0.0,182.3,0.0
+red_neg_a142.3,Sensitive/Redness,0,0,TN,None,0.0,142.0,0.0,182.3,0.0
+red_neg_a143.0,Sensitive/Redness,0,0,TN,None,0.0,143.0,0.0,184.6,0.0
+dark_pos_d17.0,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,17.0,122.2,0.0
+dark_pos_d17.9,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,18.0,122.2,0.0
+dark_pos_d18.8,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,19.0,122.2,0.0
+dark_pos_d19.6,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,20.0,122.2,0.0
+dark_pos_d20.5,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,21.0,122.2,0.0
+dark_pos_d21.4,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,22.0,122.2,0.0
+dark_pos_d22.3,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,23.0,122.2,0.0
+dark_pos_d23.1,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,24.0,122.2,0.0
+dark_pos_d24.0,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,25.0,122.2,0.0
+dark_pos_d24.9,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,25.0,122.2,0.0
+dark_pos_d25.8,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,26.0,122.2,0.0
+dark_pos_d26.7,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,27.0,122.2,0.0
+dark_pos_d27.5,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,28.0,122.2,0.0
+dark_pos_d28.4,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,29.0,122.2,0.0
+dark_pos_d29.3,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,30.0,122.2,0.0
+dark_pos_d30.2,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,31.0,122.2,0.0
+dark_pos_d31.0,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,32.0,122.2,0.0
+dark_pos_d31.9,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,32.0,122.2,0.0
+dark_pos_d32.8,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,33.0,122.2,0.0
+dark_pos_d33.7,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,34.0,122.2,0.0
+dark_pos_d34.6,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,35.0,122.2,0.0
+dark_pos_d35.4,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,36.0,122.2,0.0
+dark_pos_d36.3,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,37.0,122.2,0.0
+dark_pos_d37.2,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,38.0,122.2,0.0
+dark_pos_d38.1,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,39.0,122.2,0.0
+dark_pos_d38.9,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,39.0,122.2,0.0
+dark_pos_d39.8,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,40.0,122.2,0.0
+dark_pos_d40.7,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,41.0,122.2,0.0
+dark_pos_d41.6,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,42.0,122.2,0.0
+dark_pos_d42.4,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,43.0,122.2,0.0
+dark_pos_d43.3,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,44.0,122.2,0.0
+dark_pos_d44.2,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,45.0,122.2,0.0
+dark_pos_d45.1,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,46.0,122.2,0.0
+dark_pos_d46.0,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,46.0,122.2,0.0
+dark_pos_d46.8,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,47.0,122.2,0.0
+dark_pos_d47.7,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,48.0,122.2,0.0
+dark_pos_d48.6,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,49.0,122.2,0.0
+dark_pos_d49.5,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,50.0,122.2,0.0
+dark_pos_d50.3,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,51.0,122.2,0.0
+dark_pos_d51.2,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,52.0,122.2,0.0
+dark_pos_d52.1,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,53.0,122.2,0.0
+dark_pos_d53.0,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,53.0,122.2,0.0
+dark_pos_d53.9,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,54.0,122.2,0.0
+dark_pos_d54.7,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,55.0,122.2,0.0
+dark_pos_d55.6,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,56.0,122.2,0.0
+dark_pos_d56.5,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,57.0,122.2,0.0
+dark_pos_d57.4,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,58.0,122.2,0.0
+dark_pos_d58.2,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,59.0,122.2,0.0
+dark_pos_d59.1,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,60.0,122.2,0.0
+dark_pos_d60.0,Dark Circles,1,1,TP,Dark Circles,0.0,128.0,60.0,122.2,0.0
+dark_neg_d0.0,Dark Circles,0,0,TN,None,0.0,128.0,0.0,122.2,0.0
+dark_neg_d0.3,Dark Circles,0,0,TN,None,0.0,128.0,1.0,122.2,0.0
+dark_neg_d0.5,Dark Circles,0,0,TN,None,0.0,128.0,1.0,122.2,0.0
+dark_neg_d0.8,Dark Circles,0,0,TN,None,0.0,128.0,1.0,122.2,0.0
+dark_neg_d1.1,Dark Circles,0,0,TN,None,0.0,128.0,2.0,122.2,0.0
+dark_neg_d1.3,Dark Circles,0,0,TN,None,0.0,128.0,2.0,122.2,0.0
+dark_neg_d1.6,Dark Circles,0,0,TN,None,0.0,128.0,2.0,122.2,0.0
+dark_neg_d1.9,Dark Circles,0,0,TN,None,0.0,128.0,2.0,122.2,0.0
+dark_neg_d2.1,Dark Circles,0,0,TN,None,0.0,128.0,3.0,122.2,0.0
+dark_neg_d2.4,Dark Circles,0,0,TN,None,0.0,128.0,3.0,122.2,0.0
+dark_neg_d2.7,Dark Circles,0,0,TN,None,0.0,128.0,3.0,122.2,0.0
+dark_neg_d2.9,Dark Circles,0,0,TN,None,0.0,128.0,3.0,122.2,0.0
+dark_neg_d3.2,Dark Circles,0,0,TN,None,0.0,128.0,4.0,122.2,0.0
+dark_neg_d3.4,Dark Circles,0,0,TN,None,0.0,128.0,4.0,122.2,0.0
+dark_neg_d3.7,Dark Circles,0,0,TN,None,0.0,128.0,4.0,122.2,0.0
+dark_neg_d4.0,Dark Circles,0,0,TN,None,0.0,128.0,4.0,122.2,0.0
+dark_neg_d4.2,Dark Circles,0,0,TN,None,0.0,128.0,5.0,122.2,0.0
+dark_neg_d4.5,Dark Circles,0,0,TN,None,0.0,128.0,5.0,122.2,0.0
+dark_neg_d4.8,Dark Circles,0,0,TN,None,0.0,128.0,5.0,122.2,0.0
+dark_neg_d5.0,Dark Circles,0,0,TN,None,0.0,128.0,6.0,122.2,0.0
+dark_neg_d5.3,Dark Circles,0,0,TN,None,0.0,128.0,6.0,122.2,0.0
+dark_neg_d5.6,Dark Circles,0,0,TN,None,0.0,128.0,6.0,122.2,0.0
+dark_neg_d5.8,Dark Circles,0,0,TN,None,0.0,128.0,6.0,122.2,0.0
+dark_neg_d6.1,Dark Circles,0,0,TN,None,0.0,128.0,7.0,122.2,0.0
+dark_neg_d6.4,Dark Circles,0,0,TN,None,0.0,128.0,7.0,122.2,0.0
+dark_neg_d6.6,Dark Circles,0,0,TN,None,0.0,128.0,7.0,122.2,0.0
+dark_neg_d6.9,Dark Circles,0,0,TN,None,0.0,128.0,7.0,122.2,0.0
+dark_neg_d7.2,Dark Circles,0,0,TN,None,0.0,128.0,8.0,122.2,0.0
+dark_neg_d7.4,Dark Circles,0,0,TN,None,0.0,128.0,8.0,122.2,0.0
+dark_neg_d7.7,Dark Circles,0,0,TN,None,0.0,128.0,8.0,122.2,0.0
+dark_neg_d8.0,Dark Circles,0,0,TN,None,0.0,128.0,8.0,122.2,0.0
+dark_neg_d8.2,Dark Circles,0,0,TN,None,0.0,128.0,9.0,122.2,0.0
+dark_neg_d8.5,Dark Circles,0,0,TN,None,0.0,128.0,9.0,122.2,0.0
+dark_neg_d8.8,Dark Circles,0,0,TN,None,0.0,128.0,9.0,122.2,0.0
+dark_neg_d9.0,Dark Circles,0,0,TN,None,0.0,128.0,10.0,122.2,0.0
+dark_neg_d9.3,Dark Circles,0,0,TN,None,0.0,128.0,10.0,122.2,0.0
+dark_neg_d9.6,Dark Circles,0,0,TN,None,0.0,128.0,10.0,122.2,0.0
+dark_neg_d9.8,Dark Circles,0,0,TN,None,0.0,128.0,10.0,122.2,0.0
+dark_neg_d10.1,Dark Circles,0,0,TN,None,0.0,128.0,11.0,122.2,0.0
+dark_neg_d10.3,Dark Circles,0,0,TN,None,0.0,128.0,11.0,122.2,0.0
+dark_neg_d10.6,Dark Circles,0,0,TN,None,0.0,128.0,11.0,122.2,0.0
+dark_neg_d10.9,Dark Circles,0,0,TN,None,0.0,128.0,11.0,122.2,0.0
+dark_neg_d11.1,Dark Circles,0,0,TN,None,0.0,128.0,12.0,122.2,0.0
+dark_neg_d11.4,Dark Circles,0,0,TN,None,0.0,128.0,12.0,122.2,0.0
+dark_neg_d11.7,Dark Circles,0,0,TN,None,0.0,128.0,12.0,122.2,0.0
+dark_neg_d11.9,Dark Circles,0,0,TN,None,0.0,128.0,12.0,122.2,0.0
+dark_neg_d12.2,Dark Circles,0,0,TN,None,0.0,128.0,13.0,122.2,0.0
+dark_neg_d12.5,Dark Circles,0,0,TN,None,0.0,128.0,13.0,122.2,0.0
+dark_neg_d12.7,Dark Circles,0,0,TN,None,0.0,128.0,13.0,122.2,0.0
+dark_neg_d13.0,Dark Circles,0,0,TN,None,0.0,128.0,13.0,122.2,0.0
+pores_pos_s32.0,Visible Pores,1,1,TP,Visible Pores,0.03,128.0,0.392,749.6,0.0
+pores_pos_s33.1,Visible Pores,1,1,TP,Visible Pores,0.038,128.001,0.089,788.2,0.0
+pores_pos_s34.2,Visible Pores,1,1,TP,Visible Pores,0.026,128.0,-0.346,818.0,0.0
+pores_pos_s35.2,Visible Pores,1,1,TP,Visible Pores,0.041,128.001,-0.172,905.5,0.0
+pores_pos_s36.3,Visible Pores,1,1,TP,Visible Pores,0.038,128.0,-0.195,951.0,0.0
+pores_pos_s37.4,Visible Pores,1,1,TP,Visible Pores,0.054,128.0,-0.276,975.3,0.0
+pores_pos_s38.5,Visible Pores,1,1,TP,Visible Pores,0.056,128.001,-0.118,1021.2,0.0
+pores_pos_s39.6,Visible Pores,1,1,TP,Visible Pores,0.058,128.0,-0.389,1056.8,0.0
+pores_pos_s40.7,Visible Pores,1,1,TP,Visible Pores,0.057,128.0,-0.936,1160.9,0.0
+pores_pos_s41.7,Visible Pores,1,1,TP,Visible Pores,0.063,128.001,-0.778,1177.1,0.0
+pores_pos_s42.8,Visible Pores,1,1,TP,Visible Pores,0.066,128.001,-1.1,1228.1,0.0
+pores_pos_s43.9,Visible Pores,1,1,TP,Visible Pores,0.085,128.003,-0.54,1256.1,0.0
+pores_pos_s45.0,Visible Pores,1,1,TP,Visible Pores,0.075,128.003,-1.063,1345.1,0.0
+pores_pos_s46.1,Visible Pores,1,1,TP,Visible Pores,0.077,128.002,-0.723,1388.5,0.0
+pores_pos_s47.1,Visible Pores,1,1,TP,Visible Pores,0.08,128.002,-0.774,1419.4,0.0
+pores_pos_s48.2,Visible Pores,1,1,TP,Visible Pores,0.087,128.004,-1.223,1498.9,0.0
+pores_pos_s49.3,Visible Pores,1,1,TP,Visible Pores,0.096,128.003,-1.709,1532.7,0.0
+pores_pos_s50.4,Visible Pores,1,1,TP,Visible Pores,0.089,128.005,-2.245,1545.7,0.0
+pores_pos_s51.5,Visible Pores,1,1,TP,Visible Pores,0.101,128.005,-2.635,1604.0,0.0
+pores_pos_s52.6,Visible Pores,1,1,TP,Visible Pores,0.102,128.004,-2.591,1719.4,0.0
+pores_pos_s53.6,Visible Pores,1,1,TP,Visible Pores,0.104,128.005,-1.165,1747.4,0.0
+pores_pos_s54.7,Visible Pores,1,1,TP,Visible Pores,0.121,128.008,-2.776,1841.6,0.0
+pores_pos_s55.8,Visible Pores,1,1,TP,Visible Pores,0.112,128.005,-2.254,1817.4,0.0
+pores_pos_s56.9,Visible Pores,1,1,TP,Visible Pores,0.131,128.01,-3.055,1944.7,0.0
+pores_pos_s58.0,Visible Pores,1,1,TP,Visible Pores,0.118,128.006,-2.338,1890.4,0.0
+pores_pos_s59.0,Visible Pores,1,1,TP,Visible Pores,0.132,128.008,-2.548,2040.9,0.0
+pores_pos_s60.1,Visible Pores,1,1,TP,Visible Pores,0.13,128.009,-3.397,2080.5,0.0
+pores_pos_s61.2,Visible Pores,1,1,TP,Visible Pores,0.127,128.008,-1.852,2138.8,0.0
+pores_pos_s62.3,Visible Pores,1,1,TP,Visible Pores,0.133,128.006,-2.97,2198.9,0.0
+pores_pos_s63.4,Visible Pores,1,1,TP,Visible Pores,0.135,128.008,-3.634,2179.6,0.0
+pores_pos_s64.4,Visible Pores,1,1,TP,Visible Pores,0.131,128.006,-4.74,2351.3,0.0
+pores_pos_s65.5,Visible Pores,1,1,TP,Visible Pores,0.147,128.01,-4.027,2340.4,0.0
+pores_pos_s66.6,Visible Pores,1,1,TP,Visible Pores,0.127,128.007,-3.541,2465.6,0.0
+pores_pos_s67.7,Visible Pores,1,1,TP,Visible Pores,0.149,128.012,-3.563,2485.9,0.0
+pores_pos_s68.8,Visible Pores,1,1,TP,Visible Pores,0.153,128.015,-4.49,2506.8,0.0
+pores_pos_s69.9,Visible Pores,1,1,TP,Visible Pores,0.144,128.01,-3.032,2487.4,0.0
+pores_pos_s70.9,Visible Pores,1,1,TP,Visible Pores,0.153,128.01,-4.358,2658.6,0.0
+pores_pos_s72.0,Visible Pores,1,1,TP,Visible Pores,0.138,128.009,-4.742,2674.4,0.0
+pores_pos_s73.1,Visible Pores,1,1,TP,Visible Pores,0.142,128.009,-5.529,2778.7,0.0
+pores_pos_s74.2,Visible Pores,1,1,TP,Visible Pores,0.163,128.013,-6.289,2819.7,0.0
+pores_pos_s75.3,Visible Pores,1,1,TP,Visible Pores,0.161,128.013,-5.298,2911.5,0.0
+pores_pos_s76.3,Visible Pores,1,1,TP,Visible Pores,0.169,128.012,-5.935,2946.4,0.0
+pores_pos_s77.4,Visible Pores,1,1,TP,Visible Pores,0.16,128.014,-6.819,2889.9,0.0
+pores_pos_s78.5,Visible Pores,1,1,TP,Visible Pores,0.179,128.014,-6.615,3053.8,0.0
+pores_pos_s79.6,Visible Pores,1,1,TP,Visible Pores,0.162,128.013,-5.724,2995.2,0.0
+pores_pos_s80.7,Visible Pores,1,1,TP,Visible Pores,0.175,128.014,-7.144,3104.6,0.0
+pores_pos_s81.8,Visible Pores,1,1,TP,Visible Pores,0.166,128.011,-7.25,3232.1,0.0
+pores_pos_s82.8,Visible Pores,1,1,TP,Visible Pores,0.168,128.014,-6.044,3151.0,0.0
+pores_pos_s83.9,Visible Pores,1,1,TP,Visible Pores,0.172,128.014,-6.734,3188.6,0.0
+pores_pos_s85.0,Visible Pores,1,1,TP,Visible Pores,0.157,128.012,-6.414,3226.7,0.0
+pores_neg_0,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_1,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_2,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_3,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_4,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_5,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_6,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_7,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_8,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_9,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_10,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_11,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_12,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_13,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_14,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_15,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_16,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_17,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_18,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_19,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_20,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_21,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_22,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_23,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_24,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_25,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_26,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_27,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_28,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_29,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_30,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_31,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_32,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_33,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_34,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_35,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_36,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_37,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_38,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_39,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_40,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_41,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_42,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_43,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_44,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_45,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_46,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_47,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_48,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+pores_neg_49,Visible Pores,0,0,TN,None,0.0,128.0,-36.0,104.3,0.0
+oily_pos_f0.15,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.15
+oily_pos_f0.17,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.1661
+oily_pos_f0.18,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.1825
+oily_pos_f0.20,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.1989
+oily_pos_f0.22,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.2153
+oily_pos_f0.23,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.2314
+oily_pos_f0.25,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.2478
+oily_pos_f0.26,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.2642
+oily_pos_f0.28,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.2806
+oily_pos_f0.30,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.2967
+oily_pos_f0.31,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.3131
+oily_pos_f0.33,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.3294
+oily_pos_f0.35,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.3458
+oily_pos_f0.36,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.3622
+oily_pos_f0.38,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.3783
+oily_pos_f0.39,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.3947
+oily_pos_f0.41,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.4111
+oily_pos_f0.43,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.4275
+oily_pos_f0.44,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.4436
+oily_pos_f0.46,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.46
+oily_pos_f0.48,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.4764
+oily_pos_f0.49,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.4928
+oily_pos_f0.51,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.5092
+oily_pos_f0.53,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.5253
+oily_pos_f0.54,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.5417
+oily_pos_f0.56,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.5581
+oily_pos_f0.57,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.5744
+oily_pos_f0.59,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.5906
+oily_pos_f0.61,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.6069
+oily_pos_f0.62,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.6233
+oily_pos_f0.64,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.6397
+oily_pos_f0.66,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.6561
+oily_pos_f0.67,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.6722
+oily_pos_f0.69,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.6886
+oily_pos_f0.71,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.705
+oily_pos_f0.72,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.7214
+oily_pos_f0.74,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.7375
+oily_pos_f0.75,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.7539
+oily_pos_f0.77,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.7703
+oily_pos_f0.79,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.7867
+oily_pos_f0.80,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.8031
+oily_pos_f0.82,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.8192
+oily_pos_f0.84,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.8356
+oily_pos_f0.85,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.8519
+oily_pos_f0.87,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.8683
+oily_pos_f0.88,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.8844
+oily_pos_f0.90,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.9008
+oily_pos_f0.92,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.9172
+oily_pos_f0.93,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.9336
+oily_pos_f0.95,Oily Skin,1,1,TP,Oily Skin,0.0,142.0,0.0,184.6,0.95
+oily_neg_f0.00,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.00,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.00,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.00,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.01,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.01,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.01,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.01,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.01,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.01,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.02,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.02,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.02,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.02,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.02,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.02,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.03,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.03,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.03,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.03,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.03,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.03,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.04,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.04,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.04,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.04,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.04,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.04,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.05,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.05,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.05,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.05,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.05,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.05,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.06,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.06,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.06,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.06,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.06,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.06,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.07,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.07,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.07,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.07,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.07,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.07,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.08,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.08,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.08,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0
+oily_neg_f0.08,Oily Skin,0,0,TN,None,0.0,142.0,0.0,184.6,0.0

@@ -1,0 +1,404 @@
+<div class="product-form-container">
+    <div class="form-header">
+        <h1>{{ isEditMode ? 'Edit Product' : 'Add New Product' }}</h1>
+        <button class="btn btn-outline" (click)="cancel()">Cancel</button>
+    </div>
+
+    <div *ngIf="loading && isEditMode" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading product...</p>
+    </div>
+
+    <form *ngIf="!loading || !isEditMode" [formGroup]="productForm" (ngSubmit)="onSubmit()" class="product-form">
+        <div *ngIf="error" class="error-message">
+            {{ error }}
+        </div>
+
+        <div class="form-sections">
+            <!-- 1. Top-Down Basic Info -->
+            <div class="form-section">
+                <h3>Basic Information</h3>
+                <div class="form-grid">
+                    
+                    <div class="form-group">
+                        <label for="category">Category *</label>
+                        <select id="category" formControlName="Category" class="form-select">
+                            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categorySlug">Category Slug</label>
+                        <input id="categorySlug" type="text" formControlName="Category_Slug" class="form-input"
+                            placeholder="e.g., makeup" />
+                        <div class="form-hint">Read-only. Auto-filled based on Category.</div>
+                    </div>
+                    
+                    <div class="form-group" style="position: relative;">
+                        <label for="productName">Product Name *</label>
+                        <input id="productName" type="text" formControlName="Product_Name" class="form-input"
+                            placeholder="e.g., Mask Fit Red Cushion" autocomplete="off" />
+                        <!-- Parent Suggestion Dropdown -->
+                        <div *ngIf="parentSuggestions.length > 0" class="suggestions-dropdown">
+                            <div class="suggestion-header">Suggested Product Line (Parent_ID)</div>
+                            <div class="suggestion-item" *ngFor="let sg of parentSuggestions" (click)="selectParentSuggestion(sg)">
+                                <strong>{{ sg.Parent_ID }}</strong> <span class="text-sm text-secondary ml-2">— {{ sg.lineName }}</span>
+                            </div>
+                        </div>
+
+                        <span *ngIf="productForm.get('Product_Name')?.touched && productForm.get('Product_Name')?.invalid"
+                            class="error-text">
+                            {{ getFieldError('Product_Name') }}
+                        </span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productSlug">Product Slug</label>
+                        <input id="productSlug" type="text" formControlName="Product_Slug" class="form-input"
+                            placeholder="e.g., mask-fit-red-cushion" />
+                        <div class="form-hint">Auto-generated from Name (can be manually edited)</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Parent ID</label>
+                        <input type="text" formControlName="Parent_ID" class="form-input" placeholder="e.g., LINE-MATCHA" />
+                        <div class="form-hint">Provides mapping to existing product lines</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sku">SKU / Product ID *
+                            <span *ngIf="productForm.get('Is_Auto_Generated_ID')?.value" class="badge-auto">AUTO</span>
+                        </label>
+                        <div class="d-flex align-items-center">
+                            <input id="sku" type="text" formControlName="Product_ID" class="form-input"
+                                placeholder="e.g., PRD-MK-RED-001" style="flex: 1;" />
+                            <button type="button" class="btn-sm btn-outline btn-generate ml-2" (click)="generateSmartSKU()" title="Generate Smart SKU">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="mr-1">
+                                    <path d="M13 22V14H21L11 2V10H3L13 22Z" fill="#ffb800" stroke="#f39c12" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Generate
+                            </button>
+                        </div>
+                        <span *ngIf="productForm.get('Product_ID')?.touched && productForm.get('Product_ID')?.invalid"
+                            class="error-text">
+                            {{ getFieldError('Product_ID') }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Commerce & Inventory -->
+            <div class="form-section">
+                <h3>Commerce & Inventory</h3>
+                <div class="form-grid-3">
+                    <div class="form-group">
+                        <label for="price">Price (USD) *</label>
+                        <input id="price" type="number" formControlName="Price" class="form-input" placeholder="0.00"
+                            step="0.01" />
+                        <span *ngIf="productForm.get('Price')?.touched && productForm.get('Price')?.invalid" class="error-text">
+                            {{ getFieldError('Price') }}
+                        </span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="salePrice">Sale Price (USD)</label>
+                        <input id="salePrice" type="number" formControlName="Sale_Price" class="form-input" placeholder="0.00"
+                            step="0.01" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status">Status *</label>
+                        <select id="status" formControlName="Status" class="form-select">
+                            <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stock">Stock Quantity *</label>
+                        <input id="stock" type="number" formControlName="Stock_Quantity" class="form-input" placeholder="0" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label mt-4">
+                            <input type="checkbox" formControlName="Is_Skincare" />
+                            Is Skincare Product?
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── SHADES ACCORDION UI EXTENSION ─────────────────────────────── -->
+            <div class="form-section variants-section">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3>Shades (Variants) Management</h3>
+                        <p class="form-hint m-0">Stored in isolated Shades database linked via Parent ID.</p>
+                    </div>
+                    <div class="toggle-container">
+                        <label class="toggle-label">
+                            <input type="checkbox" formControlName="Has_Variants" />
+                            <span class="toggle-slider"></span>
+                            Sản phẩm có biến thể (Has Shades)
+                        </label>
+                    </div>
+                </div>
+
+                <div *ngIf="hasVariants" class="shades-builder mt-4" formArrayName="shades">
+                    
+                    <div class="shade-card" *ngFor="let shadeCtrl of shades.controls; let i = index" [formGroupName]="i">
+                        <div class="shade-card-header" (click)="togglePanel(i)" [class.expanded]="expandedPanels[i]">
+                            <div class="d-flex align-items-center">
+                                <div class="accordion-indicator">{{ expandedPanels[i] ? '▼' : '►' }}</div>
+                                <div class="shade-preview-circle" [style.background]="shadeCtrl.get('Hex_Code')?.value || '#eeeeee'"></div>
+                                <strong class="shade-code-text">{{ shadeCtrl.get('Shade_Code')?.value || 'New Shade' }}</strong> 
+                                <span class="shade-name-text">{{ shadeCtrl.get('Shade_Name')?.value }}</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="status-badge">● Active</span>
+                                <button type="button" class="btn-remove-shade" (click)="$event.stopPropagation(); removeShade(i)" title="Remove Shade">×</button>
+                            </div>
+                        </div>
+                        
+                        <div class="shade-card-content" [class.open]="expandedPanels[i]">
+                            <div class="shade-card-body">
+                                
+                                <h4 class="section-label">IDENTIFIERS</h4>
+                                <div class="form-grid-3 identifiers-grid">
+                                    <div class="form-group required-group">
+                                        <label>Shade Code <span class="asterisk">*</span></label>
+                                        <input type="text" formControlName="Shade_Code" class="form-input" placeholder="e.g. 17C" />
+                                    </div>
+                                    <div class="form-group required-group">
+                                        <label>Shade Name <span class="asterisk">*</span></label>
+                                        <input type="text" formControlName="Shade_Name" class="form-input" placeholder="e.g. Porcelain" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Stock Quantity</label>
+                                        <input type="number" formControlName="Stock_Quantity" class="form-input" placeholder="0" />
+                                    </div>
+                                    <div class="empty-col"></div> <!-- Empty column to push auto fields to next line if needed -->
+                                    
+                                    <div class="form-group auto-group">
+                                        <label>Category Name <span class="badge-auto-pill">AUTO</span></label>
+                                        <input type="text" formControlName="Shade_Category_Name" class="form-input readonly-auto" readonly />
+                                    </div>
+                                    <div class="form-group auto-group">
+                                        <label>Parent ID <span class="badge-auto-pill">AUTO</span></label>
+                                        <input type="text" formControlName="Parent_ID" class="form-input readonly-auto" readonly />
+                                    </div>
+                                    <div class="form-group auto-group">
+                                        <label>Shade ID <span class="badge-auto-pill">AUTO</span></label>
+                                        <input type="text" formControlName="Shade_ID" class="form-input readonly-auto" readonly />
+                                    </div>
+                                    <div class="form-group auto-group">
+                                        <label>Product ID <span class="badge-auto-pill">AUTO</span></label>
+                                        <input type="text" formControlName="Product_ID" class="form-input readonly-auto" readonly />
+                                    </div>
+                                </div>
+                                <div class="section-divider"></div>
+
+                                <h4 class="section-label">COLOR PROFILE</h4>
+                                <div class="color-profile-grid">
+                                    <div class="swatch-upload-section">
+                                        <label class="field-label">Shade Image</label>
+                                        <div class="variant-img-upload">
+                                            <ng-container *ngIf="getVariantImagePreview(i) && processingColorIndex !== i; else emptyUpload">
+                                                <img [src]="getVariantImagePreview(i)" class="variant-thumb-full" />
+                                                <div class="upload-overlay">
+                                                    <span class="btn-change">Change</span>
+                                                    <input type="file" (change)="onVariantImageChange($event, i)" class="hidden-file-input" />
+                                                </div>
+                                            </ng-container>
+                                            <ng-template #emptyUpload>
+                                                <div class="variant-thumb-empty-card">
+                                                    <div class="upload-icon-plus">+</div>
+                                                    <div>Upload</div>
+                                                </div>
+                                                <input type="file" (change)="onVariantImageChange($event, i)" class="hidden-file-input" />
+                                            </ng-template>
+                                            <div *ngIf="uploadingVariantImageIndex === i || processingColorIndex === i" class="spinner-overlay">
+                                                <div class="spinner small border-warning"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="color-math-engine">
+                                        <label class="field-label">Hex Code</label>
+                                        
+                                        <div class="hex-input-row">
+                                            <div class="color-preview-box" [style.background]="shadeCtrl.get('Hex_Code')?.value || '#fff'"></div>
+                                            <input type="text" formControlName="Hex_Code" class="form-input hex-text-input" placeholder="#F2DBC3" />
+                                            <input type="color" formControlName="Hex_Code" class="hidden-color-picker" />
+                                        </div>
+                                        
+                                        <div class="math-readonly-grid-2row mt-3">
+                                            <div class="math-group-card"><label>R</label><div class="math-val">{{ shadeCtrl.get('R')?.value || '-' }}</div></div>
+                                            <div class="math-group-card"><label>G</label><div class="math-val">{{ shadeCtrl.get('G')?.value || '-' }}</div></div>
+                                            <div class="math-group-card"><label>B</label><div class="math-val">{{ shadeCtrl.get('B')?.value || '-' }}</div></div>
+                                            <div class="math-group-card"><label>L</label><div class="math-val">{{ shadeCtrl.get('L')?.value || '-' }}</div></div>
+                                            <div class="math-group-card"><label>a</label><div class="math-val">{{ shadeCtrl.get('a')?.value || '-' }}</div></div>
+                                            <div class="math-group-card"><label>b</label><div class="math-val">{{ shadeCtrl.get('b')?.value || '-' }}</div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="section-divider"></div>
+                                
+                                <h4 class="section-label with-hr"><span>SKIN & PERFORMANCE PROFILE</span><hr></h4>
+                                
+                                <div class="form-group-chip-row">
+                                    <label class="field-label">Skin Tone</label>
+                                    <div class="chip-container">
+                                        <span class="chip" [class.active]="shadeCtrl.get('Skin_Tone')?.value === opt" (click)="setChip(i, 'Skin_Tone', opt)" *ngFor="let opt of skinTones">{{opt}}</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group-chip-row">
+                                    <label class="field-label">Skin Type</label>
+                                    <div class="chip-container">
+                                        <span class="chip" [class.active]="shadeCtrl.get('Skin_Type')?.value === opt" (click)="setChip(i, 'Skin_Type', opt)" *ngFor="let opt of skinTypes">{{opt}}</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group-chip-row">
+                                    <label class="field-label">Undertone</label>
+                                    <div class="chip-container">
+                                        <span class="chip" [class.active]="shadeCtrl.get('Undertone')?.value === opt" (click)="setChip(i, 'Undertone', opt)" *ngFor="let opt of undertones">{{opt}}</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group-chip-row">
+                                    <label class="field-label">Finish Type</label>
+                                    <div class="chip-container">
+                                        <span class="chip" [class.active]="shadeCtrl.get('Finish_Type')?.value === opt" (click)="setChip(i, 'Finish_Type', opt)" *ngFor="let opt of finishTypes">{{opt}}</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group-chip-row">
+                                    <label class="field-label">Coverage</label>
+                                    <div class="chip-container">
+                                        <span class="chip" [class.active]="shadeCtrl.get('Coverage')?.value === opt" (click)="setChip(i, 'Coverage', opt)" *ngFor="let opt of coverages">{{opt}}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group-chip-row">
+                                    <label class="field-label">Coverage Profile</label>
+                                    <div class="chip-container">
+                                        <span class="chip" [class.active]="shadeCtrl.get('Coverage_Profile')?.value === opt" (click)="setChip(i, 'Coverage_Profile', opt)" *ngFor="let opt of coverageProfiles">{{opt}}</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-grid-3 mt-4">
+                                    <div class="form-group">
+                                        <label class="field-label">Hydration (1-5)</label>
+                                        <div class="btn-group-numeric-round">
+                                            <button type="button" *ngFor="let opt of hydrations" 
+                                                class="btn-num-round" [class.active]="shadeCtrl.get('Hydration')?.value === opt"
+                                                (click)="setChip(i, 'Hydration', opt)">{{opt}}</button>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="field-label">Oxidation Level</label>
+                                        <select class="form-select" formControlName="Oxidation_Level">
+                                            <option value="">Select Level</option>
+                                            <option *ngFor="let opt of oxidationLevels" [value]="opt">{{opt}}</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="field-label">Oxidation Risk</label>
+                                        <select class="form-select" formControlName="Oxidation_Risk_Level">
+                                            <option value="">Select Risk</option>
+                                            <option *ngFor="let opt of oxidationLevels" [value]="opt">{{opt}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn-add-shade-full" (click)="addEmptyShade()">
+                        + Add Shade
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3. Target & Usage (Omitted for brevity to speed up, using previous code logic below) -->
+            <div class="form-section">
+                <h3>Attributes & Usage</h3>
+                <div class="form-grid">
+                    <div class="form-group"><label>Volume / Size</label><input formControlName="Volume_Size" class="form-input" /></div>
+                    <div class="form-group"><label>Skin Type Target</label><input formControlName="Skin_Type_Target" class="form-input" /></div>
+                    <div class="form-group"><label>Main Concern</label><input formControlName="Main_Concern" class="form-input" /></div>
+                </div>
+                <div class="form-group mt-3"><label>Key Ingredients</label><textarea formControlName="Key_Ingredients" class="form-textarea" rows="2"></textarea></div>
+                <div class="form-group mt-3"><label>How to Use</label><textarea formControlName="How_To_Use" class="form-textarea" rows="3"></textarea></div>
+            </div>
+
+            <div class="form-row-flexible">
+                <div class="form-section description-group">
+                    <h3>Product Description</h3>
+                    <div class="form-group"><label>Short Description</label><textarea formControlName="Description_Short" class="form-textarea" rows="3"></textarea></div>
+                    <div class="form-group mt-3"><label>Full Description</label><textarea formControlName="Full_Description" class="form-textarea" rows="8"></textarea></div>
+                </div>
+
+                <div class="form-section media-section">
+                    <h3>Media</h3>
+                    <div class="form-group">
+                        <label>Thumbnail Image (Primary) *</label>
+                        <div class="image-upload-area" [class.has-error]="productForm.get('Thumbnail_Images')?.touched && productForm.get('Thumbnail_Images')?.invalid">
+                            <div *ngIf="thumbnailPreview" class="image-preview">
+                                <img [src]="thumbnailPreview" alt="Product preview" />
+                                <button type="button" class="btn-remove-image" (click)="removeThumbnail()">Remove</button>
+                            </div>
+                            <div *ngIf="!thumbnailPreview" class="upload-placeholder">
+                                <span class="upload-icon">📷</span>
+                                <p>Click to upload primary image</p>
+                                <input type="file" accept="image/*" (change)="onThumbnailChange($event)" class="file-input" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label>Gallery Images</label>
+                        </div>
+                        <div class="media-upload-grid">
+                            <div class="gallery-preview-item" *ngFor="let gf of galleryFiles; let i = index">
+                                <img [src]="gf.preview" />
+                                <button type="button" class="btn-remove-overlay" (click)="removeGalleryImage(i)">×</button>
+                            </div>
+                            <div class="upload-box-dashed">
+                                <span class="plus-icon">+</span>
+                                <div>Add Images</div>
+                                <input type="file" accept="image/*" multiple (change)="onGalleryChange($event)" class="file-input" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label>Description Images</label>
+                        </div>
+                        <div class="media-upload-grid">
+                            <div class="gallery-preview-item" *ngFor="let df of descriptionFiles; let i = index">
+                                <img [src]="df.preview" />
+                                <button type="button" class="btn-remove-overlay" (click)="removeDescriptionImage(i)">×</button>
+                            </div>
+                            <div class="upload-box-dashed">
+                                <span class="plus-icon">+</span>
+                                <div>Add Images</div>
+                                <input type="file" accept="image/*" multiple (change)="onDescriptionChange($event)" class="file-input" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions sticky-actions">
+            <button type="button" class="btn btn-outline" (click)="cancel()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="loading || uploadingImage">
+                {{ loading ? 'Saving...' : (isEditMode ? 'Update Product' : 'Create Product') }}
+            </button>
+        </div>
+    </form>
+</div>
