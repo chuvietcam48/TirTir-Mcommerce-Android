@@ -19,7 +19,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        jcenter()
+        maven { url = uri("https://oss.sonatype.org/content/repositories/ksoap2-android-releases/") }
     }
 }
 

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Thư mục ảnh tạm khi chụp bằng Camera -->
+    <external-files-path
+        name="camera_images"
+        path="Pictures/" />
+    <!-- Thư mục cache nội bộ (fallback) -->
+    <cache-path
+        name="cache_images"
+        path="." />
+</paths>

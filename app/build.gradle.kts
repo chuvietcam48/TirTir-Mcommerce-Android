@@ -55,7 +55,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
 
     // ksoap2 - SOAP client cho Viettel Post shipping API
-    implementation("com.google.code.ksoap2-android:ksoap2-android:3.6.4@aar")
+    implementation("com.google.code.ksoap2-android:ksoap2-android:3.6.4")
 
     // Testing
     testImplementation(libs.junit)

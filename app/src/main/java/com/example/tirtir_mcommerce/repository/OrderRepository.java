@@ -1,0 +1,173 @@
+package com.example.tirtir_mcommerce.repository;
+
+import android.app.DownloadManager;
+import android.content.Context;
+import android.net.Uri;
+import android.os.Environment;
+import android.util.Log;
+
+import com.example.tirtir_mcommerce.model.ApiResponse;
+import com.example.tirtir_mcommerce.model.CreateOrderRequest;
+import com.example.tirtir_mcommerce.model.OrderResponse;
+import com.example.tirtir_mcommerce.network.ApiService;
+import com.example.tirtir_mcommerce.network.RetrofitClient;
+
+import java.util.List;
+import java.util.function.Consumer;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+/**
+ * OrderRepository — xử lý nghiệp vụ đặt hàng và PDF invoice.
+ *
+ * Chức năng:
+ * 1. placeOrder() — POST /api/v1/orders/create
+ * 2. getMyOrders() — GET /api/v1/orders/my-orders
+ * 3. downloadInvoicePdf() — dùng Android DownloadManager tải PDF về máy
+ *
+ * Android Components (cho Báo cáo):
+ * - DownloadManager: Service hệ thống tải file ở nền, progress hiển thị trong notification bar
+ *
+ * Sprint 1.3 — Task C: Đặt hàng + PDF
+ */
+public class OrderRepository {
+
+    private static final String TAG = "OrderRepository";
+    private static final String BASE_URL = "https://tirtir-project.onrender.com/";
+
+    private final Context context;
+
+    public OrderRepository(Context context) {
+        this.context = context.getApplicationContext();
+    }
+
+    // ===========================
+    // PLACE ORDER
+    // ===========================
+
+    /**
+     * Tạo đơn hàng mới từ giỏ hàng hiện tại.
+     * Backend sẽ tự lấy cart của user qua JWT token.
+     *
+     * @param request   Địa chỉ giao hàng + phương thức thanh toán
+     * @param onSuccess Callback nhận OrderResponse (có orderId)
+     * @param onError   Callback nhận thông báo lỗi
+     */
+    public void placeOrder(CreateOrderRequest request,
+                           Consumer<OrderResponse> onSuccess,
+                           Consumer<String> onError) {
+        ApiService apiService = RetrofitClient.getAuthClient(context).create(ApiService.class);
+
+        apiService.createOrder(request).enqueue(new Callback<ApiResponse<OrderResponse>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<OrderResponse>> call,
+                                   Response<ApiResponse<OrderResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<OrderResponse> apiResponse = response.body();
+                    if (apiResponse.getData() != null) {
+                        Log.d(TAG, "Order placed: " + apiResponse.getData().getId());
+                        onSuccess.accept(apiResponse.getData());
+                    } else {
+                        onError.accept("Phản hồi không hợp lệ từ server");
+                    }
+                } else {
+                    String msg = "Lỗi đặt hàng: " + response.code();
+                    Log.e(TAG, msg);
+                    onError.accept(msg);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<OrderResponse>> call, Throwable t) {
+                Log.e(TAG, "Network error: " + t.getMessage());
+                onError.accept("Lỗi kết nối: " + t.getMessage());
+            }
+        });
+    }
+
+    // ===========================
+    // GET ORDERS HISTORY
+    // ===========================
+
+    /**
+     * Lấy danh sách đơn hàng của user hiện tại.
+     */
+    public void getMyOrders(Consumer<List<OrderResponse>> onSuccess, Consumer<String> onError) {
+        ApiService apiService = RetrofitClient.getAuthClient(context).create(ApiService.class);
+
+        apiService.getMyOrders().enqueue(new Callback<ApiResponse<List<OrderResponse>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<OrderResponse>>> call,
+                                   Response<ApiResponse<List<OrderResponse>>> response) {
+                if (response.isSuccessful() && response.body() != null
+                        && response.body().getData() != null) {
+                    onSuccess.accept(response.body().getData());
+                } else {
+                    onError.accept("Không thể lấy lịch sử đơn hàng");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<OrderResponse>>> call, Throwable t) {
+                onError.accept("Lỗi kết nối: " + t.getMessage());
+            }
+        });
+    }
+
+    // ===========================
+    // DOWNLOAD PDF INVOICE
+    // ===========================
+
+    /**
+     * Tải hóa đơn PDF về máy bằng DownloadManager.
+     *
+     * DownloadManager là Android System Service:
+     * - Tải file ở background (không block UI)
+     * - Hiển thị progress trong notification bar
+     * - File được lưu vào thư mục Downloads
+     *
+     * URL PDF: nếu backend trả về invoiceUrl → dùng trực tiếp
+     *          nếu không → tự build từ orderId
+     *
+     * @param orderId    ID đơn hàng
+     * @param invoiceUrl URL PDF (có thể null — sẽ build từ orderId)
+     * @return downloadId từ DownloadManager để track tiến trình
+     */
+    public long downloadInvoicePdf(String orderId, String invoiceUrl) {
+        // Build PDF URL: ưu tiên invoiceUrl từ response, fallback orderId pattern
+        String pdfUrl;
+        if (invoiceUrl != null && !invoiceUrl.isEmpty()) {
+            pdfUrl = invoiceUrl;
+        } else {
+            // Pattern URL tự build — cần điều chỉnh theo backend thực tế
+            pdfUrl = BASE_URL + "api/v1/orders/" + orderId + "/invoice";
+        }
+
+        String fileName = "TirTir_Invoice_" + orderId.substring(Math.max(0, orderId.length() - 8)) + ".pdf";
+
+        Log.d(TAG, "Downloading PDF from: " + pdfUrl);
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(pdfUrl))
+                .setTitle("Hóa đơn TirTir")
+                .setDescription("Đang tải hóa đơn đơn hàng...")
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+                .setMimeType("application/pdf")
+                .setAllowedOverMetered(true)
+                .setAllowedOverRoaming(true);
+
+        DownloadManager downloadManager =
+                (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+
+        if (downloadManager == null) {
+            Log.e(TAG, "DownloadManager not available");
+            return -1;
+        }
+
+        long downloadId = downloadManager.enqueue(request);
+        Log.d(TAG, "PDF download started with ID: " + downloadId);
+        return downloadId;
+    }
+}

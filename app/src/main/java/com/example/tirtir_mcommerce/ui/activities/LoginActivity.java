@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.tirtir_mcommerce.MainActivity;
 import com.example.tirtir_mcommerce.R;
+import com.example.tirtir_mcommerce.model.User;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -81,10 +82,10 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        // Quan sát đăng nhập thành công
+        // Quan sát đăng nhập thành công → phân nhánh theo role
         authViewModel.loginSuccess.observe(this, user -> {
             Toast.makeText(this, getString(R.string.toast_login_success), Toast.LENGTH_SHORT).show();
-            goToMain();
+            navigateByRole(user);
         });
     }
 
@@ -113,8 +114,27 @@ public class LoginActivity extends AppCompatActivity {
         authViewModel.login(email, password);
     }
 
+    /**
+     * Điều hướng sau khi đăng nhập thành công dựa theo role của user.
+     * - "admin": vào AdminActivity
+     * - các role khác ("user", "inventory_staff", "customer_service"): vào MainActivity
+     */
+    private void navigateByRole(User user) {
+        if (user != null && "admin".equals(user.getRole())) {
+            goToAdmin();
+        } else {
+            goToMain();
+        }
+    }
+
     private void goToMain() {
         Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void goToAdmin() {
+        Intent intent = new Intent(this, AdminActivity.class);
         startActivity(intent);
         finish();
     }

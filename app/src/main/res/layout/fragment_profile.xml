@@ -36,7 +36,9 @@
                     android:layout_height="64dp"
                     android:scaleType="centerCrop"
                     android:background="@color/tirtir_aura_pink"
-                    android:src="@android:drawable/ic_menu_gallery" />
+                    android:src="@android:drawable/ic_menu_gallery"
+                    android:clickable="true"
+                    android:focusable="true" />
 
                 <TextView
                     android:id="@+id/tvInitials"
@@ -47,7 +49,18 @@
                     android:textSize="22sp"
                     android:textStyle="bold"
                     android:visibility="visible"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:text="TT" />
+
+                <!-- ProgressBar hiển thị khi đang upload avatar -->
+                <ProgressBar
+                    android:id="@+id/progressAvatarUpload"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+
             </FrameLayout>
 
             <!-- Name + Email -->

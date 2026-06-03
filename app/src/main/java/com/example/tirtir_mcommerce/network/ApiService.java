@@ -4,6 +4,8 @@ import com.example.tirtir_mcommerce.model.Address;
 import com.example.tirtir_mcommerce.model.ApiResponse;
 import com.example.tirtir_mcommerce.model.LoginRequest;
 import com.example.tirtir_mcommerce.model.LoginResponse;
+import com.example.tirtir_mcommerce.model.OrderResponse;
+import com.example.tirtir_mcommerce.model.CreateOrderRequest;
 import com.example.tirtir_mcommerce.model.ProductResponse;
 import com.example.tirtir_mcommerce.model.RegisterRequest;
 import com.example.tirtir_mcommerce.model.User;
@@ -125,4 +127,46 @@ public interface ApiService {
      */
     @GET("api/v1/products?limit=1000")
     Call<ProductResponse> getProducts();
+
+    // ===========================
+    // CART MODULE
+    // ===========================
+
+    /**
+     * Thêm sản phẩm vào giỏ hàng (server) - POST /api/v1/cart/add
+     * Body: { productId, quantity, shade }
+     * Yêu cầu token (Bearer)
+     */
+    @POST("api/v1/cart/add")
+    Call<Void> addToCartServer(@Body Map<String, Object> body);
+
+    /**
+     * Lấy giỏ hàng hiện tại - GET /api/v1/cart
+     */
+    @GET("api/v1/cart")
+    Call<ApiResponse<Void>> getCart();
+
+    // ===========================
+    // ORDER MODULE
+    // ===========================
+
+    /**
+     * Tạo đơn hàng - POST /api/v1/orders/create
+     * Yêu cầu token (Bearer)
+     * Body: { shippingAddress, paymentMethod }
+     */
+    @POST("api/v1/orders/create")
+    Call<ApiResponse<OrderResponse>> createOrder(@Body CreateOrderRequest request);
+
+    /**
+     * Lấy lịch sử đơn hàng - GET /api/v1/orders/my-orders
+     */
+    @GET("api/v1/orders/my-orders")
+    Call<ApiResponse<List<OrderResponse>>> getMyOrders();
+
+    /**
+     * Xem chi tiết đơn hàng - GET /api/v1/orders/{id}
+     */
+    @GET("api/v1/orders/{id}")
+    Call<ApiResponse<OrderResponse>> getOrderById(@Path("id") String orderId);
 }

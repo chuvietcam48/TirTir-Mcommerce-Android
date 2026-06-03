@@ -1,19 +1,31 @@
 package com.example.tirtir_mcommerce.ui.fragments;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -25,6 +37,12 @@ import com.example.tirtir_mcommerce.viewmodel.AuthViewModel;
 import com.example.tirtir_mcommerce.viewmodel.ProfileViewModel;
 import com.google.android.material.button.MaterialButton;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 /**
  * ProfileFragment - Màn hình Tài khoản người dùng.
  *
@@ -34,9 +52,22 @@ import com.google.android.material.button.MaterialButton;
  * Tính năng theo Syllabus:
  * - AlertDialog: Xác nhận đăng xuất
  * - Multi-language: Chuyển đổi ngôn ngữ
+ *
+ * Sprint 1.1:
+ * - Avatar upload: Camera/Gallery → Firebase Storage
+ * - Wishlist: Navigate WishlistFragment
  */
 public class ProfileFragment extends Fragment {
 
+    // ===========================
+    // REQUEST CODES
+    // ===========================
+    private static final int REQUEST_CAMERA_PERMISSION = 101;
+    private static final int REQUEST_STORAGE_PERMISSION = 102;
+
+    // ===========================
+    // VIEWS
+    // ===========================
     private ProfileViewModel profileViewModel;
     private AuthViewModel authViewModel;
 
@@ -45,6 +76,57 @@ public class ProfileFragment extends Fragment {
     private ImageButton btnEditProfile;
     private LinearLayout layoutMyOrders, layoutMyAddresses, layoutMyWishlist, layoutLanguage;
     private MaterialButton btnLogout;
+    private ProgressBar progressAvatarUpload;
+
+    // ===========================
+    // CAMERA / GALLERY
+    // ===========================
+    private Uri cameraImageUri; // URI tạm lưu ảnh chụp camera
+
+    /** Activity Result Launcher cho Gallery */
+    private final ActivityResultLauncher<Intent> galleryLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    Uri selectedUri = result.getData().getData();
+                    if (selectedUri != null) {
+                        previewAndUploadAvatar(selectedUri);
+                    }
+                }
+            }
+    );
+
+    /** Activity Result Launcher cho Camera */
+    private final ActivityResultLauncher<Intent> cameraLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && cameraImageUri != null) {
+                    previewAndUploadAvatar(cameraImageUri);
+                }
+            }
+    );
+
+    /** Permission launcher cho Camera */
+    private final ActivityResultLauncher<String> cameraPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(),
+            granted -> {
+                if (granted) openCamera();
+                else Toast.makeText(getContext(), "Cần quyền Camera để chụp ảnh", Toast.LENGTH_SHORT).show();
+            }
+    );
+
+    /** Permission launcher cho Storage (Android < 13) */
+    private final ActivityResultLauncher<String> storagePermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(),
+            granted -> {
+                if (granted) openGallery();
+                else Toast.makeText(getContext(), "Cần quyền bộ nhớ để chọn ảnh", Toast.LENGTH_SHORT).show();
+            }
+    );
+
+    // ===========================
+    // LIFECYCLE
+    // ===========================
 
     @Nullable
     @Override
@@ -69,6 +151,10 @@ public class ProfileFragment extends Fragment {
         profileViewModel.loadProfile();
     }
 
+    // ===========================
+    // BIND VIEWS
+    // ===========================
+
     private void bindViews(View view) {
         imgAvatar = view.findViewById(R.id.imgAvatar);
         tvUserName = view.findViewById(R.id.tvUserName);
@@ -81,7 +167,12 @@ public class ProfileFragment extends Fragment {
         layoutMyWishlist = view.findViewById(R.id.layoutMyWishlist);
         layoutLanguage = view.findViewById(R.id.layoutLanguage);
         btnLogout = view.findViewById(R.id.btnLogout);
+        progressAvatarUpload = view.findViewById(R.id.progressAvatarUpload);
     }
+
+    // ===========================
+    // OBSERVE VIEWMODEL
+    // ===========================
 
     private void observeViewModel() {
         profileViewModel.userLiveData.observe(getViewLifecycleOwner(), this::bindUserData);
@@ -96,6 +187,15 @@ public class ProfileFragment extends Fragment {
             if (message != null && !message.isEmpty()) {
                 Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
             }
+        });
+
+        // Hiện ProgressBar khi đang upload avatar
+        profileViewModel.avatarUploadLoading.observe(getViewLifecycleOwner(), isUploading -> {
+            if (progressAvatarUpload != null) {
+                progressAvatarUpload.setVisibility(isUploading ? View.VISIBLE : View.GONE);
+            }
+            // Disable avatar click khi đang upload
+            imgAvatar.setEnabled(!isUploading);
         });
     }
 
@@ -114,11 +214,16 @@ public class ProfileFragment extends Fragment {
                     .placeholder(android.R.drawable.ic_menu_gallery)
                     .into(imgAvatar);
             tvInitials.setVisibility(View.GONE);
+            imgAvatar.setVisibility(View.VISIBLE);
         } else {
             imgAvatar.setVisibility(View.INVISIBLE);
             tvInitials.setVisibility(View.VISIBLE);
         }
     }
+
+    // ===========================
+    // LISTENERS
+    // ===========================
 
     private void setListeners() {
         // ===== ALERT DIALOG - Xác nhận Đăng xuất (Yêu cầu môn học) =====
@@ -130,6 +235,11 @@ public class ProfileFragment extends Fragment {
                     .setNegativeButton(R.string.btn_cancel, null)
                     .show();
         });
+
+        // ===== AVATAR - Chọn Camera hoặc Gallery =====
+        imgAvatar.setOnClickListener(v -> showAvatarPickerDialog());
+        // Cũng cho phép click vào chữ viết tắt (khi chưa có avatar)
+        tvInitials.setOnClickListener(v -> showAvatarPickerDialog());
 
         // Chuyển màn hình Địa chỉ
         layoutMyAddresses.setOnClickListener(v -> {
@@ -143,11 +253,8 @@ public class ProfileFragment extends Fragment {
             Toast.makeText(getContext(), "Đơn hàng của tôi (đang phát triển)", Toast.LENGTH_SHORT).show();
         });
 
-        // Wishlist qua ContentProvider
-        layoutMyWishlist.setOnClickListener(v -> {
-            // TODO Sprint 1 - FE2: Query WishlistContentProvider
-            Toast.makeText(getContext(), "Danh sách yêu thích (đang phát triển)", Toast.LENGTH_SHORT).show();
-        });
+        // ===== WISHLIST - Navigate WishlistFragment (ContentProvider) =====
+        layoutMyWishlist.setOnClickListener(v -> navigateToWishlist());
 
         // Chuyển đổi ngôn ngữ
         layoutLanguage.setOnClickListener(v -> showLanguageDialog());
@@ -157,6 +264,119 @@ public class ProfileFragment extends Fragment {
             Toast.makeText(getContext(), "Chỉnh sửa hồ sơ (đang phát triển)", Toast.LENGTH_SHORT).show();
         });
     }
+
+    // ===========================
+    // AVATAR PICKER (Camera / Gallery)
+    // ===========================
+
+    /**
+     * Hiển thị Dialog chọn nguồn ảnh: Camera hoặc Thư viện.
+     */
+    private void showAvatarPickerDialog() {
+        String[] options = {"📷 Chụp ảnh bằng Camera", "🖼️ Chọn từ Thư viện"};
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Cập nhật ảnh đại diện")
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) checkCameraPermissionAndOpen();
+                    else checkStoragePermissionAndOpen();
+                })
+                .show();
+    }
+
+    /** Kiểm tra quyền Camera trước khi mở */
+    private void checkCameraPermissionAndOpen() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
+            openCamera();
+        } else {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+        }
+    }
+
+    /** Kiểm tra quyền Storage trước khi mở Gallery (Android < 13 cần xin) */
+    private void checkStoragePermissionAndOpen() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Android 13+: không cần xin READ_EXTERNAL_STORAGE cho media
+            openGallery();
+        } else {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                openGallery();
+            } else {
+                storagePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+            }
+        }
+    }
+
+    /** Mở Camera và tạo URI tạm cho ảnh chụp */
+    private void openCamera() {
+        try {
+            File imageFile = createTempImageFile();
+            cameraImageUri = FileProvider.getUriForFile(
+                    requireContext(),
+                    "com.example.tirtir_mcommerce.fileprovider",
+                    imageFile
+            );
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
+            cameraLauncher.launch(cameraIntent);
+        } catch (IOException e) {
+            Toast.makeText(getContext(), "Không thể mở camera: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /** Mở Gallery để chọn ảnh */
+    private void openGallery() {
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        galleryIntent.setType("image/*");
+        galleryLauncher.launch(galleryIntent);
+    }
+
+    /** Tạo file ảnh tạm thời trong thư mục Pictures của app */
+    private File createTempImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String imageFileName = "avatar_" + timeStamp;
+        File storageDir = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(imageFileName, ".jpg", storageDir);
+    }
+
+    /**
+     * Preview ảnh ngay lập tức rồi bắt đầu upload lên Firebase Storage.
+     *
+     * @param imageUri URI của ảnh (từ Camera hoặc Gallery)
+     */
+    private void previewAndUploadAvatar(Uri imageUri) {
+        // Hiện preview ngay (UX tốt hơn — user thấy thay đổi ngay)
+        Glide.with(this)
+                .load(imageUri)
+                .circleCrop()
+                .into(imgAvatar);
+        imgAvatar.setVisibility(View.VISIBLE);
+        tvInitials.setVisibility(View.GONE);
+
+        // Upload lên Firebase Storage qua ViewModel
+        profileViewModel.uploadAvatar(imageUri);
+    }
+
+    // ===========================
+    // WISHLIST NAVIGATION
+    // ===========================
+
+    /**
+     * Điều hướng sang WishlistFragment để xem danh sách yêu thích.
+     * Dùng ContentProvider để query SQLite Wishlist DB.
+     */
+    private void navigateToWishlist() {
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.frame_container, new WishlistFragment())
+                .addToBackStack("wishlist")
+                .commit();
+    }
+
+    // ===========================
+    // LOGOUT
+    // ===========================
 
     private void performLogout() {
         authViewModel.logout(() -> {
@@ -168,6 +388,10 @@ public class ProfileFragment extends Fragment {
             });
         });
     }
+
+    // ===========================
+    // LANGUAGE DIALOG
+    // ===========================
 
     /**
      * Dialog chọn ngôn ngữ (Yêu cầu môn học: Dialog + Multi-language)
