@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterModule, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -12,20 +12,37 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class ProfileLayoutComponent implements OnInit {
     private authService = inject(AuthService);
+    private router = inject(Router);
 
     userName = '';
+    userEmail = '';
+    userInitials = '';
 
     menuItems = [
-        { path: 'profile', label: 'Profile' },
-        { path: 'addresses', label: 'Address Book' },
-        { path: 'password', label: 'Change Password' },
-        { path: 'orders', label: 'Order History' },
-        { path: 'notifications', label: 'Notifications' }
+        { path: 'profile', label: 'Profile', icon: '👤' },
+        { path: 'addresses', label: 'Address Book', icon: '📍' },
+        { path: 'password', label: 'Change Password', icon: '🔒' },
+        { path: 'orders', label: 'Order History', icon: '📦' },
+        { path: 'notifications', label: 'Notifications', icon: '🔔' }
     ];
 
     ngOnInit() {
         this.authService.currentUser$.subscribe(user => {
-            this.userName = (user as any)?.name || (user as any)?.fullName || '';
+            const u = user as any;
+            this.userName = u?.name || u?.fullName || '';
+            this.userEmail = u?.email || '';
+            this.userInitials = this.getInitials(this.userName);
         });
+    }
+
+    private getInitials(name: string): string {
+        if (!name) return 'U';
+        const parts = name.trim().split(' ');
+        if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+        return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    }
+
+    logout(): void {
+        this.authService.logout();
     }
 }

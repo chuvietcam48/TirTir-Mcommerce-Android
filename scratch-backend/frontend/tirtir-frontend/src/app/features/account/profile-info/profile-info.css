@@ -599,3 +599,108 @@
         align-self: flex-start;
     }
 }
+
+/* ── Loyalty Tier Section ── */
+.loyalty-section {
+    margin-bottom: 0;
+}
+
+.loyalty-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-muted, #888);
+    margin-bottom: 1.25rem;
+}
+
+.loyalty-card {
+    border: 1px solid #e8e6e1;
+    padding: 16px 20px;
+    background: #fafaf8;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.loyalty-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    border-radius: 2px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.loyalty-badge--bronze {
+    background: #fdf6ee;
+    border: 1px solid #d4956a;
+    color: #a0522d;
+}
+
+.loyalty-badge--silver {
+    background: #f5f5f5;
+    border: 1px solid #b0b0b0;
+    color: #5a5a5a;
+}
+
+.loyalty-badge--gold {
+    background: #fffbea;
+    border: 1px solid #d4a017;
+    color: #8b6914;
+}
+
+.loyalty-badge--platinum {
+    background: #f0f4ff;
+    border: 1px solid #7b9cd4;
+    color: #1a3c78;
+}
+
+.loyalty-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.loyalty-tier-name {
+    white-space: nowrap;
+}
+
+.loyalty-progress-wrap {
+    flex: 1;
+    min-width: 180px;
+}
+
+.loyalty-progress-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size: 11px;
+    color: var(--color-text, #111);
+}
+
+.loyalty-next {
+    color: var(--color-text-muted, #888);
+    font-size: 10px;
+}
+
+.loyalty-progress-bar {
+    height: 4px;
+    background: #e8e6e1;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.loyalty-progress-fill {
+    height: 100%;
+    background: #d4956a;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+}
+

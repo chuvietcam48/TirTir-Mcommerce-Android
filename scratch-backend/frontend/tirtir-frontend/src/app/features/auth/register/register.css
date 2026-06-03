@@ -237,3 +237,69 @@
     color: #b45309;
     margin-top: 4px;
 }
+
+/* ── TirTir Brand Wordmark ── */
+.brand-wordmark {
+    font-family: var(--font-display, 'Playfair Display', Georgia, serif);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #1a1a1a;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+/* ── Auth Divider ── */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.25rem 0;
+}
+
+.divider-line {
+    flex: 1;
+    height: 1px;
+    background: #e5e5e5;
+}
+
+.divider-text {
+    font-size: 0.75rem;
+    color: #a3a3a3;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ── Google Sign-In Button ── */
+.google-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #444;
+    background: #ffffff;
+    border: 1.5px solid #e5e5e5;
+    border-radius: 6px;
+    cursor: not-allowed;
+    opacity: 0.65;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.coming-soon-tag {
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #888;
+    background: #f0f0f0;
+    border-radius: 3px;
+    padding: 2px 6px;
+    margin-left: auto;
+}
