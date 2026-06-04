@@ -19,19 +19,28 @@ import retrofit2.Response;
 /**
  * ProductRepository — nguồn dữ liệu duy nhất cho Product.
  *
- * Ưu tiên:
- * 1. Gọi Retrofit GET /api/v1/products (online)
- * 2. Nếu thất bại → fallback SQLite cache (offline)
- * 3. Sau khi fetch online → cache vào SQLite để dùng offline sau
+ * Nguồn dữ liệu ưu tiên theo thứ tự:
+ * 1. Gọi Retrofit GET /api/v1/products?limit=1000 (online) — PRIMARY SOURCE
+ * 2. Nếu thất bại + có SQLite cache → trả về cache (offline fallback)
+ * 3. Nếu API fail + không có cache → dùng MockProductFallbackProvider (last resort)
+ *
+ * QUAN TRỌNG:
+ * - SQLite chỉ dùng làm cache + cart_items, KHÔNG phải nguồn sự thật chính
+ * - Mock data chỉ được dùng khi cả 2 (API + cache) đều thất bại
+ * - MongoDB backend via API là nguồn sự thật chính
  *
  * Sprint 1.2 — Task A: Retrofit Logic / Fetch Data API
  */
 public class ProductRepository {
 
     private static final String TAG = "ProductRepository";
+    private static final int DEFAULT_LIMIT = 1000;
 
     private final Context context;
     private final DatabaseHelper dbHelper;
+
+    // Lưu tạm thời categories list từ API response gần nhất
+    private List<ProductResponse.CategoryItem> lastKnownCategories;
 
     public ProductRepository(Context context) {
         this.context = context.getApplicationContext();
@@ -39,61 +48,121 @@ public class ProductRepository {
     }
 
     // ===========================
-    // FETCH PRODUCTS
+    // FETCH PRODUCTS (API-FIRST)
     // ===========================
 
     /**
-     * Lấy danh sách sản phẩm từ API (online) hoặc SQLite cache (offline).
+     * Lấy danh sách sản phẩm từ API hoặc SQLite cache.
      *
-     * @param onSuccess callback nhận List<Product>
-     * @param onError   callback nhận String message lỗi
+     * @param onSuccess  Callback nhận List<Product>
+     * @param onError    Callback nhận String message lỗi
      */
     public void fetchProducts(Consumer<List<Product>> onSuccess, Consumer<String> onError) {
+        fetchProducts(DEFAULT_LIMIT, onSuccess, onError);
+    }
+
+    /**
+     * Lấy danh sách sản phẩm từ API với limit tuỳ chọn.
+     *
+     * @param limit     Số lượng sản phẩm tối đa
+     * @param onSuccess Callback nhận List<Product>
+     * @param onError   Callback nhận String message lỗi
+     */
+    public void fetchProducts(int limit,
+                              Consumer<List<Product>> onSuccess,
+                              Consumer<String> onError) {
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
 
-        apiService.getProducts().enqueue(new Callback<ProductResponse>() {
+        // PRIMARY: Gọi API backend (MongoDB qua Node.js)
+        apiService.getProducts(limit).enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<Product> products = response.body().getData();
+
+                    // Lưu categories để HomeFragment có thể build chip filter
+                    lastKnownCategories = response.body().getCategories();
+
                     if (products != null && !products.isEmpty()) {
-                        // Cache vào SQLite để dùng offline
+                        // Cache vào SQLite để dùng offline sau
                         try {
                             dbHelper.insertProducts(products);
-                            Log.d(TAG, "Cached " + products.size() + " products to SQLite");
+                            Log.d(TAG, "API success: " + products.size() + " products cached to SQLite");
                         } catch (Exception e) {
-                            Log.e(TAG, "Cache error: " + e.getMessage());
+                            Log.e(TAG, "SQLite cache error: " + e.getMessage());
                         }
                         onSuccess.accept(products);
                     } else {
-                        // Response rỗng — thử fallback offline
-                        fallbackToOffline(onSuccess, onError, "Dữ liệu API trống");
+                        // API trả về rỗng → fallback
+                        Log.w(TAG, "API returned empty product list");
+                        fallbackToSqlite(onSuccess, onError, "API trả về danh sách rỗng");
                     }
                 } else {
-                    fallbackToOffline(onSuccess, onError, "Lỗi server: " + response.code());
+                    Log.e(TAG, "API error: HTTP " + response.code());
+                    fallbackToSqlite(onSuccess, onError, "Lỗi server: HTTP " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<ProductResponse> call, Throwable t) {
-                Log.w(TAG, "Network error, falling back to offline: " + t.getMessage());
-                fallbackToOffline(onSuccess, onError, "Không có kết nối mạng");
+                Log.w(TAG, "Network failure (Render cold start?): " + t.getMessage());
+                fallbackToSqlite(onSuccess, onError,
+                        "Không có kết nối — đang tải dữ liệu đã lưu...");
             }
         });
     }
 
     /**
-     * Fallback: lấy dữ liệu từ SQLite cache khi mất mạng.
+     * FALLBACK 1: Đọc dữ liệu từ SQLite cache khi mất mạng hoặc API lỗi.
+     * SQLite là cache offline, KHÔNG phải nguồn sự thật.
      */
-    private void fallbackToOffline(Consumer<List<Product>> onSuccess,
+    private void fallbackToSqlite(Consumer<List<Product>> onSuccess,
                                    Consumer<String> onError,
                                    String reason) {
-        List<Product> cached = dbHelper.getAllProducts();
-        if (cached != null && !cached.isEmpty()) {
-            Log.d(TAG, "Offline mode: loaded " + cached.size() + " products from SQLite");
-            onSuccess.accept(cached);
+        try {
+            List<Product> cached = dbHelper.getAllProducts();
+            if (cached != null && !cached.isEmpty()) {
+                Log.d(TAG, "SQLite fallback: loaded " + cached.size() + " cached products");
+                onSuccess.accept(cached);
+            } else {
+                // FALLBACK 2: Mock data — chỉ khi cả API lẫn cache đều thất bại
+                Log.w(TAG, "SQLite cache empty. Using MockProductFallbackProvider.");
+                fallbackToMock(onSuccess, onError, reason);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "SQLite read error: " + e.getMessage());
+            fallbackToMock(onSuccess, onError, reason + " (SQLite lỗi: " + e.getMessage() + ")");
+        }
+    }
+
+    /**
+     * FALLBACK 2 (LAST RESORT): Mock data từ MockProductFallbackProvider.
+     * Chỉ được gọi khi API + SQLite đều thất bại — ví dụ: demo offline hoàn toàn.
+     *
+     * TODO: Remove khi backend ổn định.
+     */
+    private void fallbackToMock(Consumer<List<Product>> onSuccess,
+                                 Consumer<String> onError,
+                                 String reason) {
+        List<Product> mockProducts = MockProductFallbackProvider.getMockProducts();
+        if (mockProducts != null && !mockProducts.isEmpty()) {
+            Log.w(TAG, "MOCK FALLBACK ACTIVE — " + reason);
+            onSuccess.accept(mockProducts);
         } else {
+            // Không có gì để hiển thị
             onError.accept(reason + " — không có dữ liệu offline");
         }
+    }
+
+    // ===========================
+    // CATEGORIES
+    // ===========================
+
+    /**
+     * Trả về danh mục từ API response gần nhất (dùng để build chip filter).
+     * Null nếu chưa fetch lần nào.
+     */
+    public List<ProductResponse.CategoryItem> getLastKnownCategories() {
+        return lastKnownCategories;
     }
 }

@@ -1,56 +1,92 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- ===== BASE THEME ===== -->
+    <!-- ===== BASE THEME (TirTir Red/Black/White) ===== -->
     <style name="Base.Theme.TirTirMCommerce" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/tirtir_aura_pink</item>
-        <item name="colorPrimaryDark">@color/tirtir_milk_white</item>
-        <item name="colorAccent">@color/tirtir_aura_pink</item>
-        <item name="colorOnPrimary">@color/tirtir_text_primary</item>
-        <item name="android:windowBackground">@color/tirtir_bg_gray</item>
-        <item name="android:statusBarColor">@color/tirtir_milk_white</item>
+        <!-- Brand red as primary (chips, active states, links) -->
+        <item name="colorPrimary">@color/tirtir_red_primary</item>
+        <item name="colorPrimaryDark">@color/tirtir_red_dark</item>
+        <item name="colorPrimaryContainer">@color/tirtir_red_surface</item>
+
+        <!-- Black for text on primary backgrounds -->
+        <item name="colorOnPrimary">@color/tirtir_white</item>
+        <item name="colorOnPrimaryContainer">@color/tirtir_red_primary</item>
+
+        <!-- Secondary = black (main CTA buttons) -->
+        <item name="colorSecondary">@color/tirtir_black</item>
+        <item name="colorOnSecondary">@color/tirtir_white</item>
+
+        <!-- Surfaces: white + off-white -->
+        <item name="colorSurface">@color/tirtir_white</item>
+        <item name="colorOnSurface">@color/tirtir_black</item>
+        <item name="colorSurfaceVariant">@color/tirtir_off_white</item>
+
+        <!-- Window + status bar: white with dark icons -->
+        <item name="android:windowBackground">@color/tirtir_off_white</item>
+        <item name="android:statusBarColor">@color/tirtir_white</item>
         <item name="android:windowLightStatusBar">true</item>
+
+        <!-- Error state -->
+        <item name="colorError">@color/tirtir_error</item>
     </style>
 
     <style name="Theme.TirTirMCommerce" parent="Base.Theme.TirTirMCommerce" />
 
-    <!-- ===== BUTTON STYLES ===== -->
+    <!-- ===== PRIMARY BUTTON (Black CTA — main actions like "Add to Cart", "Place Order") ===== -->
     <style name="Widget.TirTir.Button.Primary" parent="Widget.Material3.Button">
-        <item name="android:backgroundTint">@color/tirtir_red_primary</item>
-        <item name="android:textColor">@color/tirtir_milk_white</item>
+        <item name="android:backgroundTint">@color/tirtir_black</item>
+        <item name="android:textColor">@color/tirtir_white</item>
         <item name="android:textStyle">bold</item>
-        <item name="cornerRadius">12dp</item>
+        <item name="cornerRadius">8dp</item>
         <item name="android:paddingTop">14dp</item>
         <item name="android:paddingBottom">14dp</item>
     </style>
 
+    <!-- ===== BRAND RED BUTTON (brand accents, wishlist, promo) ===== -->
+    <style name="Widget.TirTir.Button.Red" parent="Widget.Material3.Button">
+        <item name="android:backgroundTint">@color/tirtir_red_primary</item>
+        <item name="android:textColor">@color/tirtir_white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+    </style>
+
+    <!-- ===== OUTLINE BUTTON (secondary actions) ===== -->
     <style name="Widget.TirTir.Button.Outline" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="strokeColor">@color/tirtir_red_primary</item>
-        <item name="android:textColor">@color/tirtir_red_primary</item>
-        <item name="cornerRadius">12dp</item>
+        <item name="strokeColor">@color/tirtir_black</item>
+        <item name="android:textColor">@color/tirtir_black</item>
+        <item name="cornerRadius">8dp</item>
         <item name="android:paddingTop">14dp</item>
         <item name="android:paddingBottom">14dp</item>
     </style>
 
-    <!-- ===== TEXT INPUT STYLES ===== -->
+    <!-- ===== TEXT INPUT (outlined, red focus) ===== -->
     <style name="Widget.TirTir.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="boxStrokeColor">@color/tirtir_red_primary</item>
         <item name="hintTextColor">@color/tirtir_red_primary</item>
-        <item name="boxCornerRadiusTopStart">12dp</item>
-        <item name="boxCornerRadiusTopEnd">12dp</item>
-        <item name="boxCornerRadiusBottomStart">12dp</item>
-        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="boxCornerRadiusTopStart">8dp</item>
+        <item name="boxCornerRadiusTopEnd">8dp</item>
+        <item name="boxCornerRadiusBottomStart">8dp</item>
+        <item name="boxCornerRadiusBottomEnd">8dp</item>
     </style>
 
-    <!-- ===== CARD STYLES ===== -->
+    <!-- ===== CARD ===== -->
     <style name="Widget.TirTir.Card" parent="Widget.Material3.CardView.Elevated">
-        <item name="cardCornerRadius">16dp</item>
-        <item name="cardElevation">2dp</item>
-        <item name="cardBackgroundColor">@color/tirtir_milk_white</item>
+        <item name="cardCornerRadius">12dp</item>
+        <item name="cardElevation">1dp</item>
+        <item name="cardBackgroundColor">@color/tirtir_white</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <!-- ===== TOOLBAR ===== -->
+    <style name="Widget.TirTir.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@color/tirtir_white</item>
+        <item name="titleTextColor">@color/tirtir_black</item>
     </style>
 
     <!-- ===== TEXT STYLES ===== -->
     <style name="TextAppearance.TirTir.Headline" parent="TextAppearance.Material3.HeadlineMedium">
-        <item name="android:textColor">@color/tirtir_text_primary</item>
+        <item name="android:textColor">@color/tirtir_black</item>
         <item name="android:textStyle">bold</item>
     </style>
 
@@ -60,6 +96,16 @@
 
     <style name="TextAppearance.TirTir.Caption" parent="TextAppearance.Material3.BodySmall">
         <item name="android:textColor">@color/tirtir_silver_gray</item>
+    </style>
+
+    <style name="TextAppearance.TirTir.Price" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/tirtir_black</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.TirTir.Brand" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="android:textColor">@color/tirtir_red_primary</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
 </resources>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/tirtir_off_white">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:elevation="2dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbarAddressManager"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="My Addresses"
+            app:titleTextColor="#1A1A1A" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Loading state -->
+    <ProgressBar
+        android:id="@+id/progressAddresses"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminateTint="@color/tirtir_red_primary"
+        android:visibility="gone" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvAddressList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="12dp"
+        android:clipToPadding="false" />
+
+    <!-- Empty state -->
+    <LinearLayout
+        android:id="@+id/layoutEmptyAddresses"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@android:drawable/ic_menu_mylocation"
+            app:tint="@color/tirtir_silver_gray" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="No addresses saved"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/tirtir_black" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Add a delivery address to speed up checkout"
+            android:textSize="13sp"
+            android:textColor="@color/tirtir_text_secondary"
+            android:gravity="center" />
+    </LinearLayout>
+
+    <!-- Add address button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:background="@android:color/white"
+        android:elevation="4dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddNewAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="+ Add New Address"
+            android:textColor="@color/tirtir_white"
+            android:paddingVertical="12dp"
+            android:textSize="15sp"
+            app:backgroundTint="@color/tirtir_black"
+            app:cornerRadius="8dp" />
+    </LinearLayout>
+
+</LinearLayout>

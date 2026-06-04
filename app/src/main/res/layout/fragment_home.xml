@@ -3,114 +3,101 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F9F9F9">
+    android:background="@color/tirtir_off_white">
 
+    <!-- =================== TOP BAR =================== -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
+        android:background="@color/tirtir_white"
         app:elevation="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="12dp"
             app:layout_scrollFlags="scroll|enterAlways">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Welcome to TirTir"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="#333333" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Discover premium skincare"
-                android:textSize="14sp"
-                android:textColor="#777777"
-                android:layout_marginTop="4dp" />
-
-            <androidx.cardview.widget.CardView
+            <!-- Brand header -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="2dp">
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
 
-                <androidx.appcompat.widget.SearchView
-                    android:id="@+id/searchViewProducts"
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    app:iconifiedByDefault="false"
-                    app:queryHint="Search products..."
-                    app:queryBackground="@android:color/transparent" />
-            </androidx.cardview.widget.CardView>
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TirTir"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/tirtir_black"
+                        android:letterSpacing="0.05" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Premium Skincare"
+                        android:textSize="12sp"
+                        android:textColor="@color/tirtir_text_secondary" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Search bar -->
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/searchViewProducts"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@color/tirtir_off_white"
+                app:iconifiedByDefault="false"
+                app:queryHint="Search products..."
+                app:queryBackground="@android:color/transparent" />
+
+            <!-- Category chips — populated DYNAMICALLY in HomeFragment.buildCategoryChipsFromProducts() -->
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:scrollbars="none">
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chipGroupCategory"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:singleSelection="true">
-
-                    <com.google.android.material.chip.Chip
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="All"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:checked="true" />
-                    <com.google.android.material.chip.Chip
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:text="Cushion" />
-                    <com.google.android.material.chip.Chip
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:text="Toner" />
-                    <com.google.android.material.chip.Chip
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:text="Serum" />
-                    <com.google.android.material.chip.Chip
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:text="Cream" />
-                    <com.google.android.material.chip.Chip
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:text="Sunscreen" />
-                </com.google.android.material.chip.ChipGroup>
+                    app:singleSelection="true"
+                    app:selectionRequired="true" />
             </HorizontalScrollView>
 
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- =================== CONTENT =================== -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+        <!-- Product grid -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvProducts"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="8dp"
-            android:clipToPadding="false" />
+            android:clipToPadding="false"
+            android:visibility="gone" />
 
+        <!-- Loading spinner (shown during API call) -->
         <ProgressBar
             android:id="@+id/progressProducts"
             android:layout_width="wrap_content"
@@ -118,6 +105,82 @@
             android:layout_gravity="center"
             android:visibility="gone" />
 
+        <!-- Loading message (cold-start UX for Render free-tier) -->
+        <LinearLayout
+            android:id="@+id/layoutLoadingState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="32dp"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="48dp"
+                android:layout_height="48dp" />
+
+            <TextView
+                android:id="@+id/tvLoadingMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Loading TirTir products..."
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/tirtir_black"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="This may take a moment while the server wakes up."
+                android:textSize="13sp"
+                android:textColor="@color/tirtir_text_secondary"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <!-- Error state with Retry button -->
+        <LinearLayout
+            android:id="@+id/layoutErrorState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="32dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@android:drawable/ic_dialog_alert"
+                app:tint="@color/tirtir_text_secondary" />
+
+            <TextView
+                android:id="@+id/tvErrorMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Could not load products."
+                android:textSize="15sp"
+                android:textColor="@color/tirtir_black"
+                android:gravity="center" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRetry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Retry"
+                android:textColor="@color/tirtir_white"
+                android:paddingHorizontal="32dp"
+                app:backgroundTint="@color/tirtir_red_primary"
+                app:cornerRadius="8dp" />
+        </LinearLayout>
+
+        <!-- Empty state (filter result is empty — NOT API failure) -->
         <LinearLayout
             android:id="@+id/layoutEmptyProducts"
             android:layout_width="wrap_content"
@@ -128,19 +191,30 @@
             android:visibility="gone">
 
             <ImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
                 android:src="@android:drawable/ic_menu_search"
-                app:tint="#CCCCCC" />
+                app:tint="@color/tirtir_silver_gray" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="12dp"
                 android:text="No products found"
-                android:textColor="#777777"
-                android:textSize="16sp" />
+                android:textSize="15sp"
+                android:textColor="@color/tirtir_text_secondary"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Try a different search or category"
+                android:textSize="13sp"
+                android:textColor="@color/tirtir_silver_gray"
+                android:gravity="center" />
         </LinearLayout>
 
     </FrameLayout>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

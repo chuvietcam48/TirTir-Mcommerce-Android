@@ -34,6 +34,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.User;
+import com.example.tirtir_mcommerce.ui.activities.AddressManagerActivity;
 import com.example.tirtir_mcommerce.ui.activities.LoginActivity;
 import com.example.tirtir_mcommerce.viewmodel.AuthViewModel;
 import com.example.tirtir_mcommerce.viewmodel.ProfileViewModel;
@@ -276,14 +277,16 @@ public class ProfileFragment extends Fragment {
 
         // Chuyển màn hình Địa chỉ
         layoutMyAddresses.setOnClickListener(v -> {
-            // TODO Sprint 1 - FE2: Implement AddressFragment
-            Toast.makeText(getContext(), "Quản lý địa chỉ (đang phát triển)", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(requireContext(), AddressManagerActivity.class));
         });
 
         // Chuyển màn hình Đơn hàng
         layoutMyOrders.setOnClickListener(v -> {
-            // TODO Sprint 2 - FE2: Implement OrderHistoryFragment
-            Toast.makeText(getContext(), "Đơn hàng của tôi (đang phát triển)", Toast.LENGTH_SHORT).show();
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragmentContainer, new OrderHistoryFragment())
+                    .addToBackStack("order_history")
+                    .commit();
         });
 
         // ===== WISHLIST - Navigate WishlistFragment (ContentProvider) =====

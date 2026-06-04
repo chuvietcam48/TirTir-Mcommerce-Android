@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Selected: brand red -->
+    <item android:color="@color/tirtir_red_primary" android:state_checked="true" />
+    <!-- Unselected: off-white / light gray -->
+    <item android:color="@color/tirtir_off_white" />
+</selector>

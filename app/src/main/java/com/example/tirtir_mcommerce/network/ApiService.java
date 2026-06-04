@@ -125,11 +125,22 @@ public interface ApiService {
     // PRODUCT MODULE
     // ===========================
 
+     /**
+      * Lấy danh sách sản phẩm - GET /api/v1/products?limit={limit}
+      * API trả về: { total, page, limit, data[], categories[], concerns[], skinTypes[] }
+      * Mặc định limit=1000 để load toàn bộ, filter client-side.
+      */
+    @GET("api/v1/products")
+    Call<ProductResponse> getProducts(@retrofit2.http.Query("limit") int limit);
+
     /**
-     * Lấy tất cả sản phẩm - GET /api/v1/products?limit=1000
+     * Lấy sản phẩm theo category - GET /api/v1/products?limit={limit}&category={category}
+     * Dùng khi muốn filter server-side (tùy backend hỗ trợ).
      */
-    @GET("api/v1/products?limit=1000")
-    Call<ProductResponse> getProducts();
+    @GET("api/v1/products")
+    Call<ProductResponse> getProductsByCategory(
+            @retrofit2.http.Query("limit") int limit,
+            @retrofit2.http.Query("category") String category);
 
     /**
      * Lấy sản phẩm theo category - GET /api/v1/products?category=...&limit=...

@@ -2,64 +2,262 @@ package com.example.tirtir_mcommerce.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
+import android.text.TextUtils;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.database.DatabaseHelper;
+import com.example.tirtir_mcommerce.model.CartItem;
+import com.example.tirtir_mcommerce.model.CreateOrderRequest;
+import com.example.tirtir_mcommerce.model.ShippingAddress;
+import com.example.tirtir_mcommerce.repository.OrderRepository;
+import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Locale;
 
+/**
+ * SCR-16 CheckoutActivity — Thanh toán
+ *
+ * API readiness (TASK 9):
+ * ─────────────────────────────────────
+ * placeOrderWithApi():
+ *   → POST /api/v1/orders/create via OrderRepository
+ *   → Body: { shippingAddress, paymentMethod }
+ *   → On success: clear local cart → OrderSuccessActivity with real orderId
+ *   → On failure (backend not ready): falls back to local mock order code
+ *
+ * TODO: Remove handleMockPlaceOrder() when backend order API is confirmed.
+ *
+ * Cart data: local SQLite cart_items (TASK 5).
+ * Shipping: 30,000 VND placeholder (TODO: Viettel Post SOAP).
+ *
+ * Sprint 1.3
+ */
 public class CheckoutActivity extends AppCompatActivity {
 
-    private TextView tvCheckoutTotal;
-    private Button btnPlaceOrder;
+    private TextInputEditText etFullName, etPhone, etStreet, etDistrict, etCity, etNote;
+    private RadioGroup rgPaymentMethod;
+    private TextView tvCheckoutSubtotal, tvCheckoutShipping, tvCheckoutTotal;
+    private MaterialButton btnPlaceOrder;
+    private ProgressBar progressPlaceOrder;
+
+    private OrderRepository orderRepository;
+    private DatabaseHelper databaseHelper;
+
     private final NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
-    private double cartTotal;
+
+    /**
+     * Shipping fee placeholder (30,000 VND).
+     * TODO: Replace with Viettel Post SOAP API real shipping calculation.
+     */
+    private static final double SHIPPING_FEE = 30_000;
+
+    private double cartSubtotal = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Using a dynamically generated simple layout instead of creating an XML file to save time.
-        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
-        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-        layout.setPadding(32, 32, 32, 32);
+        setContentView(R.layout.activity_checkout);
 
-        TextView title = new TextView(this);
-        title.setText("Checkout");
-        title.setTextSize(24);
-        title.setTypeface(null, android.graphics.Typeface.BOLD);
-        layout.addView(title);
+        Toolbar toolbar = findViewById(R.id.toolbarCheckout);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("Checkout");
+        }
 
-        tvCheckoutTotal = new TextView(this);
-        tvCheckoutTotal.setTextSize(18);
-        tvCheckoutTotal.setPadding(0, 32, 0, 32);
-        layout.addView(tvCheckoutTotal);
+        orderRepository = new OrderRepository(this);
+        databaseHelper  = DatabaseHelper.getInstance(this);
 
-        btnPlaceOrder = new Button(this);
-        btnPlaceOrder.setText("Place Order");
-        btnPlaceOrder.setBackgroundColor(0xFFE91E63);
-        btnPlaceOrder.setTextColor(0xFFFFFFFF);
-        layout.addView(btnPlaceOrder);
+        bindViews();
+        loadCartTotals();
+        setupPlaceOrder();
+    }
 
-        setContentView(layout);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) { finish(); return true; }
+        return super.onOptionsItemSelected(item);
+    }
 
-        cartTotal = getIntent().getDoubleExtra("CART_TOTAL", 0.0);
-        tvCheckoutTotal.setText("Total to pay: " + currencyFormat.format(cartTotal) + " đ");
+    private void bindViews() {
+        etFullName           = findViewById(R.id.etFullName);
+        etPhone              = findViewById(R.id.etPhone);
+        etStreet             = findViewById(R.id.etStreet);
+        etDistrict           = findViewById(R.id.etDistrict);
+        etCity               = findViewById(R.id.etCity);
+        etNote               = findViewById(R.id.etNote);
+        rgPaymentMethod      = findViewById(R.id.rgPaymentMethod);
+        tvCheckoutSubtotal   = findViewById(R.id.tvCheckoutSubtotal);
+        tvCheckoutShipping   = findViewById(R.id.tvCheckoutShipping);
+        tvCheckoutTotal      = findViewById(R.id.tvCheckoutTotal);
+        btnPlaceOrder        = findViewById(R.id.btnPlaceOrder);
+        progressPlaceOrder   = findViewById(R.id.progressPlaceOrder);
+    }
 
+    private void loadCartTotals() {
+        // Receive subtotal passed from CartFragment (TASK 5)
+        cartSubtotal = getIntent().getDoubleExtra("CART_SUBTOTAL", 0.0);
+
+        // Fallback: recalculate from SQLite if not passed
+        if (cartSubtotal == 0) {
+            List<CartItem> items = databaseHelper.getCartItems();
+            for (CartItem item : items) {
+                cartSubtotal += item.getPrice() * item.getQuantity();
+            }
+        }
+
+        double total = cartSubtotal + SHIPPING_FEE;
+        tvCheckoutSubtotal.setText(currencyFormat.format(cartSubtotal) + " đ");
+        tvCheckoutShipping.setText(currencyFormat.format(SHIPPING_FEE) + " đ");
+        tvCheckoutTotal.setText(currencyFormat.format(total) + " đ");
+    }
+
+    private void setupPlaceOrder() {
         btnPlaceOrder.setOnClickListener(v -> {
-            // Mock placing order
-            DatabaseHelper.getInstance(this).clearCart();
-            
-            Intent intent = new Intent(this, OrderSuccessActivity.class);
-            intent.putExtra("ORDER_CODE", "ORD-" + System.currentTimeMillis());
-            intent.putExtra("ORDER_TOTAL", cartTotal);
-            startActivity(intent);
-            finish();
+            if (!validateForm()) return;
+            placeOrderWithApi();
         });
+    }
+
+    // ===========================
+    // REAL API ORDER PLACEMENT
+    // ===========================
+
+    /**
+     * Builds CreateOrderRequest from form fields and calls
+     * POST /api/v1/orders/create via OrderRepository.
+     *
+     * On API success  → clear local cart → OrderSuccessActivity
+     * On API failure  → handleMockPlaceOrder() (local order code fallback)
+     *
+     * Requires valid JWT token (user must be logged in).
+     * TODO: Remove mock fallback when backend order endpoint is confirmed.
+     */
+    private void placeOrderWithApi() {
+        // Check if user is logged in (has token)
+        SharedPrefsManager prefs = new SharedPrefsManager(this);
+        boolean hasToken = prefs.isLoggedIn();
+
+        if (!hasToken) {
+            // Not logged in — use mock directly
+            handleMockPlaceOrder();
+            return;
+        }
+
+        showLoading(true);
+
+        // Build shipping address from form
+        // ShippingAddress has: fullName, phone, address, city
+        // We combine street + district into the address field
+        ShippingAddress shippingAddress = new ShippingAddress();
+        shippingAddress.setFullName(getText(etFullName));
+        shippingAddress.setPhone(getText(etPhone));
+        String combinedAddress = getText(etStreet);
+        String district = getText(etDistrict);
+        if (!district.isEmpty()) combinedAddress += ", " + district;
+        shippingAddress.setAddress(combinedAddress);
+        shippingAddress.setCity(getText(etCity));
+
+        // Determine payment method from radio group
+        String paymentMethod = getSelectedPaymentMethod();
+
+        // Build order request (compatible with POST /api/v1/orders/create)
+        CreateOrderRequest request = new CreateOrderRequest(shippingAddress, paymentMethod);
+
+        orderRepository.placeOrder(request,
+                orderResponse -> {
+                    // SUCCESS: real order created
+                    showLoading(false);
+                    databaseHelper.clearCart();
+
+                    String orderId = orderResponse.getId() != null ? orderResponse.getId() : "TT-" + System.currentTimeMillis();
+                    double total = cartSubtotal + SHIPPING_FEE;
+                    goToOrderSuccess(orderId, total);
+                },
+                errorMessage -> {
+                    showLoading(false);
+                    // API not ready or error — fall back to local mock order
+                    handleMockPlaceOrder();
+                }
+        );
+    }
+
+    /**
+     * Local mock order placement (fallback when API unavailable/user not logged in).
+     * Generates a local order code, clears cart, navigates to OrderSuccessActivity.
+     *
+     * TODO: Remove when backend order API is confirmed working.
+     */
+    private void handleMockPlaceOrder() {
+        databaseHelper.clearCart();
+        String mockOrderCode = "TT-" + System.currentTimeMillis();
+        double total = cartSubtotal + SHIPPING_FEE;
+        goToOrderSuccess(mockOrderCode, total);
+    }
+
+    // ===========================
+    // HELPERS
+    // ===========================
+
+    private boolean validateForm() {
+        boolean valid = true;
+        if (TextUtils.isEmpty(getText(etFullName))) {
+            etFullName.setError("Full name is required");
+            etFullName.requestFocus();
+            valid = false;
+        }
+        if (TextUtils.isEmpty(getText(etPhone))) {
+            etPhone.setError("Phone number is required");
+            if (valid) etPhone.requestFocus();
+            valid = false;
+        }
+        if (TextUtils.isEmpty(getText(etStreet))) {
+            etStreet.setError("Street address is required");
+            if (valid) etStreet.requestFocus();
+            valid = false;
+        }
+        return valid;
+    }
+
+    private String getText(TextInputEditText field) {
+        return field.getText() != null ? field.getText().toString().trim() : "";
+    }
+
+    private String getSelectedPaymentMethod() {
+        if (rgPaymentMethod == null) return "COD";
+        int checkedId = rgPaymentMethod.getCheckedRadioButtonId();
+        if (checkedId == R.id.rbBankTransfer) return "BANK_TRANSFER";
+        if (checkedId == R.id.rbMomo)         return "MOMO";
+        return "COD"; // Default
+    }
+
+    private void showLoading(boolean loading) {
+        if (progressPlaceOrder != null) {
+            progressPlaceOrder.setVisibility(loading ? View.VISIBLE : View.GONE);
+        }
+        btnPlaceOrder.setEnabled(!loading);
+        btnPlaceOrder.setText(loading ? "Placing order..." : "Place Order");
+    }
+
+    private void goToOrderSuccess(String orderCode, double total) {
+        Intent intent = new Intent(this, OrderSuccessActivity.class);
+        intent.putExtra("ORDER_CODE", orderCode);
+        intent.putExtra("ORDER_TOTAL", total);
+        startActivity(intent);
+        finish();
     }
 }

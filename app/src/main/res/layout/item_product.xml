@@ -3,80 +3,87 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
-    app:cardBackgroundColor="@android:color/white">
+    android:layout_margin="6dp"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="1dp"
+    app:cardBackgroundColor="@color/tirtir_white"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/tirtir_border_gray">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="12dp">
+        android:layout_height="wrap_content">
 
+        <!-- Product image — fixed height to avoid blank areas -->
         <ImageView
             android:id="@+id/ivProductImage"
             android:layout_width="0dp"
             android:layout_height="160dp"
             android:scaleType="centerCrop"
-            android:src="@android:drawable/ic_menu_gallery"
+            android:background="@color/tirtir_off_white"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <ImageButton
-            android:id="@+id/btnWishlistSmall"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_myplaces"
-            app:tint="#E91E63"
-            app:layout_constraintTop_toTopOf="parent"
+        <!-- Thin red accent line below image -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:background="@color/tirtir_red_primary"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/ivProductImage"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+        <!-- Category label -->
         <TextView
             android:id="@+id/tvProductCategory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="10dp"
             android:layout_marginTop="8dp"
-            android:text="Category"
-            android:textColor="#9E9E9E"
-            android:textSize="12sp"
+            android:text="CATEGORY"
+            android:textColor="@color/tirtir_red_primary"
+            android:textSize="10sp"
+            android:letterSpacing="0.08"
             android:textAllCaps="true"
             app:layout_constraintTop_toBottomOf="@id/ivProductImage"
             app:layout_constraintStart_toStartOf="parent" />
 
+        <!-- Product name -->
         <TextView
             android:id="@+id/tvProductName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             android:layout_marginTop="4dp"
             android:ellipsize="end"
             android:maxLines="2"
             android:text="Product Name"
-            android:textColor="#212121"
-            android:textSize="14sp"
+            android:textColor="@color/tirtir_black"
+            android:textSize="13sp"
             android:textStyle="bold"
+            android:lineSpacingExtra="2dp"
             app:layout_constraintTop_toBottomOf="@id/tvProductCategory"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+        <!-- Price -->
         <TextView
             android:id="@+id/tvProductPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="8dp"
-            android:text="$0.00"
-            android:textColor="#333333"
-            android:textSize="16sp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="10dp"
+            android:text="0 đ"
+            android:textColor="@color/tirtir_black"
+            android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintTop_toBottomOf="@id/tvProductName"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

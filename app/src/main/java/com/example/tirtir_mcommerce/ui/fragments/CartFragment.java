@@ -61,8 +61,9 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
             if (cartItemList.isEmpty()) {
                 Toast.makeText(getContext(), "Cart is empty!", Toast.LENGTH_SHORT).show();
             } else {
+                double subtotal = getSubtotal();
                 Intent intent = new Intent(getContext(), CheckoutActivity.class);
-                intent.putExtra("CART_TOTAL", currentTotal);
+                intent.putExtra("CART_SUBTOTAL", subtotal);
                 startActivity(intent);
             }
         });
@@ -122,5 +123,13 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
         cartItemList.remove(position);
         cartAdapter.notifyItemRemoved(position);
         updateCartSummary();
+    }
+
+    private double getSubtotal() {
+        double subtotal = 0;
+        for (CartItem item : cartItemList) {
+            subtotal += item.getPrice() * item.getQuantity();
+        }
+        return subtotal;
     }
 }

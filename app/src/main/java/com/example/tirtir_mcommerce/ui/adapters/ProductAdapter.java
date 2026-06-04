@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.Product;
 
@@ -19,31 +20,56 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * ProductAdapter — RecyclerView Adapter cho danh sách sản phẩm.
+ * ProductAdapter — RecyclerView Adapter hiển thị danh sách sản phẩm.
  *
- * Sprint 1.2 — Task A:
- * - Hiển thị sản phẩm với ảnh (Glide), tên, giá
- * - Callback onAddToCart khi bấm nút "Thêm vào giỏ"
+ * Image URL resolution logic (TASK 2):
+ * ────────────────────────────────────
+ * API trả về Thumbnail_Images với 2 dạng:
+ *
+ * 1. "http://localhost:5001/uploads/..." → Dev URL (backend localhost) → Replace với deployed URL
+ * 2. "assets/images/products/.../thumb.webp" → Relative path → Prepend BASE_IMAGE_URL
+ * 3. "https://..." → Absolute URL → Dùng trực tiếp
+ *
+ * Price field (TASK 4):
+ * ─────────────────────
+ * API trả về Price: 10, 45 (số nguyên)
+ * KHÔNG rõ đơn vị (USD? VND? Nghìn VND?) → hiển thị nguyên vẹn với đơn vị "đ"
+ * TODO: Xác nhận với backend/PM về đơn vị tiền tệ thực tế.
+ *
+ * Ưu tiên: Sale_Price (nếu > 0) → Price
+ *
+ * Sprint 1.2 — Task A
  */
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
 
-    public interface OnAddToCartListener {
-        void onAddToCart(Product product);
+    public interface OnProductClickListener {
+        void onProductClick(Product product);
     }
 
     private final Context context;
     private List<Product> productList;
-    private final OnAddToCartListener addToCartListener;
+    private final OnProductClickListener clickListener;
 
-    // Base URL của ảnh thumbnail từ backend
+    /**
+     * BASE_IMAGE_URL của backend đã deploy.
+     * Dùng để:
+     * - Prepend với relative path từ API (assets/images/...)
+     * - Replace "localhost:5001" từ dev URL
+     */
     private static final String BASE_IMAGE_URL = "https://tirtir-project.onrender.com/";
+    private static final String DEV_LOCALHOST = "http://localhost:5001/";
 
+    /**
+     * Price display: Format số nguyên từ API dưới dạng VND locale.
+     * Ví dụ: 45 → "45 đ" (đơn vị chưa xác nhận — TODO: confirm với PM)
+     * KHÔNG nhân với bất kỳ hệ số nào cho đến khi có xác nhận.
+     */
     private final NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
 
-    public ProductAdapter(Context context, List<Product> productList, OnAddToCartListener listener) {
+    public ProductAdapter(Context context, List<Product> productList, OnProductClickListener listener) {
         this.context = context;
         this.productList = productList;
-        this.addToCartListener = listener;
+        this.clickListener = listener;
     }
 
     @NonNull
@@ -55,8 +81,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     @Override
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
-        Product product = productList.get(position);
-        holder.bind(product);
+        holder.bind(productList.get(position));
     }
 
     @Override
@@ -79,51 +104,111 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         private final TextView tvName;
         private final TextView tvPrice;
         private final TextView tvCategory;
-        private View btnWishlistSmall;
 
         ProductViewHolder(@NonNull View itemView) {
             super(itemView);
             imgProduct = itemView.findViewById(R.id.ivProductImage);
-            tvName = itemView.findViewById(R.id.tvProductName);
-            tvPrice = itemView.findViewById(R.id.tvProductPrice);
+            tvName     = itemView.findViewById(R.id.tvProductName);
+            tvPrice    = itemView.findViewById(R.id.tvProductPrice);
             tvCategory = itemView.findViewById(R.id.tvProductCategory);
-            btnWishlistSmall = itemView.findViewById(R.id.btnWishlistSmall);
         }
 
         void bind(Product product) {
+            // Name
             tvName.setText(product.getName() != null ? product.getName() : "Sản phẩm");
-            tvCategory.setText(product.getCategory() != null ? product.getCategory() : "");
 
-            // Format giá: ưu tiên salePrice nếu > 0
-            double displayPrice = product.getSalePrice() > 0 ? product.getSalePrice() : product.getPrice();
+            // Category
+            String cat = product.getCategory();
+            tvCategory.setText(cat != null && !cat.isEmpty() ? cat.toUpperCase() : "");
+
+            // Price (TASK 4):
+            // Price field từ API là số nguyên (ví dụ: 10, 45).
+            // Ưu tiên Sale_Price nếu > 0, ngược lại dùng Price.
+            // TODO: Xác nhận đơn vị tiền tệ thực tế với PM (USD? VND nghìn đồng?).
+            double displayPrice = buildDisplayPrice(product);
             tvPrice.setText(currencyFormat.format(displayPrice) + " đ");
 
-            // Load ảnh thumbnail bằng Glide
-            String imageUrl = buildImageUrl(product.getThumbnailImages());
+            // Image (TASK 2): resolve URL theo priority chain
+            String imageUrl = resolveImageUrl(product);
             Glide.with(context)
-                    .load(imageUrl)
-                    .placeholder(android.R.drawable.ic_menu_gallery)
-                    .error(android.R.drawable.stat_notify_error)
+                    .load(imageUrl.isEmpty() ? null : imageUrl)
+                    .placeholder(R.drawable.ic_product_placeholder)
+                    .error(R.drawable.ic_product_placeholder)
+                    .centerCrop()
+                    .transition(DrawableTransitionOptions.withCrossFade(200))
                     .into(imgProduct);
 
-            // Click cả item → mở trang chi tiết (sẽ handle ở ngoài bằng cách thêm interface)
+            // Click
             itemView.setOnClickListener(v -> {
-                if (addToCartListener != null) {
-                    addToCartListener.onAddToCart(product);
+                if (clickListener != null) {
+                    clickListener.onProductClick(product);
                 }
             });
-
-            if (btnWishlistSmall != null) {
-                btnWishlistSmall.setOnClickListener(v -> {
-                    // Mock wishlist behavior
-                });
-            }
         }
 
-        private String buildImageUrl(String thumbnail) {
-            if (thumbnail == null || thumbnail.isEmpty()) return "";
-            if (thumbnail.startsWith("http")) return thumbnail;
-            return BASE_IMAGE_URL + thumbnail;
+        /**
+         * Xác định giá hiển thị.
+         * Ưu tiên Sale_Price nếu > 0, ngược lại dùng Price.
+         *
+         * Price field là số nguyên từ MongoDB (ví dụ 45 = đơn vị chưa xác nhận).
+         * KHÔNG nhân hệ số — TODO: confirm với PM/backend.
+         */
+        private double buildDisplayPrice(Product product) {
+            double salePrice = product.getSalePrice();
+            double price = product.getPrice();
+            return (salePrice > 0) ? salePrice : price;
+        }
+
+        /**
+         * Resolve ảnh sản phẩm theo thứ tự ưu tiên:
+         * 1. Thumbnail_Images (nếu valid URL)
+         * 2. Gallery_Images[0] (nếu có)
+         * 3. Empty string → Glide dùng placeholder
+         *
+         * URL transform rules:
+         * - "http://localhost:5001/..." → Replace với deployed BASE_IMAGE_URL
+         * - "assets/images/..." → Prepend BASE_IMAGE_URL
+         * - "https://..." → Dùng nguyên
+         */
+        private String resolveImageUrl(Product product) {
+            // Priority 1: Thumbnail_Images
+            String thumb = product.getThumbnailImages();
+            String resolved = buildUrl(thumb);
+            if (!resolved.isEmpty()) return resolved;
+
+            // Priority 2: Gallery_Images[0]
+            if (product.getGalleryImages() != null && !product.getGalleryImages().isEmpty()) {
+                resolved = buildUrl(product.getGalleryImages().get(0));
+                if (!resolved.isEmpty()) return resolved;
+            }
+
+            // Priority 3: no image
+            return "";
+        }
+
+        /**
+         * Biến đổi đường dẫn ảnh thô thành URL đầy đủ có thể tải được.
+         *
+         * Trường hợp 1: "http://localhost:5001/uploads/..." (dev server) → replace với deployed URL
+         * Trường hợp 2: "assets/images/..." (relative path) → prepend BASE_IMAGE_URL
+         * Trường hợp 3: "https://..." (absolute URL) → giữ nguyên
+         * Trường hợp 4: null / empty → trả về ""
+         */
+        private String buildUrl(String path) {
+            if (path == null || path.trim().isEmpty()) return "";
+
+            // Case 1: dev localhost URL → swap to deployed
+            if (path.startsWith(DEV_LOCALHOST)) {
+                return BASE_IMAGE_URL + path.substring(DEV_LOCALHOST.length());
+            }
+
+            // Case 2: already absolute https
+            if (path.startsWith("https://") || path.startsWith("http://")) {
+                return path;
+            }
+
+            // Case 3: relative path (assets/..., uploads/...)
+            return BASE_IMAGE_URL + path;
         }
     }
 }

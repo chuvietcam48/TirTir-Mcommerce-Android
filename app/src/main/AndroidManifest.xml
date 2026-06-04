@@ -25,33 +25,55 @@
         android:theme="@style/Theme.TirTirMCommerce"
         android:usesCleartextTraffic="true">
 
+        <!-- SCR-00: SplashActivity — LAUNCHER (entry point) -->
         <activity
-            android:name=".ui.activities.LoginActivity"
-            android:exported="true">
+            android:name=".ui.activities.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.TirTirMCommerce">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <!-- SCR-01: OnboardingActivity — shown only on first launch -->
+        <activity
+            android:name=".ui.activities.OnboardingActivity"
+            android:exported="false" />
+
+        <!-- SCR-10: LoginActivity -->
+        <activity
+            android:name=".ui.activities.LoginActivity"
+            android:exported="false" />
+
+        <!-- SCR-11: RegisterActivity -->
         <activity
             android:name=".ui.activities.RegisterActivity"
             android:exported="false" />
 
+        <!-- SCR-12: MainActivity (bottom nav host) -->
         <activity
             android:name=".MainActivity"
             android:exported="false" />
 
+        <!-- SCR-14: ProductDetailActivity -->
         <activity
             android:name=".ui.activities.ProductDetailActivity"
             android:exported="false" />
 
+        <!-- SCR-16: CheckoutActivity -->
         <activity
             android:name=".ui.activities.CheckoutActivity"
             android:exported="false" />
 
+        <!-- SCR-17: OrderSuccessActivity -->
         <activity
             android:name=".ui.activities.OrderSuccessActivity"
+            android:exported="false" />
+
+        <!-- SCR-1A: AddressManagerActivity -->
+        <activity
+            android:name=".ui.activities.AddressManagerActivity"
             android:exported="false" />
 
         <!-- AdminActivity - Màn hình dành cho role admin -->
