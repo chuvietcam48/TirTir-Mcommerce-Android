@@ -71,11 +71,11 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.AddressV
 
         public AddressViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvName = itemView.findViewById(R.id.tvAddressName);
-            tvPhone = itemView.findViewById(R.id.tvAddressPhone);
-            tvAddress = itemView.findViewById(R.id.tvAddressDetail);
-            chipDefault = itemView.findViewById(R.id.chipDefault);
-            btnMore = itemView.findViewById(R.id.btnAddressMore);
+            tvName = itemView.findViewById(R.id.tvReceiverName);
+            tvPhone = itemView.findViewById(R.id.tvPhone);
+            tvAddress = itemView.findViewById(R.id.tvAddressLine);
+            chipDefault = itemView.findViewById(R.id.tvAddressLabel);
+            btnMore = itemView.findViewById(R.id.btnEditAddress);
         }
 
         public void bind(Address address) {

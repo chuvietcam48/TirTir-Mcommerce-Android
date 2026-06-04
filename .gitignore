@@ -16,3 +16,4 @@ local.properties
 .vscode/
 memory/
 package-lock.json
+app/google-services.json

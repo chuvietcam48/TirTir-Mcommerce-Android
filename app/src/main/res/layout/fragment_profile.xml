@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -31,7 +32,7 @@
                 android:layout_marginEnd="16dp">
 
                 <ImageView
-                    android:id="@+id/imgAvatar"
+                    android:id="@+id/ivAvatar"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
                     android:scaleType="centerCrop"
@@ -80,7 +81,7 @@
                     android:text="Đang tải..." />
 
                 <TextView
-                    android:id="@+id/tvUserEmail"
+                    android:id="@+id/tvEmail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/tirtir_text_secondary"
@@ -98,6 +99,50 @@
                 android:contentDescription="@string/profile_edit" />
         </LinearLayout>
 
+    </LinearLayout>
+
+    <!-- Skin Type and Loyalty Info -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="@color/tirtir_milk_white"
+        android:layout_marginTop="2dp">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipSkinType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Da dầu"
+            android:textColor="@color/tirtir_milk_white"
+            app:chipBackgroundColor="@color/tirtir_success" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="end">
+            <TextView
+                android:id="@+id/tvLoyaltyTier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thành viên Vàng"
+                android:textStyle="bold"
+                android:textColor="@color/tirtir_warning" />
+            <TextView
+                android:id="@+id/tvLoyaltyPoints"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1500 điểm"
+                android:textSize="12sp"
+                android:textColor="@color/tirtir_text_secondary" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Scrollable Content -->
@@ -159,27 +204,26 @@
                     <LinearLayout
                         android:id="@+id/layoutMyAddresses"
                         android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:padding="16dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
                         <TextView
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:text="@string/profile_my_addresses"
                             android:textColor="@color/tirtir_text_primary"
-                            android:textSize="15sp" />
+                            android:textSize="15sp"
+                            android:layout_marginBottom="8dp" />
 
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:src="@android:drawable/ic_media_next"
-                            android:alpha="0.4" />
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvAddresses"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false"
+                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                            tools:listitem="@layout/item_address"
+                            tools:itemCount="2" />
                     </LinearLayout>
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/tirtir_silver_gray" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />

@@ -12,8 +12,8 @@ import androidx.fragment.app.Fragment;
 
 import com.example.tirtir_mcommerce.ui.fragments.HomeFragment;
 import com.example.tirtir_mcommerce.ui.fragments.ProfileFragment;
-import com.example.tirtir_mcommerce.ui.fragments.RoutineFragment;
-import com.example.tirtir_mcommerce.ui.fragments.ShopFragment;
+import com.example.tirtir_mcommerce.ui.fragments.CartFragment;
+import com.example.tirtir_mcommerce.ui.fragments.WishlistFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         // ==========================================
         // KHỞI TẠO BOTTOM NAVIGATION
         // ==========================================
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigationView);
 
         bottomNav.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
@@ -41,17 +41,17 @@ public class MainActivity extends AppCompatActivity {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
                 selectedFragment = new HomeFragment();
-            } else if (itemId == R.id.nav_shop) {
-                selectedFragment = new ShopFragment();
-            } else if (itemId == R.id.nav_routine) {
-                selectedFragment = new RoutineFragment();
+            } else if (itemId == R.id.nav_cart) {
+                selectedFragment = new CartFragment();
+            } else if (itemId == R.id.nav_wishlist) {
+                selectedFragment = new WishlistFragment();
             } else if (itemId == R.id.nav_profile) {
                 selectedFragment = new ProfileFragment();
             }
 
             if (selectedFragment != null) {
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.frame_container, selectedFragment)
+                        .replace(R.id.fragmentContainer, selectedFragment)
                         .commit();
             }
             return true;

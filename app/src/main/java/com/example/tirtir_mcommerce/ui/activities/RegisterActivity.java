@@ -23,88 +23,60 @@ import com.example.tirtir_mcommerce.viewmodel.AuthViewModel;
  */
 public class RegisterActivity extends AppCompatActivity {
 
-    private TextInputLayout tilFirstName, tilLastName, tilEmail, tilPassword, tilConfirmPassword;
-    private TextInputEditText etFirstName, etLastName, etEmail, etPassword, etConfirmPassword;
+    private TextInputLayout tilFullName, tilEmail, tilPassword, tilConfirmPassword;
+    private TextInputEditText etFullName, etEmail, etPassword, etConfirmPassword;
     private MaterialButton btnRegister;
-    private ProgressBar progressBar;
-    private TextView tvLogin;
-
-    private AuthViewModel authViewModel;
+    private ProgressBar progressRegister;
+    private TextView tvGoLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-
-        authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
-
         bindViews();
-        observeViewModel();
         setListeners();
     }
 
     private void bindViews() {
-        tilFirstName = findViewById(R.id.tilFirstName);
-        tilLastName = findViewById(R.id.tilLastName);
+        tilFullName = findViewById(R.id.tilFullName);
         tilEmail = findViewById(R.id.tilEmail);
         tilPassword = findViewById(R.id.tilPassword);
         tilConfirmPassword = findViewById(R.id.tilConfirmPassword);
 
-        etFirstName = findViewById(R.id.etFirstName);
-        etLastName = findViewById(R.id.etLastName);
+        etFullName = findViewById(R.id.etFullName);
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
 
         btnRegister = findViewById(R.id.btnRegister);
-        progressBar = findViewById(R.id.progressBar);
-        tvLogin = findViewById(R.id.tvLogin);
+        progressRegister = findViewById(R.id.progressRegister);
+        tvGoLogin = findViewById(R.id.tvGoLogin);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> onBackPressed());
     }
 
-    private void observeViewModel() {
-        authViewModel.isLoading.observe(this, isLoading -> {
-            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-            btnRegister.setEnabled(!isLoading);
-            btnRegister.setAlpha(isLoading ? 0.6f : 1.0f);
-        });
+    private void setListeners() {
+        btnRegister.setOnClickListener(v -> handleMockRegister());
 
-        authViewModel.errorMessage.observe(this, message -> {
-            if (message != null && !message.isEmpty()) {
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-            }
+        tvGoLogin.setOnClickListener(v -> {
+            onBackPressed(); // Quay lại màn LoginActivity
         });
+    }
 
-        authViewModel.registerSuccess.observe(this, message -> {
-            // Đăng ký thành công -> thông báo và quay về Login
+    private void handleMockRegister() {
+        // Mock loading
+        progressRegister.setVisibility(View.VISIBLE);
+        btnRegister.setEnabled(false);
+
+        progressRegister.postDelayed(() -> {
+            progressRegister.setVisibility(View.GONE);
+            btnRegister.setEnabled(true);
+            
             Toast.makeText(this, getString(R.string.toast_register_success), Toast.LENGTH_LONG).show();
             Intent intent = new Intent(this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
-        });
-    }
-
-    private void setListeners() {
-        btnRegister.setOnClickListener(v -> handleRegister());
-
-        tvLogin.setOnClickListener(v -> {
-            onBackPressed(); // Quay lại màn LoginActivity
-        });
-    }
-
-    private void handleRegister() {
-        String firstName = getTextFrom(etFirstName);
-        String lastName = getTextFrom(etLastName);
-        String email = getTextFrom(etEmail);
-        String password = getTextFrom(etPassword);
-        String confirmPassword = getTextFrom(etConfirmPassword);
-
-        authViewModel.register(firstName, lastName, email, password, confirmPassword);
-    }
-
-    private String getTextFrom(TextInputEditText editText) {
-        return editText.getText() != null ? editText.getText().toString().trim() : "";
+        }, 1000);
     }
 }

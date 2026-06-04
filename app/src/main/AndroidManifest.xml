@@ -42,6 +42,18 @@
             android:name=".MainActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.activities.ProductDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.CheckoutActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.OrderSuccessActivity"
+            android:exported="false" />
+
         <!-- AdminActivity - Màn hình dành cho role admin -->
         <activity
             android:name=".ui.activities.AdminActivity"

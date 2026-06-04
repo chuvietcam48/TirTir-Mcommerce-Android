@@ -79,16 +79,15 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         private final TextView tvName;
         private final TextView tvPrice;
         private final TextView tvCategory;
-        private View btnAddToCart; // Optional — nếu layout có
+        private View btnWishlistSmall;
 
         ProductViewHolder(@NonNull View itemView) {
             super(itemView);
-            imgProduct = itemView.findViewById(R.id.imgProduct);
+            imgProduct = itemView.findViewById(R.id.ivProductImage);
             tvName = itemView.findViewById(R.id.tvProductName);
             tvPrice = itemView.findViewById(R.id.tvProductPrice);
             tvCategory = itemView.findViewById(R.id.tvProductCategory);
-            // btnAddToCart: sẽ bind khi FE layout thêm R.id.btnAddToCart
-            // btnAddToCart = itemView.findViewById(R.id.btnAddToCart);
+            btnWishlistSmall = itemView.findViewById(R.id.btnWishlistSmall);
         }
 
         void bind(Product product) {
@@ -107,19 +106,16 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                     .error(android.R.drawable.stat_notify_error)
                     .into(imgProduct);
 
-            // Click cả item → thêm vào giỏ (fallback nếu chưa có nút)
+            // Click cả item → mở trang chi tiết (sẽ handle ở ngoài bằng cách thêm interface)
             itemView.setOnClickListener(v -> {
                 if (addToCartListener != null) {
                     addToCartListener.onAddToCart(product);
                 }
             });
 
-            // Nút "Thêm vào giỏ" riêng (nếu layout có)
-            if (btnAddToCart != null) {
-                btnAddToCart.setOnClickListener(v -> {
-                    if (addToCartListener != null) {
-                        addToCartListener.onAddToCart(product);
-                    }
+            if (btnWishlistSmall != null) {
+                btnWishlistSmall.setOnClickListener(v -> {
+                    // Mock wishlist behavior
                 });
             }
         }

@@ -31,28 +31,15 @@ public class LoginActivity extends AppCompatActivity {
 
     private TextInputLayout tilEmail, tilPassword;
     private TextInputEditText etEmail, etPassword;
-    private MaterialButton btnLogin;
-    private ProgressBar progressBar;
-    private TextView tvRegister, tvForgotPassword;
-
-    private AuthViewModel authViewModel;
+    private MaterialButton btnLogin, btnGoogleLogin;
+    private ProgressBar progressLogin;
+    private TextView tvGoRegister, tvForgotPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Khởi tạo ViewModel
-        authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
-
-        // Nếu đã đăng nhập, chuyển thẳng vào MainActivity
-        if (authViewModel.isLoggedIn()) {
-            goToMain();
-            return;
-        }
-
         setContentView(R.layout.activity_login);
         bindViews();
-        observeViewModel();
         setListeners();
     }
 
@@ -62,37 +49,17 @@ public class LoginActivity extends AppCompatActivity {
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
-        progressBar = findViewById(R.id.progressBar);
-        tvRegister = findViewById(R.id.tvRegister);
+        btnGoogleLogin = findViewById(R.id.btnGoogleLogin);
+        progressLogin = findViewById(R.id.progressLogin);
+        tvGoRegister = findViewById(R.id.tvGoRegister);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
     }
 
-    private void observeViewModel() {
-        // Quan sát trạng thái loading
-        authViewModel.isLoading.observe(this, isLoading -> {
-            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-            btnLogin.setEnabled(!isLoading);
-            btnLogin.setAlpha(isLoading ? 0.6f : 1.0f);
-        });
-
-        // Quan sát lỗi
-        authViewModel.errorMessage.observe(this, message -> {
-            if (message != null && !message.isEmpty()) {
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-            }
-        });
-
-        // Quan sát đăng nhập thành công → phân nhánh theo role
-        authViewModel.loginSuccess.observe(this, user -> {
-            Toast.makeText(this, getString(R.string.toast_login_success), Toast.LENGTH_SHORT).show();
-            navigateByRole(user);
-        });
-    }
-
     private void setListeners() {
-        btnLogin.setOnClickListener(v -> handleLogin());
+        btnLogin.setOnClickListener(v -> handleMockLogin());
+        btnGoogleLogin.setOnClickListener(v -> handleMockLogin());
 
-        tvRegister.setOnClickListener(v -> {
+        tvGoRegister.setOnClickListener(v -> {
             Intent intent = new Intent(this, RegisterActivity.class);
             startActivity(intent);
         });
@@ -102,39 +69,21 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void handleLogin() {
-        // Xóa lỗi cũ
-        tilEmail.setError(null);
-        tilPassword.setError(null);
-
-        String email = etEmail.getText() != null ? etEmail.getText().toString().trim() : "";
-        String password = etPassword.getText() != null ? etPassword.getText().toString() : "";
-
-        // Uỷ quyền cho ViewModel xử lý (kể cả validate)
-        authViewModel.login(email, password);
-    }
-
-    /**
-     * Điều hướng sau khi đăng nhập thành công dựa theo role của user.
-     * - "admin": vào AdminActivity
-     * - các role khác ("user", "inventory_staff", "customer_service"): vào MainActivity
-     */
-    private void navigateByRole(User user) {
-        if (user != null && "admin".equals(user.getRole())) {
-            goToAdmin();
-        } else {
+    private void handleMockLogin() {
+        // Mock loading
+        progressLogin.setVisibility(View.VISIBLE);
+        btnLogin.setEnabled(false);
+        
+        // Mock success after short delay
+        progressLogin.postDelayed(() -> {
+            progressLogin.setVisibility(View.GONE);
+            btnLogin.setEnabled(true);
             goToMain();
-        }
+        }, 1000);
     }
 
     private void goToMain() {
         Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
-    private void goToAdmin() {
-        Intent intent = new Intent(this, AdminActivity.class);
         startActivity(intent);
         finish();
     }

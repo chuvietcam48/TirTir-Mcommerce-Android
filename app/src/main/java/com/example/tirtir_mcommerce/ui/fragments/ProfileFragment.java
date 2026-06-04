@@ -18,6 +18,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -35,7 +37,10 @@ import com.example.tirtir_mcommerce.model.User;
 import com.example.tirtir_mcommerce.ui.activities.LoginActivity;
 import com.example.tirtir_mcommerce.viewmodel.AuthViewModel;
 import com.example.tirtir_mcommerce.viewmodel.ProfileViewModel;
-import com.google.android.material.button.MaterialButton;
+import com.example.tirtir_mcommerce.ui.adapters.AddressAdapter;
+import com.example.tirtir_mcommerce.model.Address;
+import java.util.ArrayList;
+import java.util.List;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,12 +76,15 @@ public class ProfileFragment extends Fragment {
     private ProfileViewModel profileViewModel;
     private AuthViewModel authViewModel;
 
-    private ImageView imgAvatar;
-    private TextView tvUserName, tvUserEmail, tvInitials, tvCurrentLanguage;
+    private ImageView ivAvatar;
+    private TextView tvUserName, tvEmail, tvInitials, tvCurrentLanguage, tvLoyaltyTier, tvLoyaltyPoints;
     private ImageButton btnEditProfile;
     private LinearLayout layoutMyOrders, layoutMyAddresses, layoutMyWishlist, layoutLanguage;
-    private MaterialButton btnLogout;
+    private com.google.android.material.button.MaterialButton btnLogout;
     private ProgressBar progressAvatarUpload;
+    private com.google.android.material.chip.Chip chipSkinType;
+    private RecyclerView rvAddresses;
+    private AddressAdapter addressAdapter;
 
     // ===========================
     // CAMERA / GALLERY
@@ -156,9 +164,9 @@ public class ProfileFragment extends Fragment {
     // ===========================
 
     private void bindViews(View view) {
-        imgAvatar = view.findViewById(R.id.imgAvatar);
+        ivAvatar = view.findViewById(R.id.ivAvatar);
         tvUserName = view.findViewById(R.id.tvUserName);
-        tvUserEmail = view.findViewById(R.id.tvUserEmail);
+        tvEmail = view.findViewById(R.id.tvEmail);
         tvInitials = view.findViewById(R.id.tvInitials);
         tvCurrentLanguage = view.findViewById(R.id.tvCurrentLanguage);
         btnEditProfile = view.findViewById(R.id.btnEditProfile);
@@ -168,6 +176,44 @@ public class ProfileFragment extends Fragment {
         layoutLanguage = view.findViewById(R.id.layoutLanguage);
         btnLogout = view.findViewById(R.id.btnLogout);
         progressAvatarUpload = view.findViewById(R.id.progressAvatarUpload);
+        chipSkinType = view.findViewById(R.id.chipSkinType);
+        tvLoyaltyTier = view.findViewById(R.id.tvLoyaltyTier);
+        tvLoyaltyPoints = view.findViewById(R.id.tvLoyaltyPoints);
+        rvAddresses = view.findViewById(R.id.rvAddresses);
+
+        setupMockAddresses();
+    }
+
+    private void setupMockAddresses() {
+        List<Address> mockAddresses = new ArrayList<>();
+        Address address1 = new Address();
+        address1.setFullName("Nguyễn Văn A");
+        address1.setPhone("0901234567");
+        address1.setStreet("12 Lý Tự Trọng");
+        address1.setWard("Bến Nghé");
+        address1.setDistrict("Quận 1");
+        address1.setCity("Hồ Chí Minh");
+        address1.setDefault(true);
+        mockAddresses.add(address1);
+
+        addressAdapter = new AddressAdapter(mockAddresses, new AddressAdapter.AddressActionListener() {
+            @Override
+            public void onEditAddress(Address address) {
+                Toast.makeText(getContext(), "Mock: Edit Address", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onDeleteAddress(Address address) {
+                Toast.makeText(getContext(), "Mock: Delete Address", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onSetDefault(Address address) {
+                Toast.makeText(getContext(), "Mock: Set Default", Toast.LENGTH_SHORT).show();
+            }
+        });
+        rvAddresses.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvAddresses.setAdapter(addressAdapter);
     }
 
     // ===========================
@@ -175,35 +221,22 @@ public class ProfileFragment extends Fragment {
     // ===========================
 
     private void observeViewModel() {
-        profileViewModel.userLiveData.observe(getViewLifecycleOwner(), this::bindUserData);
-
-        profileViewModel.errorMessage.observe(getViewLifecycleOwner(), message -> {
-            if (message != null && !message.isEmpty()) {
-                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        profileViewModel.successMessage.observe(getViewLifecycleOwner(), message -> {
-            if (message != null && !message.isEmpty()) {
-                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // Hiện ProgressBar khi đang upload avatar
-        profileViewModel.avatarUploadLoading.observe(getViewLifecycleOwner(), isUploading -> {
-            if (progressAvatarUpload != null) {
-                progressAvatarUpload.setVisibility(isUploading ? View.VISIBLE : View.GONE);
-            }
-            // Disable avatar click khi đang upload
-            imgAvatar.setEnabled(!isUploading);
-        });
+        // Mock data
+        tvUserName.setText("Khách hàng TirTir");
+        tvEmail.setText("khachhang@example.com");
+        tvInitials.setText("KH");
+        
+        // Hide progress initially
+        if (progressAvatarUpload != null) {
+            progressAvatarUpload.setVisibility(View.GONE);
+        }
     }
 
     private void bindUserData(User user) {
         if (user == null) return;
 
         tvUserName.setText(user.getName());
-        tvUserEmail.setText(user.getEmail());
+        tvEmail.setText(user.getEmail());
         tvInitials.setText(user.getInitials());
 
         // Load ảnh avatar bằng Glide (nếu có)
@@ -212,11 +245,11 @@ public class ProfileFragment extends Fragment {
                     .load(user.getAvatar())
                     .circleCrop()
                     .placeholder(android.R.drawable.ic_menu_gallery)
-                    .into(imgAvatar);
+                    .into(ivAvatar);
             tvInitials.setVisibility(View.GONE);
-            imgAvatar.setVisibility(View.VISIBLE);
+            ivAvatar.setVisibility(View.VISIBLE);
         } else {
-            imgAvatar.setVisibility(View.INVISIBLE);
+            ivAvatar.setVisibility(View.INVISIBLE);
             tvInitials.setVisibility(View.VISIBLE);
         }
     }
@@ -237,7 +270,7 @@ public class ProfileFragment extends Fragment {
         });
 
         // ===== AVATAR - Chọn Camera hoặc Gallery =====
-        imgAvatar.setOnClickListener(v -> showAvatarPickerDialog());
+        ivAvatar.setOnClickListener(v -> showAvatarPickerDialog());
         // Cũng cho phép click vào chữ viết tắt (khi chưa có avatar)
         tvInitials.setOnClickListener(v -> showAvatarPickerDialog());
 
@@ -340,36 +373,27 @@ public class ProfileFragment extends Fragment {
         return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
-    /**
-     * Preview ảnh ngay lập tức rồi bắt đầu upload lên Firebase Storage.
-     *
-     * @param imageUri URI của ảnh (từ Camera hoặc Gallery)
-     */
     private void previewAndUploadAvatar(Uri imageUri) {
         // Hiện preview ngay (UX tốt hơn — user thấy thay đổi ngay)
         Glide.with(this)
                 .load(imageUri)
                 .circleCrop()
-                .into(imgAvatar);
-        imgAvatar.setVisibility(View.VISIBLE);
+                .into(ivAvatar);
+        ivAvatar.setVisibility(View.VISIBLE);
         tvInitials.setVisibility(View.GONE);
 
-        // Upload lên Firebase Storage qua ViewModel
-        profileViewModel.uploadAvatar(imageUri);
+        // Upload lên Firebase Storage qua ViewModel (Mock logic)
+        Toast.makeText(getContext(), "Mock: Avatar upload processing", Toast.LENGTH_SHORT).show();
     }
 
     // ===========================
     // WISHLIST NAVIGATION
     // ===========================
 
-    /**
-     * Điều hướng sang WishlistFragment để xem danh sách yêu thích.
-     * Dùng ContentProvider để query SQLite Wishlist DB.
-     */
     private void navigateToWishlist() {
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.frame_container, new WishlistFragment())
+                .replace(R.id.fragmentContainer, new WishlistFragment())
                 .addToBackStack("wishlist")
                 .commit();
     }
@@ -379,13 +403,11 @@ public class ProfileFragment extends Fragment {
     // ===========================
 
     private void performLogout() {
-        authViewModel.logout(() -> {
-            requireActivity().runOnUiThread(() -> {
-                Toast.makeText(getContext(), getString(R.string.toast_logout_success), Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getActivity(), LoginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-            });
+        requireActivity().runOnUiThread(() -> {
+            Toast.makeText(getContext(), getString(R.string.toast_logout_success), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getActivity(), LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         });
     }
 
