@@ -2,10 +2,10 @@ package com.example.tirtir_mcommerce.network;
 
 import com.example.tirtir_mcommerce.model.Address;
 import com.example.tirtir_mcommerce.model.ApiResponse;
+import com.example.tirtir_mcommerce.model.CreateOrderRequest;
 import com.example.tirtir_mcommerce.model.LoginRequest;
 import com.example.tirtir_mcommerce.model.LoginResponse;
 import com.example.tirtir_mcommerce.model.OrderResponse;
-import com.example.tirtir_mcommerce.model.CreateOrderRequest;
 import com.example.tirtir_mcommerce.model.ProductResponse;
 import com.example.tirtir_mcommerce.model.RegisterRequest;
 import com.example.tirtir_mcommerce.model.User;
@@ -21,6 +21,7 @@ import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 /**
  * Interface định nghĩa tất cả các API endpoint của hệ thống TirTir.
@@ -30,6 +31,8 @@ import retrofit2.http.Path;
  * - AUTH: Đăng nhập, đăng ký, quản lý phiên đăng nhập
  * - USER PROFILE: Thông tin cá nhân, địa chỉ
  * - PRODUCT: Danh sách, chi tiết sản phẩm
+ * - CART: Giỏ hàng (offline + server sync)
+ * - ORDER: Đặt hàng, lịch sử, hóa đơn
  */
 public interface ApiService {
 
@@ -123,10 +126,17 @@ public interface ApiService {
     // ===========================
 
     /**
-     * Lấy danh sách sản phẩm - GET /api/v1/products?limit=1000
+     * Lấy tất cả sản phẩm - GET /api/v1/products?limit=1000
      */
     @GET("api/v1/products?limit=1000")
     Call<ProductResponse> getProducts();
+
+    /**
+     * Lấy sản phẩm theo category - GET /api/v1/products?category=...&limit=...
+     */
+    @GET("api/v1/products")
+    Call<ProductResponse> getProductsByCategory(@Query("category") String category,
+                                                 @Query("limit") int limit);
 
     // ===========================
     // CART MODULE
@@ -154,18 +164,24 @@ public interface ApiService {
      * Tạo đơn hàng - POST /api/v1/orders/create
      * Yêu cầu token (Bearer)
      * Body: { shippingAddress, paymentMethod }
+     * Backend tự lấy cart của user qua JWT
+     * Dùng cho SCR-16 CheckoutActivity
      */
     @POST("api/v1/orders/create")
     Call<ApiResponse<OrderResponse>> createOrder(@Body CreateOrderRequest request);
 
     /**
      * Lấy lịch sử đơn hàng - GET /api/v1/orders/my-orders
+     * Yêu cầu token (Bearer)
+     * Dùng cho SCR-18 OrderHistoryFragment
      */
     @GET("api/v1/orders/my-orders")
     Call<ApiResponse<List<OrderResponse>>> getMyOrders();
 
     /**
      * Xem chi tiết đơn hàng - GET /api/v1/orders/{id}
+     * Yêu cầu token (Bearer)
+     * Dùng cho SCR-17 OrderSuccessActivity
      */
     @GET("api/v1/orders/{id}")
     Call<ApiResponse<OrderResponse>> getOrderById(@Path("id") String orderId);
