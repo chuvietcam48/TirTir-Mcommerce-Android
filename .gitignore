@@ -17,3 +17,6 @@ local.properties
 memory/
 package-lock.json
 app/google-services.json
+
+# Backend has its own separate git repo (cammeomeo48/TirTir-Project)
+scratch-backend/
