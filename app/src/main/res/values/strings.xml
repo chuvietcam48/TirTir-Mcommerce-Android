@@ -89,4 +89,65 @@
     <string name="nav_shop">Cửa hàng</string>
     <string name="nav_routine">Routine</string>
     <string name="nav_profile">Tài khoản</string>
+    <string name="nav_cart">Giỏ hàng</string>
+    <string name="nav_wishlist">Yêu thích</string>
+
+    <!-- ===== PRODUCT DETAIL ===== -->
+    <string name="product_detail_title">Chi tiết sản phẩm</string>
+    <string name="product_category_placeholder">DANH MỤC</string>
+    <string name="product_name_placeholder">Tên sản phẩm</string>
+    <string name="product_price_placeholder">0 đ</string>
+    <string name="product_suitable_skin_types">Loại da phù hợp</string>
+    <string name="product_skin_types_placeholder">Mọi loại da, da nhạy cảm</string>
+    <string name="product_ingredients_title">Thành phần</string>
+    <string name="product_ingredients_placeholder">Nước, Glycerin, Niacinamide...</string>
+    <string name="product_description_title">Mô tả</string>
+    <string name="product_description_placeholder">Mô tả sản phẩm</string>
+    <string name="btn_add_to_cart">Thêm vào giỏ</string>
+    <string name="btn_wishlist">Yêu thích</string>
+    <string name="content_desc_wishlist">Thêm vào yêu thích</string>
+
+    <!-- ===== CART ===== -->
+    <string name="cart_title">Giỏ hàng của bạn</string>
+    <string name="cart_subtotal">Tạm tính</string>
+    <string name="cart_shipping">Phí vận chuyển</string>
+    <string name="cart_total">Tổng cộng</string>
+    <string name="cart_empty_title">Giỏ hàng trống</string>
+    <string name="cart_price_placeholder">0 đ</string>
+    <string name="btn_checkout">Thanh toán</string>
+
+    <!-- ===== CHECKOUT ===== -->
+    <string name="checkout_title">Thanh toán</string>
+    <string name="checkout_shipping_address">Địa chỉ giao hàng</string>
+    <string name="checkout_payment_method">Phương thức thanh toán</string>
+    <string name="checkout_shipping_service">Dịch vụ vận chuyển</string>
+    <string name="checkout_order_summary">Tóm tắt đơn hàng</string>
+    <string name="checkout_subtotal">Tạm tính</string>
+    <string name="checkout_shipping_fee">Phí vận chuyển</string>
+    <string name="checkout_total">Tổng cộng</string>
+    <string name="checkout_shipping_standard">Giao hàng tiêu chuẩn — 2–3 ngày làm việc</string>
+    <string name="checkout_shipping_pending_note">⚠️ Tích hợp Viettel Post đang phát triển</string>
+    <string name="btn_place_order">Đặt hàng</string>
+    <string name="hint_checkout_full_name">Họ và tên</string>
+    <string name="hint_checkout_phone">Số điện thoại</string>
+    <string name="hint_checkout_street">Địa chỉ</string>
+    <string name="hint_checkout_district">Quận/Huyện</string>
+    <string name="hint_checkout_city">Tỉnh/Thành phố</string>
+    <string name="hint_checkout_note">Ghi chú đơn hàng (không bắt buộc)</string>
+    <string name="payment_cod">💵  Thanh toán khi nhận hàng (COD)</string>
+    <string name="payment_bank_transfer">🏦  Chuyển khoản ngân hàng</string>
+    <string name="payment_momo">📱  Ví MoMo</string>
+
+    <!-- ===== ORDER SUCCESS ===== -->
+    <string name="order_success_title">Đặt hàng thành công!</string>
+    <string name="order_success_subtitle">Cảm ơn bạn đã mua sắm tại TirTir!</string>
+    <string name="order_success_icon_desc">Đặt hàng thành công</string>
+    <string name="order_code_label">Mã đơn hàng</string>
+    <string name="order_code_placeholder">ORD-000000</string>
+    <string name="order_status_label">Trạng thái</string>
+    <string name="order_status_confirmed">Đã xác nhận</string>
+    <string name="order_total_paid_label">Tổng thanh toán</string>
+    <string name="order_total_placeholder">0 đ</string>
+    <string name="btn_view_order_history">Xem lịch sử đơn hàng</string>
+    <string name="btn_back_home">Về trang chủ</string>
 </resources>

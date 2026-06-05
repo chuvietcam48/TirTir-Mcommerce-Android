@@ -222,15 +222,34 @@ public class ProfileFragment extends Fragment {
     // ===========================
 
     private void observeViewModel() {
-        // Mock data
-        tvUserName.setText("Khách hàng TirTir");
-        tvEmail.setText("khachhang@example.com");
-        tvInitials.setText("KH");
-        
-        // Hide progress initially
-        if (progressAvatarUpload != null) {
-            progressAvatarUpload.setVisibility(View.GONE);
-        }
+        // Observe User Profile from API
+        profileViewModel.userLiveData.observe(getViewLifecycleOwner(), this::bindUserData);
+
+        // Loading state
+        profileViewModel.isLoading.observe(getViewLifecycleOwner(), isLoading -> {
+            // Optional: show a progress bar for profile loading
+        });
+
+        // Error message
+        profileViewModel.errorMessage.observe(getViewLifecycleOwner(), error -> {
+            if (error != null) {
+                Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Success message
+        profileViewModel.successMessage.observe(getViewLifecycleOwner(), message -> {
+            if (message != null) {
+                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Avatar loading state
+        profileViewModel.avatarUploadLoading.observe(getViewLifecycleOwner(), isLoading -> {
+            if (progressAvatarUpload != null) {
+                progressAvatarUpload.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+            }
+        });
     }
 
     private void bindUserData(User user) {
@@ -385,8 +404,8 @@ public class ProfileFragment extends Fragment {
         ivAvatar.setVisibility(View.VISIBLE);
         tvInitials.setVisibility(View.GONE);
 
-        // Upload lên Firebase Storage qua ViewModel (Mock logic)
-        Toast.makeText(getContext(), "Mock: Avatar upload processing", Toast.LENGTH_SHORT).show();
+        // Upload lên Firebase Storage qua ViewModel
+        profileViewModel.uploadAvatar(imageUri);
     }
 
     // ===========================
@@ -406,11 +425,13 @@ public class ProfileFragment extends Fragment {
     // ===========================
 
     private void performLogout() {
-        requireActivity().runOnUiThread(() -> {
-            Toast.makeText(getContext(), getString(R.string.toast_logout_success), Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(getActivity(), LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+        authViewModel.logout(() -> {
+            requireActivity().runOnUiThread(() -> {
+                Toast.makeText(getContext(), getString(R.string.toast_logout_success), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            });
         });
     }
 

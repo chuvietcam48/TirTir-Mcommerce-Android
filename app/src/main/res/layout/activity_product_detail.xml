@@ -15,7 +15,8 @@
             android:id="@+id/toolbarProductDetail"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Product Detail" />
+            app:title="@string/product_detail_title"
+            app:titleTextColor="@color/tirtir_text_primary" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -29,11 +30,24 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- Image carousel with ViewPager2 -->
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/viewPagerProductImages"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
-                android:background="#F5F5F5" />
+                android:background="@color/tirtir_off_white" />
+
+            <!-- ViewPager2 dot indicator -->
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabIndicatorImages"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                app:tabBackground="@drawable/selector_tab_dot"
+                app:tabGravity="center"
+                app:tabIndicatorHeight="0dp"
+                app:tabPaddingStart="4dp"
+                app:tabPaddingEnd="4dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -45,8 +59,8 @@
                     android:id="@+id/tvProductCategory"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Category"
-                    android:textColor="#E91E63"
+                    android:text="@string/product_category_placeholder"
+                    android:textColor="@color/tirtir_red_primary"
                     android:textSize="14sp"
                     android:textAllCaps="true"
                     android:textStyle="bold" />
@@ -56,8 +70,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Product Name"
-                    android:textColor="#212121"
+                    android:text="@string/product_name_placeholder"
+                    android:textColor="@color/tirtir_text_primary"
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
@@ -66,8 +80,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="$0.00"
-                    android:textColor="#333333"
+                    android:text="@string/product_price_placeholder"
+                    android:textColor="@color/tirtir_text_primary"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
@@ -76,13 +90,13 @@
                     android:layout_height="1dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginBottom="16dp"
-                    android:background="#EEEEEE" />
+                    android:background="@color/tirtir_border_gray" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Suitable Skin Types"
-                    android:textColor="#212121"
+                    android:text="@string/product_suitable_skin_types"
+                    android:textColor="@color/tirtir_text_primary"
                     android:textStyle="bold"
                     android:textSize="16sp" />
 
@@ -91,16 +105,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="All skin types, sensitive skin"
-                    android:textColor="#757575"
+                    android:text="@string/product_skin_types_placeholder"
+                    android:textColor="@color/tirtir_text_secondary"
                     android:textSize="14sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="Ingredients"
-                    android:textColor="#212121"
+                    android:text="@string/product_ingredients_title"
+                    android:textColor="@color/tirtir_text_primary"
                     android:textStyle="bold"
                     android:textSize="16sp" />
 
@@ -109,16 +123,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Water, Glycerin, Niacinamide..."
-                    android:textColor="#757575"
+                    android:text="@string/product_ingredients_placeholder"
+                    android:textColor="@color/tirtir_text_secondary"
                     android:textSize="14sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="Description"
-                    android:textColor="#212121"
+                    android:text="@string/product_description_title"
+                    android:textColor="@color/tirtir_text_primary"
                     android:textStyle="bold"
                     android:textSize="16sp" />
 
@@ -127,8 +141,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="A beautiful product description explaining the benefits and how to use it for maximum effectiveness."
-                    android:textColor="#757575"
+                    android:text="@string/product_description_placeholder"
+                    android:textColor="@color/tirtir_text_secondary"
                     android:textSize="14sp"
                     android:lineSpacingExtra="4dp" />
 
@@ -136,33 +150,46 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <!-- Bottom action bar: Wishlist + Add to Cart -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@android:color/white"
+        android:background="@color/tirtir_white"
         android:elevation="8dp"
         android:orientation="horizontal"
         android:padding="16dp">
 
-        <ImageButton
+        <!-- Fix #8-analogy: Use proper wishlist icon -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnWishlist"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_myplaces"
-            app:tint="#E91E63" />
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:contentDescription="@string/content_desc_wishlist"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"
+            app:icon="@android:drawable/ic_menu_myplaces"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconTint="@color/tirtir_red_primary"
+            app:strokeColor="@color/tirtir_border_gray"
+            app:cornerRadius="12dp" />
 
-        <Button
+        <!-- Fix #4: Use MaterialButton instead of plain Button -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddToCart"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="12dp"
             android:layout_weight="1"
-            android:text="Add to Cart"
-            android:textColor="@android:color/white"
-            app:backgroundTint="#212121"
-            app:cornerRadius="8dp" />
+            android:text="@string/btn_add_to_cart"
+            android:textColor="@color/tirtir_white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="@color/tirtir_black"
+            app:cornerRadius="12dp" />
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

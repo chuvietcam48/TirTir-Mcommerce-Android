@@ -2,10 +2,12 @@ package com.example.tirtir_mcommerce.network;
 
 import com.example.tirtir_mcommerce.model.Address;
 import com.example.tirtir_mcommerce.model.ApiResponse;
+import com.example.tirtir_mcommerce.model.CartItem;
 import com.example.tirtir_mcommerce.model.CreateOrderRequest;
 import com.example.tirtir_mcommerce.model.LoginRequest;
 import com.example.tirtir_mcommerce.model.LoginResponse;
 import com.example.tirtir_mcommerce.model.OrderResponse;
+import com.example.tirtir_mcommerce.model.Product;
 import com.example.tirtir_mcommerce.model.ProductResponse;
 import com.example.tirtir_mcommerce.model.RegisterRequest;
 import com.example.tirtir_mcommerce.model.User;
@@ -149,6 +151,12 @@ public interface ApiService {
     Call<ProductResponse> getProductsByCategory(@Query("category") String category,
                                                  @Query("limit") int limit);
 
+    /**
+     * Lấy chi tiết sản phẩm - GET /api/v1/products/{id}
+     */
+    @GET("api/v1/products/{id}")
+    Call<ApiResponse<Product>> getProductById(@Path("id") String productId);
+
     // ===========================
     // CART MODULE
     // ===========================
@@ -165,7 +173,7 @@ public interface ApiService {
      * Lấy giỏ hàng hiện tại - GET /api/v1/cart
      */
     @GET("api/v1/cart")
-    Call<ApiResponse<Void>> getCart();
+    Call<ApiResponse<List<CartItem>>> getCart();
 
     // ===========================
     // ORDER MODULE

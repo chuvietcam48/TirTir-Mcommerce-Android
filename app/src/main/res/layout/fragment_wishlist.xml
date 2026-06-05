@@ -22,7 +22,8 @@
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_media_previous"
-            android:contentDescription="Quay lại" />
+            android:rotation="180"
+            android:contentDescription="@string/back" />
 
         <TextView
             android:layout_width="0dp"

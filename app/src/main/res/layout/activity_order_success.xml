@@ -3,29 +3,45 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@color/tirtir_white">
 
-    <!-- Success icon -->
+    <!-- Success icon — ic_check_circle (Material checkmark) -->
     <ImageView
         android:id="@+id/ivSuccessIcon"
         android:layout_width="96dp"
         android:layout_height="96dp"
         android:layout_marginTop="80dp"
-        android:src="@android:drawable/ic_dialog_email"
-        app:tint="#4CAF50"
+        android:src="@android:drawable/ic_dialog_info"
+        android:contentDescription="@string/order_success_icon_desc"
+        app:tint="@color/tirtir_success"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ✅ checkmark emoji fallback displayed in foreground via TextView -->
+    <TextView
+        android:id="@+id/tvSuccessCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="✓"
+        android:textSize="48sp"
+        android:textColor="@color/tirtir_white"
+        android:textStyle="bold"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="@id/ivSuccessIcon"
+        app:layout_constraintBottom_toBottomOf="@id/ivSuccessIcon"
+        app:layout_constraintStart_toStartOf="@id/ivSuccessIcon"
+        app:layout_constraintEnd_toEndOf="@id/ivSuccessIcon" />
 
     <TextView
         android:id="@+id/tvSuccessTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="Order Placed!"
+        android:text="@string/order_success_title"
         android:textSize="26sp"
         android:textStyle="bold"
-        android:textColor="#1A1A1A"
+        android:textColor="@color/tirtir_text_primary"
         app:layout_constraintTop_toBottomOf="@id/ivSuccessIcon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -35,9 +51,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Thank you for your purchase!"
+        android:text="@string/order_success_subtitle"
         android:textSize="15sp"
-        android:textColor="#757575"
+        android:textColor="@color/tirtir_text_secondary"
         app:layout_constraintTop_toBottomOf="@id/tvSuccessTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -52,7 +68,7 @@
         app:cardCornerRadius="16dp"
         app:cardElevation="2dp"
         app:strokeWidth="0dp"
-        android:backgroundTint="#FAFAFA"
+        app:cardBackgroundColor="@color/tirtir_off_white"
         app:layout_constraintTop_toBottomOf="@id/tvSuccessSubtitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -72,17 +88,17 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Order Code"
+                    android:text="@string/order_code_label"
                     android:textSize="14sp"
-                    android:textColor="#757575" />
+                    android:textColor="@color/tirtir_text_secondary" />
                 <TextView
                     android:id="@+id/tvOrderCode"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ORD-000000"
+                    android:text="@string/order_code_placeholder"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="#1A1A1A" />
+                    android:textColor="@color/tirtir_text_primary" />
             </LinearLayout>
 
             <LinearLayout
@@ -94,23 +110,23 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Status"
+                    android:text="@string/order_status_label"
                     android:textSize="14sp"
-                    android:textColor="#757575" />
+                    android:textColor="@color/tirtir_text_secondary" />
                 <TextView
                     android:id="@+id/tvOrderStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Confirmed"
+                    android:text="@string/order_status_confirmed"
                     android:textSize="14sp"
-                    android:textColor="#4CAF50"
+                    android:textColor="@color/tirtir_success"
                     android:textStyle="bold" />
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#EEEEEE"
+                android:background="@color/tirtir_border_gray"
                 android:layout_marginBottom="12dp" />
 
             <LinearLayout
@@ -121,51 +137,54 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Total Paid"
+                    android:text="@string/order_total_paid_label"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#1A1A1A" />
+                    android:textColor="@color/tirtir_text_primary" />
                 <TextView
                     android:id="@+id/tvOrderTotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0 đ"
+                    android:text="@string/order_total_placeholder"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#1A1A1A" />
+                    android:textColor="@color/tirtir_text_primary" />
             </LinearLayout>
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Buttons -->
+    <!-- View Order History — outline button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnViewOrder"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
         android:layout_marginTop="24dp"
-        android:text="View Order History"
+        android:text="@string/btn_view_order_history"
         android:textSize="15sp"
         android:paddingVertical="12dp"
         app:cornerRadius="12dp"
-        app:strokeColor="#1A1A1A"
+        app:strokeColor="@color/tirtir_black"
         app:strokeWidth="1dp"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:textColor="#1A1A1A"
+        android:textColor="@color/tirtir_black"
         app:layout_constraintTop_toBottomOf="@id/cardOrderDetail"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Back to Home — filled brand button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnBackHome"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
         android:layout_marginTop="12dp"
-        android:text="Back to Home"
+        android:text="@string/btn_back_home"
         android:textSize="15sp"
+        android:textColor="@color/tirtir_white"
         android:paddingVertical="12dp"
+        app:backgroundTint="@color/tirtir_red_primary"
         app:cornerRadius="12dp"
         app:layout_constraintTop_toBottomOf="@id/btnViewOrder"
         app:layout_constraintStart_toStartOf="parent"

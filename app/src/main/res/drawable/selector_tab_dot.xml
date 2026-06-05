@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dot indicator for ViewPager2 image carousel in ProductDetail -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Selected dot: filled red (brand color) -->
+    <item android:state_selected="true">
+        <shape android:shape="oval">
+            <solid android:color="@color/tirtir_red_primary" />
+            <size android:width="8dp" android:height="8dp" />
+        </shape>
+    </item>
+    <!-- Default dot: gray -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/tirtir_silver_gray" />
+            <size android:width="8dp" android:height="8dp" />
+        </shape>
+    </item>
+</selector>

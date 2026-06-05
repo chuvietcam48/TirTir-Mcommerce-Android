@@ -15,8 +15,8 @@
             android:id="@+id/toolbarCheckout"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Checkout"
-            app:titleTextColor="#1A1A1A" />
+            app:title="@string/checkout_title"
+            app:titleTextColor="@color/tirtir_black_cover" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -49,17 +49,17 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Shipping Address"
+                        android:text="@string/checkout_shipping_address"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="#1A1A1A"
+                        android:textColor="@color/tirtir_black_cover"
                         android:layout_marginBottom="12dp" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilFullName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Full Name"
+                        android:hint="@string/hint_checkout_full_name"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_marginBottom="10dp">
                         <com.google.android.material.textfield.TextInputEditText
@@ -73,7 +73,7 @@
                         android:id="@+id/tilPhone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Phone Number"
+                        android:hint="@string/hint_checkout_phone"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_marginBottom="10dp">
                         <com.google.android.material.textfield.TextInputEditText
@@ -87,7 +87,7 @@
                         android:id="@+id/tilStreet"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Street Address"
+                        android:hint="@string/hint_checkout_street"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_marginBottom="10dp">
                         <com.google.android.material.textfield.TextInputEditText
@@ -108,7 +108,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:hint="District"
+                            android:hint="@string/hint_checkout_district"
                             android:layout_marginEnd="6dp"
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                             <com.google.android.material.textfield.TextInputEditText
@@ -122,7 +122,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:hint="City"
+                            android:hint="@string/hint_checkout_city"
                             android:layout_marginStart="6dp"
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                             <com.google.android.material.textfield.TextInputEditText
@@ -136,7 +136,7 @@
                         android:id="@+id/tilNote"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Order Note (optional)"
+                        android:hint="@string/hint_checkout_note"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etNote"
@@ -167,10 +167,10 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Payment Method"
+                        android:text="@string/checkout_payment_method"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="#1A1A1A"
+                        android:textColor="@color/tirtir_black_cover"
                         android:layout_marginBottom="12dp" />
 
                     <RadioGroup
@@ -183,7 +183,7 @@
                             android:id="@+id/rbCOD"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="💵  Cash on Delivery (COD)"
+                            android:text="@string/payment_cod"
                             android:textSize="14sp"
                             android:paddingVertical="8dp"
                             android:checked="true" />
@@ -192,7 +192,7 @@
                             android:id="@+id/rbBankTransfer"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="🏦  Bank Transfer"
+                            android:text="@string/payment_bank_transfer"
                             android:textSize="14sp"
                             android:paddingVertical="8dp" />
 
@@ -200,7 +200,7 @@
                             android:id="@+id/rbMomo"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="📱  MoMo Wallet"
+                            android:text="@string/payment_momo"
                             android:textSize="14sp"
                             android:paddingVertical="8dp" />
 
@@ -227,26 +227,26 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Shipping Service"
+                        android:text="@string/checkout_shipping_service"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="#1A1A1A"
+                        android:textColor="@color/tirtir_black_cover"
                         android:layout_marginBottom="8dp" />
 
                     <TextView
                         android:id="@+id/tvShippingService"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Standard Delivery — 2-3 business days"
+                        android:text="@string/checkout_shipping_standard"
                         android:textSize="14sp"
-                        android:textColor="#757575" />
+                        android:textColor="@color/tirtir_text_secondary" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="⚠️ Viettel Post SOAP integration pending"
+                        android:text="@string/checkout_shipping_pending_note"
                         android:textSize="12sp"
-                        android:textColor="#BDBDBD"
+                        android:textColor="@color/tirtir_silver_gray"
                         android:layout_marginTop="4dp" />
 
                 </LinearLayout>
@@ -270,10 +270,10 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Order Summary"
+                        android:text="@string/checkout_order_summary"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="#1A1A1A"
+                        android:textColor="@color/tirtir_black_cover"
                         android:layout_marginBottom="12dp" />
 
                     <LinearLayout
@@ -285,16 +285,16 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Subtotal"
+                            android:text="@string/checkout_subtotal"
                             android:textSize="14sp"
-                            android:textColor="#757575" />
+                            android:textColor="@color/tirtir_text_secondary" />
                         <TextView
                             android:id="@+id/tvCheckoutSubtotal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0 đ"
                             android:textSize="14sp"
-                            android:textColor="#1A1A1A" />
+                            android:textColor="@color/tirtir_black_cover" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -306,16 +306,16 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Shipping"
+                            android:text="@string/checkout_shipping_fee"
                             android:textSize="14sp"
-                            android:textColor="#757575" />
+                            android:textColor="@color/tirtir_text_secondary" />
                         <TextView
                             android:id="@+id/tvCheckoutShipping"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="30.000 đ"
                             android:textSize="14sp"
-                            android:textColor="#1A1A1A" />
+                            android:textColor="@color/tirtir_black_cover" />
                     </LinearLayout>
 
                     <View
@@ -332,10 +332,10 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Total"
+                            android:text="@string/checkout_total"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="#1A1A1A" />
+                            android:textColor="@color/tirtir_black_cover" />
                         <TextView
                             android:id="@+id/tvCheckoutTotal"
                             android:layout_width="wrap_content"
@@ -343,7 +343,7 @@
                             android:text="0 đ"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="#1A1A1A" />
+                            android:textColor="@color/tirtir_black_cover" />
                     </LinearLayout>
 
                 </LinearLayout>
@@ -375,7 +375,7 @@
             android:id="@+id/btnPlaceOrder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Place Order"
+            android:text="@string/btn_place_order"
             android:textColor="@color/tirtir_white"
             android:textSize="16sp"
             android:textStyle="bold"

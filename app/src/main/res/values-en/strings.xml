@@ -89,4 +89,65 @@
     <string name="nav_shop">Shop</string>
     <string name="nav_routine">Routine</string>
     <string name="nav_profile">Account</string>
+    <string name="nav_cart">Cart</string>
+    <string name="nav_wishlist">Wishlist</string>
+
+    <!-- ===== PRODUCT DETAIL ===== -->
+    <string name="product_detail_title">Product Detail</string>
+    <string name="product_category_placeholder">CATEGORY</string>
+    <string name="product_name_placeholder">Product Name</string>
+    <string name="product_price_placeholder">$0.00</string>
+    <string name="product_suitable_skin_types">Suitable Skin Types</string>
+    <string name="product_skin_types_placeholder">All skin types, sensitive skin</string>
+    <string name="product_ingredients_title">Ingredients</string>
+    <string name="product_ingredients_placeholder">Water, Glycerin, Niacinamide...</string>
+    <string name="product_description_title">Description</string>
+    <string name="product_description_placeholder">Product description</string>
+    <string name="btn_add_to_cart">Add to Cart</string>
+    <string name="btn_wishlist">Wishlist</string>
+    <string name="content_desc_wishlist">Add to wishlist</string>
+
+    <!-- ===== CART ===== -->
+    <string name="cart_title">Your Cart</string>
+    <string name="cart_subtotal">Subtotal</string>
+    <string name="cart_shipping">Shipping</string>
+    <string name="cart_total">Total</string>
+    <string name="cart_empty_title">Your cart is empty</string>
+    <string name="cart_price_placeholder">$0.00</string>
+    <string name="btn_checkout">Checkout</string>
+
+    <!-- ===== CHECKOUT ===== -->
+    <string name="checkout_title">Checkout</string>
+    <string name="checkout_shipping_address">Shipping Address</string>
+    <string name="checkout_payment_method">Payment Method</string>
+    <string name="checkout_shipping_service">Shipping Service</string>
+    <string name="checkout_order_summary">Order Summary</string>
+    <string name="checkout_subtotal">Subtotal</string>
+    <string name="checkout_shipping_fee">Shipping</string>
+    <string name="checkout_total">Total</string>
+    <string name="checkout_shipping_standard">Standard Delivery — 2–3 business days</string>
+    <string name="checkout_shipping_pending_note">⚠️ Viettel Post SOAP integration pending</string>
+    <string name="btn_place_order">Place Order</string>
+    <string name="hint_checkout_full_name">Full Name</string>
+    <string name="hint_checkout_phone">Phone Number</string>
+    <string name="hint_checkout_street">Street Address</string>
+    <string name="hint_checkout_district">District</string>
+    <string name="hint_checkout_city">City</string>
+    <string name="hint_checkout_note">Order Note (optional)</string>
+    <string name="payment_cod">💵  Cash on Delivery (COD)</string>
+    <string name="payment_bank_transfer">🏦  Bank Transfer</string>
+    <string name="payment_momo">📱  MoMo Wallet</string>
+
+    <!-- ===== ORDER SUCCESS ===== -->
+    <string name="order_success_title">Order Placed!</string>
+    <string name="order_success_subtitle">Thank you for your purchase!</string>
+    <string name="order_success_icon_desc">Order placed successfully</string>
+    <string name="order_code_label">Order Code</string>
+    <string name="order_code_placeholder">ORD-000000</string>
+    <string name="order_status_label">Status</string>
+    <string name="order_status_confirmed">Confirmed</string>
+    <string name="order_total_paid_label">Total Paid</string>
+    <string name="order_total_placeholder">$0.00</string>
+    <string name="btn_view_order_history">View Order History</string>
+    <string name="btn_back_home">Back to Home</string>
 </resources>
