@@ -1,0 +1,253 @@
+.adjustment-container {
+    padding: 2rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.back-link {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: #5a67d8;
+}
+
+.page-header h1 {
+    font-size: 1.875rem;
+    font-weight: 600;
+    color: #1a202c;
+    margin: 0;
+}
+
+/* Form Card */
+.form-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.product-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.product-details h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 0.25rem 0;
+}
+
+.sku {
+    color: #718096;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.current-stock {
+    text-align: right;
+}
+
+.current-stock .label {
+    display: block;
+    font-size: 0.75rem;
+    color: #718096;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.current-stock .value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+}
+
+.action-options {
+    display: flex;
+    gap: 1rem;
+}
+
+.radio-option {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.radio-option:hover {
+    background: #f7fafc;
+}
+
+.radio-option.selected {
+    border-color: #667eea;
+    background: #ebf4ff;
+    color: #2c5282;
+}
+
+.radio-label {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+input[type="number"],
+textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+input[type="number"]:focus,
+textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.error-text {
+    color: #e53e3e;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.input.error,
+textarea.error {
+    border-color: #fc8181;
+}
+
+/* Projection */
+.stock-projection {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f7fafc;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.arrow {
+    color: #cbd5e0;
+    font-size: 1.5rem;
+}
+
+.arrow {
+    transform: rotate(-90deg);
+}
+
+.projection-content {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.projection-content .value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.projection-content .value.low {
+    color: #dd6b20;
+}
+
+.projection-content .value.out {
+    color: #e53e3e;
+}
+
+/* Actions */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #edf2f7;
+}
+
+.cancel-btn {
+    padding: 0.75rem 1.5rem;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #4a5568;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.cancel-btn:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+}
+
+.submit-btn {
+    padding: 0.75rem 1.5rem;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+    background: #5a67d8;
+    transform: translateY(-1px);
+}
+
+.submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.loading-state,
+.error-msg {
+    text-align: center;
+    padding: 2rem;
+}
+
+.error-msg {
+    color: #e53e3e;
+    background: #fff5f5;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}

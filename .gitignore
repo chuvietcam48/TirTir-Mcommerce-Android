@@ -18,5 +18,6 @@ memory/
 package-lock.json
 app/google-services.json
 
-# Backend has its own separate git repo (cammeomeo48/TirTir-Project)
-scratch-backend/
+# scratch-backend is part of this repo
+scratch-backend/node_modules/
+scratch-backend/.env

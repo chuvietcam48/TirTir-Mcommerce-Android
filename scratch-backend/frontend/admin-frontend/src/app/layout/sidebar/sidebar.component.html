@@ -1,0 +1,24 @@
+<aside class="sidebar">
+    <!-- Brand / Logo — click to toggle logout -->
+    <div class="sidebar-brand" (click)="toggleLogout()">
+        <span class="brand-mark">T</span>
+        <span class="brand-name">TirTir Admin</span>
+
+        @if (showLogout) {
+        <div class="logout-popup" (click)="$event.stopPropagation()">
+            <button class="logout-btn" (click)="logout()">Logout</button>
+        </div>
+        }
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+        <ng-container *ngFor="let group of visibleGroups">
+            <div class="nav-group-title" *ngIf="group.title">{{ group.title }}</div>
+            <a *ngFor="let item of group.items" [routerLink]="item.route" routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }" class="nav-item">
+                <span class="nav-label">{{ item.label }}</span>
+            </a>
+        </ng-container>
+    </nav>
+</aside>

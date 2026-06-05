@@ -1,0 +1,96 @@
+{
+  "evaluation": "e2e_production_pipeline_real_images",
+  "date": "2026-03-22T21:19:54.141730",
+  "n_processed": 28,
+  "n_skipped": 6,
+  "skipped_files": [
+    {
+      "filename": "skinface27.png",
+      "reason": "No face detected"
+    },
+    {
+      "filename": "skinface28.png",
+      "reason": "No face detected"
+    },
+    {
+      "filename": "skinface30.png",
+      "reason": "No face detected"
+    },
+    {
+      "filename": "skinface31.png",
+      "reason": "No face detected"
+    },
+    {
+      "filename": "skinface32.png",
+      "reason": "No face detected"
+    },
+    {
+      "filename": "skinface33.png",
+      "reason": "No face detected"
+    }
+  ],
+  "pipeline": "base64 → POST http://localhost:8000/analyze (MediaPipe FaceLandmarker → CLAHE → LAB) → POST http://localhost:5001/api/v1/shades/match",
+  "ground_truth": "Manual single-annotator labels from real_image_eval.csv",
+  "concern_detection": {
+    "class_results": {
+      "Acne/Blemishes": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 28
+      },
+      "Sensitive/Redness": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 4,
+        "fn": 0,
+        "tn": 24
+      },
+      "Dark Circles": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 26,
+        "fn": 0,
+        "tn": 2
+      },
+      "Visible Pores": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 28
+      },
+      "Oily Skin": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 25,
+        "fn": 0,
+        "tn": 3
+      }
+    },
+    "macro": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    }
+  },
+  "shade_match": {
+    "n": 28,
+    "mean_deltaE": 5.691,
+    "median_deltaE": 5.938,
+    "p95_deltaE": 8.191,
+    "pct_acceptable_lt_3_5": 14.3,
+    "pct_noticeable_lt_5": 39.3
+  }
+}

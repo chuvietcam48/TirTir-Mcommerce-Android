@@ -1,0 +1,78 @@
+{
+  "evaluation": "concern_detection_real_images",
+  "date": "2026-03-22T19:46:36.256729",
+  "n_images": 34,
+  "annotator": "single (AI visual inspection — multimodal LLM labelling)",
+  "annotation_criteria": {
+    "Acne/Blemishes": "Visible pimples, pustules, or blemish marks",
+    "Sensitive/Redness": "Visible red/inflamed patches on cheeks",
+    "Dark Circles": "Clearly dark under-eye shadows",
+    "Visible Pores": "Enlarged pores visible in skin texture",
+    "Oily Skin": "Visible shine/gloss on T-zone/cheeks (not studio glow)"
+  },
+  "class_results": {
+    "Acne/Blemishes": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "accuracy": 0.8529,
+      "tp": 0,
+      "fp": 1,
+      "fn": 4,
+      "tn": 29
+    },
+    "Sensitive/Redness": {
+      "precision": 0.375,
+      "recall": 0.75,
+      "f1": 0.5,
+      "accuracy": 0.8235,
+      "tp": 3,
+      "fp": 5,
+      "fn": 1,
+      "tn": 25
+    },
+    "Dark Circles": {
+      "precision": 0.0625,
+      "recall": 1.0,
+      "f1": 0.1176,
+      "accuracy": 0.5588,
+      "tp": 1,
+      "fp": 15,
+      "fn": 0,
+      "tn": 18
+    },
+    "Visible Pores": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "accuracy": 0.9706,
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "tn": 33
+    },
+    "Oily Skin": {
+      "precision": 0.3913,
+      "recall": 0.8182,
+      "f1": 0.5294,
+      "accuracy": 0.5294,
+      "tp": 9,
+      "fp": 14,
+      "fn": 2,
+      "tn": 9
+    }
+  },
+  "macro_average": {
+    "precision": 0.1658,
+    "recall": 0.5136,
+    "f1": 0.2294
+  },
+  "failure_analysis": {
+    "Acne/Blemishes": "Algorithm uses cheek a* channel std as acne proxy — fails for localised lesions where std remains low even with visible pimples. Pixel-level segmentation or CNN-based lesion detector required.",
+    "Sensitive/Redness": "Global a* mean captures rosacea-like diffuse redness but generates FP on warm skin tones and dark backgrounds.",
+    "Dark Circles": "cheek_L - eye_L delta sensitive to skin tone: Fitzpatrick IV-VI individuals show naturally lower eye-region L values, producing systematic FP. Requires intra-person relative calibration.",
+    "Visible Pores": "Laplacian variance threshold (700) calibrated on synthetic uncompressed images. JPEG compression attenuates high-frequency texture energy, causing systematic FN on all real photos. Threshold recalibration to ~150-200 recommended.",
+    "Oily Skin": "V>200 brightness ratio cannot distinguish studio lighting from actual sebum. Specular highlight detection or image metadata (lighting conditions) needed."
+  },
+  "note": "Single-annotator labels without dermatologist ground truth. Results are indicative of real-world generalisation gap, not clinical accuracy."
+}

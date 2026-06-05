@@ -1,0 +1,726 @@
+/* =====================================================
+   GLOBAL STYLES - TIRTIR Clone
+   https://tirtir.global/
+
+   THEME MODES (add class to <body>):
+   ─────────────────────────────────────────────────────
+   [default]               → Light mode    (white bg, dark text)
+   body.dark-mode          → Dark mode     (near-black, normal contrast)
+   body.low-contrast-mode  → Dark + muted  (same dark bg, dimmer text/red)
+   body.high-contrast-mode → Accessibility (pure black, white + yellow)
+   ===================================================== */
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+/* =====================================================
+   CSS CUSTOM PROPERTIES  —  LIGHT MODE (default)
+   ===================================================== */
+
+:root {
+  /* ── Brand colors ── */
+  --color-primary: #000000;
+  --color-secondary: #333333;
+  --color-accent: #D32F2F;
+
+  /* ── Surfaces ── */
+  --color-background: #FFFFFF;
+  --color-surface: #F5F5F5;
+  --color-border: #EEEEEE;
+
+  /* ── Text ── */
+  --color-text: #1A1A1A;
+  --color-text-muted: #666666;
+  --color-white: #FFFFFF;
+
+  /* ── Logo filter ── */
+  --logo-filter: none;
+
+  /* ── Typography ── */
+  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+
+  /* ── Layout ── */
+  --container-max: 1440px;
+  --header-height: 70px;
+
+  /* ── Transitions ── */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+}
+
+/* =====================================================
+   RESET & BASE
+   ===================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--font-main);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-text);
+  background-color: var(--color-background);
+  overflow-x: hidden;
+  width: 100%;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* =====================================================
+   TYPOGRAPHY
+   ===================================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-main);
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0;
+}
+
+h1 {
+  font-size: 48px;
+}
+
+h2 {
+  font-size: 32px;
+}
+
+h3 {
+  font-size: 24px;
+}
+
+h4 {
+  font-size: 18px;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+/* =====================================================
+   LISTS
+   ===================================================== */
+
+ul,
+ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* =====================================================
+   BUTTONS
+   ===================================================== */
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+button:focus {
+  outline: none;
+}
+
+/* =====================================================
+   IMAGES
+   ===================================================== */
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* =====================================================
+   FORMS
+   ===================================================== */
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+}
+
+/* =====================================================
+   LAYOUT UTILITIES
+   ===================================================== */
+
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+app-root {
+  display: block;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+.app-content {
+  min-height: calc(100vh - var(--header-height) - 200px);
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 20px;
+  }
+}
+
+/* =====================================================
+   SELECTION
+   ===================================================== */
+
+::selection {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* =====================================================
+   SCROLLBAR (Webkit)
+   ===================================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+
+/* ╔═══════════════════════════════════════════════════╗
+   ║             THEME MODES                           ║
+   ╠═══════════════════════════════════════════════════╣
+   ║  1. dark-mode           dark bg, normal contrast  ║
+   ║  2. low-contrast-mode   dark bg, muted/dimmer     ║
+   ║  3. high-contrast-mode  black bg, max contrast    ║
+   ╚═══════════════════════════════════════════════════╝ */
+
+
+/* =====================================================
+   1. DARK MODE
+   ─────────────────────────────────────────────────────
+   Nền ấm near-black. Đỏ đủ sáng để nhìn rõ.
+   Chữ warm-white. Đạt WCAG AA (~7:1 text primary).
+   ===================================================== */
+
+body.dark-mode {
+  /* Backgrounds */
+  --bg-base: #0A0808;
+  /* body                  */
+  --bg-surface: #111010;
+  /* card, nav, header      */
+  --bg-raised: #1A1717;
+  /* hover, modal           */
+  --bg-input: #221E1E;
+  /* input, select          */
+
+  /* Brand red — 5 cấp từ tối → sáng */
+  --red-subtle: #6B1515;
+  /* bg tint, promo bar     */
+  --red-muted: #8A2020;
+  /* secondary accent       */
+  --red-brand: #B83030;
+  /* badge, icon, price     */
+  --red-vivid: #D44444;
+  /* CTA button, link hover */
+  --red-soft: #E87070;
+  /* text link, label       */
+
+  /* Text hierarchy */
+  --text-primary: #F0ECE8;
+  /* heading, product name  */
+  --text-secondary: #B8B4AF;
+  /* body, description      */
+  --text-tertiary: #6B6964;
+  /* meta, placeholder      */
+  --text-disabled: #3A3836;
+  /* disabled               */
+
+  /* Borders */
+  --border-subtle: #1E1C1C;
+  /* card border            */
+  --border-default: #2C2929;
+  /* input, divider         */
+  --border-emphasis: #3D3838;
+  /* focused, hover         */
+  --border-brand: #5A2020;
+  /* active nav, selected   */
+
+  /* Remap global tokens */
+  --color-primary: var(--red-brand);
+  --color-secondary: var(--red-muted);
+  --color-accent: var(--red-vivid);
+  --color-background: var(--bg-base);
+  --color-surface: var(--bg-surface);
+  --color-border: var(--border-default);
+  --color-text: var(--text-primary);
+  --color-text-muted: var(--text-secondary);
+  --color-white: var(--bg-surface);
+  --logo-filter: invert(1);
+
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+}
+
+body.dark-mode header,
+body.dark-mode nav,
+body.dark-mode .navbar,
+body.dark-mode .header {
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+body.dark-mode .card,
+body.dark-mode .product-card,
+body.dark-mode .product-item {
+  background-color: var(--bg-surface);
+  border-color: var(--border-subtle);
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+body.dark-mode footer {
+  background-color: var(--bg-base);
+  border-top: 1px solid var(--border-subtle);
+}
+
+body.dark-mode .announcement-bar,
+body.dark-mode .promo-bar {
+  background-color: var(--red-subtle);
+  color: var(--text-primary);
+}
+
+body.dark-mode .dropdown,
+body.dark-mode .mega-menu,
+body.dark-mode .nav-dropdown {
+  background-color: var(--bg-surface);
+  border-color: var(--border-default);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+body.dark-mode .price,
+body.dark-mode .product-price {
+  color: var(--red-soft);
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+  background: var(--border-emphasis);
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: var(--border-brand);
+}
+
+
+/* =====================================================
+   2. LOW CONTRAST MODE
+   ─────────────────────────────────────────────────────
+   Cùng nền tối như dark mode, nhưng:
+   • Chữ dim hơn (C8C4C0 thay vì F0ECE8)
+   • Đỏ nhạt/tối hơn → ít gây chú ý
+   • Border gần như biến mất
+   → Dành cho đọc ban đêm lâu dài, giảm mỏi mắt
+   ===================================================== */
+
+body.low-contrast-mode {
+  /* Backgrounds — giống dark mode */
+  --bg-base: #0A0808;
+  --bg-surface: #111010;
+  --bg-raised: #1A1717;
+  --bg-input: #1D1A1A;
+  /* tối hơn dark mode 1 bậc */
+
+  /* Brand red — mờ/tối hơn dark mode */
+  --red-subtle: #4A0F0F;
+  /* bg tint rất kín đáo     */
+  --red-muted: #6B1515;
+  --red-brand: #8A2020;
+  /* tương đương red-muted dark mode */
+  --red-vivid: #B83030;
+  /* tương đương red-brand dark mode */
+  --red-soft: #C86060;
+  /* mờ hơn red-soft dark mode       */
+
+  /* Text — dim xuống ~30% so với dark mode */
+  --text-primary: #C8C4C0;
+  /* giảm từ #F0ECE8 → bớt chói */
+  --text-secondary: #8A8682;
+  /* giảm từ #B8B4AF              */
+  --text-tertiary: #525050;
+  /* giảm từ #6B6964              */
+  --text-disabled: #2E2C2C;
+
+  /* Borders — gần như vô hình */
+  --border-subtle: #161414;
+  --border-default: #1E1C1C;
+  --border-emphasis: #2C2929;
+  --border-brand: #3D1818;
+
+  /* Remap global tokens */
+  --color-primary: var(--red-brand);
+  --color-secondary: var(--red-muted);
+  --color-accent: var(--red-vivid);
+  --color-background: var(--bg-base);
+  --color-surface: var(--bg-surface);
+  --color-border: var(--border-default);
+  --color-text: var(--text-primary);
+  --color-text-muted: var(--text-secondary);
+  --color-white: var(--bg-surface);
+  --logo-filter: invert(1) opacity(0.65);
+  /* logo mờ hơn */
+
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+}
+
+body.low-contrast-mode header,
+body.low-contrast-mode nav,
+body.low-contrast-mode .navbar,
+body.low-contrast-mode .header {
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+body.low-contrast-mode .card,
+body.low-contrast-mode .product-card,
+body.low-contrast-mode .product-item {
+  background-color: var(--bg-surface);
+  border-color: var(--border-subtle);
+}
+
+body.low-contrast-mode .card:hover,
+body.low-contrast-mode .product-card:hover {
+  border-color: var(--border-emphasis);
+}
+
+body.low-contrast-mode input,
+body.low-contrast-mode select,
+body.low-contrast-mode textarea {
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+
+body.low-contrast-mode input:focus,
+body.low-contrast-mode select:focus,
+body.low-contrast-mode textarea:focus {
+  border-color: var(--border-emphasis);
+}
+
+body.low-contrast-mode input::placeholder,
+body.low-contrast-mode textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+body.low-contrast-mode footer {
+  background-color: var(--bg-base);
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+body.low-contrast-mode .announcement-bar,
+body.low-contrast-mode .promo-bar {
+  background-color: var(--red-subtle);
+  color: var(--text-secondary);
+}
+
+body.low-contrast-mode .dropdown,
+body.low-contrast-mode .mega-menu,
+body.low-contrast-mode .nav-dropdown {
+  background-color: var(--bg-surface);
+  border-color: var(--border-default);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+body.low-contrast-mode a:hover {
+  color: var(--red-soft);
+}
+
+body.low-contrast-mode .price,
+body.low-contrast-mode .product-price {
+  color: var(--red-soft);
+}
+
+body.low-contrast-mode .btn-primary,
+body.low-contrast-mode button[class*="primary"] {
+  background-color: var(--red-brand);
+  color: var(--text-primary);
+  border-color: transparent;
+}
+
+body.low-contrast-mode .btn-primary:hover,
+body.low-contrast-mode button[class*="primary"]:hover {
+  background-color: var(--red-vivid);
+}
+
+body.low-contrast-mode .badge,
+body.low-contrast-mode .tag,
+body.low-contrast-mode .label {
+  background-color: var(--red-subtle);
+  color: var(--red-soft);
+  border: 1px solid var(--border-default);
+}
+
+body.low-contrast-mode ::selection {
+  background-color: var(--red-brand);
+  color: var(--text-primary);
+}
+
+body.low-contrast-mode :focus-visible {
+  outline: 2px solid var(--border-emphasis);
+  outline-offset: 3px;
+}
+
+body.low-contrast-mode ::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+}
+
+body.low-contrast-mode ::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 4px;
+}
+
+body.low-contrast-mode ::-webkit-scrollbar-thumb:hover {
+  background: var(--border-emphasis);
+}
+
+
+/* =====================================================
+   3. HIGH CONTRAST MODE
+   ─────────────────────────────────────────────────────
+   Nền đen tuyền, chữ trắng, accent đỏ TIRTIR.
+   Bỏ màu vàng #FFD700 — dùng đúng brand đỏ.
+   ===================================================== */
+
+body.high-contrast-mode {
+  --hc-bg: #000000;
+  /* nền tuyệt đối           */
+  --hc-surface: #0A0808;
+  /* surface tối nhất        */
+  --hc-text: #FFFFFF;
+  /* chữ trắng 100%          */
+  --hc-text-sub: #E0DCDA;
+  /* chữ phụ                 */
+  --hc-red: #FF4444;
+  /* đỏ sáng, đủ contrast    */
+  --hc-red-sub: #FF7070;
+  /* đỏ nhạt hơn cho link    */
+  --hc-border: #FF4444;
+  /* border đỏ               */
+
+  --color-background: var(--hc-bg) !important;
+  --color-surface: var(--hc-surface) !important;
+  --color-text: var(--hc-text) !important;
+  --color-text-muted: var(--hc-text-sub) !important;
+  --color-border: var(--hc-border) !important;
+  --color-accent: var(--hc-red) !important;
+  --color-primary: var(--hc-red) !important;
+
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
+}
+
+/* Containers — force đen tất cả */
+body.high-contrast-mode div,
+body.high-contrast-mode main,
+body.high-contrast-mode article,
+body.high-contrast-mode aside,
+body.high-contrast-mode section,
+body.high-contrast-mode form,
+body.high-contrast-mode header,
+body.high-contrast-mode .header,
+body.high-contrast-mode nav,
+body.high-contrast-mode .navbar,
+body.high-contrast-mode footer,
+body.high-contrast-mode .card,
+body.high-contrast-mode .product-card,
+body.high-contrast-mode .product-item,
+body.high-contrast-mode .dropdown,
+body.high-contrast-mode .nav-dropdown,
+body.high-contrast-mode .mega-menu,
+body.high-contrast-mode .nav-menu,
+body.high-contrast-mode .menu-item,
+body.high-contrast-mode .modal,
+body.high-contrast-mode .dialog,
+body.high-contrast-mode .popup,
+body.high-contrast-mode .container,
+body.high-contrast-mode .wrapper {
+  background-color: #000000 !important;
+  border-color: #FF4444 !important;
+  box-shadow: none !important;
+}
+
+/* Text */
+body.high-contrast-mode p,
+body.high-contrast-mode span,
+body.high-contrast-mode h1,
+body.high-contrast-mode h2,
+body.high-contrast-mode h3,
+body.high-contrast-mode h4,
+body.high-contrast-mode h5,
+body.high-contrast-mode h6,
+body.high-contrast-mode li,
+body.high-contrast-mode label,
+body.high-contrast-mode .nav-link,
+body.high-contrast-mode .menu-title {
+  color: #FFFFFF !important;
+}
+
+/* Links — đỏ sáng thay vì vàng */
+body.high-contrast-mode a,
+body.high-contrast-mode a * {
+  color: #FF7070 !important;
+  text-decoration: underline !important;
+}
+
+body.high-contrast-mode a:hover,
+body.high-contrast-mode a:hover * {
+  color: #FFFFFF !important;
+  background-color: transparent !important;
+}
+
+/* Logo */
+body.high-contrast-mode .logo img {
+  filter: invert(1) !important;
+}
+
+/* Buttons — đỏ nền, chữ trắng */
+body.high-contrast-mode button,
+body.high-contrast-mode .btn,
+body.high-contrast-mode [role="button"],
+body.high-contrast-mode button *,
+body.high-contrast-mode .btn * {
+  background-color: #CC0000 !important;
+  color: #FFFFFF !important;
+  border-color: #FF4444 !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+body.high-contrast-mode button:hover,
+body.high-contrast-mode .btn:hover {
+  background-color: #FF4444 !important;
+  color: #FFFFFF !important;
+}
+
+/* Inputs */
+body.high-contrast-mode input,
+body.high-contrast-mode select,
+body.high-contrast-mode textarea {
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
+  border: 2px solid #FF4444 !important;
+}
+
+body.high-contrast-mode input::placeholder,
+body.high-contrast-mode textarea::placeholder {
+  color: #888888 !important;
+}
+
+/* Focus ring — đỏ */
+body.high-contrast-mode :focus-visible {
+  outline: 3px solid #FF4444 !important;
+  outline-offset: 3px !important;
+}
+
+/* Media */
+body.high-contrast-mode img,
+body.high-contrast-mode video,
+body.high-contrast-mode canvas {
+  opacity: 1 !important;
+}
+
+/* Promo bar */
+body.high-contrast-mode .announcement-bar,
+body.high-contrast-mode .promo-bar {
+  background-color: #CC0000 !important;
+  color: #FFFFFF !important;
+}
+
+/* Price */
+body.high-contrast-mode .price,
+body.high-contrast-mode .product-price {
+  color: #FF7070 !important;
+  font-weight: 900 !important;
+  font-size: 1.1em !important;
+}
+
+/* Scrollbar */
+body.high-contrast-mode ::-webkit-scrollbar-track {
+  background: #000000 !important;
+}
+
+body.high-contrast-mode ::-webkit-scrollbar-thumb {
+  background: #CC0000 !important;
+}
+
+body.high-contrast-mode ::-webkit-scrollbar-thumb:hover {
+  background: #FF4444 !important;
+}

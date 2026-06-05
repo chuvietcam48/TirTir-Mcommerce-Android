@@ -1,0 +1,34 @@
+@import '../styles/admin-variables.css';
+
+/* ── Shell ────────────────────────────────────────────────────── */
+.admin-shell {
+    min-height: 100vh;
+    background: var(--admin-bg);
+    font-family: var(--admin-font);
+}
+
+/* ── Content Area ────────────────────────────────────────────── */
+.admin-content {
+    margin-left: var(--sidebar-width);
+    margin-top: var(--topbar-height);
+    padding: var(--space-lg);
+    min-height: calc(100vh - var(--topbar-height));
+    transition: margin-left var(--transition-base);
+}
+
+.sidebar-collapsed .admin-content {
+    margin-left: var(--sidebar-collapsed-width);
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+    .admin-content {
+        margin-left: var(--sidebar-collapsed-width);
+    }
+}
+
+@media (max-width: 767px) {
+    .admin-content {
+        margin-left: 0;
+    }
+}

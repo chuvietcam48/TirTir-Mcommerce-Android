@@ -1,0 +1,193 @@
+@import '../../styles/admin-variables.css';
+
+.form-page {
+    font-family: var(--admin-font);
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-lg);
+}
+
+.page-title {
+    font-size: var(--fs-2xl);
+    font-weight: var(--fw-bold);
+    color: var(--admin-text-primary);
+    margin: 0;
+}
+
+.btn-text {
+    color: var(--admin-primary);
+    text-decoration: none;
+    font-size: var(--fs-base);
+    font-weight: var(--fw-medium);
+}
+
+.btn-text:hover {
+    text-decoration: underline;
+}
+
+.loading-state {
+    text-align: center;
+    color: var(--admin-text-muted);
+    padding: var(--space-2xl);
+}
+
+/* ── Form Grid (2 columns) ────────────────────────────────── */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: var(--space-lg);
+}
+
+.form-section {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.section-title {
+    font-size: var(--fs-md);
+    font-weight: var(--fw-semibold);
+    color: var(--admin-text-primary);
+    margin: 0 0 var(--space-md);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--admin-border-light);
+}
+
+.section-title:not(:first-child) {
+    margin-top: var(--space-lg);
+}
+
+/* ── Form Elements ────────────────────────────────────────── */
+.form-group {
+    margin-bottom: var(--space-md);
+}
+
+.form-label {
+    display: block;
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+    color: var(--admin-text-secondary);
+    margin-bottom: var(--space-xs);
+}
+
+.form-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--admin-border);
+    border-radius: var(--radius-md);
+    font-size: var(--fs-base);
+    font-family: var(--admin-font);
+    color: var(--admin-text-primary);
+    background: var(--admin-surface);
+    box-sizing: border-box;
+    transition: border-color var(--transition-fast);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+}
+
+.form-input.readonly {
+    background: var(--admin-bg);
+    color: var(--admin-text-muted);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+}
+
+.form-check-row {
+    display: flex;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-md);
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--fs-base);
+    color: var(--admin-text-primary);
+    cursor: pointer;
+}
+
+/* ── Footer ───────────────────────────────────────────────── */
+.form-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+}
+
+.btn-primary {
+    padding: 10px 24px;
+    background: var(--admin-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--fs-base);
+    font-weight: var(--fw-semibold);
+    cursor: pointer;
+    font-family: var(--admin-font);
+}
+
+.btn-primary:hover {
+    background: var(--admin-primary-hover);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    padding: 10px 24px;
+    background: var(--admin-bg);
+    color: var(--admin-text-primary);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--radius-md);
+    font-size: var(--fs-base);
+    text-decoration: none;
+    font-family: var(--admin-font);
+    display: inline-flex;
+    align-items: center;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 1023px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 767px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-footer {
+        flex-direction: column;
+    }
+
+    .form-footer .btn-primary,
+    .form-footer .btn-secondary {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+}

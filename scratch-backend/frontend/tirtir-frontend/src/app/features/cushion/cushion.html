@@ -1,0 +1,105 @@
+<!-- =====================================================
+     CUSHION COLLECTION PAGE - TIRTIR Clone
+     Reference: https://tirtir.global/collections/cushion
+     ===================================================== -->
+
+<!-- Sub-Category Banners -->
+<section class="subcategory-banners">
+    <div class="container">
+        <div class="banners-grid">
+            <a *ngFor="let cat of subCategories" [routerLink]="cat.routerLink" class="banner-card">
+                <img [src]="cat.image" [alt]="cat.label">
+                <div class="banner-overlay">
+                    <span class="banner-label">{{ cat.label }}</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Filter Controls Bar -->
+<section class="filter-bar">
+    <div class="container">
+        <div class="filter-bar-inner">
+            <div class="filter-left">
+                <button class="filter-toggle" (click)="toggleFilters()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="4" y1="21" x2="4" y2="14"></line>
+                        <line x1="4" y1="10" x2="4" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12" y2="3"></line>
+                        <line x1="20" y1="21" x2="20" y2="16"></line>
+                        <line x1="20" y1="12" x2="20" y2="3"></line>
+                    </svg>
+                    {{ showFilters ? 'HIDE FILTERS' : 'SHOW FILTERS' }}
+                </button>
+                <span class="product-count">{{ productCount }} PRODUCTS</span>
+            </div>
+
+            <div class="sort-control">
+                <span class="sort-label">SORT BY:</span>
+                <select class="sort-select" [(ngModel)]="sortBy">
+                    <option value="featured">Featured</option>
+                    <option value="best-selling">Best Selling</option>
+                    <option value="alphabetically-asc">Alphabetically, A-Z</option>
+                    <option value="alphabetically-desc">Alphabetically, Z-A</option>
+                    <option value="price-asc">Price, low to high</option>
+                    <option value="price-desc">Price, high to low</option>
+                    <option value="date-asc">Date, old to new</option>
+                    <option value="date-desc">Date, new to old</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="shop-content">
+    <div class="container">
+        <div class="shop-layout" [class.filters-open]="showFilters">
+            <!-- Filter Sidebar -->
+            <aside class="filter-sidebar" *ngIf="showFilters">
+                <!-- Product Type Filter -->
+                <div class="filter-group">
+                    <h4 class="filter-title" (click)="toggleFilterGroup('type')">
+                        Size
+                        <span class="toggle-icon">{{ expandedFilters['type'] ? '−' : '+' }}</span>
+                    </h4>
+                    <ul class="filter-options" *ngIf="expandedFilters['type']">
+                        <li *ngFor="let type of productTypes">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" [value]="type.value">
+                                <span class="checkbox-label">{{ type.label }}</span>
+                                <span class="count">({{ type.count }})</span>
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Product Grid -->
+            <div class="product-grid-container">
+                <div class="products-grid">
+                    <app-product-card *ngFor="let product of visibleProducts" [product]="product"></app-product-card>
+                </div>
+
+                <!-- Pagination (only if more than 1 page) -->
+                <nav class="pagination" *ngIf="totalPages > 1">
+                    <button class="page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+                        ← Previous
+                    </button>
+                    <div class="page-numbers">
+                        <button *ngFor="let page of pages" class="page-num" [class.active]="page === currentPage"
+                            (click)="goToPage(page)">
+                            {{ page }}
+                        </button>
+                    </div>
+                    <button class="page-btn" [disabled]="currentPage === totalPages"
+                        (click)="goToPage(currentPage + 1)">
+                        Next →
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>

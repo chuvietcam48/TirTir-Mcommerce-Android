@@ -1,0 +1,145 @@
+@import '../../styles/admin-variables.css';
+
+/* ── Topbar Container ────────────────────────────────────────── */
+.admin-topbar {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width);
+    right: 0;
+    height: var(--topbar-height);
+    background: var(--admin-surface);
+    border-bottom: 1px solid var(--admin-border);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-lg);
+    gap: var(--space-md);
+    z-index: 999;
+    font-family: var(--admin-font);
+    transition: left var(--transition-base);
+}
+
+.admin-topbar.sidebar-collapsed {
+    left: var(--sidebar-collapsed-width);
+}
+
+/* ── Toggle Button ───────────────────────────────────────────── */
+.topbar-toggle {
+    display: none;
+    border: none;
+    background: none;
+    font-size: var(--fs-xl);
+    cursor: pointer;
+    color: var(--admin-text-primary);
+    padding: var(--space-xs);
+    line-height: 1;
+}
+
+/* ── Title ───────────────────────────────────────────────────── */
+.topbar-title {
+    font-size: var(--fs-md);
+    font-weight: var(--fw-semibold);
+    color: var(--admin-text-primary);
+    flex: 1;
+}
+
+/* ── Actions (right side) ────────────────────────────────────── */
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+/* ── User Menu ───────────────────────────────────────────────── */
+.user-menu-wrapper {
+    position: relative;
+}
+
+.user-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-md);
+    transition: background var(--transition-fast);
+    font-family: var(--admin-font);
+}
+
+.user-btn:hover {
+    background: var(--admin-bg);
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--admin-primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+}
+
+.user-name {
+    font-size: var(--fs-base);
+    font-weight: var(--fw-medium);
+    color: var(--admin-text-primary);
+}
+
+/* ── Dropdown ────────────────────────────────────────────────── */
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 160px;
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-dropdown);
+    padding: var(--space-xs) 0;
+    z-index: 1001;
+}
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border: none;
+    background: none;
+    color: var(--admin-text-primary);
+    font-size: var(--fs-base);
+    text-decoration: none;
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--admin-font);
+    transition: background var(--transition-fast);
+}
+
+.dropdown-item:hover {
+    background: var(--admin-bg);
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+    .admin-topbar {
+        left: var(--sidebar-collapsed-width);
+    }
+
+    .topbar-toggle {
+        display: block;
+    }
+}
+
+@media (max-width: 767px) {
+    .admin-topbar {
+        left: 0;
+    }
+
+    .user-name {
+        display: none;
+    }
+}

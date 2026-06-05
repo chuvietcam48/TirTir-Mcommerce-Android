@@ -1,0 +1,29 @@
+filename,ai_skin_tone,ai_undertone,ai_skin_type,ai_concerns,gt_concerns,confidence,extracted_R,extracted_G,extracted_B,top1_shade,top1_deltaE,deltaE_tier
+skinface1.png,Fair,Warm,Oily,Dark Circles|Oily Skin,None,0.82,224,187,173,Peach Beige,4.429,Noticeable
+skinface10.png,Fair,Warm,Oily,Dark Circles|Oily Skin,None,0.82,225,179,152,Shell Beige,3.058,Acceptable
+skinface11.png,Fair,Warm,Oily,Dark Circles|Oily Skin,None,0.82,236,195,178,Porcelain,6.764,Poor
+skinface12.png,Light,Warm,Oily,Dark Circles|Oily Skin,None,0.82,223,171,148,Shell Beige,6.157,Poor
+skinface13.png,Fair,Warm,Oily,Dark Circles|Oily Skin,None,0.82,226,176,147,Sand,3.798,Noticeable
+skinface14.png,Tan,Warm,Oily,Dark Circles|Oily Skin,None,0.82,151,109,90,Cinnamon,6.36,Poor
+skinface15.png,Medium,Cool,Oily,Dark Circles|Oily Skin,None,0.82,151,115,107,Almond,9.744,Poor
+skinface16.png,Medium,Neutral,Dry,Dark Circles,None,0.87,165,116,99,Almond,4.944,Noticeable
+skinface17.png,Medium,Warm,Combination,Dark Circles|Oily Skin|Sensitive/Redness,None,0.77,184,123,91,Toffee,5.906,Poor
+skinface18.png,Medium,Warm,Dry,Dark Circles,None,0.87,148,117,103,Cinnamon,8.296,Poor
+skinface19.png,Light,Warm,Oily,Dark Circles|Oily Skin,None,0.82,197,152,132,Rich Honey,7.908,Poor
+skinface2.png,Fair,Warm,Oily,Dark Circles|Oily Skin,None,0.82,230,190,167,French Vanilla,5.925,Poor
+skinface20.png,Fair,Warm,Oily,Oily Skin,None,0.87,230,195,172,French Vanilla,4.4,Noticeable
+skinface21.png,Fair,Warm,Oily,Dark Circles|Oily Skin,None,0.82,242,216,196,Cream,2.547,Acceptable
+skinface22.png,Light,Warm,Oily,Dark Circles|Oily Skin,None,0.82,202,150,117,Rich Honey,4.296,Noticeable
+skinface23.png,Medium,Cool,Normal,Dark Circles,None,0.87,178,135,122,Amber,6.93,Poor
+skinface24.png,Medium,Warm,Combination,Dark Circles|Oily Skin|Sensitive/Redness,None,0.77,194,139,115,Macchiato,3.924,Noticeable
+skinface25.png,Light,Warm,Combination,Dark Circles|Oily Skin|Sensitive/Redness,None,0.77,212,152,123,Latte,6.402,Poor
+skinface26.png,Light,Warm,Oily,Dark Circles|Oily Skin,None,0.82,214,174,157,Shell Beige,5.95,Poor
+skinface29.png,Light,Warm,Combination,Oily Skin|Sensitive/Redness,None,0.82,201,145,123,Amber,2.7,Acceptable
+skinface3.png,Fair,Warm,Oily,Dark Circles|Oily Skin,None,0.82,228,203,193,Fair Ivory,6.814,Poor
+skinface34.png,Medium,Warm,Oily,Dark Circles|Oily Skin,None,0.82,168,123,95,Toffee,6.05,Poor
+skinface4.png,Fair,Warm,Oily,Dark Circles|Oily Skin,None,0.82,216,179,158,Shell Beige,3.6,Noticeable
+skinface5.png,Fair,Warm,Oily,Dark Circles|Oily Skin,None,0.82,233,208,196,Fair Ivory,5.397,Poor
+skinface6.png,Fair,Warm,Oily,Dark Circles|Oily Skin,None,0.82,227,190,174,French Vanilla,7.834,Poor
+skinface7.png,Light,Cool,Oily,Dark Circles|Oily Skin,None,0.82,215,173,163,Peach Beige,7.819,Poor
+skinface8.png,Light,Warm,Oily,Dark Circles|Oily Skin,None,0.82,213,176,153,Shell Beige,3.399,Acceptable
+skinface9.png,Fair,Cool,Oily,Dark Circles|Oily Skin,None,0.82,231,189,182,Peach Beige,7.997,Poor

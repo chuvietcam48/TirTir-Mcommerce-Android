@@ -1,0 +1,262 @@
+<div class="profile-info">
+
+    <!-- Header -->
+    <div class="page-header">
+        <div class="eyebrow">My Account</div>
+        <div class="page-title">Profile information</div>
+        <div class="subtitle">Manage your personal details</div>
+    </div>
+
+    <!-- Alerts -->
+    @if (successMessage) {
+    <div class="alert alert-success">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        {{ successMessage }}
+    </div>
+    }
+    @if (errorMessage) {
+    <div class="alert alert-error">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/></svg>
+        {{ errorMessage }}
+    </div>
+    }
+
+    <!-- Avatar Section -->
+    <div class="avatar-section">
+        <div class="avatar-wrap" (click)="openAvatarUpload()" title="Click to change avatar">
+            @if (user?.avatar) {
+            <img [src]="getAvatarUrl(user?.avatar!)" alt="Avatar" class="avatar-img">
+            } @else {
+            <div class="avatar-initials" [style.background]="getAvatarColor()">
+                {{ getUserInitials() }}
+            </div>
+            }
+            <div class="avatar-edit-badge">
+                <svg viewBox="0 0 12 12" fill="none">
+                    <path d="M8.5 1.5l2 2L3 11H1V9L8.5 1.5z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </div>
+        <div class="avatar-meta">
+            <div class="avatar-name">{{ (user?.name === 'User' ? '' : user?.name) || '' }}</div>
+            <div class="avatar-email">{{ user?.email }}</div>
+            <div class="avatar-hint">Click avatar to change photo</div>
+        </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Loyalty Tier Badge (UI placeholder — TODO: connect to loyalty API in future phase) -->
+    <div class="loyalty-section">
+        <div class="loyalty-label">Membership Tier</div>
+        <div class="loyalty-card">
+            <div class="loyalty-badge loyalty-badge--bronze">
+                <svg class="loyalty-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M8 1l1.8 3.6L14 5.6l-3 2.9.7 4.1L8 10.5l-3.7 2.1.7-4.1-3-2.9 4.2-.6L8 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+                </svg>
+                <span class="loyalty-tier-name">Bronze Member</span>
+            </div>
+            <div class="loyalty-progress-wrap">
+                <div class="loyalty-progress-label">
+                    <span>320 points</span>
+                    <span class="loyalty-next">500 pts for Silver</span>
+                </div>
+                <div class="loyalty-progress-bar">
+                    <div class="loyalty-progress-fill" style="width: 64%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Skin Profile Card -->
+    <div class="section-label">Skin Profile</div>
+
+    @if (loadingSkinProfile) {
+    <div class="skin-banner">
+        <div class="skin-banner-body">
+            <div class="skin-banner-eyebrow">Skin Match</div>
+            <div class="skin-banner-title">Loading skin profile...</div>
+        </div>
+    </div>
+    } @else if (skinProfile) {
+    <div class="skin-profile-card">
+        <!-- Header row -->
+        <div class="sp-header">
+            <div>
+                <div class="sp-eyebrow">Virtual Shade Finder Result</div>
+                <div class="sp-title">Your Skin Profile</div>
+                @if (skinProfile.lastAnalyzedAt) {
+                <div class="sp-date">Last scanned: {{ formatLastAnalyzed(skinProfile.lastAnalyzedAt) }}</div>
+                }
+            </div>
+            <button type="button" class="skin-banner-btn" (click)="navigateToShadeFinder()">Re-scan</button>
+        </div>
+
+        <!-- Metric chips -->
+        <div class="sp-chips">
+            <span class="sp-chip sp-chip--tone">
+                <span class="sp-chip-label">Skin Tone</span>
+                <span class="sp-chip-val">{{ getSkinToneLabel(skinProfile.skinTone) }}</span>
+            </span>
+            <span class="sp-chip sp-chip--under">
+                <span class="sp-chip-label">Undertone</span>
+                <span class="sp-chip-val">{{ skinProfile.undertone }}</span>
+            </span>
+            <span class="sp-chip sp-chip--type">
+                <span class="sp-chip-label">Skin Type</span>
+                <span class="sp-chip-val">{{ getSkinTypeLabel(skinProfile.skinType) }}</span>
+            </span>
+            <span class="sp-chip sp-chip--conf">
+                <span class="sp-chip-label">Confidence</span>
+                <span class="sp-chip-val">{{ ((skinProfile.confidence || 0) * 100).toFixed(0) }}%</span>
+            </span>
+        </div>
+
+        <!-- Concerns -->
+        @if (skinProfile.concerns && skinProfile.concerns.length > 0 && skinProfile.concerns[0] !== 'None') {
+        <div class="sp-concerns">
+            <div class="sp-concerns-label">Detected Concerns</div>
+            <div class="sp-concerns-list">
+                @for (concern of skinProfile.concerns; track concern) {
+                    @if (concern !== 'None') {
+                    <span class="sp-concern-tag">{{ concern }}</span>
+                    }
+                }
+            </div>
+        </div>
+        } @else {
+        <div class="sp-concerns">
+            <span class="sp-concern-tag sp-concern-tag--ok">No concerns detected</span>
+        </div>
+        }
+    </div>
+    } @else {
+    <div class="skin-banner">
+        <div class="skin-banner-body">
+            <div class="skin-banner-eyebrow">Skin Match</div>
+            <div class="skin-banner-title">No scan yet</div>
+            <div class="skin-banner-sub">Use Virtual Shade Finder to get personalized shade recommendations saved to your profile</div>
+        </div>
+        <button type="button" class="skin-banner-btn" (click)="navigateToShadeFinder()">Set up now</button>
+    </div>
+    }
+
+    <div class="section-divider"></div>
+
+    <!-- Personal Details -->
+    <div class="section-label">Personal Details</div>
+
+    <!-- Profile Form -->
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+
+        <!-- Row 1: Name + Phone -->
+        <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" formControlName="name" class="form-input" placeholder="Enter your full name">
+            @if (profileForm.get('name')?.invalid && profileForm.get('name')?.touched) {
+            <span class="field-error">Name is required (min. 2 characters)</span>
+            }
+        </div>
+
+        <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" formControlName="phone" class="form-input" placeholder="0901234567">
+            @if (profileForm.get('phone')?.invalid && profileForm.get('phone')?.touched) {
+            <span class="field-error">Phone must be 10–11 digits</span>
+            }
+        </div>
+
+        <!-- Row 2: Email + Gender -->
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" [value]="user?.email || ''" class="form-input form-input--disabled" readonly disabled>
+        </div>
+
+        <div class="form-group">
+            <label for="gender">Gender</label>
+            <select id="gender" formControlName="gender" class="form-input form-select">
+                <option value="">Not specified</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <!-- Row 3: DOB (left col) -->
+        <div class="form-group">
+            <label for="birthDate">Date of Birth</label>
+            <input type="date" id="birthDate" formControlName="birthDate" class="form-input">
+        </div>
+
+        <!-- empty right col -->
+        <div></div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn-save" [disabled]="loading || profileForm.invalid || !hasUnsavedChanges">
+                @if (loading) {
+                <span class="btn-spinner"></span> Saving...
+                } @else {
+                Save Changes
+                }
+            </button>
+            <button type="button" class="btn-cancel" (click)="loadProfile()">Cancel</button>
+        </div>
+
+    </form>
+
+</div>
+
+<!-- Hidden file input -->
+<input type="file" #fileInput style="display: none" accept="image/jpeg,image/jpg,image/png,image/webp"
+    (change)="onFileSelected($event)">
+
+<!-- Upload Modal -->
+@if (showUploadModal) {
+<div class="upload-modal-overlay" (click)="closeUploadModal()">
+    <div class="upload-modal" (click)="$event.stopPropagation()">
+        <div class="upload-modal-title">Change Avatar</div>
+
+        @if (!selectedFile && !showCameraPreview) {
+        <div class="upload-options">
+            <button type="button" class="upload-btn upload-btn--primary" (click)="triggerFileInput()">Upload from Device</button>
+            <button type="button" class="upload-btn upload-btn--outline" (click)="openCamera()">Capture from Camera</button>
+        </div>
+        } @else if (showCameraPreview) {
+        <div class="camera-section">
+            <div class="video-wrapper">
+                <video #videoElement autoplay playsinline class="camera-video"></video>
+                <canvas #canvasElement style="display: none;"></canvas>
+            </div>
+            <div class="camera-actions">
+                <button type="button" class="upload-btn upload-btn--primary" (click)="capturePhoto()">Capture Photo</button>
+                <button type="button" class="upload-btn upload-btn--outline" (click)="stopCamera()">Cancel</button>
+            </div>
+        </div>
+        } @else {
+        <div class="preview-section">
+            <img [src]="previewUrl" alt="Preview" class="avatar-preview-img">
+            <div class="preview-actions">
+                @if (uploadProgress === null) {
+                <button type="button" class="upload-btn upload-btn--primary" (click)="confirmUpload()" [disabled]="uploading">
+                    @if (uploading) { <span class="btn-spinner"></span> Uploading... } @else { Upload Avatar }
+                </button>
+                <button type="button" class="upload-btn upload-btn--outline" (click)="cancelUpload()" [disabled]="uploading">Cancel</button>
+                } @else {
+                <div class="upload-progress">
+                    <div class="progress-bar"><div class="progress-fill" [style.width.%]="uploadProgress"></div></div>
+                    <span>{{ uploadProgress }}%</span>
+                </div>
+                }
+            </div>
+        </div>
+        }
+
+        <button type="button" class="modal-close" (click)="closeUploadModal()" [disabled]="uploading">
+            <svg viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+    </div>
+</div>
+}

@@ -1,0 +1,431 @@
+/* =====================================================
+   MAKEUP COLLECTION PAGE - TIRTIR Clone
+   Reference: https://tirtir.global/collections/makeup
+   ===================================================== */
+
+:host {
+    display: block;
+    background: #fff;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* =====================================================
+   SUB-CATEGORY BANNERS
+   ===================================================== */
+
+.subcategory-banners {
+    padding: 32px 0 24px;
+    background: #fff;
+}
+
+.subcategory-banners .banners-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.banner-card {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    text-decoration: none;
+    border-radius: 0;
+}
+
+.banner-card img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.banner-card:hover img {
+    transform: scale(1.05);
+}
+
+.banner-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 32px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.banner-label {
+    color: #fff;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.banner-description {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+/* =====================================================
+   FILTER BAR
+   ===================================================== */
+
+.filter-bar {
+    border-top: 1px solid #e5e5e5;
+    border-bottom: 1px solid #e5e5e5;
+    padding: 16px 0;
+}
+
+.filter-bar-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.filter-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.product-count {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #000;
+}
+
+.filter-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    color: #000;
+    padding: 8px 0;
+    transition: opacity 0.2s;
+}
+
+.filter-toggle:hover {
+    opacity: 0.6;
+}
+
+.sort-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sort-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #000;
+}
+
+.sort-select {
+    appearance: none;
+    background: transparent;
+    border: none;
+    font-size: 12px;
+    font-weight: 500;
+    color: #000;
+    cursor: pointer;
+    padding-right: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right center;
+}
+
+/* =====================================================
+   SHOP LAYOUT
+   ===================================================== */
+
+.shop-content {
+    padding: 40px 0 80px;
+}
+
+.shop-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+}
+
+.shop-layout.filters-open {
+    grid-template-columns: 240px 1fr;
+}
+
+/* =====================================================
+   FILTER SIDEBAR
+   ===================================================== */
+
+.filter-sidebar {
+    padding-right: 24px;
+    border-right: 1px solid #e5e5e5;
+}
+
+.filter-group {
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.filter-group:last-child {
+    border-bottom: none;
+}
+
+.filter-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #000;
+    margin: 0;
+    cursor: pointer;
+    padding: 8px 0;
+    transition: opacity 0.2s;
+}
+
+.filter-title:hover {
+    opacity: 0.6;
+}
+
+.toggle-icon {
+    font-size: 18px;
+    font-weight: 300;
+}
+
+.filter-options {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0 0;
+}
+
+.filter-options li {
+    margin-bottom: 12px;
+}
+
+.filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #333;
+    transition: color 0.2s;
+}
+
+.filter-checkbox:hover {
+    color: #000;
+}
+
+.filter-checkbox input {
+    width: 16px;
+    height: 16px;
+    accent-color: #000;
+    cursor: pointer;
+}
+
+.checkbox-label {
+    flex: 1;
+}
+
+.count {
+    color: #999;
+    font-size: 12px;
+}
+
+/* =====================================================
+   PRODUCT GRID
+   ===================================================== */
+
+.product-grid-container {
+    min-width: 0;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+/* =====================================================
+   PAGINATION
+   ===================================================== */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 60px;
+    padding-top: 40px;
+    border-top: 1px solid #e5e5e5;
+}
+
+.page-btn {
+    background: none;
+    border: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: #000;
+    cursor: pointer;
+    padding: 8px 16px;
+    transition: opacity 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+    opacity: 0.6;
+}
+
+.page-btn:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 4px;
+}
+
+.page-num {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid transparent;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.page-num:hover {
+    border-color: #000;
+}
+
+.page-num.active {
+    background: #000;
+    color: #fff;
+    border-color: #000;
+}
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 1200px) {
+    .products-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .subcategory-banners .banners-grid {
+        gap: 16px;
+    }
+
+    .banner-card img {
+        height: 220px;
+    }
+
+    .banner-label {
+        font-size: 22px;
+    }
+
+    .shop-layout.filters-open {
+        grid-template-columns: 200px 1fr;
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .subcategory-banners .banners-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .banner-card img {
+        height: 180px;
+    }
+
+    .banner-overlay {
+        padding: 24px;
+    }
+
+    .banner-label {
+        font-size: 20px;
+    }
+
+    .filter-bar-inner {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .shop-layout.filters-open {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-sidebar {
+        border-right: none;
+        border-bottom: 1px solid #e5e5e5;
+        padding-right: 0;
+        padding-bottom: 24px;
+        margin-bottom: 24px;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .products-grid {
+        gap: 12px;
+    }
+
+    .page-numbers {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        margin-top: 8px;
+    }
+
+    .subcategory-banners {
+        padding: 20px 0;
+    }
+
+    .banner-card img {
+        height: 140px;
+    }
+
+    .banner-label {
+        font-size: 16px;
+        letter-spacing: 2px;
+    }
+
+    .banner-description {
+        font-size: 12px;
+    }
+}

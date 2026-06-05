@@ -1,0 +1,35 @@
+filename,ground_truth,predicted,a_std,a_mean,dark_delta,lap_var,oily_ratio
+skinface1.png,None,Oily Skin,4.21,143.05,5.44,185.0,0.2022
+skinface10.png,None,Oily Skin,5.25,138.97,-24.49,164.9,0.5369
+skinface11.png,Sensitive/Redness,Dark Circles|Oily Skin,5.35,139.94,39.67,303.2,0.5222
+skinface12.png,None,Oily Skin|Sensitive/Redness,3.97,146.29,4.11,248.5,0.8967
+skinface13.png,Oily Skin,Dark Circles|Oily Skin,4.68,144.59,52.79,268.8,0.9575
+skinface14.png,None,Sensitive/Redness,5.06,146.48,-2.4,57.3,0.0392
+skinface15.png,None,None,4.01,142.96,-2.67,57.2,0.0
+skinface16.png,None,None,5.14,143.02,-12.58,160.5,0.0
+skinface17.png,None,Oily Skin|Sensitive/Redness,5.59,148.84,-4.33,93.0,0.2264
+skinface18.png,Oily Skin,Dark Circles,5.76,136.53,22.99,215.2,0.0
+skinface19.png,None,Dark Circles,5.76,132.11,18.75,17.4,0.0
+skinface2.png,None,None,4.45,137.21,-22.57,131.5,0.0219
+skinface20.png,Oily Skin,Dark Circles|Oily Skin,4.44,140.15,19.41,240.5,1.0
+skinface21.png,Oily Skin,Oily Skin,7.04,143.92,14.01,248.5,0.9514
+skinface22.png,Oily Skin,Acne/Blemishes|Dark Circles|Oily Skin,15.98,159.82,20.83,98.8,0.7467
+skinface23.png,Acne/Blemishes,Dark Circles,2.53,140.05,75.47,183.3,0.0
+skinface24.png,Acne/Blemishes|Sensitive/Redness|Visible Pores,Oily Skin|Sensitive/Redness,3.31,148.0,14.31,182.0,0.9983
+skinface25.png,Acne/Blemishes|Sensitive/Redness,Oily Skin|Sensitive/Redness,5.43,151.07,-9.19,167.5,1.0
+skinface26.png,Acne/Blemishes|Oily Skin,Dark Circles|Oily Skin,2.0,140.95,40.34,204.2,0.9258
+skinface27.png,Sensitive/Redness,Dark Circles|Oily Skin|Sensitive/Redness,5.61,148.87,31.1,193.7,1.0
+skinface28.png,Oily Skin,Sensitive/Redness,4.26,152.34,-7.98,51.2,0.0
+skinface29.png,None,None,7.81,143.9,-0.43,165.2,0.0017
+skinface3.png,None,Dark Circles|Oily Skin,1.67,136.13,15.13,352.1,1.0
+skinface30.png,None,Dark Circles|Oily Skin,4.18,139.27,32.84,289.4,1.0
+skinface31.png,Oily Skin,Oily Skin|Sensitive/Redness,4.83,148.61,-5.26,116.1,0.5008
+skinface32.png,None,None,2.98,137.65,8.77,36.7,0.0
+skinface33.png,Oily Skin,Oily Skin,3.82,139.23,-4.01,223.8,1.0
+skinface34.png,None,Oily Skin,4.21,143.73,1.99,117.6,0.2025
+skinface4.png,None,Dark Circles|Oily Skin,7.92,135.18,19.64,350.1,0.9256
+skinface5.png,None,Oily Skin,6.93,139.91,-4.69,282.0,0.7644
+skinface6.png,Oily Skin,Dark Circles|Oily Skin,5.55,131.73,19.17,276.9,0.8942
+skinface7.png,Oily Skin,Dark Circles|Oily Skin,8.84,135.63,25.46,328.9,0.4931
+skinface8.png,Dark Circles,Dark Circles,5.13,137.18,37.74,252.4,0.0
+skinface9.png,None,Dark Circles|Oily Skin,7.89,136.88,22.09,343.3,0.8839

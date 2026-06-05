@@ -1,0 +1,204 @@
+/* =====================================================
+   FOOTER - TIRTIR Clone (Light Gray Design)
+   ===================================================== */
+
+:host {
+    display: block;
+}
+
+/* Footer Main - Light Gray Background */
+.footer-main {
+    background: #f2f2f2;
+    padding: 60px 0;
+}
+
+.footer-container {
+    width: 100%;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: 24px;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 60px;
+}
+
+/* Left Column */
+.footer-left {
+    max-width: 320px;
+}
+
+.footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #000;
+    letter-spacing: 2px;
+    margin-bottom: 32px;
+}
+
+.subscribe-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #000;
+    margin: 0 0 8px 0;
+}
+
+.subscribe-text {
+    font-size: 13px;
+    color: #666;
+    margin: 0 0 16px 0;
+}
+
+.subscribe-form {
+    display: flex;
+    border-bottom: 1px solid #000;
+}
+
+.subscribe-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 12px 0;
+    font-size: 13px;
+    color: #000;
+    outline: none;
+}
+
+.subscribe-input::placeholder {
+    color: #999;
+}
+
+.subscribe-btn {
+    background: none;
+    border: none;
+    padding: 12px;
+    font-size: 18px;
+    cursor: pointer;
+    color: #000;
+}
+
+/* Menu Column */
+.footer-menu,
+.footer-contact {
+    padding-top: 8px;
+}
+
+.menu-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #000;
+    margin: 0 0 20px 0;
+}
+
+.menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-list li {
+    margin-bottom: 12px;
+}
+
+.menu-list a {
+    font-size: 13px;
+    color: #555;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.menu-list a:hover {
+    color: #000;
+}
+
+/* Contact Column */
+.contact-info {
+    margin-bottom: 24px;
+}
+
+.contact-info p {
+    font-size: 13px;
+    color: #555;
+    margin: 0 0 6px 0;
+    line-height: 1.5;
+}
+
+.contact-info .company {
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 12px;
+}
+
+.contact-info .email {
+    margin-top: 16px;
+}
+
+.contact-info .email a {
+    color: #000;
+    text-decoration: underline;
+}
+
+.offline-store {
+    margin-top: 24px !important;
+}
+
+/* Social Links */
+.social-links {
+    display: flex;
+    gap: 16px;
+}
+
+.social-links a {
+    color: #000;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.social-links a:hover {
+    opacity: 1;
+}
+
+/* Copyright Bar */
+.footer-bottom {
+    background: #f2f2f2;
+    padding: 24px 0;
+    border-top: 1px solid #ddd;
+}
+
+.footer-bottom .footer-container {
+    display: block;
+    /* Override grid */
+    text-align: center;
+}
+
+.copyright {
+    font-size: 11px;
+    color: #888;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .footer-container {
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+    }
+
+    .footer-left {
+        grid-column: 1 / -1;
+        max-width: none;
+    }
+}
+
+@media (max-width: 576px) {
+    .footer-container {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+
+    .footer-main {
+        padding: 40px 0;
+    }
+}

@@ -1,0 +1,119 @@
+/* =====================================================
+   MAKEUP MEGA MENU - TIRTIR Clone
+   Luxury beauty brand styling with smooth hover effects
+   ===================================================== */
+
+.mega-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    border-radius: 0 0 8px 8px;
+    padding: 32px 48px;
+    min-width: 480px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+    transform: translateX(-50%) translateY(10px);
+    z-index: 1000;
+}
+
+.mega-menu.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.mega-menu-inner {
+    display: flex;
+    gap: 64px;
+}
+
+/* Menu Columns */
+.menu-column {
+    min-width: 180px;
+}
+
+.column-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.column-title a {
+    color: #1a1a1a;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.column-title a:hover {
+    color: #c41e3a;
+}
+
+/* Column Links */
+.column-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.column-links li {
+    margin-bottom: 10px;
+}
+
+.column-links a {
+    color: #666;
+    font-size: 13px;
+    font-weight: 400;
+    text-decoration: none;
+    transition: color 0.2s ease, padding-left 0.2s ease;
+    display: block;
+    position: relative;
+}
+
+.column-links a:hover {
+    color: #1a1a1a;
+    padding-left: 6px;
+}
+
+.column-links a::before {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 4px;
+    background: #c41e3a;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.column-links a:hover::before {
+    opacity: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .mega-menu {
+        position: static;
+        transform: none;
+        box-shadow: none;
+        padding: 16px 20px;
+        min-width: 100%;
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .mega-menu-inner {
+        flex-direction: column;
+        gap: 24px;
+    }
+}

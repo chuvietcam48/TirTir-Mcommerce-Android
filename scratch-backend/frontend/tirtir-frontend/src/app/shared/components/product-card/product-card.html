@@ -1,0 +1,69 @@
+<div class="product-card" *ngIf="displayProduct">
+
+    <!-- Image Container -->
+    <a [routerLink]="['/products', productLink]" class="card-image">
+        <img [src]="displayProduct.image" [alt]="displayProduct.name" class="product-img" loading="lazy"
+            decoding="async">
+
+        <!-- Badges -->
+        <div class="badges">
+            <span *ngFor="let badge of displayProduct.badges" class="badge" [class.sale]="badge === 'SALE'"
+                [class.new]="badge === 'NEW'" [class.shades]="badge.includes('SHADES')">
+                {{ badge }}
+            </span>
+        </div>
+
+        <!-- Quick Add Overlay -->
+        <div class="quick-add-overlay">
+            <button class="quick-add-btn"
+                [class.state-added]="quickAddState === 'added'"
+                [class.state-loading]="quickAddState === 'loading'"
+                (click)="onQuickAdd($event)">
+
+                @if (quickAddState === 'loading') {
+                    <span class="qa-spinner"></span>
+                } @else if (quickAddState === 'added') {
+                    <svg viewBox="0 0 14 14" fill="none">
+                        <path d="M2 7l4 4 6-6" stroke="currentColor" stroke-width="1.8"
+                            stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Added to bag
+                } @else if (hasShades) {
+                    Select Shade
+                } @else {
+                    Quick Add
+                }
+
+            </button>
+        </div>
+    </a>
+
+    <!-- Product Info -->
+    <div class="card-info">
+        <!-- Title -->
+        <h3 class="product-title">
+            <a [routerLink]="['/products', productLink]">{{ displayProduct.name }}</a>
+        </h3>
+
+        <!-- Subtitle -->
+        <p class="product-subtitle" *ngIf="displayProduct.subtitle">{{ displayProduct.subtitle }}</p>
+
+        <!-- Price -->
+        <div class="price-row">
+            <span class="original-price" *ngIf="displayProduct.originalPrice">${{
+                displayProduct.originalPrice.toFixed(2) }}</span>
+            <span class="current-price" [class.sale]="displayProduct.originalPrice">${{ displayProduct.price.toFixed(2)
+                }}</span>
+        </div>
+
+        <!-- Shade Swatches -->
+        <div class="swatches" *ngIf="displayProduct.swatches?.length">
+            <span *ngFor="let swatch of displayProduct.swatches.slice(0, 5)" class="swatch"
+                [style.background]="swatch.color">
+            </span>
+            <span class="more" *ngIf="displayProduct.shadeCount && displayProduct.shadeCount > 5">
+                +{{ displayProduct.shadeCount - 5 }}
+            </span>
+        </div>
+    </div>
+</div>

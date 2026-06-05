@@ -1,0 +1,13 @@
+<div class="shipping-bar-container">
+    <div class="shipping-message">
+        <ng-container *ngIf="!isAchieved">
+            Add only <strong>{{ remainingAmount | currency:'VND':'symbol':'1.0-0' }}</strong> more to get FREE SHIPPING!
+        </ng-container>
+        <ng-container *ngIf="isAchieved">
+            Congratulations! You've unlocked FREE SHIPPING! 🎉
+        </ng-container>
+    </div>
+    <div class="progress-bar-bg">
+        <div class="progress-bar-fill" [class.achieved]="isAchieved" [style.width.%]="progressPercentage"></div>
+    </div>
+</div>

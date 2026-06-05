@@ -1,0 +1,83 @@
+<div class="page-header">
+  <h2>System Settings</h2>
+</div>
+
+<div class="content-card">
+  <div *ngIf="loading" class="loading-spinner">Loading settings...</div>
+
+  <div *ngIf="message" class="alert" [ngClass]="message.type">
+    {{ message.text }}
+  </div>
+
+  <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
+    <!-- Shipping Section -->
+    <div class="section">
+      <h3>Shipping Configuration</h3>
+      <div class="form-row">
+        <div class="form-group half">
+          <label>Standard Shipping Fee (USD)</label>
+          <input type="number" formControlName="shippingFee" class="form-control">
+        </div>
+        <div class="form-group half">
+          <label>Free Shipping Threshold (USD)</label>
+          <input type="number" formControlName="freeShippingThreshold" class="form-control">
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Info -->
+    <div class="section">
+      <h3>Contact Information</h3>
+      <div class="form-row">
+        <div class="form-group half">
+          <label>Contact Phone</label>
+          <input type="text" formControlName="contactPhone" class="form-control">
+        </div>
+        <div class="form-group half">
+          <label>Contact Email</label>
+          <input type="email" formControlName="contactEmail" class="form-control">
+        </div>
+      </div>
+    </div>
+
+    <!-- Social Links -->
+    <div class="section" formGroupName="socialLinks">
+      <h3>Social Media Links</h3>
+      <div class="form-group">
+        <label>Facebook URL</label>
+        <input type="text" formControlName="facebook" class="form-control" placeholder="https://facebook.com/...">
+      </div>
+      <div class="form-group">
+        <label>Instagram URL</label>
+        <input type="text" formControlName="instagram" class="form-control" placeholder="https://instagram.com/...">
+      </div>
+      <div class="form-group">
+        <label>TikTok URL</label>
+        <input type="text" formControlName="tiktok" class="form-control" placeholder="https://tiktok.com/...">
+      </div>
+    </div>
+
+    <!-- Bank Info -->
+    <div class="section" formGroupName="bankInfo">
+      <h3>Bank Information (For Bank Transfer)</h3>
+      <div class="form-group">
+        <label>Bank Name</label>
+        <input type="text" formControlName="bankName" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>Account Number</label>
+        <input type="text" formControlName="accountNumber" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>Account Holder Name</label>
+        <input type="text" formControlName="accountHolder" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="settingsForm.invalid || saving">
+        {{ saving ? 'Saving...' : 'Save Changes' }}
+      </button>
+    </div>
+  </form>
+</div>

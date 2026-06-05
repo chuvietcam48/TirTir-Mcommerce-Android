@@ -1,0 +1,155 @@
+<div class="coupon-form-container">
+  <!-- Header -->
+  <div class="page-header">
+    <a [routerLink]="['/coupons']" class="back-link">← Back to Coupons</a>
+    <h1>{{ isEditMode ? 'Edit Coupon' : 'Create Coupon' }}</h1>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-state"><div class="spinner"></div><p>Loading...</p></div>
+
+  <!-- Form -->
+  <div class="form-card" *ngIf="!loading">
+    <form [formGroup]="couponForm" (ngSubmit)="onSubmit()">
+
+      <!-- ── Section: Identity ─────────────────────────────── -->
+      <div class="form-section">
+        <div class="section-label">COUPON IDENTITY</div>
+        <div class="form-row two-col">
+
+          <!-- Code -->
+          <div class="form-group">
+            <label>Coupon Code <span class="req">*</span></label>
+            <input type="text" formControlName="code"
+              placeholder="e.g. SUMMER25"
+              [class.has-error]="f['code'].invalid && f['code'].touched"
+              (input)="toUpperCase($event)" />
+            <div class="field-hint">Letters, numbers, hyphen & underscore only</div>
+            <div class="err-msg" *ngIf="f['code'].errors?.['required'] && f['code'].touched">Code is required</div>
+            <div class="err-msg" *ngIf="f['code'].errors?.['pattern'] && f['code'].touched">Only A-Z 0-9 - _ allowed</div>
+          </div>
+
+          <!-- Status -->
+          <div class="form-group">
+            <label>Status</label>
+            <div class="toggle-group">
+              <label class="toggle-option" [class.selected]="couponForm.get('active')?.value === true">
+                <input type="radio" formControlName="active" [value]="true" />
+                <span class="toggle-pill">✅ Active</span>
+              </label>
+              <label class="toggle-option" [class.selected]="couponForm.get('active')?.value === false">
+                <input type="radio" formControlName="active" [value]="false" />
+                <span class="toggle-pill">⏸ Inactive</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Section: Discount ─────────────────────────────── -->
+      <div class="form-section">
+        <div class="section-label">DISCOUNT SETTINGS</div>
+
+        <!-- Discount Type Toggle -->
+        <div class="form-group">
+          <label>Discount Type <span class="req">*</span></label>
+          <div class="type-toggle">
+            <label class="type-btn" [class.active]="couponForm.get('discountType')?.value === 'percentage'">
+              <input type="radio" formControlName="discountType" value="percentage" />
+              <span>% Percentage</span>
+            </label>
+            <label class="type-btn" [class.active]="couponForm.get('discountType')?.value === 'fixed'">
+              <input type="radio" formControlName="discountType" value="fixed" />
+              <span>$ Fixed Amount</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-row two-col">
+          <!-- Discount Value -->
+          <div class="form-group">
+            <label>
+              Discount Value <span class="req">*</span>
+              <span class="unit-hint" *ngIf="couponForm.get('discountType')?.value === 'percentage'"> (1 – 100%)</span>
+              <span class="unit-hint" *ngIf="couponForm.get('discountType')?.value === 'fixed'"> ($)</span>
+            </label>
+            <div class="input-prefix-wrap">
+              <span class="prefix">{{ couponForm.get('discountType')?.value === 'percentage' ? '%' : '$' }}</span>
+              <input type="number" formControlName="discountValue"
+                [max]="couponForm.get('discountType')?.value === 'percentage' ? 100 : 9999999"
+                min="0.01" step="0.01"
+                placeholder="0"
+                [class.has-error]="f['discountValue'].invalid && f['discountValue'].touched" />
+            </div>
+            <div class="err-msg" *ngIf="f['discountValue'].errors?.['required'] && f['discountValue'].touched">Value is required</div>
+            <div class="err-msg" *ngIf="f['discountValue'].errors?.['min'] && f['discountValue'].touched">Must be greater than 0</div>
+            <div class="err-msg" *ngIf="f['discountValue'].errors?.['max'] && f['discountValue'].touched">Percentage cannot exceed 100%</div>
+          </div>
+
+          <!-- Max Discount Cap (only for %) -->
+          <div class="form-group" *ngIf="couponForm.get('discountType')?.value === 'percentage'">
+            <label>Max Discount Cap ($) <span class="field-hint-inline">optional</span></label>
+            <div class="input-prefix-wrap">
+              <span class="prefix">$</span>
+              <input type="number" formControlName="maxDiscount" min="0" placeholder="No cap" />
+            </div>
+            <div class="field-hint">Limits total discount amount for % coupons</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Section: Validity ─────────────────────────────── -->
+      <div class="form-section">
+        <div class="section-label">VALIDITY PERIOD</div>
+        <div class="form-row two-col">
+          <div class="form-group">
+            <label>Start Date <span class="req">*</span></label>
+            <input type="date" formControlName="validFrom"
+              [class.has-error]="f['validFrom'].invalid && f['validFrom'].touched" />
+            <div class="err-msg" *ngIf="f['validFrom'].errors?.['required'] && f['validFrom'].touched">Start date is required</div>
+          </div>
+          <div class="form-group">
+            <label>Expiry Date <span class="req">*</span></label>
+            <input type="date" formControlName="validTo"
+              [class.has-error]="f['validTo'].invalid && f['validTo'].touched" />
+            <div class="err-msg" *ngIf="f['validTo'].errors?.['required'] && f['validTo'].touched">Expiry date is required</div>
+            <div class="err-msg" *ngIf="couponForm.errors?.['dateRange'] && f['validTo'].touched">Expiry must be after start date</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Section: Limits ───────────────────────────────── -->
+      <div class="form-section">
+        <div class="section-label">RESTRICTIONS & LIMITS</div>
+        <div class="form-row two-col">
+          <div class="form-group">
+            <label>Min Order Amount ($)</label>
+            <div class="input-prefix-wrap">
+              <span class="prefix">$</span>
+              <input type="number" formControlName="minOrderValue" min="0" placeholder="0 (no minimum)" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Usage Limit</label>
+            <input type="number" formControlName="usageLimit" min="1" placeholder="Unlimited" />
+            <div class="field-hint">Total times this coupon can be used</div>
+            <div class="err-msg" *ngIf="f['usageLimit'].errors?.['min'] && f['usageLimit'].touched">Must be at least 1</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Actions ───────────────────────────────────────── -->
+      <div class="form-error" *ngIf="error">⚠ {{ error }}</div>
+
+      <div class="form-actions">
+        <a [routerLink]="['/coupons']" class="btn-cancel">Cancel</a>
+        <button type="submit" class="btn-submit"
+          [disabled]="submitting || couponForm.invalid">
+          <span *ngIf="submitting" class="spinner-sm"></span>
+          {{ submitting ? 'Saving...' : (isEditMode ? 'Update Coupon' : 'Create Coupon') }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

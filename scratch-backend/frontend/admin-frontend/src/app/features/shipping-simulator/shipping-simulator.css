@@ -1,0 +1,250 @@
+/* Follows the same structure as order-list, product-list, coupon-list */
+
+.shipping-sim-container {
+    padding: 0;
+}
+
+/* ─── Header ───────────────────────────────────────────── */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.page-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: #121212;
+}
+
+.subtitle {
+    color: #757575;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* ─── Filters bar ──────────────────────────────────────── */
+.filters-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.search-input {
+    flex: 1;
+    max-width: 400px;
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.search-input:focus {
+    border-color: #d32f2f;
+}
+
+.result-count {
+    font-size: 13px;
+    color: #757575;
+}
+
+/* ─── States ───────────────────────────────────────────── */
+.loading-state,
+.empty-state,
+.error-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: #757575;
+}
+
+.spinner {
+    width: 36px;
+    height: 36px;
+    margin: 0 auto 12px;
+    border: 3px solid #e0e0e0;
+    border-top-color: #d32f2f;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ─── Table ────────────────────────────────────────────── */
+.table-container {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.data-table th {
+    background: #fafafa;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #424242;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.data-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f5f5f5;
+    vertical-align: middle;
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tr:hover td {
+    background: #fafafa;
+}
+
+/* ─── Cell content ─────────────────────────────────────── */
+.order-id {
+    font-weight: 700;
+    color: #121212;
+    font-family: monospace;
+    font-size: 13px;
+}
+
+.customer-name {
+    font-weight: 500;
+    font-size: 14px;
+    color: #212121;
+}
+
+.customer-phone {
+    font-size: 12px;
+    color: #757575;
+    margin-top: 2px;
+}
+
+.ghn-code {
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 12px;
+    color: #424242;
+}
+
+.text-muted {
+    color: #9e9e9e;
+    font-size: 13px;
+}
+
+/* ─── Simulate action buttons ──────────────────────────── */
+.action-buttons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* btn-delivered, btn-return, btn-cancel mapped from opt.cls */
+.btn-delivered {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.btn-delivered:hover:not(:disabled) {
+    background: #c8e6c9;
+}
+
+.btn-return {
+    background: #fff8e1;
+    color: #f57f17;
+    border: 1px solid #ffe082;
+}
+
+.btn-return:hover:not(:disabled) {
+    background: #ffe082;
+}
+
+.btn-cancel {
+    background: #fde8e8;
+    color: #b71c1c;
+    border: 1px solid #f5c6c6;
+}
+
+.btn-cancel:hover:not(:disabled) {
+    background: #f5c6c6;
+}
+
+/* ─── Result badge ─────────────────────────────────────── */
+.status-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+    max-width: 220px;
+    word-break: break-word;
+}
+
+.badge-success {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.badge-error {
+    background: #fde8e8;
+    color: #b71c1c;
+}
+
+.badge-info {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+/* ─── Pagination ───────────────────────────────────────── */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px 0;
+}
+
+.page-btn {
+    padding: 6px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: #424242;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: #f5f5f5;
+}
+
+.page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.page-info {
+    font-size: 13px;
+    color: #757575;
+}

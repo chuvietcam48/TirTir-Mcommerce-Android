@@ -1,0 +1,282 @@
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+    padding: 2rem 1rem;
+}
+
+
+.login-card {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 24px rgba(0, 0, 0, 0.08);
+    padding: 3rem 2.5rem;
+    max-width: 440px;
+    width: 100%;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.login-title {
+    font-size: 1.875rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.5px;
+}
+
+.login-subtitle {
+    font-size: 0.938rem;
+    color: #666666;
+    margin: 0;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.error-alert {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    color: #dc2626;
+    font-size: 0.875rem;
+}
+
+.error-alert svg {
+    flex-shrink: 0;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.field-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1a1a1a;
+    letter-spacing: 0.2px;
+}
+
+.field-input {
+    padding: 0.875rem 1rem;
+    font-size: 0.938rem;
+    color: #1a1a1a;
+    background: #ffffff;
+    border: 1.5px solid #e5e5e5;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.field-input:focus {
+    outline: none;
+    border-color: #1a1a1a;
+    box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.05);
+}
+
+.field-input::placeholder {
+    color: #a3a3a3;
+}
+
+.field-input.input-error {
+    border-color: #dc2626;
+}
+
+.field-error {
+    font-size: 0.813rem;
+    color: #dc2626;
+    margin-top: -0.25rem;
+}
+
+.form-options {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -0.5rem;
+}
+
+.forgot-link {
+    font-size: 0.875rem;
+    color: #666666;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.forgot-link:hover {
+    color: #1a1a1a;
+    text-decoration: underline;
+}
+
+.submit-button {
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #1a1a1a;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+}
+
+.submit-button:hover:not(:disabled) {
+    background-color: #333333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.submit-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.register-prompt {
+    text-align: center;
+    font-size: 0.938rem;
+    color: #666666;
+    padding-top: 0.5rem;
+}
+
+.register-link {
+    color: #1a1a1a;
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 0.5rem;
+    transition: opacity 0.2s ease;
+}
+
+.register-link:hover {
+    opacity: 0.7;
+    text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .login-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .login-title {
+        font-size: 1.625rem;
+    }
+}
+/* ── Password wrapper & toggle ── */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.password-wrapper .field-input {
+  width: 100%;
+  padding-right: 44px;
+}
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #888;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+.password-toggle svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+.password-toggle:hover { color: #333; }
+
+/* ── TirTir Brand Wordmark ── */
+.brand-wordmark {
+  font-family: var(--font-display, 'Playfair Display', Georgia, serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* ── Auth Divider ── */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.25rem 0;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: #e5e5e5;
+}
+
+.divider-text {
+  font-size: 0.75rem;
+  color: #a3a3a3;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Google Sign-In Button ── */
+.google-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #444;
+  background: #ffffff;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 6px;
+  cursor: not-allowed;
+  opacity: 0.65;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.google-button:not(:disabled):hover {
+  border-color: #aaa;
+  background: #fafafa;
+}
+
+.coming-soon-tag {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #888;
+  background: #f0f0f0;
+  border-radius: 3px;
+  padding: 2px 6px;
+  margin-left: auto;
+}

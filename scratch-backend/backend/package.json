@@ -1,0 +1,57 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "seed:admin": "node scripts/seed-admin.js",
+    "migrate:remove-cod": "node scripts/migrate-remove-cod.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@google/genai": "^1.40.0",
+    "@google/generative-ai": "^0.21.0",
+    "@sentry/node": "^10.38.0",
+    "@sentry/profiling-node": "^10.38.0",
+    "axios": "^1.13.5",
+    "bcryptjs": "^3.0.3",
+    "bullmq": "^5.71.0",
+    "cors": "^2.8.5",
+    "csv-parse": "^6.1.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.2.1",
+    "express-validator": "^7.3.1",
+    "helmet": "^8.1.0",
+    "ioredis": "^5.10.1",
+    "jsonwebtoken": "^9.0.3",
+    "moment": "^2.30.1",
+    "mongodb": "^7.0.0",
+    "mongoose": "^9.1.2",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
+    "node-cache": "^5.1.2",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^7.0.13",
+    "response-time": "^2.3.4",
+    "sharp": "^0.34.5",
+    "socket.io": "^4.8.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.11",
+    "supertest": "^7.2.2"
+  }
+}

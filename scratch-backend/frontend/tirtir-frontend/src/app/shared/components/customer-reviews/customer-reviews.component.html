@@ -1,0 +1,104 @@
+<section class="customer-reviews" id="reviews-section">
+    <div class="container">
+        <!-- Section Header -->
+        <div class="reviews-header">
+            <h2 class="section-title">CUSTOMER REVIEWS</h2>
+            <div class="overall-rating">
+                <div class="rating-score">
+                    <span class="score-value">{{ averageRating }}</span>
+                    <div class="stars-display">
+                        <span *ngFor="let star of getStars(5)" [class]="getStarClass(star)">★</span>
+                    </div>
+                    <span class="total-reviews">Based on {{ totalReviews | number }} reviews</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rating Breakdown & Write Review -->
+        <div class="reviews-actions-grid">
+            <div class="rating-breakdown">
+                <div *ngFor="let rating of ratingBreakdown" class="breakdown-row">
+                    <span class="star-label">{{ rating.stars }} ★</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" [style.width.%]="rating.percentage"></div>
+                    </div>
+                    <span class="percentage">{{ rating.percentage }}%</span>
+                </div>
+            </div>
+
+            <div class="write-review-block">
+                <h3>Share your thoughts</h3>
+                <p>Help others make better choices by sharing your experience.</p>
+                <button class="write-review-btn" (click)="isWritingReview = !isWritingReview">
+                    {{ isWritingReview ? 'Cancel Review' : 'Write a Review' }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Write Review Form -->
+        <div class="review-form-container" *ngIf="isWritingReview">
+            <div class="form-card">
+                <h3>Post a review for {{ productName }}</h3>
+                <div class="rating-input">
+                    <label>Your Rating:</label>
+                    <div class="stars-selector">
+                        <span *ngFor="let i of [1,2,3,4,5]" (click)="newReview.rating = i"
+                            [class.active]="newReview.rating >= i">★</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <input type="text" [(ngModel)]="newReview.title"
+                        placeholder="Review Title (e.g. Best cushion ever!)">
+                </div>
+                <div class="input-group">
+                    <textarea [(ngModel)]="newReview.content"
+                        placeholder="Share your experience with this product..."></textarea>
+                </div>
+                <button class="submit-review-btn" (click)="postReview()">POST REVIEW</button>
+            </div>
+        </div>
+
+        <!-- Reviews List -->
+        <div class="reviews-list">
+            <div *ngFor="let review of reviews" class="review-card">
+                <div class="review-card-header">
+                    <div class="reviewer-meta">
+                        <span class="reviewer-name">{{ review.author }}</span>
+                        <span class="verified-tag" *ngIf="review.verified">Verified Purchase</span>
+                    </div>
+                    <button class="delete-review-btn" *ngIf="review.author.includes('You')"
+                        (click)="deleteReview(review.id)">
+                        Remove
+                    </button>
+                </div>
+
+                <div class="review-score">
+                    <span *ngFor="let star of getStars(review.rating)" [class]="getStarClass(star)">★</span>
+                    <span class="review-date-mini">{{ review.date }}</span>
+                </div>
+
+                <h4 class="review-display-title">{{ review.title }}</h4>
+                <p class="review-display-shade" *ngIf="review.shade">Shade: {{ review.shade }}</p>
+                <p class="review-display-content">{{ review.content }}</p>
+
+                <div class="review-card-footer">
+                    <button class="like-action-btn" [class.liked]="review.likedByUser" (click)="toggleLike(review)">
+                        <svg width="18" height="18" viewBox="0 0 24 24"
+                            [attr.fill]="review.likedByUser ? 'currentColor' : 'none'" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                            </path>
+                        </svg>
+                        <span>Helpful ({{ review.helpful }})</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Load More -->
+        <div class="load-more-section">
+            <button class="load-more-btn">SEE MORE REVIEWS</button>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,11 @@
+<section class="section product-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">{{ title }}</h2>
+            <a *ngIf="viewAllLink" [href]="viewAllLink" class="view-all-link">View All</a>
+        </div>
+        <div class="section-content">
+            <ng-content></ng-content>
+        </div>
+    </div>
+</section>

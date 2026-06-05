@@ -1,0 +1,102 @@
+:host {
+    display: block;
+    position: relative;
+}
+
+.carousel-header {
+    margin-bottom: var(--spacing-lg);
+}
+
+.carousel-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.carousel-subtitle {
+    font-size: 14px;
+    color: var(--color-text-sub);
+    margin: 0;
+}
+
+.carousel-container {
+    position: relative;
+    padding: 0 20px;
+}
+
+.carousel-track {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding-bottom: 20px;
+    /* Hide scrollbar */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.carousel-track::-webkit-scrollbar {
+    display: none;
+}
+
+.carousel-item {
+    width: 246px;
+    /* 10% larger than original 224px to match Best Sellers/Trending */
+    min-width: 246px;
+    max-width: 246px;
+    flex: 0 0 246px;
+}
+
+.carousel-item app-product-card {
+    width: 100%;
+    max-width: 100%;
+}
+
+.nav-btn {
+    position: absolute;
+    top: 40%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid #eee;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.nav-btn:hover {
+    background: #000;
+    color: #fff;
+    border-color: #000;
+}
+
+.nav-btn.prev {
+    left: -10px;
+}
+
+.nav-btn.next {
+    right: -10px;
+}
+
+@media (max-width: 768px) {
+    .nav-btn {
+        display: none;
+        /* On mobile, let user swipe naturally */
+    }
+
+    .carousel-container {
+        padding: 0;
+    }
+
+    .carousel-item {
+        min-width: 240px;
+    }
+}

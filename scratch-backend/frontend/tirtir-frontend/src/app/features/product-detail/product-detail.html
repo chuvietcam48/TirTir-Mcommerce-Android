@@ -1,0 +1,164 @@
+<div class="product-detail-container">
+    <div *ngIf="loading" class="loading-wrapper">
+        <app-loading-spinner></app-loading-spinner>
+    </div>
+
+    <div class="product-detail" *ngIf="!loading && product">
+        <div class="container">
+            <div class="pdp-layout">
+                <!-- Left: Image Gallery -->
+                <div class="gallery">
+                    <div class="gallery-main">
+                        <img [src]="selectedImage" [alt]="product.name" class="main-image" fetchpriority="high">
+                        <span class="sale-badge" *ngIf="product.originalPrice">SALE</span>
+                    </div>
+                    <div class="gallery-thumbs">
+                        <button *ngFor="let img of product.images; let i = index" class="thumb"
+                            [class.active]="selectedImage === img" (click)="selectImage(img)">
+                            <img [src]="img" [alt]="'View ' + (i + 1)">
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right: Product Info -->
+                <div class="product-info">
+                    <div class="info-header">
+                        <h1 class="product-name">{{ product.name }}</h1>
+                        <div class="rating-row">
+                            <div class="stars">
+                                <span *ngFor="let s of getStars(product.rating)" class="star filled">★</span>
+                            </div>
+                            <span class="rating-value">{{ product.rating }}</span>
+                            <span class="review-count linked" (click)="scrollToReviews()">({{ product.reviewCount |
+                                number
+                                }} Reviews)</span>
+                        </div>
+                        <div class="price-row">
+                            <span class="original-price" *ngIf="product.originalPrice">${{
+                                product.originalPrice.toFixed(2)
+                                }}</span>
+                            <span class="current-price">${{ product.price.toFixed(2) }}</span>
+                        </div>
+                    </div>
+
+                    <p class="product-description">{{ product.description }}</p>
+
+                    <!-- Key Features -->
+                    <div class="key-features" *ngIf="product.keyFeatures.length">
+                        <h4 class="features-title">Key Features</h4>
+                        <ul class="features-list">
+                            <li *ngFor="let feature of product.keyFeatures">{{ feature }}</li>
+                        </ul>
+                    </div>
+
+                    <!-- Shade Selector -->
+                    <div class="shade-selector" *ngIf="product.shades?.length">
+                        <div class="selector-header">
+                            <span class="label">Shade:</span>
+                            <span class="selected-shade">{{ selectedShade }}</span>
+                            <span class="shade-count">({{ product.shades?.length }} shades)</span>
+                        </div>
+                        <div class="shade-options">
+                            <button *ngFor="let shade of product.shades" class="shade-btn"
+                                [class.active]="selectedShade === shade.name" 
+                                [class.out-of-stock]="shade.Stock_Quantity === 0"
+                                [style.background]="shade.color"
+                                [disabled]="shade.Stock_Quantity === 0"
+                                (click)="selectShade(shade.name)" 
+                                [attr.aria-label]="shade.name" 
+                                [title]="shade.Stock_Quantity === 0 ? shade.name + ' (Out of Stock)' : shade.name">
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="quantity-selector">
+                        <span class="label">Quantity:</span>
+                        <div class="qty-controls">
+                            <button (click)="decreaseQty()" aria-label="Decrease">−</button>
+                            <span class="qty-value">{{ quantity }}</span>
+                            <button (click)="increaseQty()" aria-label="Increase">+</button>
+                        </div>
+                    </div>
+
+                    <!-- Add to Cart -->
+                    <button class="add-to-cart" (click)="addToCart()"
+                        [disabled]="addingToCart || (!selectedShade && product.shades?.length)">
+                        {{ addingToCart ? 'ADDING...' : 'ADD TO CART — $' + (product.price * quantity).toFixed(2) }}
+                    </button>
+
+                    <!-- Accordion Sections -->
+                    <div class="accordion">
+                        <div class="accordion-item" [class.open]="activeAccordion === 'description'">
+                            <button class="accordion-header" (click)="toggleAccordion('description')">
+                                <span>Description</span>
+                                <span class="icon">{{ activeAccordion === 'description' ? '−' : '+' }}</span>
+                            </button>
+                            <div class="accordion-content">
+                                <p>{{ product.fullDescription }}</p>
+                            </div>
+                        </div>
+                        <div class="accordion-item" [class.open]="activeAccordion === 'howto'">
+                            <button class="accordion-header" (click)="toggleAccordion('howto')">
+                                <span>How to Use</span>
+                                <span class="icon">{{ activeAccordion === 'howto' ? '−' : '+' }}</span>
+                            </button>
+                            <div class="accordion-content">
+                                <p>{{ product.howToUse }}</p>
+                            </div>
+                        </div>
+                        <div class="accordion-item" [class.open]="activeAccordion === 'ingredients'">
+                            <button class="accordion-header" (click)="toggleAccordion('ingredients')">
+                                <span>Ingredients</span>
+                                <span class="icon">{{ activeAccordion === 'ingredients' ? '−' : '+' }}</span>
+                            </button>
+                            <div class="accordion-content">
+                                <p>{{ product.ingredients }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suggested Section -->
+    <section class="suggestions-section" *ngIf="suggestedProducts.length">
+        <div class="container">
+            <h2 class="section-title">SUGGESTED FOR YOU</h2>
+            <div class="suggestions-grid">
+                <div *ngFor="let item of suggestedProducts" class="suggestion-card"
+                    [routerLink]="item.isDeal ? '/deals' : ['/products', item.slug]">
+                    <div class="card-badge" *ngIf="item.isDeal">COMBO DEAL</div>
+                    <div class="suggestion-img">
+                        <img [src]="item.images[0]" [alt]="item.name">
+                        <!-- Quick Add Overlay -->
+                        <div class="quick-add-overlay">
+                            <button class="btn-quick-add">QUICK ADD</button>
+                        </div>
+                    </div>
+                    <div class="suggestion-meta">
+                        <h4>{{ item.name }}</h4>
+                        <div class="suggestion-prices">
+                            <span class="old" *ngIf="item.originalPrice">${{ item.originalPrice }}</span>
+                            <span class="new">${{ item.price }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visual Story -->
+    <section class="product-visual-story" *ngIf="product && product.descriptionImages.length">
+        <div class="container">
+            <div class="visual-stack">
+                <img *ngFor="let img of product.descriptionImages" [src]="img" alt="Product Detail Visual"
+                    class="w-full h-auto block" loading="lazy">
+            </div>
+        </div>
+    </section>
+
+    <!-- Customer Reviews Section -->
+    <app-customer-reviews *ngIf="product" [productName]="product.name" [productId]="product.id"></app-customer-reviews>
+</div>

@@ -1,0 +1,697 @@
+<div class="sf-page">
+
+  <!-- ═══════════════════════════════════════════════════
+       INSTRUCTION SCREEN
+       ═══════════════════════════════════════════════════ -->
+  @if (showInstructions()) {
+    <div class="instructions-screen">
+      <div class="instructions-card">
+        <button class="instr-close" (click)="showInstructions.set(false)">✕</button>
+        <div class="instr-brand">TirTir AI</div>
+        <h2 class="instr-title">Before You Start</h2>
+        <p class="instr-sub">Prepare for the most accurate AI skin tone analysis</p>
+
+        <div class="instr-steps">
+          <div class="instr-step">
+            <div class="instr-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+              </svg>
+            </div>
+            <div class="instr-text">
+              <strong>Good Lighting</strong>
+              <span>Ensure natural light or room light evenly illuminates your face</span>
+            </div>
+          </div>
+          <div class="instr-step">
+            <div class="instr-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="7" r="4"/><path d="M6 21v-1a6 6 0 0 1 12 0v1"/>
+              </svg>
+            </div>
+            <div class="instr-text">
+              <strong>Tie Hair Back</strong>
+              <span>Expose forehead, cheekbones, and chin clearly</span>
+            </div>
+          </div>
+          <div class="instr-step">
+            <div class="instr-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="6" width="20" height="14" rx="2"/><circle cx="12" cy="13" r="4"/>
+              </svg>
+            </div>
+            <div class="instr-text">
+              <strong>Look Straight at Camera</strong>
+              <span>Keep your face centered in frame, don't tilt your head</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-start-now" (click)="startFromInstructions()" [disabled]="isInitializingModel()">
+          @if (isInitializingModel()) {
+            <span class="start-spinner"></span>Loading AI model...
+          } @else {
+            Start Scan
+          }
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════
+       MAIN CAMERA SCREEN
+       ═══════════════════════════════════════════════════ -->
+  @if (!showInstructions()) {
+    <div class="sf-main">
+      <div class="sf-header">
+        <div class="sf-header-left">
+          <h1>Virtual Shade Finder</h1>
+          <p>AI skin tone analysis & cushion shade recommendations</p>
+        </div>
+        <div class="sf-header-right">
+          <div class="live-badge" [class.active]="isCameraActive && faceTracker.isFaceDetected()">
+            <span class="live-dot"></span>LIVE ANALYSIS
+          </div>
+        </div>
+      </div>
+
+      <div class="sf-layout">
+        <!-- ─── CAMERA COLUMN ─── -->
+        <div class="camera-col">
+          <div class="camera-container">
+            <video #videoElement autoplay playsinline></video>
+            <canvas #canvasElement class="hidden"></canvas>
+
+            <div class="corner tl"></div>
+            <div class="corner tr"></div>
+            <div class="corner bl"></div>
+            <div class="corner br"></div>
+
+            @if (isCameraActive) {
+              <div class="face-guide-overlay">
+                <svg class="face-guide-svg" viewBox="0 0 640 480" preserveAspectRatio="none">
+                  <defs>
+                    <mask id="ovalMask2">
+                      <rect width="640" height="480" fill="white"/>
+                      <ellipse cx="320" cy="230" rx="155" ry="190" fill="black"/>
+                    </mask>
+                  </defs>
+                  <rect width="640" height="480" fill="rgba(0,0,0,0.42)" mask="url(#ovalMask2)"/>
+                  <ellipse cx="320" cy="230" rx="155" ry="190" fill="none"
+                    [attr.stroke]="lightingStatus().type === 'success' ? '#E8111A' : lightingStatus().type === 'error' ? '#c40f16' : '#888'"
+                    stroke-width="2" stroke-dasharray="8 4" class="oval-frame"
+                    [class.pulse-pink]="lightingStatus().type === 'success'"/>
+                  @if (faceTracker.isFaceDetected() && faceTracker.facePoints(); as pts) {
+                    <circle [attr.cx]="(1 - pts.forehead.x) * 640" [attr.cy]="pts.forehead.y * 480" r="4" fill="#E8111A" class="scan-dot"/>
+                    <circle [attr.cx]="(1 - pts.nose.x) * 640" [attr.cy]="pts.nose.y * 480" r="3" fill="#E8111A" class="scan-dot"/>
+                    <circle [attr.cx]="(1 - pts.leftCheek.x) * 640" [attr.cy]="pts.leftCheek.y * 480" r="5" fill="#E8111A" class="scan-dot"/>
+                    <circle [attr.cx]="(1 - pts.rightCheek.x) * 640" [attr.cy]="pts.rightCheek.y * 480" r="5" fill="#E8111A" class="scan-dot"/>
+                    <circle [attr.cx]="(1 - pts.chin.x) * 640" [attr.cy]="pts.chin.y * 480" r="3" fill="#E8111A" class="scan-dot"/>
+                  }
+                </svg>
+              </div>
+
+              <!-- Issue #10: Multiple faces warning -->
+              @if (faceTracker.multipleDetected()) {
+                <div class="warning-banner" style="background: #ff4444; color: white; padding: 12px; margin-bottom: 10px; border-radius: 6px; position: absolute; top: 8px; left: 8px; right: 8px; z-index: 20; text-align: center; font-weight: 600;">
+                  ⚠️ Multiple faces detected. Please have only ONE person in the camera frame.
+                </div>
+              }
+            }
+
+            <!-- Issue #13: MediaPipe init error -->
+            @if (faceTracker.initError()) {
+              <div class="camera-off-placeholder" style="background: #fff3f3;">
+                <p style="color: #d9534f; font-weight: bold;">⚠️ {{ faceTracker.initError() }}</p>
+                <p>Please <strong>refresh the page</strong> to try again.</p>
+              </div>
+            }
+
+            @if (!isCameraActive && !faceTracker.initError()) {
+              <div class="camera-off-placeholder">
+                <div class="cam-spinner"></div>
+                <p>Starting camera...</p>
+                <p class="cam-hint">Please allow camera access when prompted</p>
+              </div>
+            }
+
+            @if (isProcessing) {
+              <div class="scanning-overlay">
+                <div class="scan-line"></div>
+                <p>Analyzing skin tone...</p>
+              </div>
+            }
+
+            @if (isCameraActive) {
+              <div class="status-chip" [ngClass]="lightingStatus().type">
+                <span class="chip-dot"></span>{{ lightingStatus().message }}
+              </div>
+            }
+
+            @if (isCameraActive && fps() > 0) {
+              <div class="fps-counter">
+                <span>FPS {{ fps() }}</span>
+                <span>· {{ faceTracker.isFaceDetected() ? '248 POINTS' : 'DETECTING' }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="controls-bar">
+            <div class="skin-type-row">
+              <span class="ctrl-label">Skin Type</span>
+              <div class="skin-tabs">
+                <button class="skin-tab" [class.active]="selectedSkinType === 'Normal'" (click)="selectedSkinType = 'Normal'">Normal</button>
+                <button class="skin-tab" [class.active]="selectedSkinType === 'Oily'" (click)="selectedSkinType = 'Oily'">Oily</button>
+                <button class="skin-tab" [class.active]="selectedSkinType === 'Dry'" (click)="selectedSkinType = 'Dry'">Dry</button>
+                <button class="skin-tab" [class.active]="selectedSkinType === 'Combination'" (click)="selectedSkinType = 'Combination'">Combination</button>
+                <button class="skin-tab" [class.active]="selectedSkinType === 'Sensitive'" (click)="selectedSkinType = 'Sensitive'">Sensitive</button>
+              </div>
+            </div>
+            <!-- Issue #12: More explicit disabled conditions -->
+            <button class="btn-scan" [disabled]="
+              !isCameraActive ||
+              !lightingStatus().isValid ||
+              isProcessing ||
+              colorHistory.length < 5 ||
+              faceTracker.multipleDetected()
+            " (click)="scanShade()">
+              {{ isProcessing ? 'Analyzing...' : 'Scan Now' }}
+            </button>
+            @if (error) { <p class="error-msg">{{ error }}</p> }
+            @if (isCameraActive && !lightingStatus().isValid) { <p class="tip-msg">{{ lightingStatus().message }}</p> }
+            @if (isCameraActive && colorHistory.length < 5 && faceTracker.isFaceDetected()) {
+              <p class="tip-msg">Hold still for 1-2 more seconds...</p>
+            }
+          </div>
+        </div>
+
+        <!-- ─── LIVE METRICS PANEL ─── -->
+        <div class="metrics-panel">
+          <div class="panel-header">
+            <span class="panel-title">AI LIVE DETECTION</span>
+            <span class="panel-sub">Neural engine · 248 facial points</span>
+          </div>
+
+          @if (liveMetrics()) {
+            <div class="metrics-list">
+              <p class="metrics-estimate-label">Live color estimates <span class="estimate-badge">Not AI</span></p>
+              <div class="metric-row">
+                <div class="metric-label-row"><span>Moisture Level</span><span class="metric-val">~{{ liveMetrics()!.moisture }}%</span></div>
+                <div class="metric-track"><div class="metric-fill moisture" [style.width.%]="liveMetrics()!.moisture"></div></div>
+              </div>
+              <div class="metric-row">
+                <div class="metric-label-row"><span>Pores Density</span><span class="metric-val">~{{ liveMetrics()!.pores }}%</span></div>
+                <div class="metric-track"><div class="metric-fill pores" [style.width.%]="liveMetrics()!.pores * 2"></div></div>
+              </div>
+              <div class="metric-row">
+                <div class="metric-label-row"><span>Redness</span><span class="metric-val">~{{ liveMetrics()!.redness }}%</span></div>
+                <div class="metric-track"><div class="metric-fill redness" [style.width.%]="liveMetrics()!.redness * 1.6"></div></div>
+              </div>
+              <div class="metric-row">
+                <div class="metric-label-row"><span>Evenness</span><span class="metric-val">~{{ liveMetrics()!.evenness }}%</span></div>
+                <div class="metric-track"><div class="metric-fill evenness" [style.width.%]="liveMetrics()!.evenness"></div></div>
+              </div>
+            </div>
+            <p class="panel-note">Rough estimates from live RGB — accurate analysis available after scanning</p>
+          } @else {
+            <div class="metrics-placeholder">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32">
+                  <circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/>
+                </svg>
+              </div>
+              <p>Look at camera to start analysis</p>
+            </div>
+          }
+
+          <div class="panel-tip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14">
+              <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+            </svg>
+            Stand 40–60cm from camera, face straight and hold still
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════
+       RESULT MODAL — 3 TABS
+       ═══════════════════════════════════════════════════ -->
+  @if (showResultModal()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <div class="result-modal" (click)="$event.stopPropagation()">
+
+        <!-- Header -->
+        <div class="modal-top">
+          <div class="modal-top-left">
+            <h3>Skin Analysis Results</h3>
+            <p class="modal-sub" *ngIf="skinProfile()">
+              {{ skinProfile()!.skinType }} · {{ skinProfile()!.skinTone }} · {{ skinProfile()!.undertone }}
+            </p>
+          </div>
+          <button class="close-x" (click)="closeModal()">✕</button>
+        </div>
+
+        <!-- Tab Bar -->
+        <div class="modal-tabs">
+          <button class="modal-tab" [class.active]="activeTab() === 'shade'" (click)="activeTab.set('shade')">
+            Shade Match
+          </button>
+          <button class="modal-tab" [class.active]="activeTab() === 'report'" (click)="activeTab.set('report')">
+            Skin Report
+            <span class="tab-badge done" *ngIf="routine()?.skinMetrics && !isLoadingRoutine()"></span>
+            <span class="tab-badge loading" *ngIf="isLoadingRoutine()"></span>
+          </button>
+          <button class="modal-tab" [class.active]="activeTab() === 'routine'" (click)="activeTab.set('routine')">
+            AI Routine
+            <span class="tab-badge done" *ngIf="routine() && !isLoadingRoutine()"></span>
+            <span class="tab-badge loading" *ngIf="isLoadingRoutine()"></span>
+          </button>
+        </div>
+
+        <!-- ═══ TAB 1: SHADE MATCH ═══ -->
+        <div *ngIf="activeTab() === 'shade'" class="shade-tab">
+
+          <!-- Issue #16: Contextual error states -->
+          <div class="shade-empty" *ngIf="!bestMatch">
+            @if (shadeMatchError() === 'API') {
+              <p style="color: #d9534f; font-weight: bold;">
+                ⚠️ Shade matching service is temporarily unavailable.
+              </p>
+              <p>Please try again in a few moments, or browse shades manually.</p>
+              <button (click)="closeModal(); scanShade()" class="shade-retry-btn" style="margin-top: 8px;">🔄 Retry Scan</button>
+            } @else {
+              <p style="color: #f0ad4e; font-weight: bold;">
+                🔍 No exact shade match found for your skin tone.
+              </p>
+              @if (skinProfile()) {
+                <p>Your detected tone: {{ skinProfile()?.skinTone }}<br>
+                   Undertone: {{ skinProfile()?.undertone }}</p>
+              }
+              <p>Please <strong>scan again</strong> or browse all available shades.</p>
+            }
+          </div>
+
+          <!-- Primary match hero -->
+          <div class="shade-hero" *ngIf="bestMatch">
+            <!-- Left: Product image -->
+            <div class="shade-hero-img-wrap">
+              <img
+                [src]="resolveImage(bestMatch.Image_URL || bestMatch.Shade_Image)"
+                [alt]="bestMatch.Product_Name"
+                class="shade-hero-img"
+                (error)="$any($event.target).src='https://placehold.co/320x320/f5f5f5/bbb?text=TirTir'"
+              />
+              <span class="shade-hero-badge">BEST MATCH</span>
+            </div>
+
+            <!-- Right: Match details -->
+            <div class="shade-hero-info">
+              <p class="shade-product-sub">Shade Recommendation</p>
+              <h3 class="shade-product-name">{{ bestMatch.Product_Name }}</h3>
+
+              <!-- Color swatch row -->
+              <div class="shade-swatch-row">
+                <span class="shade-swatch-lg" [style.background]="bestMatch.Hex_Code"></span>
+                <div>
+                  <p class="shade-swatch-name">{{ bestMatch.Shade_Name }}</p>
+                  <p class="shade-swatch-code">{{ bestMatch.Shade_Code }}</p>
+                </div>
+              </div>
+
+              <!-- Match confidence bar -->
+              <div class="shade-confidence">
+                <div class="shade-confidence-header">
+                  <span class="shade-confidence-label">Match Confidence</span>
+                  <span class="shade-confidence-pct">{{ matchPercent(bestMatch.matchScore) }}%</span>
+                </div>
+                <div class="shade-confidence-track">
+                  <div class="shade-confidence-fill" [style.width.%]="matchPercent(bestMatch.matchScore)"></div>
+                </div>
+              </div>
+
+              <!-- Metadata chips -->
+              <div class="shade-chips">
+                <span class="shade-chip" *ngIf="bestMatch.predictedUndertone">
+                  <span class="chip-dot"></span>Undertone: <strong>{{ bestMatch.predictedUndertone }}</strong>
+                </span>
+                <span class="shade-chip" *ngIf="bestMatch.Coverage_Profile">{{ bestMatch.Coverage_Profile }}</span>
+                <span class="shade-chip" *ngIf="bestMatch.Finish_Type">{{ bestMatch.Finish_Type }}</span>
+                <span class="shade-chip warn" *ngIf="bestMatch.Oxidation_Risk_Level === 'High'">Oxidation Risk</span>
+              </div>
+
+              <!-- Adjustment note -->
+              <p class="shade-adjust-note" *ngIf="bestMatch.adjustmentNote">
+                <span class="note-icon">ℹ</span>{{ bestMatch.adjustmentNote }}
+              </p>
+
+              <!-- CTA -->
+              <button class="shade-cta-btn" (click)="addToCart(bestMatch)">
+                Add to Cart
+              </button>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div class="shade-divider" *ngIf="matchResults.length > 1">
+            <span>Other shades that may suit you</span>
+          </div>
+
+          <!-- Alternates list -->
+          <div class="shade-alt-list" *ngIf="matchResults.length > 1">
+            <div class="shade-alt-row" *ngFor="let shade of matchResults.slice(1); let i = index">
+              <span class="shade-alt-rank">{{ i + 2 }}</span>
+              <img
+                [src]="resolveImage(shade.Image_URL || shade.Shade_Image)"
+                [alt]="shade.Product_Name"
+                class="shade-alt-img"
+                (error)="$any($event.target).src='https://placehold.co/60x60/f5f5f5/bbb?text=T'"
+              />
+              <div class="shade-alt-info">
+                <p class="shade-alt-name">{{ shade.Product_Name }}</p>
+                <div class="shade-alt-shade-row">
+                  <span class="shade-swatch-sm" [style.background]="shade.Hex_Code"></span>
+                  <span>{{ shade.Shade_Name }}</span>
+                  <span class="shade-code-mini">{{ shade.Shade_Code }}</span>
+                </div>
+              </div>
+              <div class="shade-alt-right">
+                <div class="shade-mini-bar-track">
+                  <div class="shade-mini-bar-fill" [style.width.%]="matchPercent(shade.matchScore)"></div>
+                </div>
+                <span class="shade-alt-pct">{{ matchPercent(shade.matchScore) }}%</span>
+                <button class="shade-alt-btn" (click)="addToCart(shade)">+ Cart</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="shade-retry-row">
+            <button class="shade-retry-btn" (click)="closeModal()">↺ Scan Again</button>
+          </div>
+        </div>
+
+
+        <!-- ═══ TAB 2: SKIN REPORT ═══ -->
+        <div *ngIf="activeTab() === 'report'" class="report-tab">
+
+          <!-- Loading -->
+          <div class="routine-loading" *ngIf="isLoadingRoutine()">
+            <div class="routine-skeleton" *ngFor="let i of [1,2,3,4]"></div>
+            <p class="loading-text">TirTir AI is analyzing your skin profile...</p>
+          </div>
+
+          <!-- Error -->
+          <div class="routine-error" *ngIf="!isLoadingRoutine() && !routine()">
+            <p>Unable to load analysis report. Please try again.</p>
+          </div>
+
+          <ng-container *ngIf="!isLoadingRoutine() && routine()">
+
+            <!-- Report header bar -->
+            <div class="rpt-header">
+              <div>
+                <p class="rpt-eyebrow">TIRTIR AI · SKIN ANALYSIS REPORT</p>
+                <h4 class="rpt-title">Clinical Skin Overview</h4>
+              </div>
+              <div class="rpt-skin-tag">
+                <span class="rpt-skin-label">SKIN TYPE</span>
+                <span class="rpt-skin-val">{{ skinProfile()?.skinType?.toUpperCase() || '—' }}</span>
+              </div>
+            </div>
+
+            <!-- Two-column body -->
+            <div class="rpt-body">
+
+              <!-- LEFT: face photo -->
+              <div class="rpt-left">
+                <div class="rpt-face-wrap">
+                  <img *ngIf="capturedImageUrl" [src]="capturedImageUrl" alt="Face capture" class="rpt-face-img"/>
+                  <div *ngIf="!capturedImageUrl" class="rpt-face-empty">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5">
+                      <circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/>
+                    </svg>
+                    <span>Analysis Photo</span>
+                  </div>
+                  <!-- Scan overlay -->
+                  <div class="rpt-scan-overlay">
+                    <span class="rpt-scan-label">AI SCAN COMPLETE</span>
+                    <div class="rpt-scan-bar"><div class="rpt-scan-fill"></div></div>
+                  </div>
+                </div>
+
+                <!-- Tone + undertone row -->
+                <div class="rpt-tone-row">
+                  <div class="rpt-tone-item" *ngIf="skinProfile()?.skinTone">
+                    <span class="rpt-tone-key">Skin Tone</span>
+                    <span class="rpt-tone-val">{{ skinProfile()!.skinTone }}</span>
+                  </div>
+                  <div class="rpt-tone-item" *ngIf="skinProfile()?.undertone">
+                    <span class="rpt-tone-key">Undertone</span>
+                    <span class="rpt-tone-val">{{ skinProfile()!.undertone }}</span>
+                  </div>
+                </div>
+
+                <!-- Dermatologist note -->
+                <div class="rpt-derm-note" *ngIf="routine()!.dermatologistNote">
+                  <p class="rpt-derm-label">DERMATOLOGIST'S NOTE</p>
+                  <p class="rpt-derm-text">"{{ routine()!.dermatologistNote }}"</p>
+                </div>
+              </div>
+
+              <!-- RIGHT: metrics -->
+              <div class="rpt-right">
+
+                <!-- 4 metric rows -->
+                <div class="rpt-metrics" *ngIf="routine()!.skinMetrics">
+                  <div class="rpt-metric-row">
+                    <div class="rpt-metric-header">
+                      <span class="rpt-metric-name">Hydration</span>
+                      <span class="rpt-metric-score">{{ routine()!.skinMetrics!.hydration }}<span class="rpt-denom">/100</span></span>
+                    </div>
+                    <div class="rpt-bar-track">
+                      <div class="rpt-bar-fill" [style.width.%]="routine()!.skinMetrics!.hydration" [class.high]="routine()!.skinMetrics!.hydration >= 70"></div>
+                    </div>
+                    <p class="rpt-metric-desc">Deep skin hydration and surface barrier protection</p>
+                  </div>
+
+                  <div class="rpt-metric-row">
+                    <div class="rpt-metric-header">
+                      <span class="rpt-metric-name">Elasticity</span>
+                      <span class="rpt-metric-score">{{ routine()!.skinMetrics!.elasticity }}<span class="rpt-denom">/100</span></span>
+                    </div>
+                    <div class="rpt-bar-track">
+                      <div class="rpt-bar-fill" [style.width.%]="routine()!.skinMetrics!.elasticity" [class.high]="routine()!.skinMetrics!.elasticity >= 70"></div>
+                    </div>
+                    <p class="rpt-metric-desc">Skin elasticity and collagen tension level</p>
+                  </div>
+
+                  <div class="rpt-metric-row">
+                    <div class="rpt-metric-header">
+                      <span class="rpt-metric-name">Pigmentation</span>
+                      <span class="rpt-metric-score">{{ routine()!.skinMetrics!.pigmentation }}<span class="rpt-denom">/100</span></span>
+                    </div>
+                    <div class="rpt-bar-track">
+                      <div class="rpt-bar-fill" [style.width.%]="routine()!.skinMetrics!.pigmentation" [class.high]="routine()!.skinMetrics!.pigmentation >= 70"></div>
+                    </div>
+                    <p class="rpt-metric-desc">Skin tone evenness and dark spot presence</p>
+                  </div>
+
+                  <div class="rpt-metric-row">
+                    <div class="rpt-metric-header">
+                      <span class="rpt-metric-name">Texture</span>
+                      <span class="rpt-metric-score">{{ routine()!.skinMetrics!.texture }}<span class="rpt-denom">/100</span></span>
+                    </div>
+                    <div class="rpt-bar-track">
+                      <div class="rpt-bar-fill" [style.width.%]="routine()!.skinMetrics!.texture" [class.high]="routine()!.skinMetrics!.texture >= 70"></div>
+                    </div>
+                    <p class="rpt-metric-desc">Surface smoothness, pore size, and skin texture</p>
+                  </div>
+                </div>
+
+                <!-- Sensitivity index full-width -->
+                <div class="rpt-sensitivity" *ngIf="routine()!.skinMetrics">
+                  <div class="rpt-sens-top">
+                    <div>
+                      <p class="rpt-sens-name">Sensitivity Index</p>
+                      <p class="rpt-sens-sub">Reactivity level to environmental factors</p>
+                    </div>
+                    <div class="rpt-sens-right">
+                      <span class="rpt-sens-pct">{{ routine()!.skinMetrics!.sensitivity }}%</span>
+                      <span class="rpt-sens-tag" [class.danger]="routine()!.skinMetrics!.sensitivity > 60">
+                        {{ routine()!.skinMetrics!.sensitivity > 60 ? 'CARE REQUIRED' : 'NORMAL RANGE' }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="rpt-sens-track">
+                    <div class="rpt-sens-fill" [style.width.%]="routine()!.skinMetrics!.sensitivity"
+                         [class.danger]="routine()!.skinMetrics!.sensitivity > 60"></div>
+                  </div>
+                </div>
+
+                <!-- CTA -->
+                <button class="rpt-cta-btn" (click)="activeTab.set('routine')">
+                  View Personalized AI Routine <span class="rpt-cta-arrow">→</span>
+                </button>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+
+        <!-- ═══ TAB 3: AI ROUTINE GRID ═══ -->
+        <div *ngIf="activeTab() === 'routine'" class="routine-tab-v2">
+
+          <!-- Loading -->
+          <div class="routine-loading" *ngIf="isLoadingRoutine()">
+            <div class="routine-skeleton" *ngFor="let i of [1,2,3]"></div>
+            <p class="loading-text">Gemini AI is generating your personalized routine...</p>
+          </div>
+
+          <ng-container *ngIf="!isLoadingRoutine() && routine()">
+
+            <!-- Routine header -->
+            <div class="routine-v2-header">
+              <div class="routine-v2-header-info">
+                <h4>AI Morning Regimen</h4>
+                <p>{{ routine()!.skinType || skinProfile()?.skinType }} · {{ routine()!.routine.length }} steps</p>
+              </div>
+              <button class="btn-add-all" (click)="addAllToCart()">
+                ADD ALL TO CART
+              </button>
+            </div>
+
+            <!-- Step flow diagram -->
+            <div class="step-flow" *ngIf="routine()!.routine.length > 0">
+              <div class="step-flow-item" *ngFor="let step of routine()!.routine; let i = index; let last = last"
+                   [class.skipped]="skippedSteps().has(step.step)">
+                <div class="step-flow-circle" [class.active]="i === 0" [class.skipped]="skippedSteps().has(step.step)">
+                  <span>{{ i + 1 }}</span>
+                </div>
+                <div class="step-flow-label">STEP {{ i + 1 }}</div>
+                <div class="step-flow-name">{{ step.step }}</div>
+                <div class="step-flow-line" *ngIf="!last"></div>
+              </div>
+            </div>
+
+            <!-- Empty routine state -->
+            <div class="routine-empty" *ngIf="routine()!.routine.length === 0">
+              <p>Routine is loading. AI is matching suitable products...</p>
+            </div>
+
+            <!-- Product Cards Grid -->
+            <div class="product-grid" *ngIf="routine()!.routine.length > 0">
+              <div class="product-card" *ngFor="let step of routine()!.routine"
+                   [class.skipped]="skippedSteps().has(step.step)">
+                <div class="product-card-badge">{{ step.step }}</div>
+                <button class="btn-skip-step" (click)="toggleSkipStep(step.step)"
+                        [title]="skippedSteps().has(step.step) ? 'Restore this step' : 'Skip this step'">
+                  {{ skippedSteps().has(step.step) ? 'Restore' : 'Skip' }}
+                </button>
+                <div class="product-card-img-wrap">
+                  <img
+                    *ngIf="step.product?.Thumbnail_Images"
+                    [src]="resolveImage(step.product?.Thumbnail_Images)"
+                    [alt]="step.product?.Name"
+                    (error)="$any($event.target).src='https://placehold.co/200x200/f5f5f5/E8111A?text=' + step.step"/>
+                  <div *ngIf="!step.product?.Thumbnail_Images" class="product-card-no-img">
+                    <span class="product-card-step-icon">{{ step.step[0] }}</span>
+                  </div>
+                </div>
+                <div class="product-card-body">
+                  <h5>{{ step.product?.Name || step.step }}</h5>
+                  <p class="product-card-price" *ngIf="step.product?.Price">${{ step.product!.Price | number:'1.2-2' }}</p>
+                  <p class="product-card-reason">{{ step.reason }}</p>
+                  <button
+                    class="btn-card-add"
+                    [disabled]="!step.product?.Product_ID || skippedSteps().has(step.step)"
+                    (click)="addRoutineProductToCart(step)"
+                  >{{ step.product ? 'Add to Cart' : 'Updating product...' }}</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Skin Evolution -->
+            <ng-container *ngIf="routine()!.skinEvolution && getAdjustedEvolution() as evo">
+              <div class="evolution-section">
+                <h4 class="evolution-title">Your Skin Evolution</h4>
+                <p class="evolution-sub">Predicted results after 28 days of consistent use</p>
+
+                <!-- Warning when steps are skipped -->
+                <div class="evolution-skip-note" *ngIf="evo.isReduced">
+                  {{ evo.skippedCount }} step(s) skipped — predicted improvement reduced accordingly
+                </div>
+
+                <div class="evolution-grid">
+                  <div class="evolution-card current">
+                    <span class="evo-label">CURRENT STATUS</span>
+                    <div class="evo-metrics-list">
+                      <div class="evo-metric">
+                        <div class="evo-metric-header">
+                          <span>Hydration</span>
+                          <span>{{ evo.current.hydration }}%</span>
+                        </div>
+                        <div class="evo-track"><div class="evo-fill" [style.width.%]="evo.current.hydration"></div></div>
+                      </div>
+                      <div class="evo-metric">
+                        <div class="evo-metric-header">
+                          <span>Texture Smoothness</span>
+                          <span>{{ evo.current.texture }}%</span>
+                        </div>
+                        <div class="evo-track"><div class="evo-fill" [style.width.%]="evo.current.texture"></div></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="evolution-card predicted">
+                    <span class="evo-label">PREDICTED AFTER 28 DAYS</span>
+                    <div class="evo-metrics-list">
+                      <div class="evo-metric">
+                        <div class="evo-metric-header">
+                          <span>Hydration</span>
+                          <span class="evo-delta-inline">
+                            {{ evo.predicted.hydration }}%
+                            <em>(+{{ evo.predicted.hydration - evo.current.hydration }}%)</em>
+                          </span>
+                        </div>
+                        <div class="evo-track"><div class="evo-fill predicted-fill" [style.width.%]="evo.predicted.hydration"></div></div>
+                      </div>
+                      <div class="evo-metric">
+                        <div class="evo-metric-header">
+                          <span>Texture Smoothness</span>
+                          <span class="evo-delta-inline">
+                            {{ evo.predicted.texture }}%
+                            <em>(+{{ evo.predicted.texture - evo.current.texture }}%)</em>
+                          </span>
+                        </div>
+                        <div class="evo-track"><div class="evo-fill predicted-fill" [style.width.%]="evo.predicted.texture"></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- Expert advice -->
+            <div class="expert-advice" *ngIf="routine()!.advice">
+              <p>{{ routine()!.advice }}</p>
+              <span class="advice-note">This routine is optimized for your current skin condition and environment.</span>
+            </div>
+
+            <!-- Bottom actions -->
+            <div class="routine-v2-actions">
+              <button class="btn-add-all-lg" (click)="addAllToCart()">
+                ADD FULL ROUTINE TO CART
+              </button>
+              <button class="btn-save-profile" (click)="closeModal()">SAVE TO PROFILE</button>
+            </div>
+          </ng-container>
+
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- Toast -->
+  <div class="toast" *ngIf="toastMessage()">{{ toastMessage() }}</div>
+</div>

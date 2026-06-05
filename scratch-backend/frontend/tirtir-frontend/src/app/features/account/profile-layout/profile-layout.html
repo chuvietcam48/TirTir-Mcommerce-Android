@@ -1,0 +1,43 @@
+<div class="profile-layout">
+    <div class="container">
+        <div class="layout-grid">
+            <!-- Sidebar Navigation -->
+            <aside class="sidebar">
+                <!-- User Avatar Mini-Card -->
+                <div class="sidebar-user-card">
+                    <div class="sidebar-avatar" aria-hidden="true">{{ userInitials || 'U' }}</div>
+                    <div class="sidebar-user-info">
+                        <div class="sidebar-greeting-name">{{ userName || 'My Account' }}</div>
+                        <div class="sidebar-user-email" *ngIf="userEmail">{{ userEmail }}</div>
+                    </div>
+                </div>
+
+                <nav class="sidebar-nav" aria-label="Account navigation">
+                    @for (item of menuItems; track item.path) {
+                    <a [routerLink]="item.path" routerLinkActive="active" #rla="routerLinkActive" class="nav-item"
+                       [attr.aria-current]="rla.isActive ? 'page' : null">
+                        <span class="nav-dot" *ngIf="rla.isActive"></span>
+                        <span class="nav-label">{{ item.label }}</span>
+                    </a>
+                    }
+
+                    <!-- Divider before logout -->
+                    <div class="sidebar-divider"></div>
+
+                    <!-- Logout Button -->
+                    <button class="nav-item nav-item--logout" (click)="logout()" type="button" id="logoutButton">
+                        <span class="nav-label">Sign Out</span>
+                        <svg class="logout-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                            <path d="M6 2H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3M10 11l3-3-3-3M13 8H6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="content">
+                <router-outlet></router-outlet>
+            </main>
+        </div>
+    </div>
+</div>

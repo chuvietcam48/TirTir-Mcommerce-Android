@@ -1,0 +1,22 @@
+<div class="failure-container">
+  <div class="failure-card">
+    <div class="icon-circle error-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </div>
+    
+    <h1 class="title">Payment Failed</h1>
+    <p class="subtitle">{{ errorMessage }}</p>
+    
+    <p class="notice">
+      Please check your payment details and try again. If the issue persists, contact your bank or try a different payment method.
+    </p>
+    
+    <div class="action-buttons">
+      <a routerLink="/checkout" class="btn btn-primary">Try Again</a>
+      <a routerLink="/cart" class="btn btn-secondary">Review Cart</a>
+    </div>
+  </div>
+</div>

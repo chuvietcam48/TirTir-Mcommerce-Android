@@ -1,0 +1,93 @@
+{
+  "evaluation_date": "2026-03-22T10:47:20.155403Z",
+  "total_test_cases": 96,
+  "core_cases": 75,
+  "boundary_cases": 21,
+  "skin_tone_classification": {
+    "accuracy": 1.0,
+    "correct": 96,
+    "macro_f1": 1.0,
+    "per_class": {
+      "Fair": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 16,
+        "fp": 0,
+        "fn": 0
+      },
+      "Light": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 25,
+        "fp": 0,
+        "fn": 0
+      },
+      "Medium": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 20,
+        "fp": 0,
+        "fn": 0
+      },
+      "Tan": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 18,
+        "fp": 0,
+        "fn": 0
+      },
+      "Deep": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 17,
+        "fp": 0,
+        "fn": 0
+      }
+    },
+    "core_accuracy": 1.0,
+    "boundary_accuracy": 1.0
+  },
+  "undertone_classification": {
+    "accuracy": 0.9167,
+    "correct": 88,
+    "macro_f1": 0.9186,
+    "per_class": {
+      "Cool": {
+        "precision": 1.0,
+        "recall": 0.8333,
+        "f1": 0.9091,
+        "tp": 25,
+        "fp": 0,
+        "fn": 5
+      },
+      "Warm": {
+        "precision": 0.9333,
+        "recall": 0.9655,
+        "f1": 0.9492,
+        "tp": 28,
+        "fp": 2,
+        "fn": 1
+      },
+      "Neutral": {
+        "precision": 0.8537,
+        "recall": 0.9459,
+        "f1": 0.8974,
+        "tp": 35,
+        "fp": 6,
+        "fn": 2
+      }
+    },
+    "core_accuracy": 0.9333,
+    "boundary_accuracy": 0.8571
+  },
+  "combined_both_correct": {
+    "accuracy": 0.9167,
+    "correct": 88
+  },
+  "methodology": "Controlled algorithm benchmark using 95 reference LAB colour values with deterministic ground-truth labels derived from the documented threshold boundaries of skin_analyzer.py. No MediaPipe or real face images required — tests the pure classification logic in isolation."
+}

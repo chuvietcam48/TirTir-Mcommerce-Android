@@ -1,0 +1,63 @@
+<div class="low-stock-container">
+    <div class="page-header">
+        <div>
+            <h1>Low Stock Alerts</h1>
+            <p class="subtitle">Products with stock less than 20 units</p>
+        </div>
+        <button class="btn btn-outline" routerLink="/products">
+            ← Back to Products
+        </button>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading low stock products...</p>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error && !loading" class="error-state">
+        <p>{{ error }}</p>
+        <button class="btn btn-primary" (click)="loadLowStockProducts()">Retry</button>
+    </div>
+
+    <!-- Products List -->
+    <div *ngIf="!loading && !error" class="alerts-grid">
+        <div *ngFor="let product of lowStockProducts" class="alert-card">
+            <div class="card-header" [class.critical]="product.stock <= 10">
+                <span class="status-badge" [class]="getStockStatus(product.stock)">
+                    {{ getStockLabel(product.stock) }}
+                </span>
+                <span class="stock-count">{{ product.stock }} units left</span>
+            </div>
+
+            <div class="card-body">
+                <img [src]="getMainImage(product)" [alt]="product.Product_Name" class="product-image" />
+
+                <div class="product-info">
+                    <h3>{{ product.Product_Name }}</h3>
+                    <p class="sku">SKU: {{ product.Product_ID }}</p>
+                    <p class="category">{{ product.Category }}</p>
+                    <p class="price">${{ product.Price.toFixed(2) }}</p>
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <button class="btn btn-primary btn-sm" (click)="quickRestock(product)">
+                    Quick Restock
+                </button>
+                <button class="btn btn-outline btn-sm" [routerLink]="['/products/edit', product._id]">
+                    Edit Product
+                </button>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="lowStockProducts.length === 0" class="empty-state">
+            <span class="empty-icon">✅</span>
+            <h2>All Good!</h2>
+            <p>No products with low stock</p>
+            <button class="btn btn-primary" routerLink="/products">View All Products</button>
+        </div>
+    </div>
+</div>

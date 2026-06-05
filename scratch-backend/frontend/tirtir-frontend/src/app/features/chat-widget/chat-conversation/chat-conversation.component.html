@@ -1,0 +1,84 @@
+<div class="conversation-container">
+    <div class="header">
+        <button class="back-btn" (click)="goBack()">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <div class="title">
+            <div class="logo-circle">T/R</div>
+            <span>TIRTIR GLOBAL</span>
+        </div>
+        <div class="actions">
+            <button><i class="fas fa-ellipsis-h"></i></button>
+        </div>
+    </div>
+
+    <div class="chat-area" #scrollContainer>
+        <div class="date-divider"><span>Today</span></div>
+
+        <div class="message-group" *ngFor="let msg of messages" [class.user]="msg.sender === 'user'"
+            [class.bot]="msg.sender === 'bot'">
+            <div class="avatar" *ngIf="msg.sender === 'bot'">
+                <span>T/R</span>
+            </div>
+            <div class="bubble">
+                <p>{{ msg.text }}</p>
+
+                <!-- Product Recommendation Card -->
+                <ng-container *ngIf="msg.productData">
+                    <div class="product-card">
+                        <img [src]="msg.productData.image" [alt]="msg.productData.name" class="product-img">
+                        <div class="product-info">
+                            <h4>{{ msg.productData.name }}</h4>
+                            <p class="price">₫{{ (msg.productData.price || 0) | number:'1.0-0' }}</p>
+                            <p class="description">{{ msg.productData.desc }}</p>
+                            <div class="product-actions"
+                                style="display: flex; gap: 8px; margin-top: 8px; align-items: center;">
+                                <a [href]="'/products/' + msg.productData.slug" class="view-product-btn"
+                                    style="flex: 1; text-align: center;">
+                                    Xem chi tiết
+                                </a>
+                                <button class="add-to-cart-btn" (click)="addToCart(msg.productData)"
+                                    style="flex: 1; background: #000; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: background 0.3s;"
+                                    onmouseover="this.style.background='#333'"
+                                    onmouseout="this.style.background='#000'">
+                                    <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+            <div class="time">{{ msg.timestamp | date:'shortTime' }}</div>
+        </div>
+
+        <div class="message-group bot" *ngIf="isTyping && currentBotMessage">
+            <div class="avatar">
+                <span>T/R</span>
+            </div>
+            <div class="bubble">
+                <p>{{ currentBotMessage }}</p>
+            </div>
+        </div>
+
+        <div class="typing-indicator" *ngIf="isTyping && !currentBotMessage">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+
+        <div class="quick-replies" *ngIf="quickReplies.length > 0">
+            <button class="chip" *ngFor="let reply of quickReplies" (click)="sendQuickReply(reply)">
+                {{ reply.icon }} {{ reply.label }}
+            </button>
+        </div>
+    </div>
+
+    <div class="input-area">
+        <button class="attach-btn"><i class="fas fa-plus"></i></button>
+        <input type="text" [placeholder]="langService.t('conversation.inputPlaceholder')" [(ngModel)]="newMessage"
+            (keyup.enter)="sendMessage()">
+        <button class="send-btn" [disabled]="!newMessage.trim()" (click)="sendMessage()">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+</div>

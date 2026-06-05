@@ -1,0 +1,255 @@
+<div class="address-book">
+
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="eyebrow">My Account</div>
+            <div class="page-title">Address book</div>
+            @if (!loading) {
+            <div class="addr-count">{{ addresses.length }} saved {{ addresses.length === 1 ? 'address' : 'addresses' }}</div>
+            }
+        </div>
+        <button class="add-btn" (click)="openAddForm()" [disabled]="loading">
+            <svg viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Add Address
+        </button>
+    </div>
+
+    <!-- Alerts -->
+    @if (successMessage) {
+    <div class="alert alert-success">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        {{ successMessage }}
+    </div>
+    }
+    @if (errorMessage) {
+    <div class="alert alert-error">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/></svg>
+        {{ errorMessage }}
+    </div>
+    }
+
+    <!-- Loading -->
+    @if (loading && addresses.length === 0) {
+    <div class="loading-state"><div class="spinner"></div></div>
+    }
+
+    <!-- Empty -->
+    @else if (!loading && addresses.length === 0) {
+    <div class="empty-state">
+        <svg class="empty-icon" viewBox="0 0 40 40" fill="none">
+            <path d="M20 4C13.373 4 8 9.373 8 16c0 9 12 20 12 20s12-11 12-20c0-6.627-5.373-12-12-12z" stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="20" cy="16" r="3.5" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <p>No addresses saved yet</p>
+        <button class="add-btn" (click)="openAddForm()">
+            <svg viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Add Address
+        </button>
+    </div>
+    }
+
+    <!-- Address Grid -->
+    @else if (addresses.length > 0) {
+    <div class="addresses-grid">
+        @for (address of addresses; track address._id) {
+        <div class="address-col" [class.is-default]="address.isDefault">
+
+            <!-- Default label — inline, top of card -->
+            @if (address.isDefault) {
+            <div class="default-label">
+                <svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Default
+            </div>
+            }
+
+            <div class="addr-name">{{ address.fullName }}</div>
+
+            <div class="addr-phone">
+                <svg viewBox="0 0 16 16" fill="none">
+                    <path d="M3 2h3l1.5 3.5L6 7a10 10 0 0 0 3 3l1.5-1.5L14 10v3a1 1 0 0 1-1 1A12 12 0 0 1 2 3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                {{ address.phone }}
+            </div>
+
+            <div class="addr-lines" [class.addr-lines--default]="address.isDefault">
+                <div>{{ address.street }}</div>
+                <div>{{ address.ward }}, {{ address.district }}</div>
+                <div>{{ address.city }}</div>
+            </div>
+
+            <div class="addr-divider"></div>
+
+            <div class="addr-actions">
+                @if (!address.isDefault) {
+                <button class="action-btn action-btn--default" (click)="setAsDefault(address._id)" [disabled]="loading">Set as Default</button>
+                }
+                <button class="action-btn action-btn--outline" (click)="openEditForm(address)" [disabled]="loading">
+                    <svg viewBox="0 0 14 14" fill="none"><path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Edit
+                </button>
+                <button class="action-btn action-btn--outline" (click)="deleteAddress(address._id)" [disabled]="loading">
+                    <svg viewBox="0 0 14 14" fill="none"><path d="M2 4h10M5 4V2.5h4V4M5.5 6.5v4M8.5 6.5v4M3 4l.75 7.5h6.5L11 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Delete
+                </button>
+            </div>
+        </div>
+        }
+    </div>
+    }
+
+</div>
+
+<!-- Address Form Modal -->
+@if (showForm) {
+<div class="modal-overlay" (click)="closeForm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+        <div class="modal-head">
+            <div class="modal-title">{{ editMode ? 'Edit Address' : 'Add New Address' }}</div>
+            <button class="modal-close" (click)="closeForm()">
+                <svg viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+        </div>
+
+        <form [formGroup]="addressForm" (ngSubmit)="onSubmit()" class="modal-form">
+
+            <!-- Contact info -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" formControlName="fullName" class="form-input" placeholder="Nguyen Van A">
+                    @if (addressForm.get('fullName')?.invalid && addressForm.get('fullName')?.touched) {
+                    <span class="field-error">Full name is required</span>
+                    }
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" formControlName="phone" class="form-input" placeholder="0901234567">
+                    @if (addressForm.get('phone')?.invalid && addressForm.get('phone')?.touched) {
+                    <span class="field-error">Phone must be 10–11 digits</span>
+                    }
+                </div>
+            </div>
+
+            <div class="cascade-divider">
+                <span>Delivery address</span>
+            </div>
+
+            <!-- Step 1: Province -->
+            <div class="form-group">
+                <label for="city">
+                    <span class="step-num">1</span> Province / City
+                </label>
+                <select id="city" formControlName="city" class="form-input form-select" (change)="onProvinceChange($event)">
+                    <option value="">Select province / city</option>
+                    @for (province of provinces; track province.id) {
+                    <option [value]="province.id + '|' + province.full_name">{{ province.full_name }}</option>
+                    }
+                </select>
+                @if (addressForm.get('city')?.invalid && addressForm.get('city')?.touched) {
+                <span class="field-error">Province is required</span>
+                }
+            </div>
+
+            <!-- Step 2 & 3: District + Ward (same row) -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="district" [class.label-locked]="addressForm.get('district')?.disabled">
+                        <span class="step-num">2</span> District
+                        @if (addressForm.get('district')?.disabled) {
+                        <span class="lock-hint">— select province first</span>
+                        }
+                    </label>
+                    <select id="district" formControlName="district"
+                        class="form-input form-select"
+                        [class.input-locked]="addressForm.get('district')?.disabled"
+                        (change)="onDistrictChange($event)">
+                        <option value="">Select district</option>
+                        @for (district of districts; track district.id) {
+                        <option [value]="district.id + '|' + district.full_name">{{ district.full_name }}</option>
+                        }
+                    </select>
+                    @if (addressForm.get('district')?.invalid && addressForm.get('district')?.touched) {
+                    <span class="field-error">District is required</span>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label for="ward" [class.label-locked]="addressForm.get('ward')?.disabled">
+                        <span class="step-num">3</span> Ward / Commune
+                        @if (addressForm.get('ward')?.disabled) {
+                        <span class="lock-hint">— select district first</span>
+                        }
+                    </label>
+                    <select id="ward" formControlName="ward"
+                        class="form-input form-select"
+                        [class.input-locked]="addressForm.get('ward')?.disabled"
+                        (change)="onWardChange($event)">
+                        <option value="">Select ward</option>
+                        @for (ward of wards; track ward.id) {
+                        <option [value]="ward.id + '|' + ward.full_name">{{ ward.full_name }}</option>
+                        }
+                    </select>
+                    @if (addressForm.get('ward')?.invalid && addressForm.get('ward')?.touched) {
+                    <span class="field-error">Ward is required</span>
+                    }
+                </div>
+            </div>
+
+            <!-- Step 4: Street with autocomplete -->
+            <div class="form-group street-group">
+                <label for="street" [class.label-locked]="addressForm.get('street')?.disabled">
+                    <span class="step-num">4</span> Street Address
+                    @if (addressForm.get('street')?.disabled) {
+                    <span class="lock-hint">— select ward first</span>
+                    }
+                </label>
+                <div class="street-wrap" (click)="$event.stopPropagation()">
+                    <input type="text" id="street" formControlName="street"
+                        class="form-input"
+                        [class.input-locked]="addressForm.get('street')?.disabled"
+                        placeholder="House number, street name..."
+                        autocomplete="off"
+                        (input)="onStreetInput($event)">
+
+                    @if (showSuggestions && streetSuggestions.length > 0) {
+                    <div class="suggestions-dropdown">
+                        @for (s of streetSuggestions; track s) {
+                        <div class="suggestion-item" (click)="selectSuggestion(s)">
+                            <svg viewBox="0 0 14 14" fill="none">
+                                <path d="M7 2C4.791 2 3 3.791 3 6c0 3 4 8 4 8s4-5 4-8c0-2.209-1.791-4-4-4z" stroke="currentColor" stroke-width="1.2"/>
+                                <circle cx="7" cy="6" r="1.5" stroke="currentColor" stroke-width="1.2"/>
+                            </svg>
+                            {{ s }}
+                        </div>
+                        }
+                    </div>
+                    }
+                </div>
+                @if (addressForm.get('street')?.invalid && addressForm.get('street')?.touched) {
+                <span class="field-error">Street address is required</span>
+                }
+                @if (selectedWardName) {
+                <span class="street-context">{{ selectedWardName }}, {{ selectedDistrictName }}, {{ selectedProvinceName }}</span>
+                }
+            </div>
+
+            <!-- Default checkbox -->
+            <label class="checkbox-row">
+                <input type="checkbox" formControlName="isDefault" class="checkbox-input">
+                <span class="checkbox-label">Set as default address</span>
+            </label>
+
+            <!-- Actions -->
+            <div class="modal-actions">
+                <button type="submit" class="action-btn action-btn--default" [disabled]="loading || addressForm.invalid">
+                    @if (loading) { <span class="btn-spinner"></span> Saving... } @else { {{ editMode ? 'Update Address' : 'Add Address' }} }
+                </button>
+                <button type="button" class="action-btn action-btn--outline" (click)="closeForm()">Cancel</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+}
