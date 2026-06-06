@@ -272,6 +272,49 @@ public class ProfileFragment extends Fragment {
             ivAvatar.setVisibility(View.INVISIBLE);
             tvInitials.setVisibility(View.VISIBLE);
         }
+
+        // Lấy thông tin mở rộng từ Firestore (role, skinType, loyalty fields)
+        try {
+            com.google.firebase.auth.FirebaseUser firebaseUser = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+            if (firebaseUser != null) {
+                com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                        .collection("users")
+                        .document(firebaseUser.getUid())
+                        .addSnapshotListener((documentSnapshot, e) -> {
+                            if (e != null) {
+                                android.util.Log.e("ProfileFragment", "Firestore listen failed.", e);
+                                return;
+                            }
+
+                            if (documentSnapshot != null && documentSnapshot.exists()) {
+                                String skinType = documentSnapshot.getString("skinType");
+                                String loyaltyTier = documentSnapshot.getString("loyaltyTier");
+                                Long loyaltyPoints = documentSnapshot.getLong("loyaltyPoints");
+
+                                if (skinType != null && !skinType.isEmpty()) {
+                                    chipSkinType.setText("Skin: " + skinType);
+                                    chipSkinType.setVisibility(View.VISIBLE);
+                                } else {
+                                    chipSkinType.setVisibility(View.GONE);
+                                }
+
+                                if (loyaltyTier != null) {
+                                    tvLoyaltyTier.setText("Tier: " + loyaltyTier.substring(0, 1).toUpperCase() + loyaltyTier.substring(1));
+                                } else {
+                                    tvLoyaltyTier.setText("Tier: Silver");
+                                }
+
+                                if (loyaltyPoints != null) {
+                                    tvLoyaltyPoints.setText("Points: " + loyaltyPoints);
+                                } else {
+                                    tvLoyaltyPoints.setText("Points: 0");
+                                }
+                            }
+                        });
+            }
+        } catch (Exception ex) {
+            android.util.Log.e("ProfileFragment", "Error loading Firestore profile", ex);
+        }
     }
 
     // ===========================

@@ -12,6 +12,7 @@ import com.example.tirtir_mcommerce.model.User;
 import com.example.tirtir_mcommerce.network.ApiService;
 import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
+import com.example.tirtir_mcommerce.data.repository.CloudRepository;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -30,10 +31,12 @@ import retrofit2.Response;
  */
 public class AuthRepository {
 
+    private final Context context;
     private final ApiService apiService;
     private final SharedPrefsManager prefsManager;
 
     public AuthRepository(Context context) {
+        this.context = context.getApplicationContext();
         this.apiService = RetrofitClient.getClient().create(ApiService.class);
         this.prefsManager = new SharedPrefsManager(context);
     }
@@ -65,6 +68,19 @@ public class AuthRepository {
                         // Lưu cache user nếu có
                         if (body.getUser() != null) {
                             prefsManager.saveUser(body.getUser());
+                            
+                            // Đồng bộ với Firebase/Firestore bất đồng bộ
+                            try {
+                                CloudRepository cloudRepository = new CloudRepository(context);
+                                cloudRepository.ensureFirebaseUser(firebaseUid -> {
+                                    if (firebaseUid != null) {
+                                        cloudRepository.syncUserProfileToFirestore(body.getUser());
+                                        cloudRepository.syncFcmToken();
+                                    }
+                                });
+                            } catch (Exception e) {
+                                android.util.Log.e("AuthRepository", "Firebase sync failed", e);
+                            }
                         }
                         onSuccess.onSuccess(body.getUser());
                     } else {
