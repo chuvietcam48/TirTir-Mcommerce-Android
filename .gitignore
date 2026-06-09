@@ -22,5 +22,6 @@ app/google-services.json
 scratch-backend/node_modules/
 scratch-backend/.env
 scratch-backend/backend/.env
+scratch-backend/config/serviceAccountKey.json
 # Firebase service account keys — NEVER commit private keys
 *firebase-adminsdk*.json
