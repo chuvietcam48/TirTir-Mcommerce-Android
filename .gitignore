@@ -21,3 +21,4 @@ app/google-services.json
 # scratch-backend is part of this repo
 scratch-backend/node_modules/
 scratch-backend/.env
+scratch-backend/config/serviceAccountKey.json
