@@ -2,40 +2,48 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // === USERS ===
-    // Chỉ user đúng uid mới đọc/ghi được profile của mình
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    function signedIn() {
+      return request.auth != null;
     }
 
-    // === PRODUCTS ===
-    // Ai cũng đọc được, chỉ backend mới ghi (không có client nào được write)
-    match /products/{productId} {
-      allow read: if true;
-      allow write: if false;
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
     }
 
-    // === ORDERS ===
-    // Đọc/ghi: chỉ chủ đơn hàng
-    // Create: userId trong request phải khớp auth uid
-    match /orders/{orderId} {
-      allow read, update, delete: if request.auth != null
-        && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null
-        && request.auth.uid == request.resource.data.userId;
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
-    // === WISHLISTS ===
-    // Wishlist được lưu theo uid, chỉ chủ sở hữu truy cập
-    match /wishlists/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    match /users/{uid} {
+      allow read, create, update: if isOwner(uid) || isAdmin();
+      allow delete: if isAdmin();
 
-      match /items/{itemId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+      match /fcmTokens/{tokenId} {
+        allow read, write: if isOwner(uid) || isAdmin();
       }
     }
 
-    // === DEFAULT: chặn tất cả còn lại ===
+    match /carts/{uid} {
+      allow read, write: if isOwner(uid) || isAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow read: if signedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if signedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    match /wishlists/{uid} {
+      allow read, write: if isOwner(uid) || isAdmin();
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

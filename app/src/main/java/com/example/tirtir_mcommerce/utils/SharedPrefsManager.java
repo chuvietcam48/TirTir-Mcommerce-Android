@@ -22,6 +22,8 @@ public class SharedPrefsManager {
     private static final String KEY_TOKEN = "jwt_token";
     private static final String KEY_USER = "cached_user";
     private static final String KEY_LANGUAGE = "app_language";
+    private static final String KEY_FCM_TOKEN = "fcm_token";
+    private static final String KEY_FIREBASE_UID = "firebase_uid";
 
     private final SharedPreferences sharedPreferences;
     private final Gson gson;
@@ -46,6 +48,33 @@ public class SharedPrefsManager {
 
     public boolean isLoggedIn() {
         return getToken() != null && !getToken().isEmpty();
+    }
+
+    // ===========================
+    // CLOUD / FIREBASE
+    // ===========================
+
+    public void saveFcmToken(String token) {
+        sharedPreferences.edit().putString(KEY_FCM_TOKEN, token).apply();
+    }
+
+    public String getFcmToken() {
+        return sharedPreferences.getString(KEY_FCM_TOKEN, null);
+    }
+
+    public void saveFirebaseUid(String uid) {
+        sharedPreferences.edit().putString(KEY_FIREBASE_UID, uid).apply();
+    }
+
+    public String getFirebaseUid() {
+        return sharedPreferences.getString(KEY_FIREBASE_UID, null);
+    }
+
+    public void clearCloudSession() {
+        sharedPreferences.edit()
+                .remove(KEY_FCM_TOKEN)
+                .remove(KEY_FIREBASE_UID)
+                .apply();
     }
 
     // ===========================

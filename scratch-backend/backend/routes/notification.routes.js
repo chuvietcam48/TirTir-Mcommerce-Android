@@ -3,7 +3,9 @@ const {
     getMyNotifications,
     markAsRead,
     markAllAsRead,
-    deleteNotification
+    deleteNotification,
+    registerFcmToken,
+    sendTestPush
 } = require('../controllers/notification.controller');
 
 const router = express.Router();
@@ -11,6 +13,9 @@ const router = express.Router();
 const { protect } = require('../middlewares/auth');
 
 router.use(protect); // All routes are protected
+
+router.post('/fcm-token', registerFcmToken);
+router.post('/test-push', sendTestPush);
 
 router
     .route('/')

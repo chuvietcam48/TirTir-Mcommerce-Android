@@ -1,5 +1,7 @@
 const Notification = require('../models/notification.model');
-const ErrorResponse = require('../utils/errorResponse'); // Assuming this exists based on other controllers
+const User = require('../models/user.model');
+const firebaseAdmin = require('../services/firebaseAdmin.service');
+const ErrorResponse = require('../utils/errorResponse');
 
 // @desc    Get my notifications
 // @route   GET /api/v1/notifications
@@ -107,10 +109,105 @@ exports.createNotification = async (userId, type, title, message, link, image) =
             link,
             image
         });
+
+        // Gửi push notification thông qua FCM bất đồng bộ nếu Firebase đã cấu hình
+        if (firebaseAdmin.isFirebaseEnabled()) {
+            firebaseAdmin.sendPushToUser(userId, {
+                title,
+                body: message,
+                data: {
+                    type: type || 'system',
+                    link: link || '',
+                    notificationId: String(notification._id)
+                }
+            }).catch(pushErr => {
+                console.error('FCM Push Notification failed inside createNotification:', pushErr.message);
+            });
+        }
+
         return notification;
     } catch (err) {
         console.error('Error creating notification:', err);
         // We explicitly do NOT throw here to prevent blocking the main flow (e.g. order creation)
         return null;
+    }
+};
+
+// @desc    Register FCM Token
+// @route   POST /api/v1/notifications/fcm-token
+// @access  Private
+exports.registerFcmToken = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const { token, platform, firebaseUid, deviceModel, appVersion } = req.body;
+
+        if (!token) {
+            return next(new ErrorResponse('Please provide an FCM token', 400));
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return next(new ErrorResponse('User not found', 404));
+        }
+
+        if (!user.fcmTokens) {
+            user.fcmTokens = [];
+        }
+
+        const tokenIndex = user.fcmTokens.findIndex(item => item.token === token);
+
+        if (tokenIndex > -1) {
+            user.fcmTokens[tokenIndex].active = true;
+            user.fcmTokens[tokenIndex].lastSeenAt = new Date();
+            if (firebaseUid) user.fcmTokens[tokenIndex].firebaseUid = firebaseUid;
+            if (platform) user.fcmTokens[tokenIndex].platform = platform;
+            if (deviceModel) user.fcmTokens[tokenIndex].deviceModel = deviceModel;
+            if (appVersion) user.fcmTokens[tokenIndex].appVersion = appVersion;
+        } else {
+            user.fcmTokens.push({
+                token,
+                platform: platform || 'android',
+                firebaseUid,
+                deviceModel,
+                appVersion,
+                active: true,
+                lastSeenAt: new Date(),
+                createdAt: new Date()
+            });
+        }
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'FCM token registered successfully'
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc    Send test push notification to user
+// @route   POST /api/v1/notifications/test-push
+// @access  Private
+exports.sendTestPush = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        
+        if (!firebaseAdmin.isFirebaseEnabled()) {
+            return res.status(503).json({
+                success: false,
+                message: 'Firebase push service is not configured/enabled on the server.'
+            });
+        }
+
+        const result = await firebaseAdmin.sendTestPush(userId);
+
+        res.status(200).json({
+            success: true,
+            data: result
+        });
+    } catch (err) {
+        next(err);
     }
 };

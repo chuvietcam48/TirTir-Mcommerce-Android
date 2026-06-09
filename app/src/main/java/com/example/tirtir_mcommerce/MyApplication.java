@@ -5,6 +5,7 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 
 import com.google.firebase.FirebaseApp;
+import com.example.tirtir_mcommerce.utils.NotificationHelper;
 
 /**
  * MyApplication — Application class khởi tạo toàn bộ app.
@@ -20,6 +21,9 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         FirebaseApp.initializeApp(this);
+
+        // Khởi tạo các Notification Channel
+        NotificationHelper.createNotificationChannels(this);
 
         // Đăng ký NetworkReceiver để tự động sync giỏ hàng khi có mạng
         networkReceiver = new NetworkReceiver();

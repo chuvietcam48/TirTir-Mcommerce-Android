@@ -11,6 +11,7 @@ import com.example.tirtir_mcommerce.model.Product;
 import com.example.tirtir_mcommerce.model.ProductResponse;
 import com.example.tirtir_mcommerce.model.RegisterRequest;
 import com.example.tirtir_mcommerce.model.User;
+import com.example.tirtir_mcommerce.model.FcmTokenRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -204,4 +205,10 @@ public interface ApiService {
      */
     @GET("api/v1/orders/{id}")
     Call<ApiResponse<OrderResponse>> getOrderById(@Path("id") String orderId);
+
+    /**
+     * Đăng ký FCM Token lên backend - POST /api/v1/notifications/fcm-token
+     */
+    @POST("api/v1/notifications/fcm-token")
+    Call<ApiResponse<Object>> registerFcmToken(@Body FcmTokenRequest request);
 }

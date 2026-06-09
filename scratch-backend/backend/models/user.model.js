@@ -116,7 +116,20 @@ const UserSchema = new mongoose.Schema({
     wishlist: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product'
-    }]
+    }],
+    // ===== FCM TOKENS (Push Notification Tokens) =====
+    fcmTokens: [
+        {
+            token: { type: String, required: true },
+            platform: { type: String, default: 'android' },
+            firebaseUid: String,
+            deviceModel: String,
+            appVersion: String,
+            active: { type: Boolean, default: true },
+            lastSeenAt: { type: Date, default: Date.now },
+            createdAt: { type: Date, default: Date.now }
+        }
+    ]
 }, {
     timestamps: true
 });
