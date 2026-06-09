@@ -4,6 +4,7 @@ const Product = require('../models/product.model');
 const DailyStats = require('../models/daily.stats.model');
 const Cart = require('../models/cart.model');
 const { ORDER_STATUS } = require('../constants');
+const admin = require('firebase-admin');
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 const formatYmd = (d) => new Date(d).toISOString().slice(0, 10);
@@ -493,5 +494,96 @@ exports.getAllOrders = async (req, res) => {
     } catch (error) {
         console.error("Get All Orders Error:", error);
         res.status(500).json({ message: "Lỗi khi lấy danh sách đơn hàng" });
+    }
+};
+
+// PATCH /api/v1/admin/orders/:id/status
+// Update order status in MongoDB + sync to Firestore orders/{id}.status
+exports.updateOrderStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, note } = req.body;
+
+        const validStatuses = Object.values(ORDER_STATUS);
+        if (!status || !validStatuses.includes(status)) {
+            return res.status(400).json({
+                message: `Trạng thái không hợp lệ. Các giá trị hợp lệ: ${validStatuses.join(', ')}`
+            });
+        }
+
+        const order = await Order.findById(id);
+        if (!order) return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+
+        order.status = status;
+        // Append to status history
+        const history = Array.isArray(order.statusHistory) ? order.statusHistory : [];
+        history.push({ status, timestamp: new Date(), note: (note || '').trim() });
+        order.statusHistory = history;
+        await order.save();
+
+        // Sync to Firestore
+        try {
+            const db = admin.firestore();
+            await db.doc(`orders/${id}`).set(
+                { status, updatedAt: new Date().toISOString() },
+                { merge: true }
+            );
+        } catch (fsErr) {
+            console.warn('Firestore sync failed (non-fatal):', fsErr.message);
+        }
+
+        res.json({ message: 'Cập nhật trạng thái thành công', order: { _id: order._id, status: order.status } });
+    } catch (error) {
+        console.error('Update Order Status Error:', error);
+        res.status(500).json({ message: 'Lỗi khi cập nhật trạng thái đơn hàng' });
+    }
+};
+
+// GET /api/v1/admin/metrics?range=7d|30d|3m
+// Returns time-series revenue + order count grouped by day for the given range
+exports.getMetrics = async (req, res) => {
+    try {
+        const rangeMap = { '7d': 7, '30d': 30, '3m': 90 };
+        const rangeKey = req.query.range || '30d';
+        const days = rangeMap[rangeKey] || 30;
+
+        const from = new Date();
+        from.setDate(from.getDate() - days);
+        from.setHours(0, 0, 0, 0);
+
+        const orderMatch = {
+            createdAt: { $gte: from },
+            status: { $ne: ORDER_STATUS.CANCELLED }
+        };
+
+        const [series, totals] = await Promise.all([
+            Order.aggregate([
+                { $match: orderMatch },
+                {
+                    $group: {
+                        _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+                        revenue: { $sum: '$totalAmount' },
+                        orderCount: { $sum: 1 }
+                    }
+                },
+                { $sort: { _id: 1 } }
+            ]),
+            Order.aggregate([
+                { $match: orderMatch },
+                { $group: { _id: null, totalRevenue: { $sum: '$totalAmount' }, totalOrders: { $sum: 1 } } }
+            ])
+        ]);
+
+        res.json({
+            range: rangeKey,
+            from: from.toISOString().slice(0, 10),
+            to: new Date().toISOString().slice(0, 10),
+            totalRevenue: totals[0]?.totalRevenue || 0,
+            totalOrders: totals[0]?.totalOrders || 0,
+            series: series.map(p => ({ date: p._id, revenue: p.revenue, orderCount: p.orderCount }))
+        });
+    } catch (error) {
+        console.error('Metrics Error:', error);
+        res.status(500).json({ message: 'Lỗi khi lấy metrics' });
     }
 };

@@ -55,14 +55,40 @@ const productUploader = createUploader('products');
 const bannerUploader = createUploader('banners');
 const reviewUploader = createUploader('reviews');
 
+// Memory-based uploader for Firebase Storage (files go to req.files as buffers)
+const imageFileFilter = (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (extname && mimetype) {
+        cb(null, true);
+    } else {
+        cb(new Error('Only image files (jpg, jpeg, png, webp) are allowed'), false);
+    }
+};
+
+const memoryUploader = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 },
+    fileFilter: imageFileFilter,
+});
+
+// Used by admin product CRUD routes that upload to Firebase Storage
+const productFirebaseUploader = memoryUploader.fields([
+    { name: 'thumbnail', maxCount: 1 },
+    { name: 'gallery', maxCount: 10 },
+    { name: 'descriptionUrl', maxCount: 10 },
+]);
+
 module.exports = {
     uploadAvatar: avatarUploader.single('avatar'),
-    uploadProductImage: productUploader.single('image'), // Expects field name 'image'
+    uploadProductImage: productUploader.single('image'),
     productFieldsUploader: productUploader.fields([
         { name: 'thumbnail', maxCount: 1 },
         { name: 'gallery', maxCount: 10 },
         { name: 'descriptionUrl', maxCount: 10 }
     ]),
-    uploadBanner: bannerUploader.single('banner'), // Expects field name 'banner'
-    uploadReviewImage: reviewUploader.single('image') // Expects field name 'image'
+    productFirebaseUploader,
+    uploadBanner: bannerUploader.single('banner'),
+    uploadReviewImage: reviewUploader.single('image')
 };

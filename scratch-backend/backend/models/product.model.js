@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+// Required for ingredients Mixed type below
 
 const ProductSchema = new mongoose.Schema({
     Product_ID: { type: String, required: true, unique: true }, // PRD-MK-RED
@@ -36,7 +37,12 @@ const ProductSchema = new mongoose.Schema({
     Stock_Reserved: { type: Number, default: 0, min: 0 }, // Items held in pending orders
     
     // Analytics
-    views: { type: Number, default: 0 }
+    views: { type: Number, default: 0 },
+
+    // Phase 2 fields
+    isActive: { type: Boolean, default: true },
+    brand: { type: String, default: '' },
+    ingredients: { type: mongoose.Schema.Types.Mixed, default: null }
 }, { collection: 'products', timestamps: true });
 
 // Add Text Index for Advanced Search

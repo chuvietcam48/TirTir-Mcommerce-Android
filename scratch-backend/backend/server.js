@@ -318,6 +318,7 @@ app.use("/api/v1/settings", require("./routes/setting.routes")); // Add Settings
 app.use("/api/v1/marketing", require("./routes/marketing.routes")); // Add Marketing Routes
 app.use("/api/v1/notifications", require("./routes/notification.routes")); // Add Notification Routes
 app.use("/api/v1/shipping", require("./routes/shipping.routes")); // GHN Shipping Integration
+app.use("/api/v1/ingredient", require("./routes/ingredient.routes")); // Ingredient scan history (Firestore)
 
 // Sentry Error Handler (Must be before any other error middleware)
 if (process.env.SENTRY_DSN) {

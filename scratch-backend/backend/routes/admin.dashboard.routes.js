@@ -8,7 +8,9 @@ const {
     getTopProducts,
     getCustomerStats,
     getAllOrders,
-    getOrderStats
+    getOrderStats,
+    updateOrderStatus,
+    getMetrics
 } = require('../controllers/admin.dashboard.controller');
 const { getAllReviewsAdmin, deleteReview } = require('../controllers/review.controller');
 
@@ -36,6 +38,12 @@ router.get('/orders/stats', getOrderStats);
 
 // GET /api/admin/orders  (supports ?status=&search=&startDate=&endDate=)
 router.get('/orders', getAllOrders);
+
+// PATCH /api/admin/orders/:id/status — update order status + sync Firestore
+router.patch('/orders/:id/status', updateOrderStatus);
+
+// GET /api/admin/metrics?range=7d|30d|3m — time-series revenue + order count
+router.get('/metrics', getMetrics);
 
 // ─── Review Moderation ───────────────────────────────────
 // GET  /api/v1/admin/reviews        List all reviews (paginated, ?rating=)

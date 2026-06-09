@@ -38,10 +38,12 @@ try {
         }
     }
 
+    const storageBucket = process.env.FIREBASE_STORAGE_BUCKET;
     if (credential) {
         admin.initializeApp({
             credential,
-            projectId
+            projectId,
+            ...(storageBucket ? { storageBucket } : {})
         });
         firebaseEnabled = true;
         console.log('Firebase Admin SDK initialized successfully.');
@@ -50,7 +52,8 @@ try {
         try {
             admin.initializeApp({
                 credential: admin.credential.applicationDefault(),
-                projectId
+                projectId,
+                ...(storageBucket ? { storageBucket } : {})
             });
             firebaseEnabled = true;
             console.log('Firebase Admin: Initialized using applicationDefault.');

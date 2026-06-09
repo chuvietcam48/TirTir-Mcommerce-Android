@@ -2,6 +2,9 @@ const mongoose = require("mongoose");
 const Product = require("../models/product.model");
 const Shade = require("../models/shade.model");
 const StockHistory = require("../models/stock.history.model");
+const Order = require("../models/order.model");
+const { uploadProductFiles } = require("../services/firebaseStorage.service");
+const { ORDER_STATUS } = require("../constants");
 
 // Helper to generate slug from name
 const generateSlug = (name) => {
@@ -191,7 +194,7 @@ exports.getAllProducts = async (req, res) => {
 
         // 1. Build BASE MATCH stage (Price, Skin, Concern, Keyword)
         // These filters apply to EVERYTHING (products AND counts).
-        const baseMatch = {};
+        const baseMatch = { isActive: { $ne: false } }; // exclude soft-deleted products
 
         if (keyword) {
             const words = keyword.trim().split(/\s+/).filter(w => w.length > 0);
@@ -505,17 +508,31 @@ exports.createProduct = async (req, res) => {
     session.startTransaction();
     try {
         const files = req.files || {};
-        if (files.thumbnail) req.body.Thumbnail_Images = `/uploads/products/${files.thumbnail[0].filename}`;
+        const productId = req.body.Product_ID || `PRD-${Date.now()}`;
+
+        // Firebase Storage upload (memory-based files have .buffer)
+        if (files.thumbnail && files.thumbnail[0].buffer) {
+            const [url] = await uploadProductFiles(files.thumbnail, productId);
+            req.body.Thumbnail_Images = url;
+        } else if (files.thumbnail) {
+            req.body.Thumbnail_Images = `/uploads/products/${files.thumbnail[0].filename}`;
+        }
 
         if (files.gallery) {
-            const newGallery = files.gallery.map(f => `/uploads/products/${f.filename}`);
+            const hasBuffer = files.gallery[0].buffer;
+            const newGallery = hasBuffer
+                ? await uploadProductFiles(files.gallery, productId)
+                : files.gallery.map(f => `/uploads/products/${f.filename}`);
             req.body.Gallery_Images = [...(Array.isArray(req.body.existingGallery) ? req.body.existingGallery : (req.body.existingGallery ? [req.body.existingGallery] : [])), ...newGallery];
         } else if (req.body.existingGallery) {
             req.body.Gallery_Images = Array.isArray(req.body.existingGallery) ? req.body.existingGallery : [req.body.existingGallery];
         }
 
         if (files.descriptionUrl) {
-            const newDesc = files.descriptionUrl.map(f => `/uploads/products/${f.filename}`);
+            const hasBuffer = files.descriptionUrl[0].buffer;
+            const newDesc = hasBuffer
+                ? await uploadProductFiles(files.descriptionUrl, productId)
+                : files.descriptionUrl.map(f => `/uploads/products/${f.filename}`);
             req.body.Description_Images = [...(Array.isArray(req.body.existingDescription) ? req.body.existingDescription : (req.body.existingDescription ? [req.body.existingDescription] : [])), ...newDesc];
         } else if (req.body.existingDescription) {
             req.body.Description_Images = Array.isArray(req.body.existingDescription) ? req.body.existingDescription : [req.body.existingDescription];
@@ -583,12 +600,24 @@ exports.updateProduct = async (req, res) => {
     session.startTransaction();
     try {
         const { id } = req.params;
-        
+
         const files = req.files || {};
-        if (files.thumbnail) req.body.Thumbnail_Images = `/uploads/products/${files.thumbnail[0].filename}`;
+
+        if (files.thumbnail) {
+            const hasBuffer = !!files.thumbnail[0].buffer;
+            if (hasBuffer) {
+                const [url] = await uploadProductFiles(files.thumbnail, id);
+                req.body.Thumbnail_Images = url;
+            } else {
+                req.body.Thumbnail_Images = `/uploads/products/${files.thumbnail[0].filename}`;
+            }
+        }
 
         if (files.gallery) {
-            const newGallery = files.gallery.map(f => `/uploads/products/${f.filename}`);
+            const hasBuffer = !!files.gallery[0].buffer;
+            const newGallery = hasBuffer
+                ? await uploadProductFiles(files.gallery, id)
+                : files.gallery.map(f => `/uploads/products/${f.filename}`);
             req.body.Gallery_Images = [...(Array.isArray(req.body.existingGallery) ? req.body.existingGallery : (req.body.existingGallery ? [req.body.existingGallery] : [])), ...newGallery];
         } else if (req.body.existingGallery) {
             req.body.Gallery_Images = Array.isArray(req.body.existingGallery) ? req.body.existingGallery : [req.body.existingGallery];
@@ -597,7 +626,10 @@ exports.updateProduct = async (req, res) => {
         }
 
         if (files.descriptionUrl) {
-            const newDesc = files.descriptionUrl.map(f => `/uploads/products/${f.filename}`);
+            const hasBuffer = !!files.descriptionUrl[0].buffer;
+            const newDesc = hasBuffer
+                ? await uploadProductFiles(files.descriptionUrl, id)
+                : files.descriptionUrl.map(f => `/uploads/products/${f.filename}`);
             req.body.Description_Images = [...(Array.isArray(req.body.existingDescription) ? req.body.existingDescription : (req.body.existingDescription ? [req.body.existingDescription] : [])), ...newDesc];
         } else if (req.body.existingDescription) {
             req.body.Description_Images = Array.isArray(req.body.existingDescription) ? req.body.existingDescription : [req.body.existingDescription];
@@ -690,11 +722,55 @@ exports.deleteProduct = async (req, res) => {
         const { id } = req.params;
         const or = [{ Product_ID: id }];
         if (mongoose.Types.ObjectId.isValid(id)) or.push({ _id: id });
-        const deleted = await Product.findOneAndDelete({ $or: or });
-        if (!deleted) {
+        // Soft delete: set isActive=false
+        const updated = await Product.findOneAndUpdate(
+            { $or: or },
+            { $set: { isActive: false } },
+            { new: true }
+        );
+        if (!updated) {
             return res.status(404).json({ message: "Product not found" });
         }
-        res.json({ message: "Product deleted" });
+        res.json({ message: "Product deactivated (soft delete)", product: { _id: updated._id, Product_ID: updated.Product_ID, isActive: false } });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// PATCH /api/admin/products/:id/toggle-active
+exports.toggleActiveProduct = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const or = [{ Product_ID: id }];
+        if (mongoose.Types.ObjectId.isValid(id)) or.push({ _id: id });
+
+        const product = await Product.findOne({ $or: or });
+        if (!product) return res.status(404).json({ message: "Product not found" });
+
+        // If trying to deactivate, check for pending/processing orders
+        if (product.isActive) {
+            const activeOrder = await Order.findOne({
+                'items.product': product._id,
+                status: { $in: [ORDER_STATUS.PENDING, ORDER_STATUS.PROCESSING] }
+            }).select('_id status').lean();
+
+            if (activeOrder) {
+                return res.status(409).json({
+                    error: 'Còn đơn chờ',
+                    message: `Không thể vô hiệu hóa sản phẩm vì còn đơn hàng đang chờ xử lý (ID: ${activeOrder._id}, trạng thái: ${activeOrder.status})`,
+                    orderId: activeOrder._id
+                });
+            }
+        }
+
+        product.isActive = !product.isActive;
+        await product.save();
+
+        res.json({
+            message: product.isActive ? 'Sản phẩm đã được kích hoạt' : 'Sản phẩm đã bị vô hiệu hóa',
+            Product_ID: product.Product_ID,
+            isActive: product.isActive
+        });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
