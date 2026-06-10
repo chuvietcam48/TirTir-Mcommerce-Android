@@ -156,8 +156,9 @@ public class ProfileFragment extends Fragment {
         observeViewModel();
         setListeners();
 
-        // Load dữ liệu Profile
+        // Load dữ liệu Profile và Địa chỉ
         profileViewModel.loadProfile();
+        profileViewModel.loadAddresses();
     }
 
     // ===========================
@@ -182,35 +183,24 @@ public class ProfileFragment extends Fragment {
         tvLoyaltyPoints = view.findViewById(R.id.tvLoyaltyPoints);
         rvAddresses = view.findViewById(R.id.rvAddresses);
 
-        setupMockAddresses();
+        setupAddressesRecyclerView();
     }
 
-    private void setupMockAddresses() {
-        List<Address> mockAddresses = new ArrayList<>();
-        Address address1 = new Address();
-        address1.setFullName("Nguyễn Văn A");
-        address1.setPhone("0901234567");
-        address1.setStreet("12 Lý Tự Trọng");
-        address1.setWard("Bến Nghé");
-        address1.setDistrict("Quận 1");
-        address1.setCity("Hồ Chí Minh");
-        address1.setDefault(true);
-        mockAddresses.add(address1);
-
-        addressAdapter = new AddressAdapter(mockAddresses, new AddressAdapter.AddressActionListener() {
+    private void setupAddressesRecyclerView() {
+        addressAdapter = new AddressAdapter(new ArrayList<>(), new AddressAdapter.AddressActionListener() {
             @Override
             public void onEditAddress(Address address) {
-                Toast.makeText(getContext(), "Mock: Edit Address", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Chỉnh sửa địa chỉ (đang phát triển)", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onDeleteAddress(Address address) {
-                Toast.makeText(getContext(), "Mock: Delete Address", Toast.LENGTH_SHORT).show();
+                profileViewModel.deleteAddress(address.getId());
             }
 
             @Override
             public void onSetDefault(Address address) {
-                Toast.makeText(getContext(), "Mock: Set Default", Toast.LENGTH_SHORT).show();
+                profileViewModel.setDefaultAddress(address.getId());
             }
         });
         rvAddresses.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -224,6 +214,13 @@ public class ProfileFragment extends Fragment {
     private void observeViewModel() {
         // Observe User Profile from API
         profileViewModel.userLiveData.observe(getViewLifecycleOwner(), this::bindUserData);
+
+        // Observe Addresses
+        profileViewModel.addressesLiveData.observe(getViewLifecycleOwner(), addresses -> {
+            if (addresses != null && addressAdapter != null) {
+                addressAdapter.updateData(addresses);
+            }
+        });
 
         // Loading state
         profileViewModel.isLoading.observe(getViewLifecycleOwner(), isLoading -> {

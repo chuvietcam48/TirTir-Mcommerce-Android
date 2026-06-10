@@ -159,6 +159,38 @@ public interface ApiService {
     Call<ApiResponse<Product>> getProductById(@Path("id") String productId);
 
     // ===========================
+    // ADMIN MODULE
+    // ===========================
+
+    @retrofit2.http.Multipart
+    @POST("api/admin/products")
+    Call<ApiResponse<Product>> createProduct(
+            @retrofit2.http.Part okhttp3.MultipartBody.Part image,
+            @retrofit2.http.PartMap Map<String, okhttp3.RequestBody> data
+    );
+
+    @retrofit2.http.Multipart
+    @PUT("api/admin/products/{id}")
+    Call<ApiResponse<Product>> updateProduct(
+            @Path("id") String productId,
+            @retrofit2.http.Part okhttp3.MultipartBody.Part image,
+            @retrofit2.http.PartMap Map<String, okhttp3.RequestBody> data
+    );
+
+    @DELETE("api/admin/products/{id}")
+    Call<ApiResponse<Void>> deleteProduct(@Path("id") String productId);
+
+    @PATCH("api/admin/products/{id}/toggle-active")
+    Call<ApiResponse<Product>> toggleProductActive(@Path("id") String productId);
+
+    // Metrics for Dashboard
+    @GET("api/admin/metrics")
+    Call<ApiResponse<Map<String, Object>>> getAdminMetrics(@Query("range") String range);
+
+    @GET("api/admin/top-products")
+    Call<ApiResponse<List<Map<String, Object>>>> getTopProducts();
+
+    // ===========================
     // CART MODULE
     // ===========================
 

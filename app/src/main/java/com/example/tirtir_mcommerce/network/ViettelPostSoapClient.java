@@ -40,15 +40,15 @@ public class ViettelPostSoapClient {
 
     private static final String TAG = "ViettelPostSOAP";
 
-    // === Viettel Post SOAP endpoint (điền đúng WSDL khi có contract) ===
+    // === Viettel Post SOAP endpoint ===
     private static final String SOAP_URL =
-            "https://api.viettelpost.com.vn/WebServiceCore.asmx";
+            "https://api.viettelpost.vn/Webservice/ViettelPost.asmx";
     private static final String SOAP_NAMESPACE = "http://tempuri.org/";
     private static final String SOAP_ACTION_GET_PRICE =
             "http://tempuri.org/VTP_GetListService";
     private static final String SOAP_METHOD_GET_PRICE = "VTP_GetListService";
 
-    private static final int TIMEOUT_MS = 15_000;
+    private static final int TIMEOUT_MS = 5_000; // Timeout 5s as requested
     private static final String STUB_FILE = "viettelpost_stub.json";
 
     private final Context context;

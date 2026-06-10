@@ -56,15 +56,10 @@ public class CheckoutActivity extends AppCompatActivity {
 
     private OrderRepository orderRepository;
     private DatabaseHelper databaseHelper;
-
     private final NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+    private ViettelPostSoapClient viettelPostClient;
 
-    /**
-     * Shipping fee placeholder (30,000 VND).
-     * TODO: Replace with Viettel Post SOAP API real shipping calculation.
-     */
-    private static final double SHIPPING_FEE = 30_000;
-
+    private double shippingFee = 0;
     private double cartSubtotal = 0;
 
     @Override
@@ -81,9 +76,11 @@ public class CheckoutActivity extends AppCompatActivity {
 
         orderRepository = new OrderRepository(this);
         databaseHelper  = DatabaseHelper.getInstance(this);
+        viettelPostClient = new ViettelPostSoapClient(this);
 
         bindViews();
         loadCartTotals();
+        calculateShippingFee();
         setupPlaceOrder();
     }
 
@@ -120,10 +117,55 @@ public class CheckoutActivity extends AppCompatActivity {
             }
         }
 
-        double total = cartSubtotal + SHIPPING_FEE;
+        updateTotalsUI();
+    }
+
+    private void updateTotalsUI() {
+        double total = cartSubtotal + shippingFee;
         tvCheckoutSubtotal.setText(currencyFormat.format(cartSubtotal) + " đ");
-        tvCheckoutShipping.setText(currencyFormat.format(SHIPPING_FEE) + " đ");
+        tvCheckoutShipping.setText(currencyFormat.format(shippingFee) + " đ");
         tvCheckoutTotal.setText(currencyFormat.format(total) + " đ");
+    }
+
+    private void calculateShippingFee() {
+        // Assume default weight is 500g, from HCM to HN
+        tvCheckoutShipping.setText("Đang tính...");
+        viettelPostClient.getShippingFees("HCM", "HN", 500, new ViettelPostSoapClient.Callback() {
+            @Override
+            public void onSuccess(List<com.example.tirtir_mcommerce.model.ShippingOption> options) {
+                runOnUiThread(() -> {
+                    if (!options.isEmpty()) {
+                        shippingFee = options.get(0).getPrice();
+                        updateTotalsUI();
+                    } else {
+                        shippingFee = 30000; // default if empty
+                        updateTotalsUI();
+                    }
+                });
+            }
+
+            @Override
+            public void onFallback(List<com.example.tirtir_mcommerce.model.ShippingOption> options) {
+                runOnUiThread(() -> {
+                    Toast.makeText(CheckoutActivity.this, "Đang dùng phí vận chuyển ước tính (Fallback)", Toast.LENGTH_SHORT).show();
+                    if (!options.isEmpty()) {
+                        shippingFee = options.get(0).getPrice();
+                    } else {
+                        shippingFee = 30000;
+                    }
+                    updateTotalsUI();
+                });
+            }
+
+            @Override
+            public void onError(String message) {
+                runOnUiThread(() -> {
+                    Toast.makeText(CheckoutActivity.this, message, Toast.LENGTH_SHORT).show();
+                    shippingFee = 30000; // default
+                    updateTotalsUI();
+                });
+            }
+        });
     }
 
     private void setupPlaceOrder() {
@@ -153,8 +195,7 @@ public class CheckoutActivity extends AppCompatActivity {
         boolean hasToken = prefs.isLoggedIn();
 
         if (!hasToken) {
-            // Not logged in — use mock directly
-            handleMockPlaceOrder();
+            Toast.makeText(this, "Vui lòng đăng nhập để đặt hàng", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -185,29 +226,17 @@ public class CheckoutActivity extends AppCompatActivity {
                     databaseHelper.clearCart();
 
                     String orderId = orderResponse.getId() != null ? orderResponse.getId() : "TT-" + System.currentTimeMillis();
-                    double total = cartSubtotal + SHIPPING_FEE;
+                    double total = cartSubtotal + shippingFee;
                     goToOrderSuccess(orderId, total);
                 },
                 errorMessage -> {
                     showLoading(false);
-                    // API not ready or error — fall back to local mock order
-                    handleMockPlaceOrder();
+                    Toast.makeText(this, "Order failed: " + errorMessage, Toast.LENGTH_LONG).show();
                 }
         );
     }
 
-    /**
-     * Local mock order placement (fallback when API unavailable/user not logged in).
-     * Generates a local order code, clears cart, navigates to OrderSuccessActivity.
-     *
-     * TODO: Remove when backend order API is confirmed working.
-     */
-    private void handleMockPlaceOrder() {
-        databaseHelper.clearCart();
-        String mockOrderCode = "TT-" + System.currentTimeMillis();
-        double total = cartSubtotal + SHIPPING_FEE;
-        goToOrderSuccess(mockOrderCode, total);
-    }
+
 
     // ===========================
     // HELPERS

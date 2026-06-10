@@ -82,6 +82,14 @@
             android:name=".ui.activities.AdminActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.activities.AdminProductListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.AdminProductFormActivity"
+            android:exported="false" />
+
         <!-- FileProvider - Dùng cho Camera intent (Android 7+) -->
         <provider
             android:name="androidx.core.content.FileProvider"

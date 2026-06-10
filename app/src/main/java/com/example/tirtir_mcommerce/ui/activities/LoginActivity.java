@@ -78,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         // Google login: mock for Phase 1
-        btnGoogleLogin.setOnClickListener(v -> handleMockLogin());
+        btnGoogleLogin.setOnClickListener(v -> Toast.makeText(this, "Tính năng đăng nhập Google chưa có", Toast.LENGTH_SHORT).show());
 
         tvGoRegister.setOnClickListener(v ->
                 startActivity(new Intent(this, RegisterActivity.class)));
@@ -110,43 +110,14 @@ public class LoginActivity extends AppCompatActivity {
                 errorMessage -> {
                     showLoading(false);
 
-                    // If error looks like a 404/network issue (backend not ready),
-                    // fall back to mock so demo still works.
-                    if (errorMessage != null && (errorMessage.contains("404")
-                            || errorMessage.contains("kết nối")
-                            || errorMessage.contains("Connection"))) {
-                        // TODO: Remove mock fallback when backend auth is confirmed available
-                        handleMockLogin();
-                    } else {
                         // Real credential error (401, 403): show to user
                         if (tilPassword != null) {
                             tilPassword.setError(errorMessage);
                         } else {
                             Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
                         }
-                    }
                 }
         );
-    }
-
-    // ===========================
-    // MOCK LOGIN FALLBACK
-    // ===========================
-
-    /**
-     * Mock login — bypasses authentication entirely.
-     * Navigates directly to MainActivity after a 1s fake delay.
-     *
-     * TODO: Remove or gate with BuildConfig.DEBUG when backend auth is stable.
-     *
-     * Used by: Google login button (Phase 1), and as API fallback when backend sleeping.
-     */
-    private void handleMockLogin() {
-        showLoading(true);
-        btnLogin.postDelayed(() -> {
-            showLoading(false);
-            goToMain();
-        }, 800);
     }
 
     // ===========================

@@ -78,6 +78,9 @@ public class Product {
     @SerializedName("Stock_Reserved")
     private int stockReserved;
 
+    @SerializedName("isActive")
+    private boolean isActive = true;
+
     public Product() {
     }
 
@@ -153,4 +156,7 @@ public class Product {
 
     public int getStockReserved() { return stockReserved; }
     public void setStockReserved(int stockReserved) { this.stockReserved = stockReserved; }
+
+    public boolean isActive() { return isActive; }
+    public void setActive(boolean active) { isActive = active; }
 }

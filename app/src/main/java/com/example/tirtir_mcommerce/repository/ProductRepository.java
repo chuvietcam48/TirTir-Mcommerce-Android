@@ -125,32 +125,12 @@ public class ProductRepository {
                 Log.d(TAG, "SQLite fallback: loaded " + cached.size() + " cached products");
                 onSuccess.accept(cached);
             } else {
-                // FALLBACK 2: Mock data — chỉ khi cả API lẫn cache đều thất bại
-                Log.w(TAG, "SQLite cache empty. Using MockProductFallbackProvider.");
-                fallbackToMock(onSuccess, onError, reason);
+                Log.w(TAG, "SQLite cache empty. No mock fallback available.");
+                onError.accept(reason + " — không có dữ liệu offline");
             }
         } catch (Exception e) {
             Log.e(TAG, "SQLite read error: " + e.getMessage());
-            fallbackToMock(onSuccess, onError, reason + " (SQLite lỗi: " + e.getMessage() + ")");
-        }
-    }
-
-    /**
-     * FALLBACK 2 (LAST RESORT): Mock data từ MockProductFallbackProvider.
-     * Chỉ được gọi khi API + SQLite đều thất bại — ví dụ: demo offline hoàn toàn.
-     *
-     * TODO: Remove khi backend ổn định.
-     */
-    private void fallbackToMock(Consumer<List<Product>> onSuccess,
-                                 Consumer<String> onError,
-                                 String reason) {
-        List<Product> mockProducts = MockProductFallbackProvider.getMockProducts();
-        if (mockProducts != null && !mockProducts.isEmpty()) {
-            Log.w(TAG, "MOCK FALLBACK ACTIVE — " + reason);
-            onSuccess.accept(mockProducts);
-        } else {
-            // Không có gì để hiển thị
-            onError.accept(reason + " — không có dữ liệu offline");
+            onError.accept(reason + " (SQLite lỗi: " + e.getMessage() + ")");
         }
     }
 
