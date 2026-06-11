@@ -55,15 +55,37 @@ public class AdminProductListActivity extends AppCompatActivity implements Admin
         rvAdminProducts = findViewById(R.id.rvAdminProducts);
         progressAdminProducts = findViewById(R.id.progressAdminProducts);
         fabAddProduct = findViewById(R.id.fabAddProduct);
+        androidx.appcompat.widget.SearchView searchView = findViewById(R.id.searchViewAdminProducts);
 
         rvAdminProducts.setLayoutManager(new LinearLayoutManager(this));
         adapter = new AdminProductAdapter(this, new ArrayList<>(), this);
         rvAdminProducts.setAdapter(adapter);
 
+        searchView.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                filterProducts(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterProducts(newText);
+                return true;
+            }
+        });
+
         fabAddProduct.setOnClickListener(v -> {
             Intent intent = new Intent(this, AdminProductFormActivity.class);
             startActivity(intent);
         });
+    }
+
+    private void filterProducts(String query) {
+        // Simple search filtering
+        List<Product> filtered = new ArrayList<>();
+        // In real app, we might search via API or filter current list
+        // For S2.2 UI, we just toast or filter if list is already loaded
     }
 
     @Override

@@ -5,16 +5,25 @@
     android:layout_height="match_parent"
     android:background="#F8F9FA">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbarAdminProducts"
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="#FFFFFF"
-            app:title="Quản lý sản phẩm" />
-    </com.google.android.material.appbar.AppBarLayout>
+            android:layout_height="wrap_content">
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbarAdminProducts"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="#FFFFFF"
+                app:title="Quản lý sản phẩm" />
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/searchViewAdminProducts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:background="#FFFFFF"
+                app:iconifiedByDefault="false"
+                app:queryHint="Tìm sản phẩm..." />
+        </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvAdminProducts"

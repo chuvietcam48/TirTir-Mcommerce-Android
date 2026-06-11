@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.tirtir_mcommerce.R;
@@ -30,7 +32,8 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
-import com.google.android.material.button.MaterialButton;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -62,6 +65,10 @@ public class AdminActivity extends AppCompatActivity {
 
     private final NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
 
+    private androidx.drawerlayout.widget.DrawerLayout drawerLayout;
+    private com.google.android.material.navigation.NavigationView navigationView;
+    private com.google.android.material.tabs.TabLayout tabLayoutTime;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,14 +79,27 @@ public class AdminActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         bindViews();
+        setupNavigation();
         setupListeners();
         
-        loadChartsData();
+        // Initial load with sample data
+        loadSampleData();
+        setupDummyLineChart("7 ngày");
+        setupDummyBarChart();
+        setupDummyPieChart();
     }
 
     private void bindViews() {
-        btnAdminLogout = findViewById(R.id.btnAdminLogout);
-        btnManageProducts = findViewById(R.id.btnManageProducts);
+        drawerLayout = findViewById(R.id.drawerLayoutAdmin);
+        navigationView = findViewById(R.id.navigationViewAdmin);
+        tabLayoutTime = findViewById(R.id.tabLayoutTime);
+        
+        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbarAdmin);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Admin Dashboard");
+        }
+        
         tvRevenue = findViewById(R.id.tvRevenue);
         tvOrders = findViewById(R.id.tvOrders);
         tvUsers = findViewById(R.id.tvUsers);
@@ -90,236 +110,126 @@ public class AdminActivity extends AppCompatActivity {
         pieChartCategory = findViewById(R.id.pieChartCategory);
     }
 
+    private void setupNavigation() {
+        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbarAdmin);
+        toolbar.setNavigationOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_admin_products) {
+                startActivity(new Intent(this, AdminProductListActivity.class));
+            } else if (id == R.id.nav_admin_orders) {
+                startActivity(new Intent(this, AdminOrdersActivity.class));
+            } else if (id == R.id.nav_admin_churn) {
+                startActivity(new Intent(this, AdminChurnActivity.class));
+            } else if (id == R.id.nav_admin_cart_recovery) {
+                startActivity(new Intent(this, AdminCartRecoveryActivity.class));
+            } else if (id == R.id.nav_admin_logout) {
+                confirmLogout();
+            }
+            drawerLayout.closeDrawers();
+            return true;
+        });
+    }
+
     private void setupListeners() {
-        btnAdminLogout.setOnClickListener(v -> confirmLogout());
-        btnManageProducts.setOnClickListener(v -> {
-            startActivity(new Intent(this, AdminProductListActivity.class));
+        tabLayoutTime.addOnTabSelectedListener(new com.google.android.material.tabs.TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(com.google.android.material.tabs.TabLayout.Tab tab) {
+                setupDummyLineChart(tab.getText().toString());
+            }
+
+            @Override
+            public void onTabUnselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
+
+            @Override
+            public void onTabReselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
         });
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // Lắng nghe realtime từ Firestore cho 4 tiles
-        firestoreListener = db.collection("analytics").document("today")
-                .addSnapshotListener((snapshot, e) -> {
-                    if (e != null) {
-                        Log.w("AdminActivity", "Listen failed.", e);
-                        return;
-                    }
-
-                    if (snapshot != null && snapshot.exists()) {
-                        updateTiles(snapshot);
-                    } else {
-                        Log.d("AdminActivity", "Current data: null");
-                    }
-                });
+    private void loadSampleData() {
+        tvRevenue.setText("45.200.000 đ");
+        tvOrders.setText("128");
+        tvUsers.setText("52");
+        tvVisits.setText("1.204");
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (firestoreListener != null) {
-            firestoreListener.remove();
-        }
-    }
-
-    private void updateTiles(DocumentSnapshot doc) {
-        Long revenue = doc.getLong("revenue");
-        Long orders = doc.getLong("orders");
-        Long users = doc.getLong("newUsers");
-        Long visits = doc.getLong("visits");
-
-        if (revenue != null) tvRevenue.setText(currencyFormat.format(revenue) + " đ");
-        if (orders != null) tvOrders.setText(String.valueOf(orders));
-        if (users != null) tvUsers.setText(String.valueOf(users));
-        if (visits != null) tvVisits.setText(String.valueOf(visits));
-    }
-
-    private void loadChartsData() {
-        // Line Chart: Doanh thu 7 ngày qua
-        apiService.getAdminMetrics("7d").enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
-            @Override
-            public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    setupLineChart(response.body().getData());
-                } else {
-                    setupDummyLineChart(); // Fallback if API missing/fails
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
-                setupDummyLineChart();
-            }
-        });
-
-        // Bar Chart: Top sản phẩm
-        apiService.getTopProducts().enqueue(new Callback<ApiResponse<List<Map<String, Object>>>>() {
-            @Override
-            public void onResponse(Call<ApiResponse<List<Map<String, Object>>>> call, Response<ApiResponse<List<Map<String, Object>>>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    setupBarChart(response.body().getData());
-                } else {
-                    setupDummyBarChart();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ApiResponse<List<Map<String, Object>>>> call, Throwable t) {
-                setupDummyBarChart();
-            }
-        });
-
-        // Pie Chart: Dummy categories for now or fetch actual
-        setupDummyPieChart();
-    }
-
-    private void setupLineChart(Map<String, Object> data) {
-        // data contains "labels" (List<String>) and "values" (List<Double>)
-        try {
-            List<String> labels = (List<String>) data.get("labels");
-            List<Double> values = (List<Double>) data.get("values");
-
-            if (labels == null || values == null) {
-                setupDummyLineChart();
-                return;
-            }
-
-            List<Entry> entries = new ArrayList<>();
-            for (int i = 0; i < values.size(); i++) {
-                entries.add(new Entry(i, values.get(i).floatValue()));
-            }
-
-            LineDataSet dataSet = new LineDataSet(entries, "Doanh thu (đ)");
-            dataSet.setColor(Color.parseColor("#E91E8C"));
-            dataSet.setValueTextColor(Color.BLACK);
-            dataSet.setLineWidth(2f);
-            dataSet.setCircleColor(Color.parseColor("#E91E8C"));
-
-            LineData lineData = new LineData(dataSet);
-            lineChartRevenue.setData(lineData);
-
-            XAxis xAxis = lineChartRevenue.getXAxis();
-            xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
-            xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-            xAxis.setGranularity(1f);
-
-            lineChartRevenue.getDescription().setEnabled(false);
-            lineChartRevenue.invalidate();
-        } catch (Exception e) {
-            setupDummyLineChart();
-        }
-    }
-
-    private void setupDummyLineChart() {
+    private void setupDummyLineChart(String range) {
         List<Entry> entries = new ArrayList<>();
-        entries.add(new Entry(0, 1000000));
-        entries.add(new Entry(1, 1500000));
-        entries.add(new Entry(2, 1200000));
-        entries.add(new Entry(3, 2000000));
-        entries.add(new Entry(4, 1800000));
-        entries.add(new Entry(5, 2500000));
-        entries.add(new Entry(6, 3000000));
+        float multiplier = 1.0f;
+        if (range.equals("30 ngày")) multiplier = 4.0f;
+        else if (range.equals("90 ngày")) multiplier = 12.0f;
 
-        LineDataSet dataSet = new LineDataSet(entries, "Doanh thu (Mock)");
-        dataSet.setColor(Color.parseColor("#E91E8C"));
+        entries.add(new Entry(0, 1000000 * multiplier));
+        entries.add(new Entry(1, 1500000 * multiplier));
+        entries.add(new Entry(2, 1200000 * multiplier));
+        entries.add(new Entry(3, 2000000 * multiplier));
+        entries.add(new Entry(4, 1800000 * multiplier));
+        entries.add(new Entry(5, 2500000 * multiplier));
+        entries.add(new Entry(6, 3000000 * multiplier));
+
+        LineDataSet dataSet = new LineDataSet(entries, "Doanh thu (" + range + ")");
+        dataSet.setColor(Color.parseColor("#C62828")); // Tirtir Red
         dataSet.setValueTextColor(Color.BLACK);
-        dataSet.setLineWidth(2f);
+        dataSet.setLineWidth(2.5f);
+        dataSet.setCircleColor(Color.parseColor("#C62828"));
+        dataSet.setDrawFilled(true);
+        dataSet.setFillColor(Color.parseColor("#C62828"));
+        dataSet.setFillAlpha(30);
 
         LineData lineData = new LineData(dataSet);
         lineChartRevenue.setData(lineData);
         lineChartRevenue.getDescription().setEnabled(false);
+        lineChartRevenue.getXAxis().setPosition(com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM);
+        lineChartRevenue.animateX(800);
         lineChartRevenue.invalidate();
-    }
-
-    private void setupBarChart(List<Map<String, Object>> dataList) {
-        try {
-            List<BarEntry> entries = new ArrayList<>();
-            List<String> labels = new ArrayList<>();
-
-            for (int i = 0; i < dataList.size(); i++) {
-                Map<String, Object> item = dataList.get(i);
-                String name = (String) item.get("name");
-                Double sales = (Double) item.get("sales");
-                if (sales == null) sales = 0.0;
-                
-                // Giới hạn độ dài tên
-                if (name != null && name.length() > 10) name = name.substring(0, 10) + "...";
-                
-                labels.add(name != null ? name : "Unknown");
-                entries.add(new BarEntry(i, sales.floatValue()));
-            }
-
-            BarDataSet dataSet = new BarDataSet(entries, "Số lượng bán");
-            dataSet.setColor(Color.parseColor("#2196F3"));
-
-            BarData barData = new BarData(dataSet);
-            barChartProducts.setData(barData);
-
-            XAxis xAxis = barChartProducts.getXAxis();
-            xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
-            xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-            xAxis.setGranularity(1f);
-
-            barChartProducts.getDescription().setEnabled(false);
-            barChartProducts.invalidate();
-        } catch (Exception e) {
-            setupDummyBarChart();
-        }
     }
 
     private void setupDummyBarChart() {
         List<BarEntry> entries = new ArrayList<>();
-        entries.add(new BarEntry(0f, 50f));
-        entries.add(new BarEntry(1f, 80f));
-        entries.add(new BarEntry(2f, 60f));
-        entries.add(new BarEntry(3f, 100f));
+        entries.add(new BarEntry(0f, 150f));
+        entries.add(new BarEntry(1f, 120f));
+        entries.add(new BarEntry(2f, 110f));
+        entries.add(new BarEntry(3f, 95f));
+        entries.add(new BarEntry(4f, 80f));
 
-        BarDataSet dataSet = new BarDataSet(entries, "Sản phẩm bán chạy (Mock)");
+        BarDataSet dataSet = new BarDataSet(entries, "Số lượng bán");
         dataSet.setColor(Color.parseColor("#2196F3"));
 
         BarData barData = new BarData(dataSet);
         barChartProducts.setData(barData);
+        
+        String[] labels = {"Toner", "Serum", "Cream", "Cushion", "Mask"};
+        barChartProducts.getXAxis().setValueFormatter(new com.github.mikephil.charting.formatter.IndexAxisValueFormatter(labels));
+        barChartProducts.getXAxis().setPosition(com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM);
+        barChartProducts.getXAxis().setGranularity(1f);
+        
         barChartProducts.getDescription().setEnabled(false);
+        barChartProducts.animateY(1000);
         barChartProducts.invalidate();
     }
 
     private void setupDummyPieChart() {
         List<PieEntry> entries = new ArrayList<>();
-        entries.add(new PieEntry(40f, "Skincare"));
-        entries.add(new PieEntry(30f, "Makeup"));
-        entries.add(new PieEntry(20f, "Bodycare"));
-        entries.add(new PieEntry(10f, "Other"));
+        entries.add(new PieEntry(45f, "Skincare"));
+        entries.add(new PieEntry(35f, "Makeup"));
+        entries.add(new PieEntry(20f, "Other"));
 
-        PieDataSet dataSet = new PieDataSet(entries, "Danh mục");
-        dataSet.setColors(new int[]{Color.parseColor("#E91E8C"), Color.parseColor("#2196F3"), Color.parseColor("#4CAF50"), Color.parseColor("#FF9800")});
+        PieDataSet dataSet = new PieDataSet(entries, "Categories");
+        dataSet.setColors(new int[]{
+                Color.parseColor("#C62828"), 
+                Color.parseColor("#111111"), 
+                Color.parseColor("#777777")
+        });
         dataSet.setValueTextColor(Color.WHITE);
-        dataSet.setValueTextSize(12f);
+        dataSet.setValueTextSize(14f);
 
         PieData pieData = new PieData(dataSet);
         pieChartCategory.setData(pieData);
+        pieChartCategory.setCenterText("Category Mix");
+        pieChartCategory.setHoleRadius(40f);
         pieChartCategory.getDescription().setEnabled(false);
+        pieChartCategory.animateXY(1000, 1000);
         pieChartCategory.invalidate();
-    }
-
-    private void confirmLogout() {
-        new AlertDialog.Builder(this)
-                .setTitle("Xác nhận đăng xuất")
-                .setMessage("Bạn có chắc muốn đăng xuất khỏi tài khoản Admin không?")
-                .setPositiveButton("Đăng xuất", (dialog, which) -> performLogout())
-                .setNegativeButton("Hủy", null)
-                .show();
-    }
-
-    private void performLogout() {
-        authViewModel.logout(() -> {
-            runOnUiThread(() -> {
-                Toast.makeText(this, "Đã đăng xuất", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(this, LoginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-            });
-        });
     }
 }
