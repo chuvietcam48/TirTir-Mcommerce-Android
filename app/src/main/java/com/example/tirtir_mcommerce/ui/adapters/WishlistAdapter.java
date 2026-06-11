@@ -112,6 +112,23 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.Wishli
         return items;
     }
 
+    /**
+     * SCR-1B: Toggle the green "Về hàng" (Restock) badge for a specific item.
+     * Called by FCM receiver when a restock notification is received for a product.
+     * Layout badge is GONE by default; this sets it VISIBLE when back in stock.
+     *
+     * @param productId  The product ID that came back in stock.
+     * @param inStock    true → show badge, false → hide badge.
+     */
+    public void setRestockBadge(String productId, boolean inStock) {
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).productId != null && items.get(i).productId.equals(productId)) {
+                notifyItemChanged(i, "restock_" + inStock);
+                break;
+            }
+        }
+    }
+
     // ===========================
     // VIEW HOLDER
     // ===========================
@@ -122,6 +139,8 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.Wishli
         private final TextView tvName;
         private final TextView tvPrice;
         private final ImageButton btnRemove;
+        /** Restock alert badge — GONE by default, toggled by FCM restock payload. */
+        final TextView tvRestockBadge;
 
         WishlistViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -129,6 +148,7 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.Wishli
             tvName = itemView.findViewById(R.id.tvWishlistProductName);
             tvPrice = itemView.findViewById(R.id.tvWishlistProductPrice);
             btnRemove = itemView.findViewById(R.id.btnRemoveWishlist);
+            tvRestockBadge = itemView.findViewById(R.id.tvRestockBadge);
         }
 
         void bind(WishlistItem item, int position) {

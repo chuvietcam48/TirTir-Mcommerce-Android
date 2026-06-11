@@ -109,10 +109,10 @@ public class ProductDetailActivity extends AppCompatActivity {
         String ingredients  = getIntent().getStringExtra("PRODUCT_INGREDIENTS");
         String description  = getIntent().getStringExtra("PRODUCT_DESCRIPTION");
 
-        // Normalize price: Backend returns USD (e.g., 45). Convert to VND (rate: 25,000)
+        // Normalize price: use PriceUtils (safe: < 1000 => USD-style => x25000, >= 1000 => already VND)
         double salePrice = getIntent().getDoubleExtra("PRODUCT_SALE_PRICE", 0.0);
-        double activePriceUsd = (salePrice > 0) ? salePrice : productPrice;
-        displayPriceVnd = activePriceUsd * 25000.0;
+        double activePrice = (salePrice > 0) ? salePrice : productPrice;
+        displayPriceVnd = com.example.tirtir_mcommerce.utils.PriceUtils.normalizePrice(activePrice);
 
         // Populate views
         if (productName != null)     tvProductName.setText(productName);
@@ -125,12 +125,30 @@ public class ProductDetailActivity extends AppCompatActivity {
         galleryImages = getIntent().getStringArrayListExtra("PRODUCT_GALLERY");
         loadProductImage(viewPager, tabIndicator);
 
-        // Stock status
+        // ===========================
+        // OUT-OF-STOCK UI (S1.2 gap)
+        // ===========================
+        // Find optional out-of-stock badge (may be null if not in XML)
+        android.widget.TextView tvOutOfStockBadge = findViewById(R.id.tvProductOutOfStockBadge);
+        android.view.ViewGroup layoutStepper = (android.view.ViewGroup) btnDecreaseQty.getParent();
         if (stockQuantity <= 0) {
+            // Disable Add to Cart button
             btnAddToCart.setEnabled(false);
             btnAddToCart.setText("Hết hàng");
-            btnAddToCart.setAlpha(0.5f);
+            btnAddToCart.setAlpha(0.4f);
+            // Hide stepper (qty controls)
+            if (layoutStepper != null) layoutStepper.setVisibility(android.view.View.INVISIBLE);
+            // Show out-of-stock badge if it exists in XML
+            if (tvOutOfStockBadge != null) tvOutOfStockBadge.setVisibility(android.view.View.VISIBLE);
+        } else {
+            // Enable Add to Cart button
+            btnAddToCart.setEnabled(true);
+            btnAddToCart.setText(getString(R.string.btn_add_to_cart));
+            btnAddToCart.setAlpha(1.0f);
+            if (layoutStepper != null) layoutStepper.setVisibility(android.view.View.VISIBLE);
+            if (tvOutOfStockBadge != null) tvOutOfStockBadge.setVisibility(android.view.View.GONE);
         }
+        // Wishlist button is ALWAYS visible regardless of stock
 
         // Wishlist state
         isWishlisted = checkWishlistStatus();

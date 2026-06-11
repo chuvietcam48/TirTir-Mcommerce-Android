@@ -15,14 +15,35 @@
         android:padding="12dp"
         android:gravity="center_vertical">
 
-        <!-- Product Image -->
-        <ImageView
-            android:id="@+id/imgWishlistProduct"
+        <!-- Product Image with Restock Badge overlay -->
+        <FrameLayout
             android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:scaleType="centerCrop"
-            android:background="#F5F5F5"
-            android:src="@android:drawable/ic_menu_gallery" />
+            android:layout_height="72dp">
+
+            <ImageView
+                android:id="@+id/imgWishlistProduct"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:scaleType="centerCrop"
+                android:background="#F5F5F5"
+                android:src="@android:drawable/ic_menu_gallery" />
+
+            <!-- Restock Alert badge — GONE by default, PM sets VISIBLE on FCM restock payload -->
+            <TextView
+                android:id="@+id/tvRestockBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|start"
+                android:background="#4CAF50"
+                android:paddingHorizontal="5dp"
+                android:paddingVertical="2dp"
+                android:text="Về hàng"
+                android:textColor="#FFFFFF"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+        </FrameLayout>
 
         <!-- Product Info -->
         <LinearLayout

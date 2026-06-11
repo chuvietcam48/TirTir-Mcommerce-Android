@@ -26,6 +26,11 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import com.example.tirtir_mcommerce.utils.PriceUtils;
 
+import com.example.tirtir_mcommerce.network.ViettelPostSoapClient;
+import com.google.android.material.card.MaterialCardView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.List;
 
 /**
@@ -57,6 +62,9 @@ public class CheckoutActivity extends AppCompatActivity {
     private OrderRepository orderRepository;
     private DatabaseHelper databaseHelper;
     private ViettelPostSoapClient viettelPostClient;
+    /** S1.3 gap: Loyalty multiplier badge. Layout visibility GONE by default. */
+    private MaterialCardView cvLoyaltyBadge;
+    private android.widget.TextView tvLoyaltyBadgeText;
 
     private double shippingFee = 0;
     private double cartSubtotal = 0;
@@ -81,6 +89,7 @@ public class CheckoutActivity extends AppCompatActivity {
         loadCartTotals();
         calculateShippingFee();
         setupPlaceOrder();
+        checkLoyaltyMultiplier(); // S1.3 gap: show loyalty badge if multiplier > 1
     }
 
     @Override
@@ -103,6 +112,14 @@ public class CheckoutActivity extends AppCompatActivity {
         tvCheckoutTotal      = findViewById(R.id.tvCheckoutTotal);
         btnPlaceOrder        = findViewById(R.id.btnPlaceOrder);
         progressPlaceOrder   = findViewById(R.id.progressPlaceOrder);
+        cvLoyaltyBadge       = findViewById(R.id.cvLoyaltyBadge);
+        // The loyalty badge has a single child TextView
+        if (cvLoyaltyBadge != null && cvLoyaltyBadge.getChildCount() > 0) {
+            android.view.View child = cvLoyaltyBadge.getChildAt(0);
+            if (child instanceof android.widget.TextView) {
+                tvLoyaltyBadgeText = (android.widget.TextView) child;
+            }
+        }
     }
 
     private void loadCartTotals() {
@@ -130,6 +147,62 @@ public class CheckoutActivity extends AppCompatActivity {
             tvCheckoutTax.setText(PriceUtils.formatPriceVnd(tax));
         }
         tvCheckoutTotal.setText(PriceUtils.formatPriceVnd(total));
+    }
+
+    // ===========================
+    // LOYALTY MULTIPLIER BADGE (S1.3 gap)
+    // ===========================
+
+    /**
+     * SCR-16: Show loyalty multiplier badge when multiplier > 1.
+     * Reads Firestore for current user's loyaltyTier and orderCount.
+     * - First order (orderCount == 0) → 'x2 Điểm đơn đầu tiên!' (vàng)
+     * - Birthday month (loyaltyTier == 'birthday') → 'x3 Điểm sinh nhật!' (hồng)
+     * - Otherwise badge stays GONE.
+     * Badge layout already exists in activity_checkout.xml (cvLoyaltyBadge).
+     */
+    private void checkLoyaltyMultiplier() {
+        if (cvLoyaltyBadge == null) return;
+        try {
+            com.google.firebase.auth.FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user == null) return;
+            FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(user.getUid())
+                    .get()
+                    .addOnSuccessListener(doc -> {
+                        if (doc == null || !doc.exists()) return;
+                        Long orderCount = doc.getLong("orderCount");
+                        String loyaltyTier = doc.getString("loyaltyTier");
+                        String badgeText = null;
+                        int badgeTextColor = 0xFFE65100; // deep orange — default
+
+                        if (orderCount != null && orderCount == 0) {
+                            // First-ever order: x2 points
+                            badgeText = "⭐ x2 Điểm đơn đầu tiên!";
+                            badgeTextColor = 0xFFF57F17; // amber
+                        } else if ("birthday".equalsIgnoreCase(loyaltyTier)) {
+                            // Birthday month: x3 points
+                            badgeText = "🎂 x3 Điểm sinh nhật!";
+                            badgeTextColor = 0xFFE91E8C; // pink/brand
+                        }
+
+                        if (badgeText != null) {
+                            final String text = badgeText;
+                            final int color = badgeTextColor;
+                            runOnUiThread(() -> {
+                                cvLoyaltyBadge.setVisibility(View.VISIBLE);
+                                if (tvLoyaltyBadgeText != null) {
+                                    tvLoyaltyBadgeText.setText(text);
+                                    tvLoyaltyBadgeText.setTextColor(color);
+                                }
+                            });
+                        }
+                    })
+                    .addOnFailureListener(e -> android.util.Log.w("CheckoutActivity", "Loyalty check failed: " + e.getMessage()));
+        } catch (Exception e) {
+            android.util.Log.e("CheckoutActivity", "Error in checkLoyaltyMultiplier", e);
+        }
     }
 
     private void calculateShippingFee() {

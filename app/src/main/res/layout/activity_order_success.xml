@@ -18,18 +18,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Lottie Confetti -->
+    <!-- Lottie Confetti — confetti.json in res/raw plays falling rectangles animation -->
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/lottieConfetti"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:lottie_rawRes="@raw/confetti"
         app:lottie_autoPlay="true"
         app:lottie_loop="false"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:elevation="10dp" />
+        android:elevation="10dp"
+        android:importantForAccessibility="no" />
 
     <!-- ✅ checkmark emoji fallback displayed in foreground via TextView -->
     <TextView
