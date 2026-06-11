@@ -2,6 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Helper functions
     function signedIn() {
       return request.auth != null;
     }
@@ -16,34 +17,92 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
+    // 1. Users Profile & subcollections
     match /users/{uid} {
-      allow read, create, update: if isOwner(uid) || isAdmin();
+      // Allow read of profile
+      allow read: if isOwner(uid) || isAdmin();
+      
+      // Allow creation of profile but prevent setting server-managed fields
+      allow create: if isOwner(uid) && 
+        (!request.resource.data.keys().hasAny(['role', 'loyaltyPoints', 'loyaltyTier', 'totalOrders', 'lastOrderAt', 'isAdmin']))
+        || isAdmin();
+
+      // Allow update of profile but prevent modifying server-managed fields
+      allow update: if isOwner(uid) && 
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'loyaltyPoints', 'loyaltyTier', 'totalOrders', 'lastOrderAt', 'isAdmin']))
+        || isAdmin();
+      
       allow delete: if isAdmin();
 
+      // Nested: FCM tokens for push notification registration
       match /fcmTokens/{tokenId} {
         allow read, write: if isOwner(uid) || isAdmin();
       }
+
+      // Nested: User scan history
+      match /scan_history/{scanId} {
+        allow read: if isOwner(uid) || isAdmin();
+        allow create: if isOwner(uid);
+        allow update, delete: if isAdmin();
+      }
+
+      // Nested: User loyalty history (read-only for clients, written by server)
+      match /loyalty_history/{historyId} {
+        allow read: if isOwner(uid) || isAdmin();
+        allow write: if false; 
+      }
+
+      // Nested: User vouchers (read-only for clients, written by server)
+      match /vouchers/{voucherId} {
+        allow read: if isOwner(uid) || isAdmin();
+        allow write: if false;
+      }
     }
 
+    // 2. Carts (Realtime Cart Recovery)
     match /carts/{uid} {
-      allow read, write: if isOwner(uid) || isAdmin();
+      allow read: if isOwner(uid) || isAdmin();
+      
+      // User can create/update cart items, but cannot modify recoveryNotified flags
+      allow create: if isOwner(uid) && 
+        (!request.resource.data.keys().hasAny(['recoveryNotified', 'lastRecoveryNotifiedAt']))
+        || isAdmin();
+
+      allow update: if isOwner(uid) && 
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['recoveryNotified', 'lastRecoveryNotifiedAt']))
+        || isAdmin();
+
+      allow delete: if isOwner(uid) || isAdmin();
     }
 
+    // 3. Orders (User can read own/create; status updates are admin-only)
     match /orders/{orderId} {
       allow read: if signedIn() && (resource.data.userId == request.auth.uid || isAdmin());
       allow create: if signedIn();
       allow update, delete: if isAdmin();
     }
 
-    match /wishlists/{uid} {
-      allow read, write: if isOwner(uid) || isAdmin();
-    }
-
+    // 4. Products (Public read, Admin write)
     match /products/{productId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
+    // 5. Analytics (Admin only, server writes via Admin SDK)
+    match /analytics/{date} {
+      allow read: if isAdmin();
+      allow write: if false; 
+    }
+
+    // 6. Public Routines (AI generated/user saved)
+    match /public_routines/{routineId} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update: if signedIn() && (resource.data.ownerId == request.auth.uid && request.resource.data.ownerId == request.auth.uid) || isAdmin();
+      allow delete: if signedIn() && resource.data.ownerId == request.auth.uid || isAdmin();
+    }
+
+    // Default deny all other paths
     match /{document=**} {
       allow read, write: if false;
     }

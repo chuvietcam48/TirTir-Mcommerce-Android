@@ -176,7 +176,46 @@ exports.registerFcmToken = async (req, res, next) => {
             });
         }
 
+        if (firebaseUid) {
+            user.firebaseUid = firebaseUid;
+        }
+
         await user.save();
+
+        // Sync FCM token to Firestore
+        const effectiveUid = firebaseUid || user.firebaseUid;
+        if (effectiveUid && firebaseAdmin.isFirebaseEnabled()) {
+            try {
+                const db = firebaseAdmin.getFirestore();
+                if (db) {
+                    const userRef = db.collection('users').doc(effectiveUid);
+                    const doc = await userRef.get();
+                    let currentTokens = [];
+                    if (doc.exists && doc.data().fcmTokens) {
+                        currentTokens = doc.data().fcmTokens;
+                    }
+                    // Filter out this token if it exists
+                    currentTokens = currentTokens.filter(item => item.token !== token);
+                    currentTokens.push({
+                        token,
+                        platform: platform || 'android',
+                        deviceModel: deviceModel || '',
+                        appVersion: appVersion || '',
+                        active: true,
+                        updatedAt: new Date().toISOString()
+                    });
+                    
+                    await userRef.set({
+                        fcmTokens: currentTokens,
+                        backendUserId: String(userId),
+                        updatedAt: new Date().toISOString()
+                    }, { merge: true });
+                    console.log(`[BE2][FCM] Synced token ${token.slice(0, 6)}... to Firestore users/${effectiveUid}`);
+                }
+            } catch (fsErr) {
+                console.error(`[BE2][FCM] Firestore token sync error:`, fsErr.message);
+            }
+        }
 
         res.status(200).json({
             success: true,

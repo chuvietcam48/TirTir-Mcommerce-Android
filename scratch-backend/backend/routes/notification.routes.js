@@ -33,4 +33,16 @@ router
     .route('/:id')
     .delete(deleteNotification);
 
+if (process.env.NODE_ENV !== 'production') {
+    router.post('/dev/run-cart-recovery', async (req, res, next) => {
+        try {
+            const { runCartRecovery } = require('../services/cartRecoveryFcm.service');
+            const stats = await runCartRecovery();
+            res.status(200).json({ success: true, stats });
+        } catch (err) {
+            next(err);
+        }
+    });
+}
+
 module.exports = router;

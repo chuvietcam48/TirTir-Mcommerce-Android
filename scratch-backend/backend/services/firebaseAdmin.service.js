@@ -125,12 +125,23 @@ async function sendPushToTokens(tokens, payload) {
         const response = await admin.messaging().sendEachForMulticast(message);
         console.log(`FCM Multicast Sent: successCount=${response.successCount}, failureCount=${response.failureCount}`);
         
-        // Log invalid tokens if any
+        // Log invalid tokens if any and mark them inactive
         if (response.failureCount > 0) {
-            response.responses.forEach((resp, idx) => {
+            response.responses.forEach(async (resp, idx) => {
                 if (!resp.success) {
                     const error = resp.error;
                     console.warn(`FCM send failure for token [${uniqueTokens[idx].slice(0, 10)}...]: ${error.code} - ${error.message}`);
+                    if (error.code === 'messaging/registration-token-not-registered' || error.code === 'messaging/invalid-registration-token') {
+                        try {
+                            await User.updateOne(
+                                { 'fcmTokens.token': uniqueTokens[idx] },
+                                { $set: { 'fcmTokens.$.active': false } }
+                            );
+                            console.log(`[BE2][FCM] Inactivated unregistered token: ${uniqueTokens[idx].slice(0, 6)}...`);
+                        } catch (dbErr) {
+                            console.error(`[BE2][FCM] Error inactivating unregistered token:`, dbErr.message);
+                        }
+                    }
                 }
             });
         }
@@ -240,11 +251,74 @@ async function sendTestPush(userId) {
     });
 }
 
+function getFirestore() {
+    if (!firebaseEnabled) return null;
+    return admin.firestore();
+}
+
+function getMessaging() {
+    if (!firebaseEnabled) return null;
+    return admin.messaging();
+}
+
+async function sendVoucherPush(userId, voucher) {
+    const discountStr = voucher.discountPct ? `${voucher.discountPct}%` : (voucher.discountValue ? `${voucher.discountValue}đ` : '');
+    const expDays = voucher.expiryDays || 7;
+    const code = voucher.voucherCode || voucher.code || '';
+    return await sendPushToUser(userId, {
+        title: "Ưu đãi dành riêng cho bạn! 🎁",
+        body: `Mã giảm ${discountStr} hết hạn sau ${expDays} ngày. Sử dụng mã: ${code}`,
+        data: {
+            voucherCode: String(code),
+            screen: "VOUCHER_WALLET",
+            type: "VOUCHER_AT_RISK"
+        }
+    });
+}
+
+async function sendLoyaltyTierPush(userId, tier) {
+    return await sendPushToUser(userId, {
+        title: `Chúc mừng bạn đạt hạng ${tier}! 🎉`,
+        body: `Hạng thành viên của bạn đã được nâng cấp lên ${tier}. Nhận thêm nhiều đặc quyền ngay!`,
+        data: {
+            screen: "LOYALTY",
+            type: "LOYALTY_TIER_UP",
+            tier: String(tier)
+        }
+    });
+}
+
+async function sendCartRecoveryPush(userId, cart) {
+    const firstItemName = cart.items?.[0]?.name || "sản phẩm";
+    return await sendPushToUser(userId, {
+        title: "Bạn quên sản phẩm trong giỏ hàng 🛒",
+        body: `Bạn còn ${firstItemName} trong giỏ! Quay lại hoàn tất đơn hàng nhé.`,
+        data: {
+            screen: "CART",
+            type: "CART_RECOVERY"
+        }
+    });
+}
+
+async function sendGenericPushToUser(userId, title, body, data) {
+    return await sendPushToUser(userId, {
+        title,
+        body,
+        data: data || {}
+    });
+}
+
 module.exports = {
     isFirebaseEnabled,
+    getFirestore,
+    getMessaging,
     sendPushToTokens,
     sendPushToUser,
     sendOrderSuccessPush,
     sendOrderStatusPush,
+    sendVoucherPush,
+    sendLoyaltyTierPush,
+    sendCartRecoveryPush,
+    sendGenericPushToUser,
     sendTestPush
 };

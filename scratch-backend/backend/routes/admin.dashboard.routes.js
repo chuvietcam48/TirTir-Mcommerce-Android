@@ -51,5 +51,26 @@ router.get('/reviews', getAllReviewsAdmin);
 // DELETE /api/v1/admin/reviews/:id  Remove any review
 router.delete('/reviews/:id', deleteReview);
 
+// POST /api/v1/admin/notifications/send-voucher-fcm
+router.post('/notifications/send-voucher-fcm', async (req, res, next) => {
+    try {
+        const { userId, voucherCode, discountPct, expiryDays } = req.body;
+        if (!userId || !voucherCode) {
+            return res.status(400).json({ success: false, message: 'Missing userId or voucherCode' });
+        }
+
+        const { sendVoucherFcmToUser } = require('../services/voucherFcm.service');
+        const result = await sendVoucherFcmToUser(userId, {
+            voucherCode,
+            discountPct: discountPct || 10,
+            expiryDays: expiryDays || 7
+        });
+
+        res.status(200).json({ success: true, result });
+    } catch (err) {
+        next(err);
+    }
+});
+
 module.exports = router;
 

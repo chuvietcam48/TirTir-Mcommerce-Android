@@ -53,6 +53,7 @@ exports.createOrder = async (req, res) => {
             const result = await _createOrderLogic(req, session);
             await session.commitTransaction();
             session.endSession();
+            _runAfterOrderCreated(req.user.id, result);
             return res.status(201).json({ message: "Đặt hàng thành công!", orderId: result });
         } catch (error) {
             await session.abortTransaction();
@@ -64,6 +65,7 @@ exports.createOrder = async (req, res) => {
         // ── FALLBACK PATH (Standalone MongoDB) ─────────────────────────────────
         try {
             const result = await _createOrderLogic(req, null);
+            _runAfterOrderCreated(req.user.id, result);
             return res.status(201).json({ message: "Đặt hàng thành công!", orderId: result });
         } catch (error) {
             console.error("Create Order Error (Fallback):", error);
@@ -378,10 +380,12 @@ exports.updateOrderStatus = async (req, res) => {
             }
         }
 
+        const oldStatus = order.status;
         order.status = status;
         // Keep statusHistory in sync with current status, especially Delivered.
         appendStatusHistory(order, status, req.body.note || '');
         const updatedOrder = await order.save();
+        _runAfterOrderStatusChanged(updatedOrder, oldStatus, status, req.user.id);
 
         // ─── Gửi notification cho chủ đơn hàng ────────────────────────────────
         const orderIdStr = order._id.toString();
@@ -466,6 +470,7 @@ exports.cancelOrder = async (req, res) => {
         order.status = 'Cancelled';
         appendStatusHistory(order, 'Cancelled', 'Cancelled by customer');
         await order.save();
+        _runAfterOrderStatusChanged(order, 'Pending', 'Cancelled', userId);
 
         // STOCK STATE MACHINE:
         // Order PENDING   → Stock_Reserved++, Stock_Quantity--  (reserved on order create)
@@ -654,3 +659,61 @@ exports.getReorderData = async (req, res) => {
         res.status(500).json({ message: 'Lỗi server khi lấy dữ liệu đặt lại' });
     }
 };
+
+// ─── BE2 Hook Functions ──────────────────────────────────────────────────────
+async function _runAfterOrderCreated(userId, orderId) {
+    try {
+        const Order = require('../models/order.model');
+        const order = await Order.findById(orderId);
+        if (!order) return;
+
+        // 1. Daily Analytics
+        const { updateDailyAnalyticsOnOrderCreated } = require('../services/analytics.service');
+        updateDailyAnalyticsOnOrderCreated(order).catch(err => 
+            console.error('[BE2][ANALYTICS] Order created hook error:', err.message)
+        );
+
+        // 2. Set Firestore Cart to completed
+        const firebaseAdmin = require('../services/firebaseAdmin.service');
+        const { findFirebaseUidByMongoUserId } = require('../services/firestoreUser.service');
+        if (firebaseAdmin.isFirebaseEnabled()) {
+            const firebaseUid = await findFirebaseUidByMongoUserId(userId);
+            if (firebaseUid) {
+                const db = firebaseAdmin.getFirestore();
+                if (db) {
+                    const admin = require('firebase-admin');
+                    await db.collection('carts').doc(firebaseUid).set({
+                        status: 'completed',
+                        completedAt: admin.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                    console.log(`[BE2][CART_RECOVERY] Cart marked completed in Firestore for UID: ${firebaseUid}`);
+                }
+            }
+        }
+    } catch (err) {
+        console.error('[BE2][ORDER_HOOK] Error in post-order-creation hook:', err.message);
+    }
+}
+
+async function _runAfterOrderStatusChanged(order, oldStatus, newStatus, performerId) {
+    try {
+        // 1. Daily Analytics adjustment
+        const { updateDailyAnalyticsOnOrderStatusChanged } = require('../services/analytics.service');
+        updateDailyAnalyticsOnOrderStatusChanged(order, oldStatus, newStatus).catch(err =>
+            console.error('[BE2][ANALYTICS] Status changed hook error:', err.message)
+        );
+
+        // 2. Loyalty Points Engine
+        if (newStatus === 'Processing' && oldStatus !== 'Processing') {
+            const loyaltyService = require('../services/loyalty.service');
+            loyaltyService.addPoints(order.user, order.totalAmount, {
+                orderId: order._id,
+                createdAt: order.createdAt
+            }).catch(err =>
+                console.error('[BE2][LOYALTY] Points addition hook error:', err.message)
+            );
+        }
+    } catch (err) {
+        console.error('[BE2][STATUS_HOOK] Error in status change hook:', err.message);
+    }
+}

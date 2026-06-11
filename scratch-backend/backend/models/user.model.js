@@ -117,6 +117,22 @@ const UserSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product'
     }],
+    firebaseUid: {
+        type: String,
+        default: null
+    },
+    loyaltyPoints: {
+        type: Number,
+        default: 0
+    },
+    loyaltyTier: {
+        type: String,
+        default: 'Silver'
+    },
+    totalOrders: {
+        type: Number,
+        default: 0
+    },
     // ===== FCM TOKENS (Push Notification Tokens) =====
     fcmTokens: [
         {

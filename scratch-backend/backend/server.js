@@ -16,6 +16,7 @@ const Sentry = require("@sentry/node");
 const errorHandler = require('./middlewares/error');
 const logger = require('./utils/logger');
 require('./cron/abandonedCart.cron'); // Initialize Cron Jobs
+require('./cron/fcmCartRecovery.cron'); // Initialize FCM Cart Recovery
 const socketService = require('./services/socket.service');
 
 const { apiLimiter } = require('./middlewares/rateLimit');
@@ -49,6 +50,14 @@ const swaggerSpec = swaggerJsdoc(swaggerOptions);
 const app = express();
 const server = http.createServer(app);
 socketService.init(server);
+
+// Route Prefix Alias Middleware (BE2 /api/ to /api/v1/ compatibility)
+app.use((req, res, next) => {
+  if (req.url.startsWith('/api/') && !req.url.startsWith('/api/v1/')) {
+    req.url = '/api/v1' + req.url.slice(4);
+  }
+  next();
+});
 
 // 1. Performance Monitoring (Response Time)
 app.use(responseTime((req, res, time) => {
@@ -319,6 +328,7 @@ app.use("/api/v1/marketing", require("./routes/marketing.routes")); // Add Marke
 app.use("/api/v1/notifications", require("./routes/notification.routes")); // Add Notification Routes
 app.use("/api/v1/shipping", require("./routes/shipping.routes")); // GHN Shipping Integration
 app.use("/api/v1/ingredient", require("./routes/ingredient.routes")); // Ingredient scan history (Firestore)
+app.use("/api/v1/loyalty", require("./routes/loyalty.routes")); // Loyalty Points & Tier Engine
 
 // Sentry Error Handler (Must be before any other error middleware)
 if (process.env.SENTRY_DSN) {
