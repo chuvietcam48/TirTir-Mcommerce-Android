@@ -71,7 +71,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Họ và tên"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="16dp"
+                    app:errorEnabled="true">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etFullName"
@@ -89,6 +90,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/hint_email"
                     android:layout_marginBottom="16dp"
+                    app:errorEnabled="true"
                     app:startIconDrawable="@android:drawable/ic_dialog_email">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -108,6 +110,7 @@
                     android:hint="@string/hint_password"
                     android:layout_marginBottom="16dp"
                     app:passwordToggleEnabled="true"
+                    app:errorEnabled="true"
                     app:startIconDrawable="@android:drawable/ic_lock_idle_lock">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -127,6 +130,7 @@
                     android:hint="@string/hint_confirm_password"
                     android:layout_marginBottom="24dp"
                     app:passwordToggleEnabled="true"
+                    app:errorEnabled="true"
                     app:startIconDrawable="@android:drawable/ic_lock_idle_lock">
 
                     <com.google.android.material.textfield.TextInputEditText

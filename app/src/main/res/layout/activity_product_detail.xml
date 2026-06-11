@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@color/tirtir_white">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -30,24 +30,43 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Image carousel with ViewPager2 -->
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/viewPagerProductImages"
+            <!-- Product image — real ImageView (Phase 1) -->
+            <!-- ViewPager2 kept as invisible placeholder for future gallery (Phase 2) -->
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:background="@color/tirtir_off_white" />
+                android:layout_height="320dp"
+                android:background="@color/tirtir_off_white">
 
-            <!-- ViewPager2 dot indicator -->
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabIndicatorImages"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                app:tabBackground="@drawable/selector_tab_dot"
-                app:tabGravity="center"
-                app:tabIndicatorHeight="0dp"
-                app:tabPaddingStart="4dp"
-                app:tabPaddingEnd="4dp" />
+                <ImageView
+                    android:id="@+id/ivProductDetailImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:background="@color/tirtir_off_white"
+                    android:contentDescription="@string/product_name_placeholder" />
+
+                <!-- Hidden ViewPager2 — Phase 2 gallery support placeholder -->
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/viewPagerProductImages"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone" />
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tabIndicatorImages"
+                    android:layout_width="wrap_content"
+                    android:layout_height="16dp"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:layout_marginBottom="8dp"
+                    android:background="@android:color/transparent"
+                    app:tabBackground="@drawable/tab_selector"
+                    app:tabGravity="center"
+                    app:tabIndicatorHeight="0dp"
+                    app:tabPaddingEnd="4dp"
+                    app:tabPaddingStart="4dp"
+                    android:visibility="gone"/>
+
+            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -150,46 +169,133 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom action bar: Wishlist + Add to Cart -->
+    <!-- Bottom action bar: Stepper + Total + Add to Cart -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@color/tirtir_white"
         android:elevation="8dp"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Fix #8-analogy: Use proper wishlist icon -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnWishlist"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:contentDescription="@string/content_desc_wishlist"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:padding="0dp"
-            app:icon="@android:drawable/ic_menu_myplaces"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            app:iconTint="@color/tirtir_red_primary"
-            app:strokeColor="@color/tirtir_border_gray"
-            app:cornerRadius="12dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Số lượng:"
+                android:textColor="@color/tirtir_text_secondary"
+                android:textSize="14sp"
+                android:layout_marginEnd="16dp"/>
+                
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_stepper"
+                android:gravity="center_vertical">
+                
+                <ImageButton
+                    android:id="@+id/btnDecreaseQty"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:src="@drawable/ic_minus"
+                    app:tint="@color/tirtir_black"/>
+                    
+                <TextView
+                    android:id="@+id/tvQuantity"
+                    android:layout_width="36dp"
+                    android:layout_height="wrap_content"
+                    android:text="1"
+                    android:gravity="center"
+                    android:textColor="@color/tirtir_black"
+                    android:textStyle="bold"
+                    android:textSize="16sp"/>
+                    
+                <ImageButton
+                    android:id="@+id/btnIncreaseQty"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:src="@drawable/ic_plus"
+                    app:tint="@color/tirtir_black"/>
+            </LinearLayout>
+            
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+                
+            <TextView
+                android:id="@+id/tvTotalPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 đ"
+                android:textColor="@color/tirtir_red_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
 
-        <!-- Fix #4: Use MaterialButton instead of plain Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddToCart"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:text="@string/btn_add_to_cart"
-            android:textColor="@color/tirtir_white"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:backgroundTint="@color/tirtir_black"
-            app:cornerRadius="12dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnWishlist"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:contentDescription="@string/content_desc_wishlist"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                app:icon="@android:drawable/btn_star_big_off"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconTint="@color/tirtir_red_primary"
+                app:strokeColor="@color/tirtir_border_gray"
+                app:cornerRadius="12dp" />
+
+            <!-- Phase 2: AR Try-On Placeholder -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnARTryOn"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginStart="8dp"
+                android:contentDescription="AR Try-On"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                app:icon="@android:drawable/ic_menu_camera"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconTint="@color/tirtir_red_primary"
+                app:strokeColor="@color/tirtir_red_primary"
+                app:cornerRadius="12dp"
+                android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAddToCart"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:text="@string/btn_add_to_cart"
+                android:textColor="@color/tirtir_white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/tirtir_black"
+                app:cornerRadius="12dp" />
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

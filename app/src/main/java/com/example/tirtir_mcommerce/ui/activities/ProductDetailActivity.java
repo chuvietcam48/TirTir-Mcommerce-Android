@@ -19,9 +19,9 @@ import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.WishlistContentProvider;
 import com.example.tirtir_mcommerce.database.DatabaseHelper;
 import com.example.tirtir_mcommerce.model.CartItem;
+import com.example.tirtir_mcommerce.utils.PriceUtils;
 
-import java.text.NumberFormat;
-import java.util.Locale;
+import java.util.ArrayList;
 
 /**
  * SCR-14 ProductDetailActivity
@@ -53,12 +53,18 @@ public class ProductDetailActivity extends AppCompatActivity {
 
     private DatabaseHelper databaseHelper;
 
-    private final NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+
 
     private String productId, productName, productCategory, productImage;
     private double productPrice;
+    private double displayPriceVnd;
     private int stockQuantity;
+    private int currentQuantity = 1;
     private boolean isWishlisted = false;
+    private java.util.ArrayList<String> galleryImages;
+
+    private TextView tvQuantity, tvTotalPrice;
+    private ImageButton btnDecreaseQty, btnIncreaseQty;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,9 +74,9 @@ public class ProductDetailActivity extends AppCompatActivity {
         databaseHelper = DatabaseHelper.getInstance(this);
 
         toolbarProductDetail = findViewById(R.id.toolbarProductDetail);
-        // Use a single ImageView instead of ViewPager2 for simplicity;
-        // ViewPager2 ID still present in XML for future gallery support
-        ivProductImage = new android.widget.ImageView(this);
+        // Phase 1 requirement: use ViewPager2 for gallery
+        androidx.viewpager2.widget.ViewPager2 viewPager = findViewById(R.id.viewPagerProductImages);
+        com.google.android.material.tabs.TabLayout tabIndicator = findViewById(R.id.tabIndicatorImages);
 
         tvProductCategory = findViewById(R.id.tvProductCategory);
         tvProductName = findViewById(R.id.tvProductName);
@@ -80,6 +86,11 @@ public class ProductDetailActivity extends AppCompatActivity {
         tvProductDescription = findViewById(R.id.tvProductDescription);
         btnWishlist = findViewById(R.id.btnWishlist);
         btnAddToCart = findViewById(R.id.btnAddToCart);
+        
+        tvQuantity = findViewById(R.id.tvQuantity);
+        tvTotalPrice = findViewById(R.id.tvTotalPrice);
+        btnDecreaseQty = findViewById(R.id.btnDecreaseQty);
+        btnIncreaseQty = findViewById(R.id.btnIncreaseQty);
 
         setSupportActionBar(toolbarProductDetail);
         if (getSupportActionBar() != null) {
@@ -98,16 +109,21 @@ public class ProductDetailActivity extends AppCompatActivity {
         String ingredients  = getIntent().getStringExtra("PRODUCT_INGREDIENTS");
         String description  = getIntent().getStringExtra("PRODUCT_DESCRIPTION");
 
+        // Normalize price: Backend returns USD (e.g., 45). Convert to VND (rate: 25,000)
+        double salePrice = getIntent().getDoubleExtra("PRODUCT_SALE_PRICE", 0.0);
+        double activePriceUsd = (salePrice > 0) ? salePrice : productPrice;
+        displayPriceVnd = activePriceUsd * 25000.0;
+
         // Populate views
         if (productName != null)     tvProductName.setText(productName);
         if (productCategory != null) tvProductCategory.setText(productCategory);
-        tvProductPrice.setText(currencyFormat.format(productPrice) + " đ");
+        tvProductPrice.setText(PriceUtils.formatPriceVnd(displayPriceVnd));
         tvSuitableSkinTypes.setText(skinTypes != null && !skinTypes.isEmpty() ? skinTypes : "All skin types");
         tvIngredientList.setText(ingredients != null && !ingredients.isEmpty() ? ingredients : "Ingredient list not available.");
         tvProductDescription.setText(description != null && !description.isEmpty() ? description : "Premium skincare formula crafted for your skin.");
 
-        // Load image into ViewPager2 area (use background ImageView hack or directly set background)
-        loadProductImage();
+        galleryImages = getIntent().getStringArrayListExtra("PRODUCT_GALLERY");
+        loadProductImage(viewPager, tabIndicator);
 
         // Stock status
         if (stockQuantity <= 0) {
@@ -120,6 +136,24 @@ public class ProductDetailActivity extends AppCompatActivity {
         isWishlisted = checkWishlistStatus();
         updateWishlistIcon(isWishlisted);
 
+        // Stepper logic
+        updateTotalPrice();
+        btnIncreaseQty.setOnClickListener(v -> {
+            if (currentQuantity < 10 && currentQuantity < stockQuantity) {
+                currentQuantity++;
+                tvQuantity.setText(String.valueOf(currentQuantity));
+                updateTotalPrice();
+            }
+        });
+        
+        btnDecreaseQty.setOnClickListener(v -> {
+            if (currentQuantity > 1) {
+                currentQuantity--;
+                tvQuantity.setText(String.valueOf(currentQuantity));
+                updateTotalPrice();
+            }
+        });
+
         // Add to Cart
         btnAddToCart.setOnClickListener(v -> {
             if (productId == null || productId.isEmpty()) {
@@ -127,13 +161,20 @@ public class ProductDetailActivity extends AppCompatActivity {
                 return;
             }
             String imageUrl = productImage != null ? productImage : "";
-            CartItem item = new CartItem(productId, productName, imageUrl, productPrice, 1, "");
+            CartItem item = new CartItem(productId, productName, imageUrl, displayPriceVnd, currentQuantity, "");
             databaseHelper.insertOrUpdateCartItem(item);
-            Toast.makeText(this, "Đã thêm vào giỏ hàng!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Đã thêm " + currentQuantity + " sản phẩm vào giỏ hàng!", Toast.LENGTH_SHORT).show();
         });
 
         // Wishlist toggle via ContentProvider
         btnWishlist.setOnClickListener(v -> toggleWishlist());
+    }
+
+    private void updateTotalPrice() {
+        double total = displayPriceVnd * currentQuantity;
+        if (tvTotalPrice != null) {
+            tvTotalPrice.setText(PriceUtils.formatPriceVnd(total));
+        }
     }
 
     @Override
@@ -149,33 +190,84 @@ public class ProductDetailActivity extends AppCompatActivity {
     // IMAGE LOADING
     // ===========================
 
-    private void loadProductImage() {
-        // Find the ViewPager2 and set background via Glide on its parent
-        androidx.viewpager2.widget.ViewPager2 viewPager = findViewById(R.id.viewPagerProductImages);
+    private void loadProductImage(androidx.viewpager2.widget.ViewPager2 viewPager, com.google.android.material.tabs.TabLayout tabIndicator) {
         if (viewPager == null) return;
+        viewPager.setVisibility(android.view.View.VISIBLE);
 
-        // For Phase 1, use a static ImageView overlay drawn on top of ViewPager2 area
-        // We load into the ViewPager2 background as a Drawable using Glide
-        String imageUrl = buildImageUrl(productImage);
-        if (imageUrl.isEmpty()) return;
+        // Hide static ImageView
+        android.widget.ImageView ivStatic = findViewById(R.id.ivProductDetailImage);
+        if (ivStatic != null) ivStatic.setVisibility(android.view.View.GONE);
 
-        Glide.with(this)
-                .load(imageUrl)
-                .placeholder(android.R.drawable.ic_menu_gallery)
-                .error(android.R.drawable.ic_menu_gallery)
-                .centerCrop()
-                .into(new com.bumptech.glide.request.target.CustomTarget<android.graphics.drawable.Drawable>() {
-                    @Override
-                    public void onResourceReady(@androidx.annotation.NonNull android.graphics.drawable.Drawable resource,
-                                                @androidx.annotation.Nullable com.bumptech.glide.request.transition.Transition<? super android.graphics.drawable.Drawable> transition) {
-                        viewPager.setBackground(resource);
-                    }
+        java.util.List<String> imagesToDisplay = new java.util.ArrayList<>();
+        if (galleryImages != null && !galleryImages.isEmpty()) {
+            imagesToDisplay.addAll(galleryImages);
+        } else if (productImage != null && !productImage.isEmpty()) {
+            imagesToDisplay.add(productImage); // fallback to thumbnail
+        }
 
-                    @Override
-                    public void onLoadCleared(@androidx.annotation.Nullable android.graphics.drawable.Drawable placeholder) {
-                        // no-op
-                    }
-                });
+        if (imagesToDisplay.isEmpty()) {
+            // no image
+            return;
+        }
+
+        ImageGalleryAdapter adapter = new ImageGalleryAdapter(this, imagesToDisplay);
+        viewPager.setAdapter(adapter);
+
+        if (imagesToDisplay.size() > 1 && tabIndicator != null) {
+            tabIndicator.setVisibility(android.view.View.VISIBLE);
+            new com.google.android.material.tabs.TabLayoutMediator(tabIndicator, viewPager,
+                    (tab, position) -> {}
+            ).attach();
+        } else if (tabIndicator != null) {
+            tabIndicator.setVisibility(android.view.View.GONE);
+        }
+    }
+
+    // Inner Adapter for Gallery
+    private class ImageGalleryAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<ImageGalleryAdapter.ImageViewHolder> {
+        private final android.content.Context context;
+        private final java.util.List<String> imageUrls;
+
+        public ImageGalleryAdapter(android.content.Context context, java.util.List<String> imageUrls) {
+            this.context = context;
+            this.imageUrls = imageUrls;
+        }
+
+        @androidx.annotation.NonNull
+        @Override
+        public ImageViewHolder onCreateViewHolder(@androidx.annotation.NonNull android.view.ViewGroup parent, int viewType) {
+            android.widget.ImageView iv = new android.widget.ImageView(context);
+            iv.setLayoutParams(new android.view.ViewGroup.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT));
+            iv.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
+            iv.setBackgroundColor(0xFFF5F5F5); // tirtir_off_white
+            return new ImageViewHolder(iv);
+        }
+
+        @Override
+        public void onBindViewHolder(@androidx.annotation.NonNull ImageViewHolder holder, int position) {
+            String rawUrl = imageUrls.get(position);
+            Glide.with(context)
+                    .load(buildImageUrl(rawUrl))
+                    .placeholder(android.R.drawable.ic_menu_gallery)
+                    .error(android.R.drawable.ic_menu_gallery)
+                    .centerCrop()
+                    .into(holder.imageView);
+        }
+
+        @Override
+        public int getItemCount() {
+            return imageUrls.size();
+        }
+
+        class ImageViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
+            android.widget.ImageView imageView;
+            ImageViewHolder(@androidx.annotation.NonNull android.view.View itemView) {
+                super(itemView);
+                this.imageView = (android.widget.ImageView) itemView;
+            }
+        }
     }
 
     private String buildImageUrl(String path) {
@@ -224,7 +316,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             values.put(WishlistContentProvider.COL_PRODUCT_ID, productId);
             values.put(WishlistContentProvider.COL_PRODUCT_NAME, productName != null ? productName : "");
             values.put(WishlistContentProvider.COL_PRODUCT_IMAGE, productImage != null ? productImage : "");
-            values.put(WishlistContentProvider.COL_PRODUCT_PRICE, productPrice);
+            values.put(WishlistContentProvider.COL_PRODUCT_PRICE, displayPriceVnd);
             Uri result = getContentResolver().insert(WishlistContentProvider.CONTENT_URI, values);
             if (result != null) {
                 isWishlisted = true;

@@ -3,13 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@color/tirtir_white">
 
+    <!-- TirTir brand circle icon — replaces Android robot launcher icon -->
     <ImageView
         android:id="@+id/ivSplashLogo"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:src="@mipmap/ic_launcher_round"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_tirtir_brand_circle"
+        android:contentDescription="TirTir Logo"
         app:layout_constraintBottom_toTopOf="@+id/tvSplashBrand"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -17,39 +19,43 @@
         app:layout_constraintVertical_chainStyle="packed"
         android:layout_marginBottom="16dp" />
 
+    <!-- Brand wordmark -->
     <TextView
         android:id="@+id/tvSplashBrand"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TirTir"
-        android:textSize="36sp"
+        android:textSize="40sp"
         android:textStyle="bold"
-        android:textColor="#1A1A1A"
-        android:letterSpacing="0.15"
+        android:textColor="@color/tirtir_red_primary"
+        android:letterSpacing="0.1"
         app:layout_constraintBottom_toTopOf="@+id/tvSplashTagline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ivSplashLogo"
         android:layout_marginBottom="8dp" />
 
+    <!-- Tagline -->
     <TextView
         android:id="@+id/tvSplashTagline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Premium Skincare"
-        android:textSize="14sp"
-        android:textColor="#9E9E9E"
-        android:letterSpacing="0.1"
+        android:textSize="15sp"
+        android:textColor="@color/tirtir_text_secondary"
+        android:letterSpacing="0.15"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvSplashBrand"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <!-- Loading indicator -->
     <ProgressBar
         android:id="@+id/progressSplash"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="48dp"
+        android:layout_marginBottom="56dp"
+        android:indeterminateTint="@color/tirtir_red_primary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

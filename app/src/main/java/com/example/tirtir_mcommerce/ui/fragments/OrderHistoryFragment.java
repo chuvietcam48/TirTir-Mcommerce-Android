@@ -49,6 +49,8 @@ public class OrderHistoryFragment extends Fragment {
     private Button btnRetryOrders;
 
     private OrderRepository orderRepository;
+    private com.example.tirtir_mcommerce.ui.adapters.OrderHistoryAdapter adapter;
+    private android.content.SharedPreferences demoPrefs;
 
     @Nullable
     @Override
@@ -77,68 +79,35 @@ public class OrderHistoryFragment extends Fragment {
             });
         }
 
-        rvOrderHistory.setLayoutManager(new LinearLayoutManager(getContext()));
-
         orderRepository = new OrderRepository(requireContext());
 
         if (btnRetryOrders != null) {
-            btnRetryOrders.setOnClickListener(v -> loadOrdersFromApi());
+            btnRetryOrders.setOnClickListener(v -> loadOrders("All"));
         }
 
-        loadOrdersFromApi();
+        adapter = new com.example.tirtir_mcommerce.ui.adapters.OrderHistoryAdapter(new java.util.ArrayList<>());
+        rvOrderHistory.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(getContext()));
+        rvOrderHistory.setAdapter(adapter);
+
+        demoPrefs = requireContext().getSharedPreferences("DemoOrders", android.content.Context.MODE_PRIVATE);
+
+        setupFilters(view);
+        loadOrders("All");
     }
 
-    // ===========================
-    // API CALL (TASK 9)
-    // ===========================
-
-    /**
-     * Loads order history from GET /api/v1/orders/my-orders.
-     * Requires valid JWT (user must be logged in).
-     *
-     * Phase 1: Backend not ready → shows empty state.
-     * Phase 2: Wire result into OrderHistoryAdapter.
-     */
-    private void loadOrdersFromApi() {
-        // Check login state first
-        SharedPrefsManager prefs = new SharedPrefsManager(requireContext());
-        if (!prefs.isLoggedIn()) {
-            handleNotLoggedIn();
-            return;
+    private void setupFilters(View view) {
+        com.google.android.material.chip.ChipGroup chipGroup = view.findViewById(R.id.chipGroupOrderStatus);
+        if (chipGroup != null) {
+            chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
+                if (checkedIds.isEmpty()) return;
+                int id = checkedIds.get(0);
+                String status = "All";
+                if (id == R.id.chipPending) status = "Pending";
+                else if (id == R.id.chipShipping) status = "Shipping";
+                else if (id == R.id.chipDelivered) status = "Delivered";
+                loadOrders(status);
+            });
         }
-
-        showLoading(true);
-
-        orderRepository.getMyOrders(
-                orders -> {
-                    if (getActivity() == null) return;
-                    getActivity().runOnUiThread(() -> {
-                        showLoading(false);
-                        if (orders == null || orders.isEmpty()) {
-                            showEmptyState("No orders yet.\nStart shopping to see your history here.");
-                        } else {
-                            // TODO Phase 2: bind to OrderHistoryAdapter
-                            // adapter.submitList(orders);
-                            // rvOrderHistory.setVisibility(View.VISIBLE);
-                            // layoutEmptyOrders.setVisibility(View.GONE);
-                            showEmptyState(orders.size() + " orders found (display coming in Phase 2)");
-                        }
-                    });
-                },
-                error -> {
-                    if (getActivity() == null) return;
-                    getActivity().runOnUiThread(() -> {
-                        showLoading(false);
-                        // API not ready (backend order endpoint may not exist yet)
-                        showEmptyState("No orders yet.\nComplete your first purchase to see history.");
-                    });
-                }
-        );
-    }
-
-    private void handleNotLoggedIn() {
-        showLoading(false);
-        showEmptyState("Please log in to view your order history.");
     }
 
     // ===========================
@@ -161,5 +130,42 @@ public class OrderHistoryFragment extends Fragment {
         if (tvEmptyOrdersMessage != null) {
             tvEmptyOrdersMessage.setText(message);
         }
+    }
+
+    private void showEmptyState(String title, String message) {
+        showEmptyState(message);
+    }
+
+    private void loadOrders(String status) {
+        progressOrders.setVisibility(View.VISIBLE);
+        rvOrderHistory.setVisibility(View.GONE);
+        layoutEmptyOrders.setVisibility(View.GONE);
+
+        // Simulate API call
+        new android.os.Handler().postDelayed(() -> {
+            if (!isAdded()) return;
+            progressOrders.setVisibility(View.GONE);
+
+            java.util.List<com.example.tirtir_mcommerce.ui.adapters.OrderHistoryAdapter.MockOrder> mockList = new java.util.ArrayList<>();
+            
+            // Read demo order if it exists
+            String code = demoPrefs.getString("latest_code", null);
+            if (code != null) {
+                String demoStatus = demoPrefs.getString("latest_status", "Processing");
+                String date = demoPrefs.getString("latest_date", "");
+                double total = Double.parseDouble(demoPrefs.getString("latest_total", "0.0"));
+                
+                if (status.equals("All") || status.equalsIgnoreCase(demoStatus)) {
+                    mockList.add(new com.example.tirtir_mcommerce.ui.adapters.OrderHistoryAdapter.MockOrder(code, demoStatus, date, total));
+                }
+            }
+
+            if (mockList.isEmpty()) {
+                showEmptyState("No orders found", "You haven't placed any orders with this status.");
+            } else {
+                adapter.setOrders(mockList);
+                rvOrderHistory.setVisibility(View.VISIBLE);
+            }
+        }, 800);
     }
 }

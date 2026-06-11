@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.tirtir_mcommerce.MainActivity;
 import com.example.tirtir_mcommerce.R;
 import com.google.android.material.button.MaterialButton;
+import com.example.tirtir_mcommerce.utils.PriceUtils;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -28,7 +29,7 @@ import java.util.Locale;
  */
 public class OrderSuccessActivity extends AppCompatActivity {
 
-    private final NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,7 +45,7 @@ public class OrderSuccessActivity extends AppCompatActivity {
         MaterialButton btnViewOrder = findViewById(R.id.btnViewOrder);
 
         if (orderCode != null) tvOrderCode.setText(orderCode);
-        tvOrderTotal.setText(currencyFormat.format(orderTotal) + " đ");
+        tvOrderTotal.setText(PriceUtils.formatPriceVnd(orderTotal));
 
         btnBackHome.setOnClickListener(v -> {
             Intent intent = new Intent(this, MainActivity.class);

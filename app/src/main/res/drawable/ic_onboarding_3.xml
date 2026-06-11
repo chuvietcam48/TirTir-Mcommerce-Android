@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Onboarding Illustration 3: Fast Delivery -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+
+    <!-- Soft bg -->
+    <path
+        android:fillColor="#FFF5F5"
+        android:pathData="M120,20 A100,100 0 1,1 119.99,20 Z" />
+
+    <!-- Shopping bag -->
+    <path
+        android:fillColor="#C62828"
+        android:pathData="M70,100 Q72,90 82,90 L158,90 Q168,90 170,100 L180,175 Q181,185 171,185 L69,185 Q59,185 60,175 Z" />
+
+    <!-- Bag handle -->
+    <path
+        android:strokeColor="#111111"
+        android:strokeWidth="4"
+        android:fillColor="#00000000"
+        android:pathData="M95,90 L95,75 Q95,60 120,60 Q145,60 145,75 L145,90" />
+
+    <!-- TirTir label on bag -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:alpha="0.25"
+        android:pathData="M88,125 L152,125 Q154,125 154,127 L154,150 Q154,152 152,152 L88,152 Q86,152 86,150 L86,127 Q86,125 88,125 Z" />
+
+    <!-- T on bag (simplified) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M99,130 L121,130 L121,136 L113,136 L113,148 L107,148 L107,136 L99,136 Z" />
+
+    <!-- Stars -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:alpha="0.8"
+        android:pathData="M165,58 L167,63 L172,65 L167,67 L165,72 L163,67 L158,65 L163,63 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:alpha="0.5"
+        android:pathData="M58,130 L60,135 L65,137 L60,139 L58,144 L56,139 L51,137 L56,135 Z" />
+
+    <!-- Motion lines suggesting speed -->
+    <path
+        android:strokeColor="#C62828"
+        android:alpha="0.3"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M40,155 L65,155" />
+    <path
+        android:strokeColor="#C62828"
+        android:alpha="0.2"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M35,165 L60,165" />
+
+</vector>

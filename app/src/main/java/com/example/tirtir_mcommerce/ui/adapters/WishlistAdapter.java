@@ -13,11 +13,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.tirtir_mcommerce.R;
+import com.example.tirtir_mcommerce.utils.PriceUtils;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * WishlistAdapter - RecyclerView Adapter cho danh sách Wishlist.
@@ -69,13 +68,11 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.Wishli
     private final Context context;
     private final List<WishlistItem> items;
     private final OnRemoveClickListener removeListener;
-    private final NumberFormat currencyFormat;
 
     public WishlistAdapter(Context context, List<WishlistItem> items, OnRemoveClickListener removeListener) {
         this.context = context;
         this.items = new ArrayList<>(items);
         this.removeListener = removeListener;
-        this.currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
     }
 
     // ===========================
@@ -138,7 +135,7 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.Wishli
             tvName.setText(item.productName != null ? item.productName : "Sản phẩm");
 
             // Format giá tiền
-            tvPrice.setText(currencyFormat.format(item.productPrice) + " đ");
+            tvPrice.setText(PriceUtils.formatPriceVnd(item.productPrice));
 
             // Load ảnh bằng Glide
             if (item.productImage != null && !item.productImage.isEmpty()) {

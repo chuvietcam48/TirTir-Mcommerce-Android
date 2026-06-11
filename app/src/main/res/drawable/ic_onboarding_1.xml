@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Onboarding Illustration 1: Discovery -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+
+    <!-- Soft background circle -->
+    <path
+        android:fillColor="#FFF5F5"
+        android:pathData="M120,20 A100,100 0 1,1 119.99,20 Z" />
+
+    <!-- TirTir circle logo -->
+    <path
+        android:fillColor="#C62828"
+        android:pathData="M120,60 A50,50 0 1,1 119.99,60 Z" />
+
+    <!-- White T in circle -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M95,80 L145,80 L145,90 L128,90 L128,120 L112,120 L112,90 L95,90 Z" />
+
+    <!-- Stars / sparkles -->
+    <path
+        android:fillColor="#C62828"
+        android:pathData="M168,55 L170,61 L176,63 L170,65 L168,71 L166,65 L160,63 L166,61 Z" />
+    <path
+        android:fillColor="#C62828"
+        android:alpha="0.5"
+        android:pathData="M58,130 L60,136 L66,138 L60,140 L58,146 L56,140 L50,138 L56,136 Z" />
+    <path
+        android:fillColor="#C62828"
+        android:alpha="0.4"
+        android:pathData="M178,150 L179,153 L182,154 L179,155 L178,158 L177,155 L174,154 L177,153 Z" />
+
+    <!-- Product bottle silhouette -->
+    <path
+        android:fillColor="#111111"
+        android:alpha="0.08"
+        android:pathData="M105,135 Q105,130 110,130 L130,130 Q135,130 135,135 L135,185 Q135,190 130,190 L110,190 Q105,190 105,185 Z" />
+    <path
+        android:fillColor="#111111"
+        android:alpha="0.08"
+        android:pathData="M113,125 L127,125 L127,132 L113,132 Z" />
+
+    <!-- Text label under product -->
+    <path
+        android:fillColor="#C62828"
+        android:pathData="M96,195 L144,195 Q146,195 146,197 L146,203 Q146,205 144,205 L96,205 Q94,205 94,203 L94,197 Q94,195 96,195 Z" />
+
+</vector>

@@ -15,10 +15,9 @@ import com.example.tirtir_mcommerce.R;
 import com.bumptech.glide.Glide;
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.CartItem;
+import com.example.tirtir_mcommerce.utils.PriceUtils;
 
-import java.text.NumberFormat;
 import java.util.List;
-import java.util.Locale;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
 
@@ -30,7 +29,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     private final Context context;
     private final List<CartItem> cartItems;
     private final CartListener cartListener;
-    private final NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
 
     public CartAdapter(Context context, List<CartItem> cartItems, CartListener cartListener) {
         this.context = context;
@@ -50,7 +48,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         CartItem cartItem = cartItems.get(position);
         
         holder.tvName.setText(cartItem.getProductName());
-        holder.tvPrice.setText(currencyFormat.format(cartItem.getPrice()) + " đ");
+        holder.tvPrice.setText(PriceUtils.formatPriceVnd(cartItem.getPrice()));
         
         String imageUrl = cartItem.getThumbnail();
         if (imageUrl != null && !imageUrl.startsWith("http")) {
@@ -68,6 +66,15 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             int qty = cartItem.getQuantity();
             if (qty > 1) {
                 cartListener.onQuantityChanged(position, qty - 1);
+            } else {
+                new android.app.AlertDialog.Builder(context)
+                        .setTitle("Xóa khỏi giỏ hàng?")
+                        .setMessage("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?")
+                        .setPositiveButton("Xóa", (dialog, which) -> {
+                            cartListener.onRemoveItem(position);
+                        })
+                        .setNegativeButton("Hủy", null)
+                        .show();
             }
         });
 

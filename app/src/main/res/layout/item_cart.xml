@@ -100,5 +100,21 @@
                 android:padding="4dp" />
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/tvSyncBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chờ đồng bộ"
+            android:textSize="10sp"
+            android:textColor="@color/tirtir_white"
+            android:background="@color/tirtir_red_primary"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

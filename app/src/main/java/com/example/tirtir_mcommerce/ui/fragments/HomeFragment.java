@@ -65,11 +65,13 @@ public class HomeFragment extends Fragment {
     private TextView tvErrorMessage;
     private Button btnRetry;
     private SearchView searchViewProducts;
-    private ChipGroup chipGroupCategory;
+    private com.google.android.material.chip.ChipGroup chipGroupSkinTypeFilter;
+    private android.widget.Spinner spinnerCategory;
 
     private ProductRepository productRepository;
     private List<Product> fullProductList = new ArrayList<>();
     private String currentSearchQuery = "";
+    private String currentSkinTypeFilter = "All";
     private String currentCategoryFilter = "All";
 
     // Generated chip IDs to maintain selection state
@@ -91,7 +93,8 @@ public class HomeFragment extends Fragment {
         tvErrorMessage       = view.findViewById(R.id.tvErrorMessage);
         btnRetry             = view.findViewById(R.id.btnRetry);
         searchViewProducts   = view.findViewById(R.id.searchViewProducts);
-        chipGroupCategory    = view.findViewById(R.id.chipGroupCategory);
+        chipGroupSkinTypeFilter = view.findViewById(R.id.chipGroupSkinTypeFilter);
+        spinnerCategory      = view.findViewById(R.id.spinnerCategory);
 
         rvProducts.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
@@ -110,6 +113,9 @@ public class HomeFragment extends Fragment {
             intent.putExtra("PRODUCT_INGREDIENTS", product.getKeyIngredients());
             intent.putExtra("PRODUCT_DESCRIPTION", product.getDescriptionShort());
             intent.putExtra("PRODUCT_STOCK",       product.getStockQuantity());
+            if (product.getGalleryImages() != null) {
+                intent.putStringArrayListExtra("PRODUCT_GALLERY", new java.util.ArrayList<>(product.getGalleryImages()));
+            }
             startActivity(intent);
         });
         rvProducts.setAdapter(adapter);
@@ -144,7 +150,7 @@ public class HomeFragment extends Fragment {
                 hideAllStates();
                 if (products != null && !products.isEmpty()) {
                     fullProductList = new ArrayList<>(products);
-                    buildCategoryChipsFromProducts(products);
+                    setupCategorySpinner(products);
                     applyFilters();
                     rvProducts.setVisibility(View.VISIBLE);
                 } else {
@@ -157,7 +163,7 @@ public class HomeFragment extends Fragment {
                 hideAllStates();
                 if (fullProductList.isEmpty()) {
                     // No cached data — show retry
-                    showErrorState("Could not load products.\n" + error);
+                    showErrorState("Lỗi kết nối. Có thể server đang khởi động.\n" + error);
                 } else {
                     // Have cached data already shown — just keep it
                     rvProducts.setVisibility(View.VISIBLE);
@@ -200,65 +206,42 @@ public class HomeFragment extends Fragment {
     // CATEGORY CHIPS (DYNAMIC)
     // ===========================
 
-    /**
-     * Builds category filter chips DYNAMICALLY from loaded product data.
-     * Source priority:
-     * 1. productRepository.getLastKnownCategories() — from API categories[] field
-     * 2. Unique Category values from product list
-     *
-     * Does NOT hardcode any category names.
-     * Always includes "All" chip first.
-     */
-    private void buildCategoryChipsFromProducts(List<Product> products) {
-        if (chipGroupCategory == null) return;
-        chipGroupCategory.removeAllViews();
-
-        // "All" chip — always first
-        Chip allChip = createChip("All", CHIP_ID_BASE);
-        allChip.setChecked(true);
-        chipGroupCategory.addView(allChip);
-
-        // Collect unique Category values from products
+    private void setupCategorySpinner(List<Product> products) {
         Set<String> categories = new LinkedHashSet<>();
-
-        // Priority 1: categories[] from API response
+        categories.add("All");
+        
         List<ProductResponse.CategoryItem> apiCategories = productRepository.getLastKnownCategories();
         if (apiCategories != null) {
             for (ProductResponse.CategoryItem item : apiCategories) {
-                String name = item.getName();
-                if (name != null && !name.isEmpty()) {
-                    // Capitalize first letter for display
-                    categories.add(capitalize(name));
+                if (item != null && item.getName() != null && !item.getName().trim().isEmpty()) {
+                    categories.add(capitalize(item.getName().trim()));
                 }
             }
         }
-
-        // Priority 2: Extract from Product.Category field (broad categories like Skincare, Makeup)
-        for (Product p : products) {
-            String cat = p.getCategory();
-            if (cat != null && !cat.isEmpty()) {
-                categories.add(cat);
+        
+        if (products != null) {
+            for (Product p : products) {
+                if (p != null && p.getCategory() != null && !p.getCategory().trim().isEmpty()) {
+                    categories.add(capitalize(p.getCategory().trim()));
+                }
             }
         }
-
-        // Build chips (skip if already seen from API categories)
-        int chipId = CHIP_ID_BASE + 1;
-        for (String category : categories) {
-            Chip chip = createChip(category, chipId++);
-            chipGroupCategory.addView(chip);
-        }
-    }
-
-    private Chip createChip(String label, int id) {
-        Chip chip = new Chip(requireContext());
-        chip.setId(id);
-        chip.setText(label);
-        chip.setCheckable(true);
-        chip.setCheckedIconVisible(false);
-        chip.setChipBackgroundColorResource(R.color.chip_selector);
-        chip.setTextColor(getResources().getColorStateList(R.color.chip_text_selector, null));
-        chip.setRippleColorResource(R.color.tirtir_red_primary);
-        return chip;
+        
+        List<String> categoryList = new ArrayList<>(categories);
+        android.widget.ArrayAdapter<String> spinnerAdapter = new android.widget.ArrayAdapter<>(
+                requireContext(), android.R.layout.simple_spinner_item, categoryList);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCategory.setAdapter(spinnerAdapter);
+        
+        spinnerCategory.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                currentCategoryFilter = categoryList.get(position);
+                applyFilters();
+            }
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+        });
     }
 
     private String capitalize(String s) {
@@ -287,7 +270,16 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        chipGroupCategory.setOnCheckedStateChangeListener((group, checkedIds) -> applyFilters());
+        chipGroupSkinTypeFilter.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            int checkedId = group.getCheckedChipId();
+            if (checkedId == R.id.chipFilterAll) currentSkinTypeFilter = "All";
+            else if (checkedId == R.id.chipFilterOily) currentSkinTypeFilter = "Da dầu";
+            else if (checkedId == R.id.chipFilterDry) currentSkinTypeFilter = "Da khô";
+            else if (checkedId == R.id.chipFilterCombo) currentSkinTypeFilter = "Da hỗn hợp";
+            else if (checkedId == R.id.chipFilterSensitive) currentSkinTypeFilter = "Da nhạy cảm";
+            else currentSkinTypeFilter = "All";
+            applyFilters();
+        });
     }
 
     /**
@@ -300,21 +292,11 @@ public class HomeFragment extends Fragment {
      * It is NOT shown during loading or API failure.
      */
     private void applyFilters() {
-        // Determine selected category
-        int checkedChipId = chipGroupCategory.getCheckedChipId();
-        if (checkedChipId != View.NO_ID) {
-            Chip chip = chipGroupCategory.findViewById(checkedChipId);
-            if (chip != null) {
-                currentCategoryFilter = chip.getText().toString();
-            }
-        } else {
-            currentCategoryFilter = "All";
-        }
-
         List<Product> filteredList = new ArrayList<>();
         for (Product product : fullProductList) {
             boolean matchesSearch = true;
             boolean matchesCategory = true;
+            boolean matchesSkinType = true;
 
             if (!currentSearchQuery.isEmpty()) {
                 String name = product.getName() != null ? product.getName().toLowerCase() : "";
@@ -332,8 +314,13 @@ public class HomeFragment extends Fragment {
                         || catSlug.equalsIgnoreCase(currentCategoryFilter)
                         || cat.toLowerCase().contains(currentCategoryFilter.toLowerCase());
             }
+            
+            if (!"All".equalsIgnoreCase(currentSkinTypeFilter)) {
+                String skinTarget = product.getSkinTypeTarget() != null ? product.getSkinTypeTarget() : "";
+                matchesSkinType = skinTarget.toLowerCase().contains(currentSkinTypeFilter.toLowerCase());
+            }
 
-            if (matchesSearch && matchesCategory) {
+            if (matchesSearch && matchesCategory && matchesSkinType) {
                 filteredList.add(product);
             }
         }

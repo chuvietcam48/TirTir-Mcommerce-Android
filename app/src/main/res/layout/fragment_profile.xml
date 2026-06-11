@@ -1,155 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/tirtir_bg_gray">
 
-    <!-- Header -->
-    <LinearLayout
+    <!-- HEADER CARD -->
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@color/tirtir_milk_white"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="40dp"
-        android:paddingBottom="20dp">
+        android:background="@color/tirtir_white"
+        app:elevation="0dp">
 
-        <!-- Avatar + Tên -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
+            android:orientation="vertical"
+            android:background="@color/tirtir_white"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="20dp">
 
-            <!-- Avatar Circle -->
-            <FrameLayout
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_marginEnd="16dp">
-
-                <ImageView
-                    android:id="@+id/ivAvatar"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:scaleType="centerCrop"
-                    android:background="@color/tirtir_aura_pink"
-                    android:src="@android:drawable/ic_menu_gallery"
-                    android:clickable="true"
-                    android:focusable="true" />
-
-                <TextView
-                    android:id="@+id/tvInitials"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:gravity="center"
-                    android:textColor="@color/tirtir_red_primary"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:visibility="visible"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:text="TT" />
-
-                <!-- ProgressBar hiển thị khi đang upload avatar -->
-                <ProgressBar
-                    android:id="@+id/progressAvatarUpload"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_gravity="center"
-                    android:visibility="gone" />
-
-            </FrameLayout>
-
-            <!-- Name + Email -->
-            <LinearLayout
-                android:layout_width="0dp"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:text="Tài khoản"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/tirtir_black"
+                android:layout_marginBottom="16dp" />
 
-                <TextView
-                    android:id="@+id/tvUserName"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <FrameLayout
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginEnd="16dp">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivAvatar"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:scaleType="centerCrop"
+                        android:background="@color/tirtir_red_surface"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                        android:visibility="invisible"
+                        tools:visibility="visible" />
+
+                    <TextView
+                        android:id="@+id/tvInitials"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:gravity="center"
+                        android:background="@drawable/ic_tirtir_brand_circle"
+                        android:textColor="@color/tirtir_red_primary"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:visibility="visible"
+                        android:text="TT" />
+                        
+                    <ProgressBar
+                        android:id="@+id/progressAvatarUpload"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="center"
+                        android:indeterminateTint="@color/tirtir_red_primary"
+                        android:visibility="gone" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvUserName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/tirtir_black"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:text="Đang tải..." />
+
+                    <TextView
+                        android:id="@+id/tvEmail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/tirtir_text_secondary"
+                        android:textSize="13sp"
+                        android:layout_marginTop="2dp"
+                        android:text="email@example.com" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEditProfile"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/tirtir_text_primary"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:text="Đang tải..." />
+                    android:text="Sửa"
+                    android:textColor="@color/tirtir_red_primary" />
 
-                <TextView
-                    android:id="@+id/tvEmail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/tirtir_text_secondary"
-                    android:textSize="13sp"
-                    android:text="email@example.com" />
             </LinearLayout>
 
-            <!-- Edit Button -->
-            <ImageButton
-                android:id="@+id/btnEditProfile"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_edit"
-                android:contentDescription="@string/profile_edit" />
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <!-- Skin Type and Loyalty Info -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="@color/tirtir_milk_white"
-        android:layout_marginTop="2dp">
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipSkinType"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Da dầu"
-            android:textColor="@color/tirtir_milk_white"
-            app:chipBackgroundColor="@color/tirtir_success" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="end">
-            <TextView
-                android:id="@+id/tvLoyaltyTier"
-                android:layout_width="wrap_content"
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupSkinType"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Thành viên Vàng"
-                android:textStyle="bold"
-                android:textColor="@color/tirtir_warning" />
-            <TextView
-                android:id="@+id/tvLoyaltyPoints"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="1500 điểm"
-                android:textSize="12sp"
-                android:textColor="@color/tirtir_text_secondary" />
-        </LinearLayout>
-    </LinearLayout>
+                android:layout_marginTop="16dp"
+                app:singleSelection="true">
 
-    <!-- Scrollable Content -->
-    <ScrollView
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSkinOily"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Da dầu" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSkinDry"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Da khô" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSkinCombo"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Da hỗn hợp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSkinSensitive"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Da nhạy cảm" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSkinNormal"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bình thường" />
+            </com.google.android.material.chip.ChipGroup>
+
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -157,31 +166,96 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Menu Items Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardCornerRadius="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/tirtir_milk_white">
+                app:cardBackgroundColor="@color/tirtir_white">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+                        <TextView
+                            android:id="@+id/tvLoyaltyTierBadge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Silver"
+                            android:textColor="@color/tirtir_white"
+                            android:background="@color/tirtir_black"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:paddingTop="4dp"
+                            android:paddingBottom="4dp"
+                            android:textStyle="bold"
+                            android:textSize="12sp" />
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+                        <TextView
+                            android:id="@+id/tvLoyaltyPoints"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="150 điểm"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/tirtir_black" />
+                    </LinearLayout>
+                    <ProgressBar
+                        android:id="@+id/pbLoyalty"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:progressTint="@color/tirtir_red_primary"
+                        android:max="1000"
+                        android:progress="150" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TÀI KHOẢN"
+                android:textSize="11sp"
+                android:textColor="@color/tirtir_text_secondary"
+                android:letterSpacing="0.1"
+                android:textAllCaps="true"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="4dp" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/tirtir_white"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/tirtir_border_gray">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <!-- My Orders -->
                     <LinearLayout
                         android:id="@+id/layoutMyOrders"
                         android:layout_width="match_parent"
-                        android:layout_height="52dp"
+                        android:layout_height="56dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:padding="16dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:background="?attr/selectableItemBackground">
 
                         <TextView
                             android:layout_width="0dp"
@@ -192,124 +266,121 @@
                             android:textSize="15sp" />
 
                         <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
                             android:src="@android:drawable/ic_media_next"
-                            android:alpha="0.4" />
+                            android:alpha="0.3" />
                     </LinearLayout>
 
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/tirtir_silver_gray" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/tirtir_border_gray" />
 
-                    <!-- My Addresses -->
                     <LinearLayout
                         android:id="@+id/layoutMyAddresses"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:layout_height="56dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:background="?attr/selectableItemBackground">
 
                         <TextView
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="@string/profile_my_addresses"
                             android:textColor="@color/tirtir_text_primary"
-                            android:textSize="15sp"
-                            android:layout_marginBottom="8dp" />
+                            android:textSize="15sp" />
 
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/rvAddresses"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:nestedScrollingEnabled="false"
-                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                            tools:listitem="@layout/item_address"
-                            tools:itemCount="2" />
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/ic_media_next"
+                            android:alpha="0.3" />
                     </LinearLayout>
+                    
+                    <!-- Include Address List here -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvAddresses"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/tirtir_silver_gray" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/tirtir_border_gray" />
 
-                    <!-- My Wishlist -->
                     <LinearLayout
                         android:id="@+id/layoutMyWishlist"
                         android:layout_width="match_parent"
-                        android:layout_height="52dp"
+                        android:layout_height="56dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:padding="16dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:background="?attr/selectableItemBackground">
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="@string/profile_my_wishlist"
+                            android:text="Wishlist"
                             android:textColor="@color/tirtir_text_primary"
                             android:textSize="15sp" />
 
                         <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
                             android:src="@android:drawable/ic_media_next"
-                            android:alpha="0.4" />
+                            android:alpha="0.3" />
                     </LinearLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
 
-            <!-- Settings Card -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/tirtir_milk_white">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <!-- Language Toggle -->
-                    <LinearLayout
-                        android:id="@+id/layoutLanguage"
+                    <View
                         android:layout_width="match_parent"
-                        android:layout_height="52dp"
+                        android:layout_height="1dp"
+                        android:background="@color/tirtir_border_gray" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutScanHistory"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:padding="16dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:background="?attr/selectableItemBackground">
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="@string/profile_language"
+                            android:text="Lịch sử scan"
                             android:textColor="@color/tirtir_text_primary"
                             android:textSize="15sp" />
 
                         <TextView
-                            android:id="@+id/tvCurrentLanguage"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="🇻🇳 VI"
-                            android:textColor="@color/tirtir_red_primary"
-                            android:textSize="13sp"
+                            android:text="Coming soon"
+                            android:textColor="@color/tirtir_text_secondary"
+                            android:textSize="12sp"
                             android:layout_marginEnd="8dp" />
 
                         <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
                             android:src="@android:drawable/ic_media_next"
-                            android:alpha="0.4" />
+                            android:alpha="0.3" />
                     </LinearLayout>
+
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Logout Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogout"
                 style="@style/Widget.TirTir.Button.Outline"
@@ -318,8 +389,9 @@
                 android:text="@string/btn_logout"
                 android:textColor="@color/tirtir_error"
                 app:strokeColor="@color/tirtir_error"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="32dp" />
 
         </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

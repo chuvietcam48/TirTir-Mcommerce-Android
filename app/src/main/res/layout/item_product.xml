@@ -14,26 +14,70 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Product image — fixed height to avoid blank areas -->
-        <ImageView
-            android:id="@+id/ivProductImage"
+        <!-- Product image — 1:1 ratio via paddingBottom trick on container -->
+        <FrameLayout
+            android:id="@+id/frameImage"
             android:layout_width="0dp"
-            android:layout_height="160dp"
-            android:scaleType="centerCrop"
+            android:layout_height="0dp"
             android:background="@color/tirtir_off_white"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintDimensionRatio="1:1">
 
-        <!-- Thin red accent line below image -->
-        <View
-            android:layout_width="0dp"
-            android:layout_height="2dp"
-            android:background="@color/tirtir_red_primary"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/ivProductImage"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            <ImageView
+                android:id="@+id/ivProductImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:background="@color/tirtir_off_white" />
+
+            <!-- Out-of-stock overlay badge -->
+            <TextView
+                android:id="@+id/tvOutOfStock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|start"
+                android:layout_margin="6dp"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:text="Hết hàng"
+                android:textColor="@color/tirtir_white"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:background="#CC111111"
+                android:visibility="gone" />
+
+            <!-- Wishlist heart icon — top right -->
+            <ImageButton
+                android:id="@+id/btnWishlistToggle"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="4dp"
+                android:background="@android:color/transparent"
+                android:src="@android:drawable/btn_star_big_off"
+                android:scaleType="centerInside"
+                android:contentDescription="Yêu thích"
+                android:padding="4dp" />
+                
+            <!-- Discount badge -->
+            <TextView
+                android:id="@+id/tvDiscountBadge"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="8dp"
+                android:background="@drawable/ic_tirtir_brand_circle"
+                android:backgroundTint="@color/tirtir_red_primary"
+                android:textColor="@color/tirtir_white"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:text="-10%"
+                android:visibility="gone" />
+
+        </FrameLayout>
 
         <!-- Category label -->
         <TextView
@@ -47,7 +91,7 @@
             android:textSize="10sp"
             android:letterSpacing="0.08"
             android:textAllCaps="true"
-            app:layout_constraintTop_toBottomOf="@id/ivProductImage"
+            app:layout_constraintTop_toBottomOf="@id/frameImage"
             app:layout_constraintStart_toStartOf="parent" />
 
         <!-- Product name -->

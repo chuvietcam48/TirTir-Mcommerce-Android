@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Onboarding Illustration 2: Smart Skin Analysis -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+
+    <!-- Soft bg -->
+    <path
+        android:fillColor="#FFF5F5"
+        android:pathData="M120,20 A100,100 0 1,1 119.99,20 Z" />
+
+    <!-- Face/skin icon -->
+    <path
+        android:fillColor="#C62828"
+        android:alpha="0.15"
+        android:pathData="M80,85 Q80,65 120,65 Q160,65 160,85 L160,145 Q160,170 120,170 Q80,170 80,145 Z" />
+
+    <!-- Face outline -->
+    <path
+        android:strokeColor="#C62828"
+        android:strokeWidth="3"
+        android:fillColor="#00000000"
+        android:pathData="M85,90 Q85,68 120,68 Q155,68 155,90 L155,148 Q155,168 120,168 Q85,168 85,148 Z" />
+
+    <!-- Eyes -->
+    <path
+        android:fillColor="#C62828"
+        android:pathData="M102,105 A6,6 0 1,1 101.99,105 Z" />
+    <path
+        android:fillColor="#C62828"
+        android:pathData="M138,105 A6,6 0 1,1 137.99,105 Z" />
+
+    <!-- Smile -->
+    <path
+        android:strokeColor="#C62828"
+        android:strokeWidth="3"
+        android:fillColor="#00000000"
+        android:pathData="M105,135 Q120,148 135,135" />
+
+    <!-- Scan lines -->
+    <path
+        android:strokeColor="#C62828"
+        android:strokeWidth="2"
+        android:fillColor="#00000000"
+        android:pathData="M68,110 L82,110" />
+    <path
+        android:strokeColor="#C62828"
+        android:strokeWidth="2"
+        android:fillColor="#00000000"
+        android:pathData="M158,110 L172,110" />
+    <path
+        android:strokeColor="#C62828"
+        android:strokeWidth="2"
+        android:fillColor="#00000000"
+        android:pathData="M120,62 L120,48" />
+
+    <!-- Sparkles -->
+    <path
+        android:fillColor="#C62828"
+        android:pathData="M168,55 L170,61 L176,63 L170,65 L168,71 L166,65 L160,63 L166,61 Z" />
+    <path
+        android:fillColor="#C62828"
+        android:alpha="0.4"
+        android:pathData="M58,150 L60,154 L64,156 L60,158 L58,162 L56,158 L52,156 L56,154 Z" />
+
+</vector>

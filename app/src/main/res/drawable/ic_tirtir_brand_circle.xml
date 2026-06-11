@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TirTir circle brand icon for splash and onboarding -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Circle background in brand red -->
+    <path
+        android:fillColor="#C62828"
+        android:pathData="M60,2 A58,58 0 1,1 59.99,2 Z" />
+
+    <!-- White T shape (TirTir T) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M22,35 L98,35 L98,48 L66,48 L66,90 L54,90 L54,48 L22,48 Z" />
+
+</vector>

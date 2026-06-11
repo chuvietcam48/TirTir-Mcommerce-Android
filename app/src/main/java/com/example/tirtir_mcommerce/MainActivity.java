@@ -14,7 +14,9 @@ import com.example.tirtir_mcommerce.ui.fragments.HomeFragment;
 import com.example.tirtir_mcommerce.ui.fragments.ProfileFragment;
 import com.example.tirtir_mcommerce.ui.fragments.CartFragment;
 import com.example.tirtir_mcommerce.ui.fragments.WishlistFragment;
+import com.example.tirtir_mcommerce.database.DatabaseHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.badge.BadgeDrawable;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -60,6 +62,27 @@ public class MainActivity extends AppCompatActivity {
         // Hiển thị HomeFragment lúc mới mở app
         if (savedInstanceState == null) {
             bottomNav.setSelectedItemId(R.id.nav_home);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateCartBadge();
+    }
+
+    public void updateCartBadge() {
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigationView);
+        if (bottomNav != null) {
+            int cartCount = DatabaseHelper.getInstance(this).getCartCount();
+            if (cartCount > 0) {
+                BadgeDrawable badge = bottomNav.getOrCreateBadge(R.id.nav_cart);
+                badge.setVisible(true);
+                badge.setNumber(cartCount);
+                badge.setBackgroundColor(getResources().getColor(R.color.tirtir_red_primary, null));
+            } else {
+                bottomNav.removeBadge(R.id.nav_cart);
+            }
         }
     }
 }

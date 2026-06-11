@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TirTir brand wordmark as vector drawable -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="80dp"
+    android:viewportWidth="200"
+    android:viewportHeight="80">
+
+    <!-- Background shape: rounded rectangle in brand red -->
+    <path
+        android:fillColor="#C62828"
+        android:pathData="M10,10 L190,10 Q195,10 195,15 L195,65 Q195,70 190,70 L10,70 Q5,70 5,65 L5,15 Q5,10 10,10 Z" />
+
+    <!-- T letter -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M20,25 L52,25 L52,33 L40,33 L40,58 L32,58 L32,33 L20,33 Z" />
+
+    <!-- i letter -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M57,25 L65,25 L65,30 L57,30 Z
+                         M57,33 L65,33 L65,58 L57,58 Z" />
+
+    <!-- r letter -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M70,33 L78,33 L78,38
+                         Q82,32 90,33 L90,41
+                         Q82,40 78,46 L78,58 L70,58 Z" />
+
+    <!-- T letter 2 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M95,25 L127,25 L127,33 L115,33 L115,58 L107,58 L107,33 L95,33 Z" />
+
+    <!-- i letter 2 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M132,25 L140,25 L140,30 L132,30 Z
+                         M132,33 L140,33 L140,58 L132,58 Z" />
+
+    <!-- r letter 2 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M145,33 L153,33 L153,38
+                         Q157,32 165,33 L165,41
+                         Q157,40 153,46 L153,58 L145,58 Z" />
+
+</vector>

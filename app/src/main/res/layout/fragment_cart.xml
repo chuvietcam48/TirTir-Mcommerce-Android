@@ -92,6 +92,26 @@
                             android:textStyle="bold" />
                     </LinearLayout>
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Thuế (10%)"
+                            android:textColor="@color/tirtir_text_secondary" />
+                        <TextView
+                            android:id="@+id/tvTaxFee"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/cart_price_placeholder"
+                            android:textColor="@color/tirtir_text_primary"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                    
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"

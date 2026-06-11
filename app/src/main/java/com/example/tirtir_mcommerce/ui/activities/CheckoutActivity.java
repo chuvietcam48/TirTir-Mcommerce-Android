@@ -24,9 +24,9 @@ import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.text.NumberFormat;
+import com.example.tirtir_mcommerce.utils.PriceUtils;
+
 import java.util.List;
-import java.util.Locale;
 
 /**
  * SCR-16 CheckoutActivity — Thanh toán
@@ -50,13 +50,12 @@ public class CheckoutActivity extends AppCompatActivity {
 
     private TextInputEditText etFullName, etPhone, etStreet, etDistrict, etCity, etNote;
     private RadioGroup rgPaymentMethod;
-    private TextView tvCheckoutSubtotal, tvCheckoutShipping, tvCheckoutTotal;
+    private TextView tvCheckoutSubtotal, tvCheckoutShipping, tvCheckoutTax, tvCheckoutTotal;
     private MaterialButton btnPlaceOrder;
     private ProgressBar progressPlaceOrder;
 
     private OrderRepository orderRepository;
     private DatabaseHelper databaseHelper;
-    private final NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
     private ViettelPostSoapClient viettelPostClient;
 
     private double shippingFee = 0;
@@ -100,6 +99,7 @@ public class CheckoutActivity extends AppCompatActivity {
         rgPaymentMethod      = findViewById(R.id.rgPaymentMethod);
         tvCheckoutSubtotal   = findViewById(R.id.tvCheckoutSubtotal);
         tvCheckoutShipping   = findViewById(R.id.tvCheckoutShipping);
+        tvCheckoutTax        = findViewById(R.id.tvCheckoutTax);
         tvCheckoutTotal      = findViewById(R.id.tvCheckoutTotal);
         btnPlaceOrder        = findViewById(R.id.btnPlaceOrder);
         progressPlaceOrder   = findViewById(R.id.progressPlaceOrder);
@@ -121,10 +121,15 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     private void updateTotalsUI() {
-        double total = cartSubtotal + shippingFee;
-        tvCheckoutSubtotal.setText(currencyFormat.format(cartSubtotal) + " đ");
-        tvCheckoutShipping.setText(currencyFormat.format(shippingFee) + " đ");
-        tvCheckoutTotal.setText(currencyFormat.format(total) + " đ");
+        double tax = cartSubtotal * 0.10;
+        double total = cartSubtotal + tax + shippingFee;
+
+        tvCheckoutSubtotal.setText(PriceUtils.formatPriceVnd(cartSubtotal));
+        tvCheckoutShipping.setText(PriceUtils.formatPriceVnd(shippingFee));
+        if (tvCheckoutTax != null) {
+            tvCheckoutTax.setText(PriceUtils.formatPriceVnd(tax));
+        }
+        tvCheckoutTotal.setText(PriceUtils.formatPriceVnd(total));
     }
 
     private void calculateShippingFee() {

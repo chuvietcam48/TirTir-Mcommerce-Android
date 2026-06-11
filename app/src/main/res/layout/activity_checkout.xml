@@ -31,6 +31,26 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- Loyalty multiplier Badge Placeholder -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cvLoyaltyBadge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/tirtir_red_surface"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:text="Khách hàng thân thiết: Điểm x2"
+                    android:textColor="@color/tirtir_red_primary"
+                    android:textStyle="bold"
+                    android:gravity="center" />
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Shipping Address Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -242,15 +262,64 @@
                         android:textColor="@color/tirtir_text_secondary" />
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:text="@string/checkout_shipping_pending_note"
                         android:textSize="12sp"
                         android:textColor="@color/tirtir_silver_gray"
                         android:layout_marginTop="4dp" />
-
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <!-- Discount Code Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Mã giảm giá"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textCapCharacters" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp">
+                            
+                            <com.google.android.material.button.MaterialButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Áp dụng"
+                                app:backgroundTint="@color/tirtir_black" />
+                                
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnRemoveVoucher"
+                                style="@style/Widget.MaterialComponents.Button.TextButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Xóa"
+                                android:textColor="@color/tirtir_red_primary"
+                                android:visibility="gone" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
             <!-- Order Summary Card -->
             <com.google.android.material.card.MaterialCardView
@@ -314,6 +383,27 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="30.000 đ"
+                            android:textSize="14sp"
+                            android:textColor="@color/tirtir_black_cover" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Thuế (10%)"
+                            android:textSize="14sp"
+                            android:textColor="@color/tirtir_text_secondary" />
+                        <TextView
+                            android:id="@+id/tvCheckoutTax"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0 đ"
                             android:textSize="14sp"
                             android:textColor="@color/tirtir_black_cover" />
                     </LinearLayout>

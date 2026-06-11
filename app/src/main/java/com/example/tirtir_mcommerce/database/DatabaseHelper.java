@@ -156,8 +156,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 product.setId(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID)));
                 product.setProductId(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PRODUCT_ID)));
                 product.setName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME)));
-                product.setPrice(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_PRICE)));
-                product.setSalePrice(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_SALE_PRICE)));
+                product.setPrice(String.valueOf(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_PRICE))));
+                product.setSalePrice(String.valueOf(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_SALE_PRICE))));
                 product.setThumbnailImages(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_THUMBNAIL)));
                 product.setCategory(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY)));
                 product.setSkinTypeTarget(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SKIN_TYPE)));

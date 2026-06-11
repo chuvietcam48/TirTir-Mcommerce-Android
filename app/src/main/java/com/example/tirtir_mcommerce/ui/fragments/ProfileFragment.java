@@ -78,12 +78,13 @@ public class ProfileFragment extends Fragment {
     private AuthViewModel authViewModel;
 
     private ImageView ivAvatar;
-    private TextView tvUserName, tvEmail, tvInitials, tvCurrentLanguage, tvLoyaltyTier, tvLoyaltyPoints;
+    private TextView tvUserName, tvEmail, tvInitials;
     private ImageButton btnEditProfile;
-    private LinearLayout layoutMyOrders, layoutMyAddresses, layoutMyWishlist, layoutLanguage;
+    private LinearLayout layoutMyOrders, layoutMyAddresses, layoutMyWishlist;
     private com.google.android.material.button.MaterialButton btnLogout;
     private ProgressBar progressAvatarUpload;
-    private com.google.android.material.chip.Chip chipSkinType;
+    private com.google.android.material.chip.ChipGroup chipGroupSkinType;
+    private com.google.android.material.chip.Chip chipSkinOily, chipSkinDry, chipSkinCombo, chipSkinSensitive, chipSkinNormal;
     private RecyclerView rvAddresses;
     private AddressAdapter addressAdapter;
 
@@ -170,17 +171,20 @@ public class ProfileFragment extends Fragment {
         tvUserName = view.findViewById(R.id.tvUserName);
         tvEmail = view.findViewById(R.id.tvEmail);
         tvInitials = view.findViewById(R.id.tvInitials);
-        tvCurrentLanguage = view.findViewById(R.id.tvCurrentLanguage);
         btnEditProfile = view.findViewById(R.id.btnEditProfile);
         layoutMyOrders = view.findViewById(R.id.layoutMyOrders);
         layoutMyAddresses = view.findViewById(R.id.layoutMyAddresses);
         layoutMyWishlist = view.findViewById(R.id.layoutMyWishlist);
-        layoutLanguage = view.findViewById(R.id.layoutLanguage);
         btnLogout = view.findViewById(R.id.btnLogout);
         progressAvatarUpload = view.findViewById(R.id.progressAvatarUpload);
-        chipSkinType = view.findViewById(R.id.chipSkinType);
-        tvLoyaltyTier = view.findViewById(R.id.tvLoyaltyTier);
-        tvLoyaltyPoints = view.findViewById(R.id.tvLoyaltyPoints);
+        
+        chipGroupSkinType = view.findViewById(R.id.chipGroupSkinType);
+        chipSkinOily = view.findViewById(R.id.chipSkinOily);
+        chipSkinDry = view.findViewById(R.id.chipSkinDry);
+        chipSkinCombo = view.findViewById(R.id.chipSkinCombo);
+        chipSkinSensitive = view.findViewById(R.id.chipSkinSensitive);
+        chipSkinNormal = view.findViewById(R.id.chipSkinNormal);
+        
         rvAddresses = view.findViewById(R.id.rvAddresses);
 
         setupAddressesRecyclerView();
@@ -289,22 +293,20 @@ public class ProfileFragment extends Fragment {
                                 Long loyaltyPoints = documentSnapshot.getLong("loyaltyPoints");
 
                                 if (skinType != null && !skinType.isEmpty()) {
-                                    chipSkinType.setText("Skin: " + skinType);
-                                    chipSkinType.setVisibility(View.VISIBLE);
+                                    chipGroupSkinType.setVisibility(View.VISIBLE);
+                                    if (skinType.toLowerCase().contains("dầu") || skinType.equalsIgnoreCase("oily")) {
+                                        chipSkinOily.setChecked(true);
+                                    } else if (skinType.toLowerCase().contains("khô") || skinType.equalsIgnoreCase("dry")) {
+                                        chipSkinDry.setChecked(true);
+                                    } else if (skinType.toLowerCase().contains("hỗn hợp") || skinType.equalsIgnoreCase("combo")) {
+                                        chipSkinCombo.setChecked(true);
+                                    } else if (skinType.toLowerCase().contains("nhạy cảm") || skinType.equalsIgnoreCase("sensitive")) {
+                                        chipSkinSensitive.setChecked(true);
+                                    } else {
+                                        chipSkinNormal.setChecked(true);
+                                    }
                                 } else {
-                                    chipSkinType.setVisibility(View.GONE);
-                                }
-
-                                if (loyaltyTier != null) {
-                                    tvLoyaltyTier.setText("Tier: " + loyaltyTier.substring(0, 1).toUpperCase() + loyaltyTier.substring(1));
-                                } else {
-                                    tvLoyaltyTier.setText("Tier: Silver");
-                                }
-
-                                if (loyaltyPoints != null) {
-                                    tvLoyaltyPoints.setText("Points: " + loyaltyPoints);
-                                } else {
-                                    tvLoyaltyPoints.setText("Points: 0");
+                                    chipGroupSkinType.setVisibility(View.GONE);
                                 }
                             }
                         });
@@ -350,9 +352,6 @@ public class ProfileFragment extends Fragment {
 
         // ===== WISHLIST - Navigate WishlistFragment (ContentProvider) =====
         layoutMyWishlist.setOnClickListener(v -> navigateToWishlist());
-
-        // Chuyển đổi ngôn ngữ
-        layoutLanguage.setOnClickListener(v -> showLanguageDialog());
 
         btnEditProfile.setOnClickListener(v -> {
             // TODO: Implement EditProfileActivity
@@ -453,11 +452,7 @@ public class ProfileFragment extends Fragment {
     // ===========================
 
     private void navigateToWishlist() {
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragmentContainer, new WishlistFragment())
-                .addToBackStack("wishlist")
-                .commit();
+        startActivity(new android.content.Intent(requireContext(), com.example.tirtir_mcommerce.ui.activities.WishlistActivity.class));
     }
 
     // ===========================
@@ -475,26 +470,5 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    // ===========================
-    // LANGUAGE DIALOG
-    // ===========================
 
-    /**
-     * Dialog chọn ngôn ngữ (Yêu cầu môn học: Dialog + Multi-language)
-     */
-    private void showLanguageDialog() {
-        String[] languages = {"🇻🇳 Tiếng Việt", "🇺🇸 English"};
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Chọn ngôn ngữ / Select Language")
-                .setItems(languages, (dialog, which) -> {
-                    if (which == 0) {
-                        tvCurrentLanguage.setText("🇻🇳 VI");
-                        Toast.makeText(getContext(), "Đã chuyển sang Tiếng Việt", Toast.LENGTH_SHORT).show();
-                    } else {
-                        tvCurrentLanguage.setText("🇺🇸 EN");
-                        Toast.makeText(getContext(), "Switched to English", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .show();
-    }
 }

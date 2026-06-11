@@ -77,6 +77,11 @@
             android:name=".ui.activities.AddressManagerActivity"
             android:exported="false" />
 
+        <!-- SCR-1B: WishlistActivity -->
+        <activity
+            android:name=".ui.activities.WishlistActivity"
+            android:exported="false" />
+
         <!-- AdminActivity - Màn hình dành cho role admin -->
         <activity
             android:name=".ui.activities.AdminActivity"
