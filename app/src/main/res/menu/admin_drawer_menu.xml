@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_admin_products"
+            android:icon="@android:drawable/ic_menu_edit"
+            android:title="Sản phẩm" />
+        <item
+            android:id="@+id/nav_admin_orders"
+            android:icon="@android:drawable/ic_menu_agenda"
+            android:title="Đơn hàng" />
+        <item
+            android:id="@+id/nav_admin_churn"
+            android:icon="@android:drawable/ic_menu_report_problem"
+            android:title="Churn" />
+        <item
+            android:id="@+id/nav_admin_cart_recovery"
+            android:icon="@android:drawable/ic_menu_recent_history"
+            android:title="Cart Recovery" />
+    </group>
+    
+    <item android:title="Cá nhân">
+        <menu>
+            <item
+                android:id="@+id/nav_admin_logout"
+                android:icon="@android:drawable/ic_lock_power_off"
+                android:title="Đăng xuất" />
+        </menu>
+    </item>
+</menu>

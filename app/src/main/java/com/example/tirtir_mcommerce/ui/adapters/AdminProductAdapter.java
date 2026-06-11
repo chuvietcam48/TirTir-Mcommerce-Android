@@ -57,6 +57,7 @@ public class AdminProductAdapter extends RecyclerView.Adapter<AdminProductAdapte
         Product product = productList.get(position);
         holder.tvName.setText(product.getName());
         holder.tvPrice.setText(currencyFormat.format(product.getPrice()) + " đ");
+        holder.tvStock.setText("Kho: " + product.getStock());
 
         // Load image
         String imageUrl = product.getThumbnailImages();
@@ -95,7 +96,7 @@ public class AdminProductAdapter extends RecyclerView.Adapter<AdminProductAdapte
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivImage;
-        TextView tvName, tvPrice;
+        TextView tvName, tvPrice, tvStock;
         SwitchCompat switchActive;
         MaterialButton btnEdit, btnDelete;
 
@@ -104,6 +105,7 @@ public class AdminProductAdapter extends RecyclerView.Adapter<AdminProductAdapte
             ivImage = itemView.findViewById(R.id.ivAdminProduct);
             tvName = itemView.findViewById(R.id.tvAdminProductName);
             tvPrice = itemView.findViewById(R.id.tvAdminProductPrice);
+            tvStock = itemView.findViewById(R.id.tvAdminProductStock);
             switchActive = itemView.findViewById(R.id.switchAdminProductActive);
             btnEdit = itemView.findViewById(R.id.btnAdminEdit);
             btnDelete = itemView.findViewById(R.id.btnAdminDelete);
