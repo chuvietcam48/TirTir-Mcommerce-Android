@@ -74,7 +74,7 @@ public class ProductRepository {
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
 
         // PRIMARY: Gọi API backend (MongoDB qua Node.js)
-        apiService.getProducts(limit).enqueue(new Callback<ProductResponse>() {
+        apiService.getProducts(limit, System.currentTimeMillis()).enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {

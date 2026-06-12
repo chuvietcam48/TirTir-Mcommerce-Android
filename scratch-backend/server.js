@@ -6,7 +6,8 @@ const admin = require('firebase-admin');
 
 const serviceAccount = require('./config/serviceAccountKey.json');
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET
 });
 
 const app = express();
@@ -24,6 +25,7 @@ app.use('/api/v1/users', require('./routes/userRoutes'));
 app.use('/api/v1/products', require('./routes/productRoutes'));
 app.use('/api/v1/cart', require('./routes/cartRoutes'));
 app.use('/api/v1/orders', require('./routes/orderRoutes'));
+app.use('/api/v1/upload', require('./routes/uploadRoutes'));
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 

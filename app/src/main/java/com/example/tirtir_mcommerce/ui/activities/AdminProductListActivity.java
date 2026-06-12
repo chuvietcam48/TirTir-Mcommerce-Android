@@ -102,7 +102,7 @@ public class AdminProductListActivity extends AppCompatActivity implements Admin
 
     private void loadProducts() {
         progressAdminProducts.setVisibility(View.VISIBLE);
-        apiService.getProducts(1000).enqueue(new Callback<ProductResponse>() {
+        apiService.getProducts(1000, System.currentTimeMillis()).enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
                 progressAdminProducts.setVisibility(View.GONE);

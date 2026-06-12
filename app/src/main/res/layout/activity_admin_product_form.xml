@@ -203,17 +203,17 @@
                 android:textSize="16sp"
                 android:layout_marginBottom="12dp"/>
             
-            <androidx.gridlayout.widget.GridLayout
+            <android.widget.GridLayout
                 android:id="@+id/gridProductImages"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:columnCount="3"
+                android:columnCount="3"
                 android:layout_marginBottom="12dp">
                 <!-- Placeholder ImageViews will be added here -->
                 <ImageView android:layout_width="100dp" android:layout_height="100dp" android:layout_margin="4dp" android:background="#EEEEEE" android:src="@android:drawable/ic_menu_gallery" android:padding="24dp" android:scaleType="centerInside"/>
                 <ImageView android:layout_width="100dp" android:layout_height="100dp" android:layout_margin="4dp" android:background="#EEEEEE" android:src="@android:drawable/ic_menu_gallery" android:padding="24dp" android:scaleType="centerInside"/>
                 <ImageView android:layout_width="100dp" android:layout_height="100dp" android:layout_margin="4dp" android:background="#EEEEEE" android:src="@android:drawable/ic_menu_gallery" android:padding="24dp" android:scaleType="centerInside"/>
-            </androidx.gridlayout.widget.GridLayout>
+            </android.widget.GridLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSelectImages"

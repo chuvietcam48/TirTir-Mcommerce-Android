@@ -148,7 +148,7 @@ public class AdminProductFormActivity extends AppCompatActivity {
     }
 
     private void updateImageGrid() {
-        androidx.gridlayout.widget.GridLayout grid = findViewById(R.id.gridProductImages);
+        android.widget.GridLayout grid = findViewById(R.id.gridProductImages);
         grid.removeAllViews();
         for (Uri uri : selectedImageUris) {
             ImageView iv = new ImageView(this);

@@ -32,6 +32,42 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -231,5 +267,16 @@ public class AdminActivity extends AppCompatActivity {
         pieChartCategory.getDescription().setEnabled(false);
         pieChartCategory.animateXY(1000, 1000);
         pieChartCategory.invalidate();
+    }
+
+    private void confirmLogout() {
+        new AlertDialog.Builder(this)
+                .setTitle("Đăng xuất")
+                .setMessage("Bạn có chắc chắn muốn đăng xuất?")
+                .setPositiveButton("Đăng xuất", (dialog, which) -> {
+                    authViewModel.logout(this::finish);
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
     }
 }

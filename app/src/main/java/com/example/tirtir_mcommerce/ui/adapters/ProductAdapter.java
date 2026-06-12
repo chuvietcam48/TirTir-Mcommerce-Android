@@ -243,7 +243,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             if (path.startsWith("https://") || path.startsWith("http://")) {
                 return path;
             }
-            return BASE_IMAGE_URL + path;
+            // Strip leading slash to prevent double-slash: "https://host.com//assets/..."
+            String cleanPath = path.startsWith("/") ? path.substring(1) : path;
+            String finalUrl = BASE_IMAGE_URL + cleanPath;
+            android.util.Log.d("ProductAdapter", "Image URL: " + finalUrl);
+            return finalUrl;
         }
     }
 }

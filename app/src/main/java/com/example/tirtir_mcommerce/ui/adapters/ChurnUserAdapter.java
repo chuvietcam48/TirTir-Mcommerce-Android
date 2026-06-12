@@ -77,7 +77,7 @@ public class ChurnUserAdapter extends RecyclerView.Adapter<ChurnUserAdapter.View
             default: color = Color.parseColor("#9E9E9E"); break;
         }
         holder.chipSegment.setChipBackgroundColorResource(android.R.color.transparent);
-        holder.chipSegment.setChipBackgroundColor(android.graphics.res.ColorStateList.valueOf(color));
+        holder.chipSegment.setChipBackgroundColor(android.content.res.ColorStateList.valueOf(color));
 
         holder.btnVoucher.setOnClickListener(v -> {
             if (voucherListener != null) voucherListener.onAction(user);

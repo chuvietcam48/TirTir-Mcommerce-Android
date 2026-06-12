@@ -28,10 +28,10 @@ public class Product {
     private String productSlug;
 
     @SerializedName("Price")
-    private String price;
+    private double price;
 
     @SerializedName("Sale_Price")
-    private String salePrice;
+    private double salePrice;
 
     @SerializedName("Volume_Size")
     private String volumeSize;
@@ -106,23 +106,11 @@ public class Product {
     public String getProductSlug() { return productSlug; }
     public void setProductSlug(String productSlug) { this.productSlug = productSlug; }
 
-    public double getPrice() { 
-        try {
-            return (price != null && !price.isEmpty()) ? Double.parseDouble(price) : 0.0;
-        } catch (NumberFormatException e) {
-            return 0.0;
-        }
-    }
-    public void setPrice(String price) { this.price = price; }
+    public double getPrice() { return price; }
+    public void setPrice(double price) { this.price = price; }
 
-    public double getSalePrice() { 
-        try {
-            return (salePrice != null && !salePrice.isEmpty()) ? Double.parseDouble(salePrice) : 0.0;
-        } catch (NumberFormatException e) {
-            return 0.0;
-        }
-    }
-    public void setSalePrice(String salePrice) { this.salePrice = salePrice; }
+    public double getSalePrice() { return salePrice; }
+    public void setSalePrice(double salePrice) { this.salePrice = salePrice; }
 
     public String getVolumeSize() { return volumeSize; }
     public void setVolumeSize(String volumeSize) { this.volumeSize = volumeSize; }

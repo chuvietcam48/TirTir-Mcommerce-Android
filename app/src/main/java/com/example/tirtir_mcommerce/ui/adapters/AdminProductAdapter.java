@@ -57,7 +57,7 @@ public class AdminProductAdapter extends RecyclerView.Adapter<AdminProductAdapte
         Product product = productList.get(position);
         holder.tvName.setText(product.getName());
         holder.tvPrice.setText(currencyFormat.format(product.getPrice()) + " đ");
-        holder.tvStock.setText("Kho: " + product.getStock());
+        holder.tvStock.setText("Kho: " + product.getStockQuantity());
 
         // Load image
         String imageUrl = product.getThumbnailImages();

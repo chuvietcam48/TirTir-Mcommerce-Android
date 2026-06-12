@@ -134,7 +134,7 @@ public interface ApiService {
       * Mặc định limit=1000 để load toàn bộ, filter client-side.
       */
     @GET("api/v1/products")
-    Call<ProductResponse> getProducts(@retrofit2.http.Query("limit") int limit);
+    Call<ProductResponse> getProducts(@retrofit2.http.Query("limit") int limit, @retrofit2.http.Query("_t") long timestamp);
 
     /**
      * Lấy sản phẩm theo category - GET /api/v1/products?limit={limit}&category={category}
