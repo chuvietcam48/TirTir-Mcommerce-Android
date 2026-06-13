@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tirtir_off_white">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvCommunityRoutines"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:padding="12dp" />
+
+    <TextView
+        android:id="@+id/tvCommunityEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:padding="32dp"
+        android:text="Community routines will appear when public_routines is available from Firestore/API."
+        android:textColor="@color/tirtir_text_secondary"
+        android:textSize="14sp" />
+</FrameLayout>

@@ -23,7 +23,10 @@ import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.Product;
 import com.example.tirtir_mcommerce.model.ProductResponse;
 import com.example.tirtir_mcommerce.repository.ProductRepository;
+import com.example.tirtir_mcommerce.ui.activities.ChatActivity;
+import com.example.tirtir_mcommerce.ui.activities.IngredientScanActivity;
 import com.example.tirtir_mcommerce.ui.activities.ProductDetailActivity;
+import com.example.tirtir_mcommerce.ui.activities.SkinAnalysisActivity;
 import com.example.tirtir_mcommerce.ui.adapters.ProductAdapter;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -123,11 +126,28 @@ public class HomeFragment extends Fragment {
         productRepository = new ProductRepository(getContext());
 
         setupSearch();
+        setupAiActions(view);
         loadProducts();
 
         btnRetry.setOnClickListener(v -> loadProducts());
 
         return view;
+    }
+
+    private void setupAiActions(View view) {
+        View btnHomeChat = view.findViewById(R.id.btnHomeChat);
+        View btnHomeSkin = view.findViewById(R.id.btnHomeSkin);
+        View btnHomeScan = view.findViewById(R.id.btnHomeScan);
+
+        if (btnHomeChat != null) {
+            btnHomeChat.setOnClickListener(v -> startActivity(new Intent(requireContext(), ChatActivity.class)));
+        }
+        if (btnHomeSkin != null) {
+            btnHomeSkin.setOnClickListener(v -> startActivity(new Intent(requireContext(), SkinAnalysisActivity.class)));
+        }
+        if (btnHomeScan != null) {
+            btnHomeScan.setOnClickListener(v -> startActivity(new Intent(requireContext(), IngredientScanActivity.class)));
+        }
     }
 
     // ===========================
@@ -163,7 +183,7 @@ public class HomeFragment extends Fragment {
                 hideAllStates();
                 if (fullProductList.isEmpty()) {
                     // No cached data — show retry
-                    showErrorState("Lỗi kết nối. Có thể server đang khởi động.\n" + error);
+                    showErrorState("Connection issue. The server may still be waking up.\n" + error);
                 } else {
                     // Have cached data already shown — just keep it
                     rvProducts.setVisibility(View.VISIBLE);
@@ -273,10 +293,10 @@ public class HomeFragment extends Fragment {
         chipGroupSkinTypeFilter.setOnCheckedStateChangeListener((group, checkedIds) -> {
             int checkedId = group.getCheckedChipId();
             if (checkedId == R.id.chipFilterAll) currentSkinTypeFilter = "All";
-            else if (checkedId == R.id.chipFilterOily) currentSkinTypeFilter = "Da dầu";
-            else if (checkedId == R.id.chipFilterDry) currentSkinTypeFilter = "Da khô";
-            else if (checkedId == R.id.chipFilterCombo) currentSkinTypeFilter = "Da hỗn hợp";
-            else if (checkedId == R.id.chipFilterSensitive) currentSkinTypeFilter = "Da nhạy cảm";
+            else if (checkedId == R.id.chipFilterOily) currentSkinTypeFilter = "Oily";
+            else if (checkedId == R.id.chipFilterDry) currentSkinTypeFilter = "Dry";
+            else if (checkedId == R.id.chipFilterCombo) currentSkinTypeFilter = "Combination";
+            else if (checkedId == R.id.chipFilterSensitive) currentSkinTypeFilter = "Sensitive";
             else currentSkinTypeFilter = "All";
             applyFilters();
         });
@@ -317,7 +337,13 @@ public class HomeFragment extends Fragment {
             
             if (!"All".equalsIgnoreCase(currentSkinTypeFilter)) {
                 String skinTarget = product.getSkinTypeTarget() != null ? product.getSkinTypeTarget() : "";
-                matchesSkinType = skinTarget.toLowerCase().contains(currentSkinTypeFilter.toLowerCase());
+                String normalized = skinTarget.toLowerCase();
+                String selected = currentSkinTypeFilter.toLowerCase();
+                if ("combination".equals(selected)) {
+                    matchesSkinType = normalized.contains("combination") || normalized.contains("combo");
+                } else {
+                    matchesSkinType = normalized.contains(selected);
+                }
             }
 
             if (matchesSearch && matchesCategory && matchesSkinType) {

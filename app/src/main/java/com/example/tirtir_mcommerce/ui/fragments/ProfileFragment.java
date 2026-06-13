@@ -12,7 +12,6 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -35,11 +34,14 @@ import com.bumptech.glide.Glide;
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.User;
 import com.example.tirtir_mcommerce.ui.activities.AddressManagerActivity;
+import com.example.tirtir_mcommerce.ui.activities.IngredientHistoryActivity;
 import com.example.tirtir_mcommerce.ui.activities.LoginActivity;
+import com.example.tirtir_mcommerce.ui.activities.NotificationSettingsActivity;
 import com.example.tirtir_mcommerce.viewmodel.AuthViewModel;
 import com.example.tirtir_mcommerce.viewmodel.ProfileViewModel;
 import com.example.tirtir_mcommerce.ui.adapters.AddressAdapter;
 import com.example.tirtir_mcommerce.model.Address;
+import com.google.android.material.button.MaterialButton;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,8 +81,8 @@ public class ProfileFragment extends Fragment {
 
     private ImageView ivAvatar;
     private TextView tvUserName, tvEmail, tvInitials;
-    private ImageButton btnEditProfile;
-    private LinearLayout layoutMyOrders, layoutMyAddresses, layoutMyWishlist;
+    private MaterialButton btnEditProfile;
+    private LinearLayout layoutMyOrders, layoutMyAddresses, layoutMyWishlist, layoutScanHistory, layoutNotificationSettings;
     private com.google.android.material.button.MaterialButton btnLogout;
     private ProgressBar progressAvatarUpload;
     private com.google.android.material.chip.ChipGroup chipGroupSkinType;
@@ -175,6 +177,8 @@ public class ProfileFragment extends Fragment {
         layoutMyOrders = view.findViewById(R.id.layoutMyOrders);
         layoutMyAddresses = view.findViewById(R.id.layoutMyAddresses);
         layoutMyWishlist = view.findViewById(R.id.layoutMyWishlist);
+        layoutScanHistory = view.findViewById(R.id.layoutScanHistory);
+        layoutNotificationSettings = view.findViewById(R.id.layoutNotificationSettings);
         btnLogout = view.findViewById(R.id.btnLogout);
         progressAvatarUpload = view.findViewById(R.id.progressAvatarUpload);
         
@@ -352,6 +356,16 @@ public class ProfileFragment extends Fragment {
 
         // ===== WISHLIST - Navigate WishlistFragment (ContentProvider) =====
         layoutMyWishlist.setOnClickListener(v -> navigateToWishlist());
+
+        if (layoutScanHistory != null) {
+            layoutScanHistory.setOnClickListener(v ->
+                    startActivity(new Intent(requireContext(), IngredientHistoryActivity.class)));
+        }
+
+        if (layoutNotificationSettings != null) {
+            layoutNotificationSettings.setOnClickListener(v ->
+                    startActivity(new Intent(requireContext(), NotificationSettingsActivity.class)));
+        }
 
         btnEditProfile.setOnClickListener(v -> {
             // TODO: Implement EditProfileActivity

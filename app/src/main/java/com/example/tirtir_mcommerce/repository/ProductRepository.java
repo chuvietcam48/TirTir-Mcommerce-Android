@@ -73,6 +73,17 @@ public class ProductRepository {
                               Consumer<String> onError) {
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
 
+        // Show cached products immediately so Home is usable while Render wakes up.
+        try {
+            List<Product> cached = dbHelper.getAllProducts();
+            if (cached != null && !cached.isEmpty()) {
+                Log.d(TAG, "Warm cache: showing " + cached.size() + " products before API refresh");
+                onSuccess.accept(cached);
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Warm cache unavailable: " + e.getMessage());
+        }
+
         // PRIMARY: Gọi API backend (MongoDB qua Node.js)
         apiService.getProducts(limit, System.currentTimeMillis()).enqueue(new Callback<ProductResponse>() {
             @Override

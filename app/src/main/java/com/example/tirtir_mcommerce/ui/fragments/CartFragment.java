@@ -27,6 +27,7 @@ import com.example.tirtir_mcommerce.database.DatabaseHelper;
 import com.example.tirtir_mcommerce.model.CartItem;
 import com.example.tirtir_mcommerce.ui.activities.CheckoutActivity;
 import com.example.tirtir_mcommerce.ui.adapters.CartAdapter;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import com.example.tirtir_mcommerce.utils.PriceUtils;
 
@@ -38,6 +39,7 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
     private TextView tvCartSubtotal, tvShippingFee, tvTaxFee, tvCartTotal;
     private Button btnCheckout;
     private LinearLayout layoutEmptyCart;
+    private View cardCartSummary;
     private CartAdapter cartAdapter;
     private List<CartItem> cartItemList;
 
@@ -60,12 +62,18 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
         tvCartTotal = view.findViewById(R.id.tvCartTotal);
         btnCheckout = view.findViewById(R.id.btnCheckout);
         layoutEmptyCart = view.findViewById(R.id.layoutEmptyCart);
+        cardCartSummary = view.findViewById(R.id.cardCartSummary);
+
+        View btnContinueShopping = view.findViewById(R.id.btnContinueShopping);
+        if (btnContinueShopping != null) {
+            btnContinueShopping.setOnClickListener(v -> navigateHome());
+        }
 
         loadCartData();
 
         btnCheckout.setOnClickListener(v -> {
             if (cartItemList.isEmpty()) {
-                Toast.makeText(getContext(), "Cart is empty!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Your cart is empty", Toast.LENGTH_SHORT).show();
             } else {
                 double subtotal = getSubtotal();
                 Intent intent = new Intent(getContext(), CheckoutActivity.class);
@@ -93,6 +101,8 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
         if (cartItemList.isEmpty()) {
             layoutEmptyCart.setVisibility(View.VISIBLE);
             rvCartItems.setVisibility(View.GONE);
+            if (cardCartSummary != null) cardCartSummary.setVisibility(View.GONE);
+            btnCheckout.setEnabled(false);
             tvCartSubtotal.setText("0 đ");
             tvShippingFee.setText("0 đ");
             tvTaxFee.setText("0 đ");
@@ -103,6 +113,8 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
 
         layoutEmptyCart.setVisibility(View.GONE);
         rvCartItems.setVisibility(View.VISIBLE);
+        if (cardCartSummary != null) cardCartSummary.setVisibility(View.VISIBLE);
+        btnCheckout.setEnabled(true);
 
         double subtotal = 0;
         for (CartItem item : cartItemList) {
@@ -189,5 +201,17 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(rvCartItems);
+    }
+
+    private void navigateHome() {
+        BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottomNavigationView);
+        if (bottomNav != null) {
+            bottomNav.setSelectedItemId(R.id.nav_home);
+        } else {
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragmentContainer, new HomeFragment())
+                    .commit();
+        }
     }
 }

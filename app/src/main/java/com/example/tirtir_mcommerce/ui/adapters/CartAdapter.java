@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tirtir_mcommerce.R;
 import com.bumptech.glide.Glide;
-import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.CartItem;
 import com.example.tirtir_mcommerce.utils.PriceUtils;
 
@@ -57,7 +56,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         
         Glide.with(context)
                 .load(imageUrl)
-                .placeholder(android.R.drawable.ic_menu_gallery)
+                .placeholder(R.drawable.ic_product_placeholder)
+                .error(R.drawable.ic_product_placeholder)
                 .into(holder.ivImage);
         
         holder.tvQuantity.setText(String.valueOf(cartItem.getQuantity()));
@@ -68,12 +68,12 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 cartListener.onQuantityChanged(position, qty - 1);
             } else {
                 new android.app.AlertDialog.Builder(context)
-                        .setTitle("Xóa khỏi giỏ hàng?")
-                        .setMessage("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?")
-                        .setPositiveButton("Xóa", (dialog, which) -> {
+                        .setTitle("Remove from cart?")
+                        .setMessage("Do you want to remove this product from your cart?")
+                        .setPositiveButton("Remove", (dialog, which) -> {
                             cartListener.onRemoveItem(position);
                         })
-                        .setNegativeButton("Hủy", null)
+                        .setNegativeButton("Cancel", null)
                         .show();
             }
         });

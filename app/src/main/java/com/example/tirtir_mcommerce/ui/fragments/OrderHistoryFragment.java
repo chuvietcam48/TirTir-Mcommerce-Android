@@ -161,7 +161,7 @@ public class OrderHistoryFragment extends Fragment {
             }
 
             if (mockList.isEmpty()) {
-                showEmptyState("No orders found", "You haven't placed any orders with this status.");
+                showEmptyState("Khong co don hang", "Ban chua co don hang nao voi trang thai nay.");
             } else {
                 adapter.setOrders(mockList);
                 rvOrderHistory.setVisibility(View.VISIBLE);

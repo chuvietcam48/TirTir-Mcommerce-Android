@@ -63,6 +63,12 @@ dependencies {
     // Lottie
     implementation("com.airbnb.android:lottie:6.4.0")
 
+    // Phase 3 frontend widgets
+    implementation("androidx.camera:camera-view:1.4.2")
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
+    implementation("com.google.android.gms:play-services-ads:23.6.0")
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

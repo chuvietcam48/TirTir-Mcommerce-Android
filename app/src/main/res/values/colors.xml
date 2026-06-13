@@ -34,6 +34,10 @@
     <color name="tirtir_error">#D32F2F</color>        <!-- Error red -->
     <color name="tirtir_success">#2E7D32</color>      <!-- Order success green only -->
     <color name="tirtir_warning">#F57F17</color>
+    <color name="tirtir_info">#1565C0</color>
+    <color name="tirtir_low">#2E7D32</color>
+    <color name="tirtir_shadow">#14000000</color>
+    <color name="tirtir_camera_scrim">#99000000</color>
 
     <!-- LEGACY (kept for backward compatibility) -->
     <color name="tirtir_aura_pink">#FFEBEE</color>    <!-- Remapped to very light red surface -->

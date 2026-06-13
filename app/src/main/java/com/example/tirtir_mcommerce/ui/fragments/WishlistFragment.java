@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.WishlistContentProvider;
+import com.example.tirtir_mcommerce.ui.activities.WishlistActivity;
 import com.example.tirtir_mcommerce.ui.adapters.WishlistAdapter;
 
 import java.util.ArrayList;
@@ -65,7 +66,13 @@ public class WishlistFragment extends Fragment {
         setupRecyclerView();
         loadWishlistFromContentProvider();
 
-        btnBack.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
+        btnBack.setOnClickListener(v -> {
+            if (requireActivity() instanceof WishlistActivity) {
+                requireActivity().finish();
+            } else {
+                requireActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
     }
 
     private void bindViews(View view) {
@@ -126,7 +133,7 @@ public class WishlistFragment extends Fragment {
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
-            Toast.makeText(getContext(), "Lỗi khi tải danh sách: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Unable to load wishlist: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         } finally {
             if (cursor != null) cursor.close();
         }
@@ -175,7 +182,7 @@ public class WishlistFragment extends Fragment {
         if (rowsDeleted > 0) {
             adapter.removeItem(position);
             updateCount(adapter.getItemCount());
-            Toast.makeText(getContext(), "Đã xóa khỏi danh sách yêu thích", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Removed from wishlist", Toast.LENGTH_SHORT).show();
 
             // Hiện empty state nếu hết item
             if (adapter.getItemCount() == 0) {
@@ -183,7 +190,7 @@ public class WishlistFragment extends Fragment {
                 layoutEmptyWishlist.setVisibility(View.VISIBLE);
             }
         } else {
-            Toast.makeText(getContext(), "Không thể xóa sản phẩm", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Unable to remove product", Toast.LENGTH_SHORT).show();
         }
     }
 

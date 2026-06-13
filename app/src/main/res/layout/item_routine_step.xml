@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    app:cardBackgroundColor="@color/tirtir_white"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <ImageView
+            android:id="@+id/ivDragHandle"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_drag"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:id="@+id/tvRoutineStepNumber"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/ic_tirtir_brand_circle"
+            android:gravity="center"
+            android:textColor="@color/tirtir_red_primary"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/ivRoutineProduct"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
+            android:layout_marginStart="10dp"
+            android:background="@color/tirtir_off_white"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_product_placeholder" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvRoutineProductName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:textColor="@color/tirtir_black"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvRoutineSlotLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/tirtir_text_secondary"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/ivRoutineWarning"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@android:drawable/ic_dialog_alert"
+            android:visibility="gone"
+            app:tint="@color/tirtir_warning" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

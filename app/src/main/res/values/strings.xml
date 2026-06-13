@@ -87,6 +87,7 @@
     <!-- ===== BOTTOM NAV ===== -->
     <string name="nav_home">Trang chủ</string>
     <string name="nav_shop">Cửa hàng</string>
+    <string name="nav_ai">Tư vấn</string>
     <string name="nav_routine">Routine</string>
     <string name="nav_profile">Tài khoản</string>
     <string name="nav_cart">Giỏ hàng</string>

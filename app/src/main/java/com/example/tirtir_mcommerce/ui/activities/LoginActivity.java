@@ -78,13 +78,13 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         // Google login: mock for Phase 1
-        btnGoogleLogin.setOnClickListener(v -> Toast.makeText(this, "Tính năng đăng nhập Google chưa có", Toast.LENGTH_SHORT).show());
+        btnGoogleLogin.setOnClickListener(v -> Toast.makeText(this, "Google sign-in is not connected yet", Toast.LENGTH_SHORT).show());
 
         tvGoRegister.setOnClickListener(v ->
                 startActivity(new Intent(this, RegisterActivity.class)));
 
         tvForgotPassword.setOnClickListener(v ->
-                Toast.makeText(this, "Tính năng đang phát triển", Toast.LENGTH_SHORT).show());
+                Toast.makeText(this, "Password recovery is coming soon", Toast.LENGTH_SHORT).show());
     }
 
     // ===========================
@@ -133,11 +133,11 @@ public class LoginActivity extends AppCompatActivity {
         String password = etPassword.getText() != null ? etPassword.getText().toString().trim() : "";
 
         if (TextUtils.isEmpty(email) || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            tilEmail.setError("Vui lòng nhập email hợp lệ");
+            tilEmail.setError("Please enter a valid email");
             valid = false;
         }
         if (TextUtils.isEmpty(password)) {
-            tilPassword.setError("Vui lòng nhập mật khẩu");
+            tilPassword.setError("Please enter your password");
             valid = false;
         }
         return valid;

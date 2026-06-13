@@ -68,6 +68,7 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.Wishli
     private final Context context;
     private final List<WishlistItem> items;
     private final OnRemoveClickListener removeListener;
+    private static final String BASE_IMAGE_URL = "https://tirtir-project.onrender.com/";
 
     public WishlistAdapter(Context context, List<WishlistItem> items, OnRemoveClickListener removeListener) {
         this.context = context;
@@ -152,7 +153,7 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.Wishli
         }
 
         void bind(WishlistItem item, int position) {
-            tvName.setText(item.productName != null ? item.productName : "Sản phẩm");
+            tvName.setText(item.productName != null ? item.productName : "TirTir product");
 
             // Format giá tiền
             tvPrice.setText(PriceUtils.formatPriceVnd(item.productPrice));
@@ -160,12 +161,12 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.Wishli
             // Load ảnh bằng Glide
             if (item.productImage != null && !item.productImage.isEmpty()) {
                 Glide.with(context)
-                        .load(item.productImage)
-                        .placeholder(android.R.drawable.ic_menu_gallery)
-                        .error(android.R.drawable.ic_menu_gallery)
+                        .load(resolveImageUrl(item.productImage))
+                        .placeholder(R.drawable.ic_product_placeholder)
+                        .error(R.drawable.ic_product_placeholder)
                         .into(imgProduct);
             } else {
-                imgProduct.setImageResource(android.R.drawable.ic_menu_gallery);
+                imgProduct.setImageResource(R.drawable.ic_product_placeholder);
             }
 
             // Xóa item
@@ -174,6 +175,12 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.Wishli
                     removeListener.onRemove(item, getAdapterPosition());
                 }
             });
+        }
+
+        private String resolveImageUrl(String path) {
+            if (path == null || path.trim().isEmpty()) return "";
+            if (path.startsWith("https://") || path.startsWith("http://")) return path;
+            return BASE_IMAGE_URL + path;
         }
     }
 }

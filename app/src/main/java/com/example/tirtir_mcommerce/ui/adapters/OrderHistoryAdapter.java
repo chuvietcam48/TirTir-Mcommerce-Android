@@ -54,7 +54,7 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         MockOrder order = orders.get(position);
         holder.tvOrderCode.setText(order.code);
-        holder.tvOrderStatus.setText(order.status);
+        holder.tvOrderStatus.setText(localizeStatus(order.status));
         holder.tvOrderDate.setText(order.date);
         holder.tvOrderTotal.setText(PriceUtils.formatPriceVnd(order.total));
     }
@@ -62,6 +62,20 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
     @Override
     public int getItemCount() {
         return orders == null ? 0 : orders.size();
+    }
+
+    private String localizeStatus(String status) {
+        if (status == null) return "Processing";
+        if ("Pending".equalsIgnoreCase(status) || "Processing".equalsIgnoreCase(status)) {
+            return "Processing";
+        }
+        if ("Shipping".equalsIgnoreCase(status)) {
+            return "Shipping";
+        }
+        if ("Delivered".equalsIgnoreCase(status)) {
+            return "Delivered";
+        }
+        return status;
     }
 
     static class OrderViewHolder extends RecyclerView.ViewHolder {

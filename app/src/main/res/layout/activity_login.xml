@@ -133,7 +133,7 @@
                     android:layout_marginTop="12dp"
                     app:icon="@drawable/ic_google"
                     app:iconGravity="textStart"
-                    android:text="Đăng nhập bằng Google"
+                    android:text="Continue with Google"
                     android:textSize="16sp" />
 
                 <!-- Loading Indicator -->

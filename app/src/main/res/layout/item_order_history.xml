@@ -26,7 +26,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Order #ORD-XXXX"
+                android:text="Don #ORD-XXXX"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="@color/tirtir_black" />
@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Date: Oct 20, 2026"
+            android:text="Ngay dat: 20/10/2026"
             android:textSize="12sp"
             android:textColor="@color/tirtir_text_secondary" />
 
@@ -66,7 +66,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Total Amount:"
+                android:text="Total paid:"
                 android:textSize="14sp"
                 android:textColor="@color/tirtir_text_secondary" />
 

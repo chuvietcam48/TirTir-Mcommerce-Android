@@ -184,7 +184,7 @@ public class CheckoutActivity extends AppCompatActivity {
                         } else if ("birthday".equalsIgnoreCase(loyaltyTier)) {
                             // Birthday month: x3 points
                             badgeText = "🎂 x3 Điểm sinh nhật!";
-                            badgeTextColor = 0xFFE91E8C; // pink/brand
+                            badgeTextColor = 0xFFC62828;
                         }
 
                         if (badgeText != null) {
@@ -207,7 +207,7 @@ public class CheckoutActivity extends AppCompatActivity {
 
     private void calculateShippingFee() {
         // Assume default weight is 500g, from HCM to HN
-        tvCheckoutShipping.setText("Đang tính...");
+        tvCheckoutShipping.setText("Calculating...");
         viettelPostClient.getShippingFees("HCM", "HN", 500, new ViettelPostSoapClient.Callback() {
             @Override
             public void onSuccess(List<com.example.tirtir_mcommerce.model.ShippingOption> options) {
@@ -225,7 +225,7 @@ public class CheckoutActivity extends AppCompatActivity {
             @Override
             public void onFallback(List<com.example.tirtir_mcommerce.model.ShippingOption> options) {
                 runOnUiThread(() -> {
-                    Toast.makeText(CheckoutActivity.this, "Đang dùng phí vận chuyển ước tính (Fallback)", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CheckoutActivity.this, "Using estimated shipping", Toast.LENGTH_SHORT).show();
                     if (!options.isEmpty()) {
                         shippingFee = options.get(0).getPrice();
                     } else {
@@ -273,7 +273,8 @@ public class CheckoutActivity extends AppCompatActivity {
         boolean hasToken = prefs.isLoggedIn();
 
         if (!hasToken) {
-            Toast.makeText(this, "Vui lòng đăng nhập để đặt hàng", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please sign in to place your order", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, LoginActivity.class));
             return;
         }
 
@@ -304,7 +305,7 @@ public class CheckoutActivity extends AppCompatActivity {
                     databaseHelper.clearCart();
 
                     String orderId = orderResponse.getId() != null ? orderResponse.getId() : "TT-" + System.currentTimeMillis();
-                    double total = cartSubtotal + shippingFee;
+                    double total = cartSubtotal + (cartSubtotal * 0.10) + shippingFee;
                     goToOrderSuccess(orderId, total);
                 },
                 errorMessage -> {
@@ -323,17 +324,17 @@ public class CheckoutActivity extends AppCompatActivity {
     private boolean validateForm() {
         boolean valid = true;
         if (TextUtils.isEmpty(getText(etFullName))) {
-            etFullName.setError("Full name is required");
+            etFullName.setError("Please enter your full name");
             etFullName.requestFocus();
             valid = false;
         }
         if (TextUtils.isEmpty(getText(etPhone))) {
-            etPhone.setError("Phone number is required");
+            etPhone.setError("Please enter your phone number");
             if (valid) etPhone.requestFocus();
             valid = false;
         }
         if (TextUtils.isEmpty(getText(etStreet))) {
-            etStreet.setError("Street address is required");
+            etStreet.setError("Please enter your address");
             if (valid) etStreet.requestFocus();
             valid = false;
         }
@@ -357,7 +358,7 @@ public class CheckoutActivity extends AppCompatActivity {
             progressPlaceOrder.setVisibility(loading ? View.VISIBLE : View.GONE);
         }
         btnPlaceOrder.setEnabled(!loading);
-        btnPlaceOrder.setText(loading ? "Placing order..." : "Place Order");
+        btnPlaceOrder.setText(loading ? "Placing order..." : getString(R.string.btn_place_order));
     }
 
     private void goToOrderSuccess(String orderCode, double total) {

@@ -16,8 +16,8 @@
             android:id="@+id/toolbarOrderHistory"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="My Orders"
-            app:titleTextColor="#1A1A1A" />
+            app:title="@string/profile_my_orders"
+            app:titleTextColor="@color/tirtir_black" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Status filter chips -->
@@ -40,7 +40,7 @@
                 android:id="@+id/chipAll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="All"
+                android:text="Tat ca"
                 app:chipBackgroundColor="@null"
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:checked="true" />
@@ -49,7 +49,7 @@
                 android:id="@+id/chipPending"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Pending"
+                android:text="Cho xac nhan"
                 app:chipBackgroundColor="@null"
                 style="@style/Widget.MaterialComponents.Chip.Choice" />
 
@@ -122,7 +122,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginHorizontal="32dp"
-            android:text="Start shopping to see your orders here"
+            android:text="Don hang cua ban se hien thi tai day"
             android:textSize="13sp"
             android:textColor="@color/tirtir_text_secondary"
             android:gravity="center" />
@@ -132,7 +132,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Retry"
+            android:text="@string/retry"
             android:visibility="gone" />
     </LinearLayout>
 

@@ -4,23 +4,33 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.example.tirtir_mcommerce.MainActivity;
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.WishlistContentProvider;
+import com.example.tirtir_mcommerce.database.DatabaseHelper;
+import com.example.tirtir_mcommerce.model.CartItem;
 import com.example.tirtir_mcommerce.model.Product;
 
 import com.example.tirtir_mcommerce.utils.PriceUtils;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.List;
 
@@ -96,7 +106,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         private final TextView tvCategory;
         private final TextView tvOutOfStock;
         private final TextView tvDiscountBadge;
+        private final TextView tvImageFallback;
         private final ImageButton btnWishlistToggle;
+        private final MaterialButton btnQuickAdd;
 
         ProductViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -106,12 +118,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             tvCategory       = itemView.findViewById(R.id.tvProductCategory);
             tvOutOfStock     = itemView.findViewById(R.id.tvOutOfStock);
             tvDiscountBadge  = itemView.findViewById(R.id.tvDiscountBadge);
+            tvImageFallback  = itemView.findViewById(R.id.tvImageFallback);
             btnWishlistToggle = itemView.findViewById(R.id.btnWishlistToggle);
+            btnQuickAdd = itemView.findViewById(R.id.btnQuickAdd);
         }
 
         void bind(Product product) {
             // Name
-            tvName.setText(product.getName() != null ? product.getName() : "Sản phẩm");
+            tvName.setText(product.getName() != null ? product.getName() : "TirTir product");
 
             // Category
             String cat = product.getCategory();
@@ -138,18 +152,34 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             if (tvOutOfStock != null) {
                 if (product.getStockQuantity() <= 0) {
                     tvOutOfStock.setVisibility(View.VISIBLE);
+                    if (btnQuickAdd != null) btnQuickAdd.setEnabled(false);
                 } else {
                     tvOutOfStock.setVisibility(View.GONE);
+                    if (btnQuickAdd != null) btnQuickAdd.setEnabled(true);
                 }
             }
 
             // Image: resolve URL
             String imageUrl = resolveImageUrl(product);
+            if (tvImageFallback != null) tvImageFallback.setVisibility(View.GONE);
             Glide.with(context)
                     .load(imageUrl.isEmpty() ? null : imageUrl)
                     .placeholder(R.drawable.ic_product_placeholder)
                     .error(R.drawable.ic_product_placeholder)
                     .centerCrop()
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            if (tvImageFallback != null) tvImageFallback.setVisibility(View.VISIBLE);
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                            if (tvImageFallback != null) tvImageFallback.setVisibility(View.GONE);
+                            return false;
+                        }
+                    })
                     .transition(DrawableTransitionOptions.withCrossFade(200))
                     .into(imgProduct);
 
@@ -168,6 +198,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                                 WishlistContentProvider.COL_PRODUCT_ID + "=?",
                                 new String[]{productId});
                         updateWishlistIcon(false);
+                        Toast.makeText(context, "Removed from wishlist", Toast.LENGTH_SHORT).show();
                     } else {
                         // Add to wishlist
                         ContentValues values = new ContentValues();
@@ -176,8 +207,34 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                         values.put(WishlistContentProvider.COL_PRODUCT_IMAGE, product.getThumbnailImages() != null ? product.getThumbnailImages() : "");
                         values.put(WishlistContentProvider.COL_PRODUCT_PRICE, displayPrice);
                         Uri result = context.getContentResolver().insert(WishlistContentProvider.CONTENT_URI, values);
-                        if (result != null) updateWishlistIcon(true);
+                        if (result != null) {
+                            updateWishlistIcon(true);
+                            Toast.makeText(context, "Added to wishlist", Toast.LENGTH_SHORT).show();
+                        }
                     }
+                });
+            }
+
+            if (btnQuickAdd != null) {
+                btnQuickAdd.setOnClickListener(v -> {
+                    String productId = product.getProductId() != null ? product.getProductId() : product.getId();
+                    if (productId == null || productId.isEmpty()) {
+                        Toast.makeText(context, "Product is not ready to add", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    CartItem item = new CartItem(
+                            productId,
+                            product.getName() != null ? product.getName() : "TirTir product",
+                            product.getThumbnailImages() != null ? product.getThumbnailImages() : "",
+                            displayPrice,
+                            1,
+                            ""
+                    );
+                    DatabaseHelper.getInstance(context).insertOrUpdateCartItem(item);
+                    if (context instanceof MainActivity) {
+                        ((MainActivity) context).updateCartBadge();
+                    }
+                    Toast.makeText(context, "Added to cart", Toast.LENGTH_SHORT).show();
                 });
             }
 
@@ -206,11 +263,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         private void updateWishlistIcon(boolean wishlisted) {
             if (btnWishlistToggle == null) return;
             if (wishlisted) {
-                btnWishlistToggle.setImageResource(android.R.drawable.btn_star_big_on);
+                btnWishlistToggle.setImageResource(R.drawable.ic_wishlist);
                 btnWishlistToggle.setColorFilter(0xFFC62828);
             } else {
-                btnWishlistToggle.setImageResource(android.R.drawable.btn_star_big_off);
-                btnWishlistToggle.clearColorFilter();
+                btnWishlistToggle.setImageResource(R.drawable.ic_wishlist);
+                btnWishlistToggle.setColorFilter(0xFF9E9E9E);
             }
         }
 

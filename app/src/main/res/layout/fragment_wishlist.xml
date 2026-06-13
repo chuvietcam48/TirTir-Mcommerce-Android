@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F8F9FA">
+    android:background="@color/tirtir_off_white">
 
     <!-- Toolbar -->
     <LinearLayout
@@ -12,7 +12,7 @@
         android:layout_height="56dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="#FFFFFF"
+        android:background="@color/tirtir_white"
         android:paddingHorizontal="8dp"
         android:elevation="4dp">
 
@@ -29,10 +29,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="❤️ Yêu thích"
+            android:text="@string/nav_wishlist"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="#1A1A2E"
+            android:textColor="@color/tirtir_black"
             android:layout_marginStart="8dp" />
 
         <TextView
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:text="0 sản phẩm"
             android:textSize="13sp"
-            android:textColor="#999999"
+            android:textColor="@color/tirtir_text_secondary"
             android:layout_marginEnd="8dp" />
 
     </LinearLayout>
@@ -56,28 +56,29 @@
         android:gravity="center"
         android:visibility="gone">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="💔"
-            android:textSize="64sp"
-            android:layout_marginBottom="16dp" />
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:src="@drawable/ic_wishlist"
+            app:tint="@color/tirtir_silver_gray"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="@null" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Chưa có sản phẩm yêu thích"
+            android:text="No wishlist items yet"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="#1A1A2E"
+            android:textColor="@color/tirtir_black"
             android:layout_marginBottom="8dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Thêm sản phẩm yêu thích để xem tại đây"
+            android:text="Save your favorite TirTir products to find them here"
             android:textSize="14sp"
-            android:textColor="#999999"
+            android:textColor="@color/tirtir_text_secondary"
             android:gravity="center" />
 
     </LinearLayout>

@@ -39,6 +39,7 @@
 
             <!-- Summary Area -->
             <androidx.cardview.widget.CardView
+                android:id="@+id/cardCartSummary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
@@ -101,7 +102,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Thuế (10%)"
+                            android:text="Tax (10%)"
                             android:textColor="@color/tirtir_text_secondary" />
                         <TextView
                             android:id="@+id/tvTaxFee"
@@ -180,6 +181,18 @@
                 android:text="@string/cart_empty_title"
                 android:textColor="@color/tirtir_text_secondary"
                 android:textSize="18sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnContinueShopping"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginTop="18dp"
+                android:paddingStart="28dp"
+                android:paddingEnd="28dp"
+                android:text="Continue Shopping"
+                android:textColor="@color/tirtir_white"
+                app:backgroundTint="@color/tirtir_black"
+                app:cornerRadius="24dp" />
         </LinearLayout>
     </FrameLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

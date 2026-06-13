@@ -32,6 +32,18 @@
                 android:scaleType="centerCrop"
                 android:background="@color/tirtir_off_white" />
 
+            <TextView
+                android:id="@+id/tvImageFallback"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="TIRTIR"
+                android:textColor="@color/tirtir_red_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"
+                android:visibility="gone" />
+
             <!-- Out-of-stock overlay badge -->
             <TextView
                 android:id="@+id/tvOutOfStock"
@@ -41,7 +53,7 @@
                 android:layout_margin="6dp"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="3dp"
-                android:text="Hết hàng"
+                android:text="Out"
                 android:textColor="@color/tirtir_white"
                 android:textSize="10sp"
                 android:textStyle="bold"
@@ -56,9 +68,10 @@
                 android:layout_gravity="top|end"
                 android:layout_margin="4dp"
                 android:background="@android:color/transparent"
-                android:src="@android:drawable/btn_star_big_off"
+                android:src="@drawable/ic_wishlist"
+                app:tint="@color/tirtir_text_secondary"
                 android:scaleType="centerInside"
-                android:contentDescription="Yêu thích"
+                android:contentDescription="Wishlist"
                 android:padding="4dp" />
                 
             <!-- Discount badge -->
@@ -116,7 +129,7 @@
         <!-- Price -->
         <TextView
             android:id="@+id/tvProductPrice"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="6dp"
@@ -127,7 +140,27 @@
             android:textStyle="bold"
             app:layout_constraintTop_toBottomOf="@id/tvProductName"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnQuickAdd"
             app:layout_constraintBottom_toBottomOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnQuickAdd"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="Quick add"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"
+            app:backgroundTint="@color/tirtir_black"
+            app:cornerRadius="20dp"
+            app:icon="@drawable/ic_cart"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconTint="@color/tirtir_white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

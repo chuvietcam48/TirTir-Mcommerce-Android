@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="end"
+    android:orientation="vertical"
+    android:paddingVertical="5dp">
+
+    <TextView
+        android:id="@+id/tvUserMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="72dp"
+        android:background="@drawable/bg_chat_user"
+        android:maxWidth="280dp"
+        android:textColor="@color/tirtir_white"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tvUserTimestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="6dp"
+        android:textColor="@color/tirtir_text_hint"
+        android:textSize="10sp" />
+</LinearLayout>

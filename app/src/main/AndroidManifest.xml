@@ -8,6 +8,9 @@
 
     <!-- Permissions cho Camera và Gallery (Avatar upload) -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
     <!-- Android 13+ -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <!-- Android < 13 -->
@@ -25,6 +28,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TirTirMCommerce"
         android:usesCleartextTraffic="true">
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713" />
+
+        <property
+            android:name="android.adservices.AD_SERVICES_CONFIG"
+            android:resource="@xml/gma_ad_services_config"
+            tools:replace="android:resource" />
 
         <!-- SCR-00: SplashActivity — LAUNCHER (entry point) -->
         <activity
@@ -60,6 +72,39 @@
         <!-- SCR-14: ProductDetailActivity -->
         <activity
             android:name=".ui.activities.ProductDetailActivity"
+            android:exported="false" />
+
+        <!-- PHASE 3: AI / ML + deploy-ready frontend flows -->
+        <activity
+            android:name=".ui.activities.ChatActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.IngredientScanActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.ConflictResultActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.IngredientHistoryActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.SkinAnalysisActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.SkinResultActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.ARTryOnActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.NotificationSettingsActivity"
             android:exported="false" />
 
         <!-- SCR-16: CheckoutActivity -->

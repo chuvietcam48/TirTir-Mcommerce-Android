@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="start"
+    android:orientation="horizontal"
+    android:paddingVertical="6dp">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/ivBotAvatar"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:src="@drawable/ic_tirtir_brand_circle"
+        app:civ_border_color="@color/tirtir_red_surface"
+        app:civ_border_width="1dp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="64dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvBotMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_chat_bot"
+            android:elevation="1dp"
+            android:maxWidth="286dp"
+            android:textColor="@color/tirtir_black"
+            android:textSize="14sp" />
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/flexRecommendedProducts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            app:flexWrap="wrap" />
+
+        <TextView
+            android:id="@+id/tvBotTimestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:textColor="@color/tirtir_text_hint"
+            android:textSize="10sp" />
+    </LinearLayout>
+</LinearLayout>

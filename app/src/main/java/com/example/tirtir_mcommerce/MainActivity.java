@@ -13,7 +13,8 @@ import androidx.fragment.app.Fragment;
 import com.example.tirtir_mcommerce.ui.fragments.HomeFragment;
 import com.example.tirtir_mcommerce.ui.fragments.ProfileFragment;
 import com.example.tirtir_mcommerce.ui.fragments.CartFragment;
-import com.example.tirtir_mcommerce.ui.fragments.WishlistFragment;
+import com.example.tirtir_mcommerce.ui.fragments.ChatFragment;
+import com.example.tirtir_mcommerce.ui.fragments.RoutineFragment;
 import com.example.tirtir_mcommerce.database.DatabaseHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.badge.BadgeDrawable;
@@ -43,10 +44,12 @@ public class MainActivity extends AppCompatActivity {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
                 selectedFragment = new HomeFragment();
+            } else if (itemId == R.id.nav_ai) {
+                selectedFragment = new ChatFragment();
+            } else if (itemId == R.id.nav_routine) {
+                selectedFragment = new RoutineFragment();
             } else if (itemId == R.id.nav_cart) {
                 selectedFragment = new CartFragment();
-            } else if (itemId == R.id.nav_wishlist) {
-                selectedFragment = new WishlistFragment();
             } else if (itemId == R.id.nav_profile) {
                 selectedFragment = new ProfileFragment();
             }

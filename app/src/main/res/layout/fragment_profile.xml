@@ -26,7 +26,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tài khoản"
+                android:text="Account"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="@color/tirtir_black"
@@ -87,7 +87,7 @@
                         android:textColor="@color/tirtir_black"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        android:text="Đang tải..." />
+                        android:text="Loading..." />
 
                     <TextView
                         android:id="@+id/tvEmail"
@@ -121,28 +121,28 @@
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Da dầu" />
+                    android:text="Oily" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipSkinDry"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Da khô" />
+                    android:text="Dry" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipSkinCombo"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Da hỗn hợp" />
+                    android:text="Combination" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipSkinSensitive"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Da nhạy cảm" />
+                    android:text="Sensitive" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipSkinNormal"
@@ -329,7 +329,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Wishlist"
+                            android:text="@string/profile_my_wishlist"
                             android:textColor="@color/tirtir_text_primary"
                             android:textSize="15sp" />
 
@@ -359,14 +359,52 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Lịch sử scan"
+                            android:text="Scan history"
                             android:textColor="@color/tirtir_text_primary"
                             android:textSize="15sp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Coming soon"
+                            android:text="View"
+                            android:textColor="@color/tirtir_text_secondary"
+                            android:textSize="12sp"
+                            android:layout_marginEnd="8dp" />
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/ic_media_next"
+                            android:alpha="0.3" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/tirtir_border_gray" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutNotificationSettings"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:background="?attr/selectableItemBackground">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Notification settings"
+                            android:textColor="@color/tirtir_text_primary"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Routine, restock"
                             android:textColor="@color/tirtir_text_secondary"
                             android:textSize="12sp"
                             android:layout_marginEnd="8dp" />

@@ -306,7 +306,7 @@
                             <com.google.android.material.button.MaterialButton
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Áp dụng"
+                                android:text="Apply"
                                 app:backgroundTint="@color/tirtir_black" />
                                 
                             <com.google.android.material.button.MaterialButton
@@ -314,7 +314,7 @@
                                 style="@style/Widget.MaterialComponents.Button.TextButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Xóa"
+                                android:text="Remove"
                                 android:textColor="@color/tirtir_red_primary"
                                 android:visibility="gone" />
                         </LinearLayout>
@@ -396,7 +396,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Thuế (10%)"
+                            android:text="Tax (10%)"
                             android:textSize="14sp"
                             android:textColor="@color/tirtir_text_secondary" />
                         <TextView

@@ -1,6 +1,8 @@
 package com.example.tirtir_mcommerce.ui.activities;
 
 import android.content.ContentValues;
+import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,10 +20,17 @@ import com.bumptech.glide.Glide;
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.WishlistContentProvider;
 import com.example.tirtir_mcommerce.database.DatabaseHelper;
+import com.example.tirtir_mcommerce.model.ApiResponse;
 import com.example.tirtir_mcommerce.model.CartItem;
+import com.example.tirtir_mcommerce.model.Product;
+import com.example.tirtir_mcommerce.network.ApiService;
+import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.example.tirtir_mcommerce.utils.PriceUtils;
+import com.google.android.material.button.MaterialButton;
 
-import java.util.ArrayList;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * SCR-14 ProductDetailActivity
@@ -41,15 +50,18 @@ public class ProductDetailActivity extends AppCompatActivity {
     private static final String BASE_IMAGE_URL = "https://tirtir-project.onrender.com/";
 
     private Toolbar toolbarProductDetail;
-    private android.widget.ImageView ivProductImage;
     private TextView tvProductCategory;
     private TextView tvProductName;
     private TextView tvProductPrice;
     private TextView tvSuitableSkinTypes;
     private TextView tvIngredientList;
     private TextView tvProductDescription;
-    private ImageButton btnWishlist;
+    private MaterialButton btnWishlist;
+    private MaterialButton btnARTryOn;
+    private MaterialButton btnIngredientScan;
+    private MaterialButton btnChatAdvisor;
     private Button btnAddToCart;
+    private MaterialButton btnBuyNow;
 
     private DatabaseHelper databaseHelper;
 
@@ -85,7 +97,11 @@ public class ProductDetailActivity extends AppCompatActivity {
         tvIngredientList = findViewById(R.id.tvIngredientList);
         tvProductDescription = findViewById(R.id.tvProductDescription);
         btnWishlist = findViewById(R.id.btnWishlist);
+        btnARTryOn = findViewById(R.id.btnARTryOn);
+        btnIngredientScan = findViewById(R.id.btnIngredientScan);
+        btnChatAdvisor = findViewById(R.id.btnChatAdvisor);
         btnAddToCart = findViewById(R.id.btnAddToCart);
+        btnBuyNow = findViewById(R.id.btnBuyNow);
         
         tvQuantity = findViewById(R.id.tvQuantity);
         tvTotalPrice = findViewById(R.id.tvTotalPrice);
@@ -118,12 +134,13 @@ public class ProductDetailActivity extends AppCompatActivity {
         if (productName != null)     tvProductName.setText(productName);
         if (productCategory != null) tvProductCategory.setText(productCategory);
         tvProductPrice.setText(PriceUtils.formatPriceVnd(displayPriceVnd));
-        tvSuitableSkinTypes.setText(skinTypes != null && !skinTypes.isEmpty() ? skinTypes : "All skin types");
-        tvIngredientList.setText(ingredients != null && !ingredients.isEmpty() ? ingredients : "Ingredient list not available.");
-        tvProductDescription.setText(description != null && !description.isEmpty() ? description : "Premium skincare formula crafted for your skin.");
+        tvSuitableSkinTypes.setText(skinTypes != null && !skinTypes.isEmpty() ? skinTypes : "Suitable for all skin types");
+        tvIngredientList.setText(ingredients != null && !ingredients.isEmpty() ? ingredients : "Ingredient list is not available yet.");
+        tvProductDescription.setText(description != null && !description.isEmpty() ? description : "Premium TirTir beauty care formula.");
 
         galleryImages = getIntent().getStringArrayListExtra("PRODUCT_GALLERY");
         loadProductImage(viewPager, tabIndicator);
+        fetchProductDetailIfDeepLinked(viewPager, tabIndicator);
 
         // ===========================
         // OUT-OF-STOCK UI (S1.2 gap)
@@ -134,8 +151,12 @@ public class ProductDetailActivity extends AppCompatActivity {
         if (stockQuantity <= 0) {
             // Disable Add to Cart button
             btnAddToCart.setEnabled(false);
-            btnAddToCart.setText("Hết hàng");
+            btnAddToCart.setText("Out of stock");
             btnAddToCart.setAlpha(0.4f);
+            if (btnBuyNow != null) {
+                btnBuyNow.setEnabled(false);
+                btnBuyNow.setAlpha(0.4f);
+            }
             // Hide stepper (qty controls)
             if (layoutStepper != null) layoutStepper.setVisibility(android.view.View.INVISIBLE);
             // Show out-of-stock badge if it exists in XML
@@ -145,6 +166,10 @@ public class ProductDetailActivity extends AppCompatActivity {
             btnAddToCart.setEnabled(true);
             btnAddToCart.setText(getString(R.string.btn_add_to_cart));
             btnAddToCart.setAlpha(1.0f);
+            if (btnBuyNow != null) {
+                btnBuyNow.setEnabled(true);
+                btnBuyNow.setAlpha(1.0f);
+            }
             if (layoutStepper != null) layoutStepper.setVisibility(android.view.View.VISIBLE);
             if (tvOutOfStockBadge != null) tvOutOfStockBadge.setVisibility(android.view.View.GONE);
         }
@@ -174,18 +199,119 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         // Add to Cart
         btnAddToCart.setOnClickListener(v -> {
-            if (productId == null || productId.isEmpty()) {
-                Toast.makeText(this, "Lỗi: không tìm thấy sản phẩm", Toast.LENGTH_SHORT).show();
-                return;
+            if (addCurrentProductToCart()) {
+                Toast.makeText(this, "Added " + currentQuantity + " item(s) to cart", Toast.LENGTH_SHORT).show();
             }
-            String imageUrl = productImage != null ? productImage : "";
-            CartItem item = new CartItem(productId, productName, imageUrl, displayPriceVnd, currentQuantity, "");
-            databaseHelper.insertOrUpdateCartItem(item);
-            Toast.makeText(this, "Đã thêm " + currentQuantity + " sản phẩm vào giỏ hàng!", Toast.LENGTH_SHORT).show();
         });
+
+        if (btnBuyNow != null) {
+            btnBuyNow.setOnClickListener(v -> {
+                if (!addCurrentProductToCart()) return;
+                Intent intent = new Intent(this, CheckoutActivity.class);
+                intent.putExtra("CART_SUBTOTAL", displayPriceVnd * currentQuantity);
+                startActivity(intent);
+            });
+        }
 
         // Wishlist toggle via ContentProvider
         btnWishlist.setOnClickListener(v -> toggleWishlist());
+
+        if (btnARTryOn != null) {
+            btnARTryOn.setOnClickListener(v -> {
+                Intent intent = new Intent(this, ARTryOnActivity.class);
+                intent.putExtra("PRODUCT_ID", productId);
+                intent.putExtra("PRODUCT_NAME", productName);
+                startActivity(intent);
+            });
+        }
+
+        if (btnIngredientScan != null) {
+            btnIngredientScan.setOnClickListener(v -> {
+                Intent intent = new Intent(this, IngredientScanActivity.class);
+                intent.putExtra("PRODUCT_ID", productId);
+                intent.putExtra("PRODUCT_NAME", productName);
+                startActivity(intent);
+            });
+        }
+
+        if (btnChatAdvisor != null) {
+            btnChatAdvisor.setOnClickListener(v -> {
+                Intent intent = new Intent(this, ChatActivity.class);
+                intent.putExtra("PRODUCT_ID", productId);
+                intent.putExtra("PRODUCT_NAME", productName);
+                startActivity(intent);
+            });
+        }
+    }
+
+    private boolean addCurrentProductToCart() {
+        if (productId == null || productId.isEmpty()) {
+            Toast.makeText(this, "Product is not ready", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        String imageUrl = productImage != null ? productImage : "";
+        CartItem item = new CartItem(productId, productName, imageUrl, displayPriceVnd, currentQuantity, "");
+        databaseHelper.insertOrUpdateCartItem(item);
+        return true;
+    }
+
+    private void fetchProductDetailIfDeepLinked(androidx.viewpager2.widget.ViewPager2 viewPager,
+                                                com.google.android.material.tabs.TabLayout tabIndicator) {
+        if (productName != null && !productName.trim().isEmpty()) return;
+        if (productId == null || productId.trim().isEmpty()) return;
+
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        apiService.getProductById(productId).enqueue(new Callback<ApiResponse<Product>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Product>> call, Response<ApiResponse<Product>> response) {
+                ApiResponse<Product> body = response.body();
+                if (!response.isSuccessful() || body == null || body.getData() == null) return;
+                applyProductFromApi(body.getData(), viewPager, tabIndicator);
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Product>> call, Throwable t) {
+                Toast.makeText(ProductDetailActivity.this,
+                        "Unable to load product details. Please try again.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void applyProductFromApi(Product product,
+                                     androidx.viewpager2.widget.ViewPager2 viewPager,
+                                     com.google.android.material.tabs.TabLayout tabIndicator) {
+        if (product == null) return;
+
+        productId = firstNonEmpty(product.getProductId(), product.getId(), productId);
+        productName = product.getName();
+        productCategory = product.getCategory();
+        productImage = product.getThumbnailImages();
+        productPrice = product.getPrice();
+        stockQuantity = product.getStockQuantity();
+        double activePrice = product.getSalePrice() > 0 ? product.getSalePrice() : productPrice;
+        displayPriceVnd = PriceUtils.normalizePrice(activePrice);
+
+        tvProductName.setText(firstNonEmpty(productName, getString(R.string.product_name_placeholder)));
+        tvProductCategory.setText(firstNonEmpty(productCategory, getString(R.string.product_category_placeholder)));
+        tvProductPrice.setText(PriceUtils.formatPriceVnd(displayPriceVnd));
+        tvSuitableSkinTypes.setText(firstNonEmpty(product.getSkinTypeTarget(), "Suitable for all skin types"));
+        tvIngredientList.setText(firstNonEmpty(product.getKeyIngredients(), "Ingredient list is not available yet."));
+        tvProductDescription.setText(firstNonEmpty(product.getDescriptionShort(), product.getFullDescription(), "Premium TirTir beauty care formula."));
+
+        galleryImages = product.getGalleryImages() != null
+                ? new java.util.ArrayList<>(product.getGalleryImages())
+                : null;
+        loadProductImage(viewPager, tabIndicator);
+        updateTotalPrice();
+    }
+
+    private String firstNonEmpty(String... values) {
+        if (values == null) return "";
+        for (String value : values) {
+            if (value != null && !value.trim().isEmpty()) return value;
+        }
+        return "";
     }
 
     private void updateTotalPrice() {
@@ -268,8 +394,8 @@ public class ProductDetailActivity extends AppCompatActivity {
             String rawUrl = imageUrls.get(position);
             Glide.with(context)
                     .load(buildImageUrl(rawUrl))
-                    .placeholder(android.R.drawable.ic_menu_gallery)
-                    .error(android.R.drawable.ic_menu_gallery)
+                    .placeholder(R.drawable.ic_product_placeholder)
+                    .error(R.drawable.ic_product_placeholder)
                     .centerCrop()
                     .into(holder.imageView);
         }
@@ -326,7 +452,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             if (deleted > 0) {
                 isWishlisted = false;
                 updateWishlistIcon(false);
-                Toast.makeText(this, "Đã xóa khỏi yêu thích", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Removed from wishlist", Toast.LENGTH_SHORT).show();
             }
         } else {
             // Add to wishlist
@@ -339,18 +465,18 @@ public class ProductDetailActivity extends AppCompatActivity {
             if (result != null) {
                 isWishlisted = true;
                 updateWishlistIcon(true);
-                Toast.makeText(this, "Đã thêm vào yêu thích!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Added to wishlist", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
     private void updateWishlistIcon(boolean wishlisted) {
         if (wishlisted) {
-            btnWishlist.setImageResource(android.R.drawable.btn_star_big_on);
-            btnWishlist.setColorFilter(0xFFE91E63);
+            btnWishlist.setIconResource(R.drawable.ic_wishlist);
+            btnWishlist.setIconTint(ColorStateList.valueOf(getColor(R.color.tirtir_red_primary)));
         } else {
-            btnWishlist.setImageResource(android.R.drawable.btn_star_big_off);
-            btnWishlist.clearColorFilter();
+            btnWishlist.setIconResource(R.drawable.ic_wishlist);
+            btnWishlist.setIconTint(ColorStateList.valueOf(getColor(R.color.tirtir_text_secondary)));
         }
     }
 }

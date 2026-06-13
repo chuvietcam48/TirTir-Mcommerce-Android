@@ -30,19 +30,14 @@
                 
         </androidx.appcompat.widget.Toolbar>
             
-        <FrameLayout
+        <com.google.android.gms.ads.AdView
             android:id="@+id/adViewSlot"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@color/tirtir_bg_gray"
-            android:visibility="gone">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ad Placeholder"
-                android:layout_gravity="center"
-                android:textColor="@color/tirtir_text_secondary"/>
-        </FrameLayout>
+            android:visibility="gone"
+            app:adSize="BANNER"
+            app:adUnitId="ca-app-pub-3940256099942544/6300978111" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -63,7 +58,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Danh mục:"
+                            android:text="Category:"
                     android:textSize="14sp"
                     android:textColor="@color/tirtir_black"
                     android:layout_marginEnd="8dp"/>
@@ -93,7 +88,7 @@
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tất cả"
+                        android:text="All"
                         android:checked="true" />
 
                     <com.google.android.material.chip.Chip
@@ -101,30 +96,82 @@
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Da dầu" />
+                        android:text="Oily" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipFilterDry"
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Da khô" />
+                        android:text="Dry" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipFilterCombo"
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Da hỗn hợp" />
+                        android:text="Combination" />
                         
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipFilterSensitive"
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Da nhạy cảm" />
+                        android:text="Sensitive" />
 
                 </com.google.android.material.chip.ChipGroup>
+            </HorizontalScrollView>
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/layoutHomeAiActions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnHomeChat"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="44dp"
+                        android:layout_marginEnd="8dp"
+                        android:text="AI Advisor"
+                        android:textColor="@color/tirtir_red_primary"
+                        app:cornerRadius="22dp"
+                        app:icon="@drawable/ic_chat"
+                        app:iconTint="@color/tirtir_red_primary"
+                        app:strokeColor="@color/tirtir_red_primary" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnHomeSkin"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="44dp"
+                        android:layout_marginEnd="8dp"
+                        android:text="Skin Analysis"
+                        android:textColor="@color/tirtir_red_primary"
+                        app:cornerRadius="22dp"
+                        app:icon="@drawable/ic_skin"
+                        app:iconTint="@color/tirtir_red_primary"
+                        app:strokeColor="@color/tirtir_border_gray" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnHomeScan"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="44dp"
+                        android:text="Ingredient Scan"
+                        android:textColor="@color/tirtir_red_primary"
+                        app:cornerRadius="22dp"
+                        app:icon="@drawable/ic_scan"
+                        app:iconTint="@color/tirtir_red_primary"
+                        app:strokeColor="@color/tirtir_border_gray" />
+                </LinearLayout>
             </HorizontalScrollView>
 
         </LinearLayout>
@@ -174,7 +221,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Đang tải sản phẩm...\nServer có thể cần vài giây để khởi động."
+                android:text="Loading TirTir products...\nShowing cached items first when available."
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:textColor="@color/tirtir_black"
@@ -202,7 +249,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="Không thể tải sản phẩm."
+                android:text="Unable to load products."
                 android:textSize="15sp"
                 android:textColor="@color/tirtir_black"
                 android:gravity="center" />
@@ -212,7 +259,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Thử lại"
+                android:text="Retry"
                 android:textColor="@color/tirtir_white"
                 android:paddingHorizontal="32dp"
                 app:backgroundTint="@color/tirtir_red_primary"
@@ -238,7 +285,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="No products found"
+                android:text="No matching products"
                 android:textSize="15sp"
                 android:textColor="@color/tirtir_text_secondary"
                 android:gravity="center" />
