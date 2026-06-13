@@ -55,8 +55,8 @@ public class CartRecoveryAdapter extends RecyclerView.Adapter<CartRecoveryAdapte
         holder.tvName.setText(item.name);
         holder.tvEmail.setText(item.email);
         holder.tvStatus.setText(item.status);
-        holder.tvSummary.setText("Sản phẩm: " + item.summary);
-        holder.tvValue.setText(String.format("Giá trị: %,.0f đ", item.value));
+        holder.tvSummary.setText("Products: " + item.summary);
+        holder.tvValue.setText(String.format("Value: %,.0f VND", item.value));
         holder.tvTime.setText(item.time);
 
         if (item.status.equalsIgnoreCase("Recovered")) {

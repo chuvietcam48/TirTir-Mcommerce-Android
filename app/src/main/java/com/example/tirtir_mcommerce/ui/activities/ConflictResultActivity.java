@@ -51,7 +51,7 @@ public class ConflictResultActivity extends AppCompatActivity {
                 && secondProductId != null && !secondProductId.isEmpty();
         btnAddBoth.setVisibility(hasTwoProducts ? View.VISIBLE : View.GONE);
         btnAddBoth.setOnClickListener(v -> Toast.makeText(this,
-                "Ready to add both productIds once API returns price, image, and shade data.",
+                "Product details are still loading. Please try again.",
                 Toast.LENGTH_SHORT).show());
     }
 

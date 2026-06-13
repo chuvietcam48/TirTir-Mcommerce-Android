@@ -63,16 +63,25 @@ public class CartRepository {
         } else {
             dbHelper.updateCartQuantity(productId, newQty);
         }
+        syncQuantity(productId, "", Math.max(newQty, 0));
     }
 
     /** Xóa item. */
     public void removeItem(String productId) {
         dbHelper.removeCartItem(productId);
+        syncQuantity(productId, "", 0);
     }
 
     /** Xóa toàn bộ giỏ. */
     public void clearCart() {
         dbHelper.clearCart();
+        RetrofitClient.getAuthClient(context).create(ApiService.class)
+                .clearCartServer().enqueue(new Callback<Void>() {
+                    @Override public void onResponse(Call<Void> call, Response<Void> response) {}
+                    @Override public void onFailure(Call<Void> call, Throwable t) {
+                        Log.w(TAG, "Server cart clear deferred: " + t.getMessage());
+                    }
+                });
     }
 
     /** Số lượng item trong giỏ. */
@@ -141,5 +150,26 @@ public class CartRepository {
                     error -> Log.w(TAG, "Auto-sync failed for " + item.getProductId() + ": " + error)
             );
         }
+    }
+
+    private void syncQuantity(String productId, String shade, int quantity) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("productId", productId);
+        body.put("shade", shade == null ? "" : shade);
+        body.put("quantity", quantity);
+        RetrofitClient.getAuthClient(context).create(ApiService.class)
+                .updateCartServer(body).enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        if (response.isSuccessful() && quantity > 0) {
+                            dbHelper.markCartItemSynced(productId);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        Log.w(TAG, "Cart quantity sync deferred: " + t.getMessage());
+                    }
+                });
     }
 }

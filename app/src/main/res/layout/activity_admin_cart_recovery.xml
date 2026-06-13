@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="#FFFFFF"
-            app:title="Phục hồi giỏ hàng"
+            app:title="Cart Recovery"
             app:titleTextColor="#333333" />
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -115,8 +115,19 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvCartRecovery"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:padding="8dp"
         android:clipToPadding="false"/>
+
+    <TextView
+        android:id="@+id/tvCartRecoveryEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="24dp"
+        android:text="Recovery totals are available. Individual cart details are currently unavailable."
+        android:textColor="@color/tirtir_text_secondary"
+        android:textSize="13sp" />
 
 </LinearLayout>

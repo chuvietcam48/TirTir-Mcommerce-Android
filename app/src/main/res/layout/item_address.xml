@@ -31,7 +31,7 @@
                 android:textStyle="bold"
                 android:textColor="@color/tirtir_text_primary"
                 android:textSize="15sp"
-                android:text="Nguyễn Văn A" />
+                android:text="Recipient name" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/tvAddressLabel"
@@ -72,7 +72,7 @@
             android:textColor="@color/tirtir_text_secondary"
             android:textSize="13sp"
             android:maxLines="2"
-            android:text="12 Lý Tự Trọng, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh" />
+            android:text="Shipping address" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

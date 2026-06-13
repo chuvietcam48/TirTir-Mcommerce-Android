@@ -4,12 +4,14 @@ import com.example.tirtir_mcommerce.model.Address;
 import com.example.tirtir_mcommerce.model.ApiResponse;
 import com.example.tirtir_mcommerce.model.CartItem;
 import com.example.tirtir_mcommerce.model.CreateOrderRequest;
+import com.example.tirtir_mcommerce.model.CreateOrderResponse;
 import com.example.tirtir_mcommerce.model.LoginRequest;
 import com.example.tirtir_mcommerce.model.LoginResponse;
 import com.example.tirtir_mcommerce.model.OrderResponse;
 import com.example.tirtir_mcommerce.model.Product;
 import com.example.tirtir_mcommerce.model.ProductResponse;
 import com.example.tirtir_mcommerce.model.RegisterRequest;
+import com.example.tirtir_mcommerce.model.RegisterResponse;
 import com.example.tirtir_mcommerce.model.User;
 import com.example.tirtir_mcommerce.model.FcmTokenRequest;
 
@@ -55,7 +57,10 @@ public interface ApiService {
      * Backend trả về: { success, message } (cần xác thực email nếu production)
      */
     @POST("api/v1/auth/register")
-    Call<ApiResponse<Void>> registerUser(@Body RegisterRequest request);
+    Call<RegisterResponse> registerUser(@Body RegisterRequest request);
+
+    @POST("api/v1/auth/forgot-password")
+    Call<ApiResponse<Void>> forgotPassword(@Body Map<String, String> body);
 
     /**
      * Đăng xuất - POST /api/v1/auth/logout
@@ -104,25 +109,37 @@ public interface ApiService {
      * Thêm địa chỉ mới - POST /api/v1/users/addresses
      */
     @POST("api/v1/users/addresses")
-    Call<ApiResponse<User>> addAddress(@Body Address address);
+    Call<ApiResponse<List<Address>>> addAddress(@Body Address address);
 
     /**
      * Cập nhật địa chỉ - PUT /api/v1/users/addresses/{id}
      */
     @PUT("api/v1/users/addresses/{id}")
-    Call<ApiResponse<User>> updateAddress(@Path("id") String addressId, @Body Address address);
+    Call<ApiResponse<List<Address>>> updateAddress(@Path("id") String addressId, @Body Address address);
 
     /**
      * Xóa địa chỉ - DELETE /api/v1/users/addresses/{id}
      */
     @DELETE("api/v1/users/addresses/{id}")
-    Call<ApiResponse<Void>> deleteAddress(@Path("id") String addressId);
+    Call<ApiResponse<List<Address>>> deleteAddress(@Path("id") String addressId);
 
     /**
      * Đặt địa chỉ mặc định - PATCH /api/v1/users/addresses/{id}/set-default
      */
     @PATCH("api/v1/users/addresses/{id}/set-default")
-    Call<ApiResponse<User>> setDefaultAddress(@Path("id") String addressId);
+    Call<ApiResponse<List<Address>>> setDefaultAddress(@Path("id") String addressId);
+
+    @GET("api/v1/loyalty/me")
+    Call<ApiResponse<Map<String, Object>>> getLoyaltyDetails();
+
+    @GET("api/v1/chat/history")
+    Call<ApiResponse<List<Map<String, Object>>>> getChatHistory();
+
+    @POST("api/v1/ai/analyze-face")
+    Call<ApiResponse<Map<String, Object>>> analyzeSkin(@Body Map<String, String> body);
+
+    @GET("api/v1/ingredient/scan-history")
+    Call<Map<String, Object>> getIngredientHistory(@Query("userId") String userId);
 
     // ===========================
     // PRODUCT MODULE
@@ -163,32 +180,46 @@ public interface ApiService {
     // ===========================
 
     @retrofit2.http.Multipart
-    @POST("api/admin/products")
-    Call<ApiResponse<Product>> createProduct(
-            @retrofit2.http.Part okhttp3.MultipartBody.Part image,
+    @POST("api/v1/admin/products")
+    Call<Product> createProduct(
+            @retrofit2.http.Part okhttp3.MultipartBody.Part thumbnail,
             @retrofit2.http.PartMap Map<String, okhttp3.RequestBody> data
     );
 
     @retrofit2.http.Multipart
-    @PUT("api/admin/products/{id}")
-    Call<ApiResponse<Product>> updateProduct(
+    @PUT("api/v1/admin/products/{id}")
+    Call<Product> updateProduct(
             @Path("id") String productId,
-            @retrofit2.http.Part okhttp3.MultipartBody.Part image,
+            @retrofit2.http.Part okhttp3.MultipartBody.Part thumbnail,
             @retrofit2.http.PartMap Map<String, okhttp3.RequestBody> data
     );
 
-    @DELETE("api/admin/products/{id}")
-    Call<ApiResponse<Void>> deleteProduct(@Path("id") String productId);
+    @DELETE("api/v1/admin/products/{id}")
+    Call<Map<String, Object>> deleteProduct(@Path("id") String productId);
 
-    @PATCH("api/admin/products/{id}/toggle-active")
-    Call<ApiResponse<Product>> toggleProductActive(@Path("id") String productId);
+    @PATCH("api/v1/admin/products/{id}/toggle-active")
+    Call<Map<String, Object>> toggleProductActive(@Path("id") String productId);
 
     // Metrics for Dashboard
-    @GET("api/admin/metrics")
-    Call<ApiResponse<Map<String, Object>>> getAdminMetrics(@Query("range") String range);
+    @GET("api/v1/admin/metrics")
+    Call<Map<String, Object>> getAdminMetrics(@Query("range") String range);
 
-    @GET("api/admin/top-products")
-    Call<ApiResponse<List<Map<String, Object>>>> getTopProducts();
+    @GET("api/v1/admin/dashboard/top-products")
+    Call<List<Map<String, Object>>> getTopProducts();
+
+    @GET("api/v1/admin/dashboard/overview")
+    Call<Map<String, Object>> getAdminOverview(@Query("range") String range);
+
+    @GET("api/v1/admin/orders")
+    Call<List<Map<String, Object>>> getAdminOrders(@Query("limit") int limit);
+
+    @PATCH("api/v1/admin/orders/{id}/status")
+    Call<Map<String, Object>> updateAdminOrderStatus(
+            @Path("id") String orderId,
+            @Body Map<String, String> body);
+
+    @GET("api/v1/admin/stats/cart-recovery")
+    Call<Map<String, Object>> getCartRecoveryStats();
 
     // ===========================
     // CART MODULE
@@ -208,6 +239,12 @@ public interface ApiService {
     @GET("api/v1/cart")
     Call<ApiResponse<List<CartItem>>> getCart();
 
+    @PUT("api/v1/cart/update")
+    Call<Void> updateCartServer(@Body Map<String, Object> body);
+
+    @DELETE("api/v1/cart/clear")
+    Call<Void> clearCartServer();
+
     // ===========================
     // ORDER MODULE
     // ===========================
@@ -220,7 +257,7 @@ public interface ApiService {
      * Dùng cho SCR-16 CheckoutActivity
      */
     @POST("api/v1/orders/create")
-    Call<ApiResponse<OrderResponse>> createOrder(@Body CreateOrderRequest request);
+    Call<CreateOrderResponse> createOrder(@Body CreateOrderRequest request);
 
     /**
      * Lấy lịch sử đơn hàng - GET /api/v1/orders/my-orders
@@ -228,7 +265,7 @@ public interface ApiService {
      * Dùng cho SCR-18 OrderHistoryFragment
      */
     @GET("api/v1/orders/my-orders")
-    Call<ApiResponse<List<OrderResponse>>> getMyOrders();
+    Call<List<OrderResponse>> getMyOrders();
 
     /**
      * Xem chi tiết đơn hàng - GET /api/v1/orders/{id}
@@ -236,7 +273,7 @@ public interface ApiService {
      * Dùng cho SCR-17 OrderSuccessActivity
      */
     @GET("api/v1/orders/{id}")
-    Call<ApiResponse<OrderResponse>> getOrderById(@Path("id") String orderId);
+    Call<OrderResponse> getOrderById(@Path("id") String orderId);
 
     /**
      * Đăng ký FCM Token lên backend - POST /api/v1/notifications/fcm-token

@@ -41,15 +41,24 @@ import com.example.tirtir_mcommerce.viewmodel.AuthViewModel;
 import com.example.tirtir_mcommerce.viewmodel.ProfileViewModel;
 import com.example.tirtir_mcommerce.ui.adapters.AddressAdapter;
 import com.example.tirtir_mcommerce.model.Address;
+import com.example.tirtir_mcommerce.model.ApiResponse;
+import com.example.tirtir_mcommerce.network.ApiService;
+import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * ProfileFragment - Màn hình Tài khoản người dùng.
@@ -81,6 +90,8 @@ public class ProfileFragment extends Fragment {
 
     private ImageView ivAvatar;
     private TextView tvUserName, tvEmail, tvInitials;
+    private TextView tvLoyaltyTierBadge, tvLoyaltyPoints, tvLoyaltyProgress;
+    private ProgressBar pbLoyalty;
     private MaterialButton btnEditProfile;
     private LinearLayout layoutMyOrders, layoutMyAddresses, layoutMyWishlist, layoutScanHistory, layoutNotificationSettings;
     private com.google.android.material.button.MaterialButton btnLogout;
@@ -123,7 +134,7 @@ public class ProfileFragment extends Fragment {
             new ActivityResultContracts.RequestPermission(),
             granted -> {
                 if (granted) openCamera();
-                else Toast.makeText(getContext(), "Cần quyền Camera để chụp ảnh", Toast.LENGTH_SHORT).show();
+                else Toast.makeText(getContext(), "Camera permission is required to take a photo", Toast.LENGTH_SHORT).show();
             }
     );
 
@@ -132,7 +143,7 @@ public class ProfileFragment extends Fragment {
             new ActivityResultContracts.RequestPermission(),
             granted -> {
                 if (granted) openGallery();
-                else Toast.makeText(getContext(), "Cần quyền bộ nhớ để chọn ảnh", Toast.LENGTH_SHORT).show();
+                else Toast.makeText(getContext(), "Photo access is required to choose an image", Toast.LENGTH_SHORT).show();
             }
     );
 
@@ -162,6 +173,7 @@ public class ProfileFragment extends Fragment {
         // Load dữ liệu Profile và Địa chỉ
         profileViewModel.loadProfile();
         profileViewModel.loadAddresses();
+        loadLoyalty();
     }
 
     // ===========================
@@ -181,6 +193,10 @@ public class ProfileFragment extends Fragment {
         layoutNotificationSettings = view.findViewById(R.id.layoutNotificationSettings);
         btnLogout = view.findViewById(R.id.btnLogout);
         progressAvatarUpload = view.findViewById(R.id.progressAvatarUpload);
+        tvLoyaltyTierBadge = view.findViewById(R.id.tvLoyaltyTierBadge);
+        tvLoyaltyPoints = view.findViewById(R.id.tvLoyaltyPoints);
+        tvLoyaltyProgress = view.findViewById(R.id.tvLoyaltyProgress);
+        pbLoyalty = view.findViewById(R.id.pbLoyalty);
         
         chipGroupSkinType = view.findViewById(R.id.chipGroupSkinType);
         chipSkinOily = view.findViewById(R.id.chipSkinOily);
@@ -198,7 +214,7 @@ public class ProfileFragment extends Fragment {
         addressAdapter = new AddressAdapter(new ArrayList<>(), new AddressAdapter.AddressActionListener() {
             @Override
             public void onEditAddress(Address address) {
-                Toast.makeText(getContext(), "Chỉnh sửa địa chỉ (đang phát triển)", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(requireContext(), AddressManagerActivity.class));
             }
 
             @Override
@@ -293,9 +309,6 @@ public class ProfileFragment extends Fragment {
 
                             if (documentSnapshot != null && documentSnapshot.exists()) {
                                 String skinType = documentSnapshot.getString("skinType");
-                                String loyaltyTier = documentSnapshot.getString("loyaltyTier");
-                                Long loyaltyPoints = documentSnapshot.getLong("loyaltyPoints");
-
                                 if (skinType != null && !skinType.isEmpty()) {
                                     chipGroupSkinType.setVisibility(View.VISIBLE);
                                     if (skinType.toLowerCase().contains("dầu") || skinType.equalsIgnoreCase("oily")) {
@@ -368,9 +381,76 @@ public class ProfileFragment extends Fragment {
         }
 
         btnEditProfile.setOnClickListener(v -> {
-            // TODO: Implement EditProfileActivity
-            Toast.makeText(getContext(), "Chỉnh sửa hồ sơ (đang phát triển)", Toast.LENGTH_SHORT).show();
+            showEditProfileDialog();
         });
+    }
+
+    private void showEditProfileDialog() {
+        View content = getLayoutInflater().inflate(R.layout.dialog_profile_form, null);
+        TextInputEditText name = content.findViewById(R.id.etProfileName);
+        TextInputEditText phone = content.findViewById(R.id.etProfilePhone);
+        User current = profileViewModel.userLiveData.getValue();
+        if (current != null) {
+            name.setText(current.getName());
+            phone.setText(current.getPhone());
+        }
+
+        androidx.appcompat.app.AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Edit profile")
+                .setView(content)
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Save", null)
+                .create();
+        dialog.setOnShowListener(ignored ->
+                dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                    String fullName = name.getText() == null ? "" : name.getText().toString().trim();
+                    String phoneNumber = phone.getText() == null ? "" : phone.getText().toString().trim();
+                    if (fullName.isEmpty()) {
+                        name.setError("Name is required");
+                        return;
+                    }
+                    if (!phoneNumber.isEmpty() && !phoneNumber.matches("^(0|\\+84)[0-9]{9}$")) {
+                        phone.setError("Use a valid Vietnamese phone number");
+                        return;
+                    }
+                    profileViewModel.updateProfile(fullName, phoneNumber, null);
+                    dialog.dismiss();
+                }));
+        dialog.show();
+    }
+
+    private void loadLoyalty() {
+        ApiService api = RetrofitClient.getAuthClient(requireContext()).create(ApiService.class);
+        api.getLoyaltyDetails().enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Map<String, Object>>> call,
+                                   Response<ApiResponse<Map<String, Object>>> response) {
+                if (!isAdded() || !response.isSuccessful() || response.body() == null
+                        || response.body().getData() == null) return;
+                Map<String, Object> data = response.body().getData();
+                int points = asInt(data.get("loyaltyPoints"));
+                int toNext = asInt(data.get("pointsToNextTier"));
+                String tier = String.valueOf(data.getOrDefault("loyaltyTier", "Bronze"));
+                String nextTier = String.valueOf(data.getOrDefault("nextTier", "Silver"));
+                tvLoyaltyTierBadge.setText(tier);
+                tvLoyaltyPoints.setText(points + " points");
+                int target = Math.max(points + toNext, 1);
+                pbLoyalty.setMax(target);
+                pbLoyalty.setProgress(Math.min(points, target));
+                tvLoyaltyProgress.setText(toNext > 0
+                        ? points + " / " + target + " points to " + nextTier
+                        : "Highest membership tier reached");
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
+                if (isAdded()) tvLoyaltyProgress.setText("Loyalty details unavailable offline");
+            }
+        });
+    }
+
+    private int asInt(Object value) {
+        return value instanceof Number ? ((Number) value).intValue() : 0;
     }
 
     // ===========================
@@ -381,9 +461,9 @@ public class ProfileFragment extends Fragment {
      * Hiển thị Dialog chọn nguồn ảnh: Camera hoặc Thư viện.
      */
     private void showAvatarPickerDialog() {
-        String[] options = {"📷 Chụp ảnh bằng Camera", "🖼️ Chọn từ Thư viện"};
+        String[] options = {"Take a photo", "Choose from gallery"};
         new AlertDialog.Builder(requireContext())
-                .setTitle("Cập nhật ảnh đại diện")
+                .setTitle("Update profile photo")
                 .setItems(options, (dialog, which) -> {
                     if (which == 0) checkCameraPermissionAndOpen();
                     else checkStoragePermissionAndOpen();
@@ -429,7 +509,7 @@ public class ProfileFragment extends Fragment {
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
             cameraLauncher.launch(cameraIntent);
         } catch (IOException e) {
-            Toast.makeText(getContext(), "Không thể mở camera: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Unable to open the camera.", Toast.LENGTH_SHORT).show();
         }
     }
 

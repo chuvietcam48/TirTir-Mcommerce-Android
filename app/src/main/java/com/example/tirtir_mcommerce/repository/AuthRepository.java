@@ -8,6 +8,7 @@ import com.example.tirtir_mcommerce.model.ApiResponse;
 import com.example.tirtir_mcommerce.model.LoginRequest;
 import com.example.tirtir_mcommerce.model.LoginResponse;
 import com.example.tirtir_mcommerce.model.RegisterRequest;
+import com.example.tirtir_mcommerce.model.RegisterResponse;
 import com.example.tirtir_mcommerce.model.User;
 import com.example.tirtir_mcommerce.network.ApiService;
 import com.example.tirtir_mcommerce.network.RetrofitClient;
@@ -64,10 +65,12 @@ public class AuthRepository {
                     LoginResponse body = response.body();
                     if (body.isSuccess() && body.getToken() != null) {
                         // Lưu token vào SharedPreferences
-                        prefsManager.saveToken(body.getToken());
                         // Lưu cache user nếu có
                         if (body.getUser() != null) {
                             prefsManager.saveUser(body.getUser());
+                        }
+                        prefsManager.saveToken(body.getToken());
+                        if (body.getUser() != null) {
                             
                             // Đồng bộ với Firebase/Firestore bất đồng bộ
                             try {
@@ -84,22 +87,22 @@ public class AuthRepository {
                         }
                         onSuccess.onSuccess(body.getUser());
                     } else {
-                        onError.onError("Đăng nhập thất bại");
+                        onError.onError("Sign-in failed. Please try again.");
                     }
                 } else {
                     if (response.code() == 401) {
-                        onError.onError("Email hoặc mật khẩu không đúng");
+                        onError.onError("Incorrect email or password");
                     } else if (response.code() == 403) {
-                        onError.onError("Tài khoản đã bị khóa. Vui lòng liên hệ hỗ trợ.");
+                        onError.onError("This account is locked. Please contact support.");
                     } else {
-                        onError.onError("Lỗi máy chủ: " + response.code());
+                        onError.onError("Server error: " + response.code());
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
-                onError.onError("Lỗi kết nối: " + t.getMessage());
+                onError.onError("Connection error. Please check your network.");
             }
         });
     }
@@ -116,19 +119,51 @@ public class AuthRepository {
                          OnErrorListener onError) {
 
         RegisterRequest request = new RegisterRequest(firstName, lastName, email, password);
-        apiService.registerUser(request).enqueue(new Callback<ApiResponse<Void>>() {
+        apiService.registerUser(request).enqueue(new Callback<RegisterResponse>() {
+            @Override
+            public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    RegisterResponse body = response.body();
+                    if (body.getUser() != null) {
+                        prefsManager.saveUser(body.getUser());
+                    }
+                    if (body.getToken() != null && !body.getToken().isEmpty()) {
+                        prefsManager.saveToken(body.getToken());
+                    }
+                    onSuccess.onSuccess(body.getMessage());
+                } else {
+                    onError.onError("Could not create the account. The email may already be in use.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RegisterResponse> call, Throwable t) {
+                onError.onError("Connection error. Please check your network.");
+            }
+        });
+    }
+
+    public void forgotPassword(String email,
+                               OnSuccessListener<String> onSuccess,
+                               OnErrorListener onError) {
+        java.util.Map<String, String> body = new java.util.HashMap<>();
+        body.put("email", email);
+        apiService.forgotPassword(body).enqueue(new Callback<ApiResponse<Void>>() {
             @Override
             public void onResponse(Call<ApiResponse<Void>> call, Response<ApiResponse<Void>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    onSuccess.onSuccess(response.body().getMessage());
+                if (response.isSuccessful()) {
+                    String message = response.body() != null ? response.body().getMessage() : null;
+                    onSuccess.onSuccess(message == null || message.isEmpty()
+                            ? "Password reset instructions have been sent."
+                            : message);
                 } else {
-                    onError.onError("Đăng ký thất bại. Vui lòng thử lại.");
+                    onError.onError("Unable to send reset instructions for this email.");
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {
-                onError.onError("Lỗi kết nối: " + t.getMessage());
+                onError.onError("Connection error. Please check your network.");
             }
         });
     }

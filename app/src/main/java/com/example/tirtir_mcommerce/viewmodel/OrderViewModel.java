@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.tirtir_mcommerce.model.CreateOrderRequest;
+import com.example.tirtir_mcommerce.model.CreateOrderResponse;
 import com.example.tirtir_mcommerce.model.OrderResponse;
 import com.example.tirtir_mcommerce.model.ShippingAddress;
 import com.example.tirtir_mcommerce.repository.OrderRepository;
@@ -29,7 +30,7 @@ public class OrderViewModel extends AndroidViewModel {
 
     private final OrderRepository orderRepository;
 
-    public final MutableLiveData<OrderResponse> orderSuccess = new MutableLiveData<>();
+    public final MutableLiveData<CreateOrderResponse> orderSuccess = new MutableLiveData<>();
     public final MutableLiveData<List<OrderResponse>> myOrders = new MutableLiveData<>();
     public final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     public final MutableLiveData<String> errorMessage = new MutableLiveData<>();
@@ -64,11 +65,6 @@ public class OrderViewModel extends AndroidViewModel {
                 order -> {
                     isLoading.postValue(false);
                     orderSuccess.postValue(order);
-
-                    // Tự động bắt đầu tải PDF nếu backend trả về invoiceUrl
-                    if (order.getInvoiceUrl() != null && !order.getInvoiceUrl().isEmpty()) {
-                        downloadInvoice(order.getId(), order.getInvoiceUrl());
-                    }
                 },
                 error -> {
                     isLoading.postValue(false);
@@ -112,7 +108,7 @@ public class OrderViewModel extends AndroidViewModel {
         if (downloadId != -1) {
             pdfDownloadId.postValue(downloadId);
         } else {
-            errorMessage.postValue("Không thể tải hóa đơn PDF");
+            errorMessage.postValue("Unable to download the invoice PDF.");
         }
     }
 }

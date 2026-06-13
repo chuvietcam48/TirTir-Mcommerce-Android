@@ -26,6 +26,7 @@ import com.example.tirtir_mcommerce.MainActivity;
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.WishlistContentProvider;
 import com.example.tirtir_mcommerce.database.DatabaseHelper;
+import com.example.tirtir_mcommerce.repository.CartRepository;
 import com.example.tirtir_mcommerce.model.CartItem;
 import com.example.tirtir_mcommerce.model.Product;
 
@@ -166,7 +167,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                     .load(imageUrl.isEmpty() ? null : imageUrl)
                     .placeholder(R.drawable.ic_product_placeholder)
                     .error(R.drawable.ic_product_placeholder)
-                    .centerCrop()
+                    .fitCenter()
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
@@ -230,7 +231,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                             1,
                             ""
                     );
-                    DatabaseHelper.getInstance(context).insertOrUpdateCartItem(item);
+                    CartRepository cartRepository = new CartRepository(context);
+                    cartRepository.addToCartLocal(item);
+                    cartRepository.syncItemToServer(item, null, error -> {
+                        // Local-first cart remains usable; NetworkReceiver retries later.
+                    });
                     if (context instanceof MainActivity) {
                         ((MainActivity) context).updateCartBadge();
                     }

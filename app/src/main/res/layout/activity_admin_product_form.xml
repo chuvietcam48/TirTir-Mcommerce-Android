@@ -13,7 +13,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="#FFFFFF"
-            app:title="Sản phẩm" />
+            app:title="Products" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <ScrollView
@@ -31,7 +31,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Thông tin cơ bản"
+                android:text="Basic information"
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:layout_marginBottom="12dp"/>
@@ -39,7 +39,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Tên sản phẩm"
+                android:hint="Product name"
                 android:layout_marginBottom="12dp"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                 <com.google.android.material.textfield.TextInputEditText
@@ -51,7 +51,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Thương hiệu"
+                android:hint="Brand"
                 android:layout_marginBottom="12dp"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                 <com.google.android.material.textfield.TextInputEditText
@@ -71,7 +71,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="Giá (đ)"
+                    android:hint="Price (VND)"
                     android:layout_marginEnd="8dp"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                     <com.google.android.material.textfield.TextInputEditText
@@ -85,7 +85,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="Số lượng kho"
+                    android:hint="Stock quantity"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etProductStock"
@@ -99,7 +99,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Thuộc tính sản phẩm"
+                android:text="Product attributes"
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:layout_marginTop="12dp"
@@ -108,7 +108,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Danh mục"
+                android:text="Category"
                 android:textSize="14sp"
                 android:layout_marginBottom="4dp"/>
             <Spinner
@@ -129,7 +129,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="Mã màu (Hex: #FFFFFF)"
+                    android:hint="Shade color (Hex: #FFFFFF)"
                     android:layout_marginEnd="12dp"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                     <com.google.android.material.textfield.TextInputEditText
@@ -150,7 +150,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Loại da phù hợp"
+                android:text="Suitable skin types"
                 android:textSize="14sp"
                 android:layout_marginBottom="8dp"/>
             <com.google.android.material.chip.ChipGroup
@@ -159,17 +159,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:chipSpacing="8dp">
-                <com.google.android.material.chip.Chip android:id="@+id/chipOily" style="@style/Widget.MaterialComponents.Chip.Filter" android:text="Da dầu" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <com.google.android.material.chip.Chip android:id="@+id/chipDry" style="@style/Widget.MaterialComponents.Chip.Filter" android:text="Da khô" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <com.google.android.material.chip.Chip android:id="@+id/chipSensitive" style="@style/Widget.MaterialComponents.Chip.Filter" android:text="Nhạy cảm" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <com.google.android.material.chip.Chip android:id="@+id/chipCombination" style="@style/Widget.MaterialComponents.Chip.Filter" android:text="Hỗn hợp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <com.google.android.material.chip.Chip android:id="@+id/chipOily" style="@style/Widget.MaterialComponents.Chip.Filter" android:text="Oily" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <com.google.android.material.chip.Chip android:id="@+id/chipDry" style="@style/Widget.MaterialComponents.Chip.Filter" android:text="Dry" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <com.google.android.material.chip.Chip android:id="@+id/chipSensitive" style="@style/Widget.MaterialComponents.Chip.Filter" android:text="Sensitive" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <com.google.android.material.chip.Chip android:id="@+id/chipCombination" style="@style/Widget.MaterialComponents.Chip.Filter" android:text="Combination" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             </com.google.android.material.chip.ChipGroup>
 
             <!-- Description & Ingredients -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Thành phần (mỗi dòng một chất)"
+                android:hint="Ingredients (one per line)"
                 android:layout_marginBottom="12dp"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                 <com.google.android.material.textfield.TextInputEditText
@@ -183,7 +183,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Mô tả sản phẩm"
+                android:hint="Product description"
                 android:layout_marginBottom="24dp"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                 <com.google.android.material.textfield.TextInputEditText
@@ -198,7 +198,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hình ảnh sản phẩm (Max 6)"
+                android:text="Product images (Max 6)"
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:layout_marginBottom="12dp"/>
@@ -220,7 +220,7 @@
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Chọn ảnh"
+                android:text="Choose images"
                 app:icon="@android:drawable/ic_menu_camera"
                 android:layout_marginBottom="32dp"/>
 
@@ -228,7 +228,7 @@
                 android:id="@+id/btnSaveProduct"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:text="LƯU SẢN PHẨM"
+                android:text="SAVE PRODUCT"
                 android:textSize="16sp"
                 app:backgroundTint="#E91E8C"
                 android:layout_marginBottom="16dp"/>
@@ -238,7 +238,7 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="XOÁ SẢN PHẨM"
+                android:text="DEACTIVATE PRODUCT"
                 android:textColor="#F44336"
                 android:visibility="gone"/>
 

@@ -27,7 +27,7 @@
                     android:id="@+id/tvRecoveryUserName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nguyễn Văn A"
+                    android:text="Customer"
                     android:textStyle="bold"
                     android:textSize="16sp" />
                 <TextView
@@ -59,7 +59,7 @@
             android:id="@+id/tvRecoveryCartSummary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sản phẩm: Ceramic Milk Ampoule, Mask Pack"
+            android:text="Products"
             android:textSize="13sp" />
 
         <LinearLayout
@@ -72,14 +72,14 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Giá trị: 500.000 đ"
+                android:text="Value: 500,000 VND"
                 android:textStyle="bold"
                 android:textColor="#E91E8C" />
             <TextView
                 android:id="@+id/tvRecoveryTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="2 giờ trước"
+                android:text="2 hours ago"
                 android:textSize="12sp"
                 android:textColor="#777777" />
         </LinearLayout>

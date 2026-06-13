@@ -109,7 +109,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Gửi Voucher"
+                android:text="Send voucher"
                 android:textSize="12sp"
                 android:layout_marginEnd="4dp"
                 app:strokeColor="#E91E8C"
@@ -120,7 +120,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Gửi FCM"
+                android:text="Send notification"
                 android:textSize="12sp"
                 android:layout_marginStart="4dp"
                 android:backgroundTint="#111111" />

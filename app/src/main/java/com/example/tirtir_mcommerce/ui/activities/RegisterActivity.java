@@ -12,6 +12,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.tirtir_mcommerce.R;
+import com.example.tirtir_mcommerce.MainActivity;
+import com.example.tirtir_mcommerce.model.User;
 import com.example.tirtir_mcommerce.viewmodel.AuthViewModel;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -46,6 +48,9 @@ public class RegisterActivity extends AppCompatActivity {
     private TextView tvGoLogin;
 
     private AuthViewModel authViewModel;
+    private String submittedEmail = "";
+    private String submittedPassword = "";
+    private boolean registrationCompleted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,17 +97,22 @@ public class RegisterActivity extends AppCompatActivity {
             btnRegister.setEnabled(!isLoading);
         });
 
-        // Register success → toast + navigate to Login
+        authViewModel.loginSuccess.observe(this, this::goToDestination);
+
+        // Registration may return a session immediately. If not, try one
+        // automatic sign-in so Appetize testers do not repeat the same form.
         authViewModel.registerSuccess.observe(this, message -> {
+            registrationCompleted = true;
             String displayMsg = (message != null && !message.isEmpty())
                     ? message
                     : getString(R.string.toast_register_success);
             Toast.makeText(this, displayMsg, Toast.LENGTH_LONG).show();
 
-            Intent intent = new Intent(this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            finish();
+            if (authViewModel.isLoggedIn()) {
+                goToDestination(null);
+            } else {
+                authViewModel.login(submittedEmail, submittedPassword);
+            }
         });
 
         // Error → show on relevant field or Toast
@@ -118,6 +128,12 @@ public class RegisterActivity extends AppCompatActivity {
                 tilConfirmPassword.setError(error);
             } else if (error.contains("mật khẩu") || error.contains("Mật khẩu")) {
                 tilPassword.setError(error);
+            } else if (registrationCompleted && !submittedEmail.isEmpty()) {
+                Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(this, LoginActivity.class);
+                intent.putExtra("REGISTERED_EMAIL", submittedEmail);
+                startActivity(intent);
+                finish();
             } else {
                 // Generic error (server/network)
                 Toast.makeText(this, error, Toast.LENGTH_LONG).show();
@@ -156,13 +172,16 @@ public class RegisterActivity extends AppCompatActivity {
         String email       = getText(etEmail);
         String password    = getText(etPassword);
         String confirmPass = getText(etConfirmPassword);
+        submittedEmail = email;
+        submittedPassword = password;
+        registrationCompleted = false;
 
         // Split fullName into firstName + lastName for BE
         String firstName, lastName;
         String[] parts = fullName.trim().split("\\s+");
         if (parts.length == 1) {
             firstName = parts[0];
-            lastName  = "";
+            lastName  = "Member";
         } else {
             // Last token = firstName (given name), rest = lastName (family name)
             firstName = parts[parts.length - 1];
@@ -186,5 +205,13 @@ public class RegisterActivity extends AppCompatActivity {
         tilEmail.setError(null);
         tilPassword.setError(null);
         tilConfirmPassword.setError(null);
+    }
+
+    private void goToDestination(User user) {
+        Intent intent = new Intent(this,
+                user != null && user.isAdmin() ? AdminActivity.class : MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }

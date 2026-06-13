@@ -11,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.tirtir_mcommerce.ui.fragments.HomeFragment;
+import com.example.tirtir_mcommerce.ui.fragments.OrderHistoryFragment;
 import com.example.tirtir_mcommerce.ui.fragments.ProfileFragment;
 import com.example.tirtir_mcommerce.ui.fragments.CartFragment;
 import com.example.tirtir_mcommerce.ui.fragments.ChatFragment;
@@ -64,7 +65,17 @@ public class MainActivity extends AppCompatActivity {
 
         // Hiển thị HomeFragment lúc mới mở app
         if (savedInstanceState == null) {
-            bottomNav.setSelectedItemId(R.id.nav_home);
+            if (getIntent().getBooleanExtra("OPEN_ORDER_HISTORY", false)) {
+                bottomNav.setSelectedItemId(R.id.nav_profile);
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentContainer, new OrderHistoryFragment())
+                        .addToBackStack("order_history")
+                        .commit();
+            } else if (getIntent().getBooleanExtra("OPEN_PROFILE", false)) {
+                bottomNav.setSelectedItemId(R.id.nav_profile);
+            } else {
+                bottomNav.setSelectedItemId(R.id.nav_home);
+            }
         }
     }
 

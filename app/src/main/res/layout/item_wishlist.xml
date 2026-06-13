@@ -37,7 +37,7 @@
                 android:background="@color/tirtir_success"
                 android:paddingHorizontal="5dp"
                 android:paddingVertical="2dp"
-                android:text="Về hàng"
+                android:text="Back in stock"
                 android:textColor="@color/tirtir_white"
                 android:textSize="9sp"
                 android:textStyle="bold"

@@ -60,18 +60,18 @@ public class OnboardingActivity extends AppCompatActivity {
         List<OnboardingPage> pages = Arrays.asList(
                 new OnboardingPage(
                         R.drawable.ic_onboarding_1,
-                        "Khám phá mỹ phẩm TirTir",
-                        "Hàng ngàn sản phẩm skincare cao cấp được tuyển chọn cho từng loại da của bạn."
+                        "Discover TirTir Beauty",
+                        "Discover curated TirTir essentials for every skin type."
                 ),
                 new OnboardingPage(
                         R.drawable.ic_onboarding_2,
-                        "Phân tích da thông minh",
-                        "Nhận gợi ý sản phẩm phù hợp dựa trên loại da và nhu cầu chăm sóc của bạn."
+                        "Smart Skin Analysis",
+                        "Get personalized product recommendations for your skin and beauty goals."
                 ),
                 new OnboardingPage(
                         R.drawable.ic_onboarding_3,
-                        "Đặt hàng dễ dàng & nhanh chóng",
-                        "Giao hàng tận nơi, theo dõi đơn hàng và chăm sóc khách hàng 24/7."
+                        "Beauty Shopping Made Simple",
+                        "Shop, track orders, and get personalized beauty support in one place."
                 )
         );
 
@@ -86,9 +86,9 @@ public class OnboardingActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 if (position == PAGE_COUNT - 1) {
-                    btnGetStarted.setText("Bắt đầu ngay");
+                    btnGetStarted.setText("Get started");
                 } else {
-                    btnGetStarted.setText("Tiếp theo");
+                    btnGetStarted.setText("Next");
                 }
             }
         });

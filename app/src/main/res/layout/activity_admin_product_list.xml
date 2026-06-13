@@ -13,7 +13,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="#FFFFFF"
-                app:title="Quản lý sản phẩm" />
+                app:title="Product Management" />
 
             <androidx.appcompat.widget.SearchView
                 android:id="@+id/searchViewAdminProducts"
@@ -22,7 +22,7 @@
                 android:layout_margin="8dp"
                 android:background="#FFFFFF"
                 app:iconifiedByDefault="false"
-                app:queryHint="Tìm sản phẩm..." />
+                app:queryHint="Search products..." />
         </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView

@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,6 +21,9 @@ import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.example.tirtir_mcommerce.ui.adapters.AddressAdapter;
 import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +55,7 @@ public class AddressManagerActivity extends AppCompatActivity {
     private MaterialButton btnAddNewAddress;
     private AddressAdapter addressAdapter;
     private List<Address> addressList = new ArrayList<>();
+    private ApiService apiService;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,13 +73,11 @@ public class AddressManagerActivity extends AppCompatActivity {
         layoutEmptyAddresses = findViewById(R.id.layoutEmptyAddresses);
         progressAddresses    = findViewById(R.id.progressAddresses);
         btnAddNewAddress     = findViewById(R.id.btnAddNewAddress);
+        apiService = RetrofitClient.getAuthClient(this).create(ApiService.class);
 
         setupAdapter();
 
-        btnAddNewAddress.setOnClickListener(v -> {
-            // TODO Phase 2: Open AddressFormActivity or bottom sheet dialog
-            Toast.makeText(this, "Add address — coming in Phase 2", Toast.LENGTH_SHORT).show();
-        });
+        btnAddNewAddress.setOnClickListener(v -> showAddressDialog(null));
 
         loadAddressesFromApi();
     }
@@ -89,20 +92,17 @@ public class AddressManagerActivity extends AppCompatActivity {
         addressAdapter = new AddressAdapter(addressList, new AddressAdapter.AddressActionListener() {
             @Override
             public void onEditAddress(Address address) {
-                // TODO Phase 2: PUT /api/v1/users/addresses/{id}
-                Toast.makeText(AddressManagerActivity.this, "Edit address — Phase 2", Toast.LENGTH_SHORT).show();
+                showAddressDialog(address);
             }
 
             @Override
             public void onDeleteAddress(Address address) {
-                // TODO Phase 2: DELETE /api/v1/users/addresses/{id}
-                Toast.makeText(AddressManagerActivity.this, "Delete address — Phase 2", Toast.LENGTH_SHORT).show();
+                updateAddressList(apiService.deleteAddress(address.getId()), "Address deleted.");
             }
 
             @Override
             public void onSetDefault(Address address) {
-                // TODO Phase 2: PATCH /api/v1/users/addresses/{id}/set-default
-                Toast.makeText(AddressManagerActivity.this, "Set default — Phase 2", Toast.LENGTH_SHORT).show();
+                updateAddressList(apiService.setDefaultAddress(address.getId()), "Default address updated.");
             }
         });
         rvAddressList.setLayoutManager(new LinearLayoutManager(this));
@@ -129,7 +129,6 @@ public class AddressManagerActivity extends AppCompatActivity {
 
         showLoading(true);
 
-        ApiService apiService = RetrofitClient.getAuthClient(this).create(ApiService.class);
         apiService.getAddresses().enqueue(new Callback<ApiResponse<List<Address>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<Address>>> call,
@@ -159,6 +158,126 @@ public class AddressManagerActivity extends AppCompatActivity {
                 showEmptyState();
             }
         });
+    }
+
+    private void showAddressDialog(@Nullable Address existing) {
+        View content = getLayoutInflater().inflate(R.layout.dialog_address_form, null);
+        TextInputEditText name = content.findViewById(R.id.etAddressName);
+        TextInputEditText phone = content.findViewById(R.id.etAddressPhone);
+        TextInputEditText street = content.findViewById(R.id.etAddressStreet);
+        TextInputEditText ward = content.findViewById(R.id.etAddressWard);
+        TextInputEditText district = content.findViewById(R.id.etAddressDistrict);
+        TextInputEditText city = content.findViewById(R.id.etAddressCity);
+
+        if (existing != null) {
+            name.setText(existing.getFullName());
+            phone.setText(existing.getPhone());
+            street.setText(existing.getStreet());
+            ward.setText(existing.getWard());
+            district.setText(existing.getDistrict());
+            city.setText(existing.getCity());
+        }
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setTitle(existing == null ? "Add address" : "Edit address")
+                .setView(content)
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Save", null)
+                .create();
+        dialog.setOnShowListener(ignored ->
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                    TextInputLayout firstError = null;
+                    int[] layoutIds = {
+                            R.id.tilAddressName, R.id.tilAddressPhone, R.id.tilAddressStreet,
+                            R.id.tilAddressWard, R.id.tilAddressDistrict, R.id.tilAddressCity
+                    };
+                    TextInputEditText[] fields = {name, phone, street, ward, district, city};
+                    for (int i = 0; i < fields.length; i++) {
+                        TextInputLayout layout = content.findViewById(layoutIds[i]);
+                        layout.setError(null);
+                        if (textOf(fields[i]).isEmpty()) {
+                            layout.setError("Required");
+                            if (firstError == null) firstError = layout;
+                        }
+                    }
+                    if (firstError != null) return;
+
+                    Address address = new Address(
+                            textOf(name), textOf(phone), textOf(street),
+                            textOf(ward), textOf(district), textOf(city));
+                    Call<ApiResponse<List<Address>>> call = existing == null
+                            ? apiService.addAddress(address)
+                            : apiService.updateAddress(existing.getId(), address);
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                    submitAddress(call, existing == null ? "Address added." : "Address updated.", dialog);
+                }));
+        dialog.show();
+    }
+
+    private void submitAddress(Call<ApiResponse<List<Address>>> call, String message, AlertDialog dialog) {
+        call.enqueue(new Callback<ApiResponse<List<Address>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Address>>> call,
+                                   Response<ApiResponse<List<Address>>> response) {
+                if (response.isSuccessful() && response.body() != null
+                        && response.body().isSuccess() && response.body().getData() != null) {
+                    renderAddresses(response.body().getData());
+                    Toast.makeText(AddressManagerActivity.this, message, Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                } else {
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                    Toast.makeText(AddressManagerActivity.this,
+                            response.body() != null ? response.body().getMessage() : "Unable to save address.",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<Address>>> call, Throwable t) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                Toast.makeText(AddressManagerActivity.this,
+                        "Connection error. Please try again.", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void updateAddressList(Call<ApiResponse<List<Address>>> call, String message) {
+        showLoading(true);
+        call.enqueue(new Callback<ApiResponse<List<Address>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Address>>> call,
+                                   Response<ApiResponse<List<Address>>> response) {
+                showLoading(false);
+                if (response.isSuccessful() && response.body() != null
+                        && response.body().isSuccess() && response.body().getData() != null) {
+                    renderAddresses(response.body().getData());
+                    Toast.makeText(AddressManagerActivity.this, message, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(AddressManagerActivity.this,
+                            "Unable to update addresses.", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<Address>>> call, Throwable t) {
+                showLoading(false);
+                Toast.makeText(AddressManagerActivity.this,
+                        "Connection error. Please try again.", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void renderAddresses(List<Address> addresses) {
+        addressList.clear();
+        if (addresses != null) addressList.addAll(addresses);
+        addressAdapter.notifyDataSetChanged();
+        boolean empty = addressList.isEmpty();
+        rvAddressList.setVisibility(empty ? View.GONE : View.VISIBLE);
+        layoutEmptyAddresses.setVisibility(empty ? View.VISIBLE : View.GONE);
+    }
+
+    private String textOf(TextInputEditText field) {
+        return field.getText() == null ? "" : field.getText().toString().trim();
     }
 
     // ===========================

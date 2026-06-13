@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.AdapterView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,6 +21,7 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Vi
 
     public static class AdminOrder {
         public String code;
+        public String id;
         public String userName;
         public double total;
         public String status;
@@ -28,7 +30,8 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Vi
         public String orderTime;
         public String products;
 
-        public AdminOrder(String code, String userName, double total, String status, String address, double shippingFee, String orderTime, String products) {
+        public AdminOrder(String id, String code, String userName, double total, String status, String address, double shippingFee, String orderTime, String products) {
+            this.id = id;
             this.code = code;
             this.userName = userName;
             this.total = total;
@@ -43,10 +46,11 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Vi
     private final Context context;
     private final List<AdminOrder> orders;
     private final OnOrderActionListener listener;
-    private final String[] statusOptions = {"pending", "confirmed", "shipping", "delivered"};
+    private final String[] statusOptions = {"Pending", "Processing", "Shipped", "Delivered", "Cancelled"};
 
     public interface OnOrderActionListener {
         void onShowDetail(AdminOrder order);
+        void onStatusChanged(AdminOrder order, String status);
     }
 
     public AdminOrderAdapter(Context context, List<AdminOrder> orders, OnOrderActionListener listener) {
@@ -66,8 +70,9 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         AdminOrder order = orders.get(position);
         holder.tvCode.setText(order.code);
-        holder.tvUser.setText("Khách hàng: " + order.userName);
+        holder.tvUser.setText("Customer: " + order.userName);
         holder.tvTotal.setText(String.format("%,.0f đ", order.total));
+        holder.spinnerStatus.setOnItemSelectedListener(null);
 
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, statusOptions);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -80,6 +85,23 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Vi
                 break;
             }
         }
+        holder.spinnerStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            private boolean initialized;
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int selected, long id) {
+                String status = statusOptions[selected];
+                if (!initialized) {
+                    initialized = true;
+                    return;
+                }
+                if (!status.equalsIgnoreCase(order.status) && listener != null) {
+                    listener.onStatusChanged(order, status);
+                }
+            }
+
+            @Override public void onNothingSelected(AdapterView<?> parent) {}
+        });
 
         holder.btnDetail.setOnClickListener(v -> {
             if (listener != null) listener.onShowDetail(order);

@@ -24,6 +24,7 @@ public class SharedPrefsManager {
     private static final String KEY_LANGUAGE = "app_language";
     private static final String KEY_FCM_TOKEN = "fcm_token";
     private static final String KEY_FIREBASE_UID = "firebase_uid";
+    private static final String KEY_LOGIN_AT = "login_at";
 
     private final SharedPreferences sharedPreferences;
     private final Gson gson;
@@ -39,7 +40,10 @@ public class SharedPrefsManager {
     // ===========================
 
     public void saveToken(String token) {
-        sharedPreferences.edit().putString(KEY_TOKEN, token).apply();
+        sharedPreferences.edit()
+                .putString(KEY_TOKEN, token)
+                .putLong(KEY_LOGIN_AT, System.currentTimeMillis())
+                .apply();
     }
 
     public String getToken() {
@@ -47,7 +51,21 @@ public class SharedPrefsManager {
     }
 
     public boolean isLoggedIn() {
-        return getToken() != null && !getToken().isEmpty();
+        String token = getToken();
+        if (token == null || token.isEmpty()) return false;
+
+        long loginAt = sharedPreferences.getLong(KEY_LOGIN_AT, 0L);
+        if (loginAt == 0L) return true;
+
+        User user = getCachedUser();
+        boolean admin = user != null && user.isAdmin();
+        long maxAge = admin
+                ? 8L * 60L * 60L * 1000L
+                : 30L * 24L * 60L * 60L * 1000L;
+        if (System.currentTimeMillis() - loginAt <= maxAge) return true;
+
+        clear();
+        return false;
     }
 
     // ===========================
@@ -109,7 +127,7 @@ public class SharedPrefsManager {
     }
 
     public String getLanguage() {
-        return sharedPreferences.getString(KEY_LANGUAGE, "vi"); // Mặc định Tiếng Việt
+        return sharedPreferences.getString(KEY_LANGUAGE, "en");
     }
 
     // ===========================

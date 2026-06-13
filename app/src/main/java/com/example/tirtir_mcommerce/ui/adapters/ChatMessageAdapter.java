@@ -66,6 +66,18 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         notifyItemInserted(messages.size() - 1);
     }
 
+    public int addAndReturnPosition(ChatMessage message) {
+        int position = messages.size();
+        addMessage(message);
+        return position;
+    }
+
+    public void updateMessage(int position, ChatMessage message) {
+        if (position < 0 || position >= messages.size()) return;
+        messages.set(position, message);
+        notifyItemChanged(position);
+    }
+
     @Override
     public int getItemViewType(int position) {
         return messages.get(position).fromUser ? TYPE_USER : TYPE_BOT;

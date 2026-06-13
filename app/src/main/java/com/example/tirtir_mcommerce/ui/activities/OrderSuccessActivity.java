@@ -55,10 +55,8 @@ public class OrderSuccessActivity extends AppCompatActivity {
         });
 
         btnViewOrder.setOnClickListener(v -> {
-            // Navigate to order history via MainActivity → ProfileFragment → OrderHistoryFragment
-            // For now: go back to MainActivity which shows Home; user can navigate to Profile
             Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra("OPEN_PROFILE", true);
+            intent.putExtra("OPEN_ORDER_HISTORY", true);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             finish();

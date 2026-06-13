@@ -40,7 +40,7 @@
                 android:id="@+id/chipAll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tat ca"
+                android:text="All"
                 app:chipBackgroundColor="@null"
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:checked="true" />
@@ -49,7 +49,7 @@
                 android:id="@+id/chipPending"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cho xac nhan"
+                android:text="Pending"
                 app:chipBackgroundColor="@null"
                 style="@style/Widget.MaterialComponents.Chip.Choice" />
 
@@ -122,7 +122,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginHorizontal="32dp"
-            android:text="Don hang cua ban se hien thi tai day"
+            android:text="Your orders will appear here."
             android:textSize="13sp"
             android:textColor="@color/tirtir_text_secondary"
             android:gravity="center" />

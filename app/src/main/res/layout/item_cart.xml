@@ -105,7 +105,7 @@
             android:id="@+id/tvSyncBadge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Chờ đồng bộ"
+            android:text="Waiting to sync"
             android:textSize="10sp"
             android:textColor="@color/tirtir_white"
             android:background="@color/tirtir_red_primary"

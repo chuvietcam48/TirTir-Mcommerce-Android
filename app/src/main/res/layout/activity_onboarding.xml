@@ -10,7 +10,7 @@
         android:id="@+id/tvSkip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bỏ qua"
+        android:text="Skip"
         android:textColor="@color/tirtir_text_secondary"
         android:textSize="14sp"
         android:paddingStart="16dp"

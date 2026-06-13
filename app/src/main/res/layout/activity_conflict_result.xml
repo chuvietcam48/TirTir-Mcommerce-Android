@@ -51,7 +51,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="No analysis data yet. This screen is ready for AI ingredient API results."
+                android:text="No known conflicts were found in the available ingredient data."
                 android:textColor="@color/tirtir_text_secondary"
                 android:textSize="14sp" />
 

@@ -37,6 +37,7 @@ public class AdminProductListActivity extends AppCompatActivity implements Admin
     private FloatingActionButton fabAddProduct;
     private AdminProductAdapter adapter;
     private ApiService apiService;
+    private final List<Product> allProducts = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,7 +48,7 @@ public class AdminProductListActivity extends AppCompatActivity implements Admin
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Quản lý sản phẩm");
+            getSupportActionBar().setTitle("Product Management");
         }
 
         apiService = RetrofitClient.getAuthClient(this).create(ApiService.class);
@@ -82,10 +83,20 @@ public class AdminProductListActivity extends AppCompatActivity implements Admin
     }
 
     private void filterProducts(String query) {
-        // Simple search filtering
         List<Product> filtered = new ArrayList<>();
-        // In real app, we might search via API or filter current list
-        // For S2.2 UI, we just toast or filter if list is already loaded
+        String normalized = query == null ? "" : query.trim().toLowerCase(java.util.Locale.ENGLISH);
+        for (Product product : allProducts) {
+            String name = product.getName() == null ? "" : product.getName();
+            String category = product.getCategory() == null ? "" : product.getCategory();
+            String sku = product.getProductId() == null ? "" : product.getProductId();
+            if (normalized.isEmpty()
+                    || name.toLowerCase(java.util.Locale.ENGLISH).contains(normalized)
+                    || category.toLowerCase(java.util.Locale.ENGLISH).contains(normalized)
+                    || sku.toLowerCase(java.util.Locale.ENGLISH).contains(normalized)) {
+                filtered.add(product);
+            }
+        }
+        adapter.updateData(filtered);
     }
 
     @Override
@@ -109,17 +120,19 @@ public class AdminProductListActivity extends AppCompatActivity implements Admin
                 if (response.isSuccessful() && response.body() != null) {
                     List<Product> products = response.body().getData();
                     if (products != null) {
-                        adapter.updateData(products);
+                        allProducts.clear();
+                        allProducts.addAll(products);
+                        adapter.updateData(new ArrayList<>(allProducts));
                     }
                 } else {
-                    Toast.makeText(AdminProductListActivity.this, "Lỗi tải dữ liệu", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AdminProductListActivity.this, "Unable to load products", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ProductResponse> call, Throwable t) {
                 progressAdminProducts.setVisibility(View.GONE);
-                Toast.makeText(AdminProductListActivity.this, "Lỗi kết nối", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AdminProductListActivity.this, "Connection error", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -128,8 +141,10 @@ public class AdminProductListActivity extends AppCompatActivity implements Admin
     public void onEdit(Product product) {
         Intent intent = new Intent(this, AdminProductFormActivity.class);
         intent.putExtra("PRODUCT_ID", product.getId());
+        intent.putExtra("PRODUCT_SKU", product.getProductId());
         intent.putExtra("PRODUCT_NAME", product.getName());
         intent.putExtra("PRODUCT_PRICE", product.getPrice());
+        intent.putExtra("PRODUCT_STOCK", product.getStockQuantity());
         intent.putExtra("PRODUCT_DESC", product.getDescriptionShort());
         intent.putExtra("PRODUCT_CATEGORY", product.getCategory());
         intent.putExtra("PRODUCT_IMAGE", product.getThumbnailImages());
@@ -139,50 +154,50 @@ public class AdminProductListActivity extends AppCompatActivity implements Admin
     @Override
     public void onDelete(Product product) {
         new AlertDialog.Builder(this)
-                .setTitle("Xác nhận xóa")
-                .setMessage("Bạn có chắc muốn xóa sản phẩm " + product.getName() + "?")
-                .setPositiveButton("Xóa", (dialog, which) -> executeDelete(product.getId()))
-                .setNegativeButton("Hủy", null)
+                .setTitle("Deactivate product")
+                .setMessage("Deactivate " + product.getName() + "?")
+                .setPositiveButton("Deactivate", (dialog, which) -> executeDelete(product.getId()))
+                .setNegativeButton("Cancel", null)
                 .show();
     }
 
     private void executeDelete(String productId) {
         progressAdminProducts.setVisibility(View.VISIBLE);
         String pid = productId;
-        apiService.deleteProduct(pid).enqueue(new Callback<ApiResponse<Void>>() {
+        apiService.deleteProduct(pid).enqueue(new Callback<java.util.Map<String, Object>>() {
             @Override
-            public void onResponse(Call<ApiResponse<Void>> call, Response<ApiResponse<Void>> response) {
+            public void onResponse(Call<java.util.Map<String, Object>> call, Response<java.util.Map<String, Object>> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(AdminProductListActivity.this, "Xóa thành công", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AdminProductListActivity.this, "Product deactivated", Toast.LENGTH_SHORT).show();
                     loadProducts();
                 } else {
                     progressAdminProducts.setVisibility(View.GONE);
-                    Toast.makeText(AdminProductListActivity.this, "Xóa thất bại", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AdminProductListActivity.this, "Unable to deactivate product", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {
+            public void onFailure(Call<java.util.Map<String, Object>> call, Throwable t) {
                 progressAdminProducts.setVisibility(View.GONE);
-                Toast.makeText(AdminProductListActivity.this, "Lỗi kết nối", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AdminProductListActivity.this, "Connection error", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     @Override
     public void onToggleActive(Product product, boolean isActive) {
-        apiService.toggleProductActive(product.getId()).enqueue(new Callback<ApiResponse<Product>>() {
+        apiService.toggleProductActive(product.getId()).enqueue(new Callback<java.util.Map<String, Object>>() {
             @Override
-            public void onResponse(Call<ApiResponse<Product>> call, Response<ApiResponse<Product>> response) {
+            public void onResponse(Call<java.util.Map<String, Object>> call, Response<java.util.Map<String, Object>> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(AdminProductListActivity.this, "Thay đổi trạng thái thất bại", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AdminProductListActivity.this, "Unable to update product status", Toast.LENGTH_SHORT).show();
                     loadProducts(); // revert state
                 }
             }
 
             @Override
-            public void onFailure(Call<ApiResponse<Product>> call, Throwable t) {
-                Toast.makeText(AdminProductListActivity.this, "Lỗi mạng", Toast.LENGTH_SHORT).show();
+            public void onFailure(Call<java.util.Map<String, Object>> call, Throwable t) {
+                Toast.makeText(AdminProductListActivity.this, "Network error", Toast.LENGTH_SHORT).show();
                 loadProducts(); // revert state
             }
         });

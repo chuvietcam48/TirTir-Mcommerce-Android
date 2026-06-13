@@ -195,6 +195,6 @@ public class WishlistFragment extends Fragment {
     }
 
     private void updateCount(int count) {
-        tvWishlistCount.setText(count + " sản phẩm");
+        tvWishlistCount.setText(count + (count == 1 ? " product" : " products"));
     }
 }

@@ -45,7 +45,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="12dp"
-                    android:text="Khách hàng thân thiết: Điểm x2"
+                    android:text="Loyalty bonus: 2x points"
                     android:textColor="@color/tirtir_red_primary"
                     android:textStyle="bold"
                     android:gravity="center" />
@@ -203,7 +203,7 @@
                             android:id="@+id/rbCOD"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/payment_cod"
+                            android:text="Credit / debit card"
                             android:textSize="14sp"
                             android:paddingVertical="8dp"
                             android:checked="true" />
@@ -212,7 +212,7 @@
                             android:id="@+id/rbBankTransfer"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/payment_bank_transfer"
+                            android:text="VNPay"
                             android:textSize="14sp"
                             android:paddingVertical="8dp" />
 
@@ -289,7 +289,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:hint="Mã giảm giá"
+                        android:hint="Promo code"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                         <com.google.android.material.textfield.TextInputEditText
                             android:layout_width="match_parent"

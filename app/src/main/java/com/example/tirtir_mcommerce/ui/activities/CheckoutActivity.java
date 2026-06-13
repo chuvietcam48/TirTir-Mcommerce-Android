@@ -26,10 +26,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import com.example.tirtir_mcommerce.utils.PriceUtils;
 
-import com.example.tirtir_mcommerce.network.ViettelPostSoapClient;
 import com.google.android.material.card.MaterialCardView;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
@@ -42,12 +39,8 @@ import java.util.List;
  *   → POST /api/v1/orders/create via OrderRepository
  *   → Body: { shippingAddress, paymentMethod }
  *   → On success: clear local cart → OrderSuccessActivity with real orderId
- *   → On failure (backend not ready): falls back to local mock order code
- *
- * TODO: Remove handleMockPlaceOrder() when backend order API is confirmed.
- *
  * Cart data: local SQLite cart_items (TASK 5).
- * Shipping: 30,000 VND placeholder (TODO: Viettel Post SOAP).
+ * Shipping: Viettel Post client with an estimated-fee fallback.
  *
  * Sprint 1.3
  */
@@ -61,7 +54,6 @@ public class CheckoutActivity extends AppCompatActivity {
 
     private OrderRepository orderRepository;
     private DatabaseHelper databaseHelper;
-    private ViettelPostSoapClient viettelPostClient;
     /** S1.3 gap: Loyalty multiplier badge. Layout visibility GONE by default. */
     private MaterialCardView cvLoyaltyBadge;
     private android.widget.TextView tvLoyaltyBadgeText;
@@ -83,13 +75,12 @@ public class CheckoutActivity extends AppCompatActivity {
 
         orderRepository = new OrderRepository(this);
         databaseHelper  = DatabaseHelper.getInstance(this);
-        viettelPostClient = new ViettelPostSoapClient(this);
 
         bindViews();
         loadCartTotals();
-        calculateShippingFee();
+        updateTotalsUI();
         setupPlaceOrder();
-        checkLoyaltyMultiplier(); // S1.3 gap: show loyalty badge if multiplier > 1
+        checkLoyaltyMultiplier();
     }
 
     @Override
@@ -138,13 +129,12 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     private void updateTotalsUI() {
-        double tax = cartSubtotal * 0.10;
-        double total = cartSubtotal + tax + shippingFee;
+        double total = cartSubtotal;
 
         tvCheckoutSubtotal.setText(PriceUtils.formatPriceVnd(cartSubtotal));
         tvCheckoutShipping.setText(PriceUtils.formatPriceVnd(shippingFee));
         if (tvCheckoutTax != null) {
-            tvCheckoutTax.setText(PriceUtils.formatPriceVnd(tax));
+            tvCheckoutTax.setText("Included");
         }
         tvCheckoutTotal.setText(PriceUtils.formatPriceVnd(total));
     }
@@ -154,96 +144,12 @@ public class CheckoutActivity extends AppCompatActivity {
     // ===========================
 
     /**
-     * SCR-16: Show loyalty multiplier badge when multiplier > 1.
-     * Reads Firestore for current user's loyaltyTier and orderCount.
-     * - First order (orderCount == 0) → 'x2 Điểm đơn đầu tiên!' (vàng)
-     * - Birthday month (loyaltyTier == 'birthday') → 'x3 Điểm sinh nhật!' (hồng)
-     * - Otherwise badge stays GONE.
-     * Badge layout already exists in activity_checkout.xml (cvLoyaltyBadge).
+     * The backend loyalty summary currently exposes points and tier, but no
+     * checkout multiplier. Keep the promotional badge hidden until the API
+     * returns an explicit multiplier for this order.
      */
     private void checkLoyaltyMultiplier() {
-        if (cvLoyaltyBadge == null) return;
-        try {
-            com.google.firebase.auth.FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            if (user == null) return;
-            FirebaseFirestore.getInstance()
-                    .collection("users")
-                    .document(user.getUid())
-                    .get()
-                    .addOnSuccessListener(doc -> {
-                        if (doc == null || !doc.exists()) return;
-                        Long orderCount = doc.getLong("orderCount");
-                        String loyaltyTier = doc.getString("loyaltyTier");
-                        String badgeText = null;
-                        int badgeTextColor = 0xFFE65100; // deep orange — default
-
-                        if (orderCount != null && orderCount == 0) {
-                            // First-ever order: x2 points
-                            badgeText = "⭐ x2 Điểm đơn đầu tiên!";
-                            badgeTextColor = 0xFFF57F17; // amber
-                        } else if ("birthday".equalsIgnoreCase(loyaltyTier)) {
-                            // Birthday month: x3 points
-                            badgeText = "🎂 x3 Điểm sinh nhật!";
-                            badgeTextColor = 0xFFC62828;
-                        }
-
-                        if (badgeText != null) {
-                            final String text = badgeText;
-                            final int color = badgeTextColor;
-                            runOnUiThread(() -> {
-                                cvLoyaltyBadge.setVisibility(View.VISIBLE);
-                                if (tvLoyaltyBadgeText != null) {
-                                    tvLoyaltyBadgeText.setText(text);
-                                    tvLoyaltyBadgeText.setTextColor(color);
-                                }
-                            });
-                        }
-                    })
-                    .addOnFailureListener(e -> android.util.Log.w("CheckoutActivity", "Loyalty check failed: " + e.getMessage()));
-        } catch (Exception e) {
-            android.util.Log.e("CheckoutActivity", "Error in checkLoyaltyMultiplier", e);
-        }
-    }
-
-    private void calculateShippingFee() {
-        // Assume default weight is 500g, from HCM to HN
-        tvCheckoutShipping.setText("Calculating...");
-        viettelPostClient.getShippingFees("HCM", "HN", 500, new ViettelPostSoapClient.Callback() {
-            @Override
-            public void onSuccess(List<com.example.tirtir_mcommerce.model.ShippingOption> options) {
-                runOnUiThread(() -> {
-                    if (!options.isEmpty()) {
-                        shippingFee = options.get(0).getPrice();
-                        updateTotalsUI();
-                    } else {
-                        shippingFee = 30000; // default if empty
-                        updateTotalsUI();
-                    }
-                });
-            }
-
-            @Override
-            public void onFallback(List<com.example.tirtir_mcommerce.model.ShippingOption> options) {
-                runOnUiThread(() -> {
-                    Toast.makeText(CheckoutActivity.this, "Using estimated shipping", Toast.LENGTH_SHORT).show();
-                    if (!options.isEmpty()) {
-                        shippingFee = options.get(0).getPrice();
-                    } else {
-                        shippingFee = 30000;
-                    }
-                    updateTotalsUI();
-                });
-            }
-
-            @Override
-            public void onError(String message) {
-                runOnUiThread(() -> {
-                    Toast.makeText(CheckoutActivity.this, message, Toast.LENGTH_SHORT).show();
-                    shippingFee = 30000; // default
-                    updateTotalsUI();
-                });
-            }
-        });
+        if (cvLoyaltyBadge != null) cvLoyaltyBadge.setVisibility(View.GONE);
     }
 
     private void setupPlaceOrder() {
@@ -262,10 +168,7 @@ public class CheckoutActivity extends AppCompatActivity {
      * POST /api/v1/orders/create via OrderRepository.
      *
      * On API success  → clear local cart → OrderSuccessActivity
-     * On API failure  → handleMockPlaceOrder() (local order code fallback)
-     *
      * Requires valid JWT token (user must be logged in).
-     * TODO: Remove mock fallback when backend order endpoint is confirmed.
      */
     private void placeOrderWithApi() {
         // Check if user is logged in (has token)
@@ -304,9 +207,8 @@ public class CheckoutActivity extends AppCompatActivity {
                     showLoading(false);
                     databaseHelper.clearCart();
 
-                    String orderId = orderResponse.getId() != null ? orderResponse.getId() : "TT-" + System.currentTimeMillis();
-                    double total = cartSubtotal + (cartSubtotal * 0.10) + shippingFee;
-                    goToOrderSuccess(orderId, total);
+                    String orderId = orderResponse.getOrderId();
+                    goToOrderSuccess(orderId, cartSubtotal);
                 },
                 errorMessage -> {
                     showLoading(false);
@@ -346,11 +248,11 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     private String getSelectedPaymentMethod() {
-        if (rgPaymentMethod == null) return "COD";
+        if (rgPaymentMethod == null) return "CARD";
         int checkedId = rgPaymentMethod.getCheckedRadioButtonId();
-        if (checkedId == R.id.rbBankTransfer) return "BANK_TRANSFER";
+        if (checkedId == R.id.rbBankTransfer) return "VNPAY";
         if (checkedId == R.id.rbMomo)         return "MOMO";
-        return "COD"; // Default
+        return "CARD";
     }
 
     private void showLoading(boolean loading) {

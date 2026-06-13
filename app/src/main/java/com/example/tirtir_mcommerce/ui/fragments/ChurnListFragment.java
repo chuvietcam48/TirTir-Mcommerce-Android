@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,21 +47,11 @@ public class ChurnListFragment extends Fragment {
         rvChurnList = v.findViewById(R.id.rvChurnList);
         rvChurnList.setLayoutManager(new LinearLayoutManager(getContext()));
         
-        setupMockData();
+        rvChurnList.setAdapter(new ChurnUserAdapter(getContext(), new ArrayList<>(),
+                user -> {}, user -> {}));
+        TextView empty = v.findViewById(R.id.tvChurnEmpty);
+        empty.setText("No " + (segment == null ? "customer" : segment)
+                + " retention segment is available right now.");
         return v;
-    }
-
-    private void setupMockData() {
-        List<ChurnUserAdapter.ChurnUser> users = new ArrayList<>();
-        users.add(new ChurnUserAdapter.ChurnUser("User 1", "user1@gmail.com", segment, 5, 5, 5));
-        users.add(new ChurnUserAdapter.ChurnUser("User 2", "user2@gmail.com", segment, 4, 3, 5));
-        users.add(new ChurnUserAdapter.ChurnUser("User 3", "user3@gmail.com", segment, 2, 1, 3));
-
-        ChurnUserAdapter adapter = new ChurnUserAdapter(getContext(), users, user -> {
-            Toast.makeText(getContext(), "Đã gửi voucher cho " + user.name, Toast.LENGTH_SHORT).show();
-        }, user -> {
-            Toast.makeText(getContext(), "Đã gửi FCM cho " + user.name, Toast.LENGTH_SHORT).show();
-        });
-        rvChurnList.setAdapter(adapter);
     }
 }

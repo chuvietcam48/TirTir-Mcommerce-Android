@@ -24,7 +24,7 @@ import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
  */
 public class SplashActivity extends AppCompatActivity {
 
-    private static final int SPLASH_DELAY_MS = 1500;
+    private static final int SPLASH_DELAY_MS = 350;
     private static final String PREF_FIRST_LAUNCH = "first_launch_done";
 
     @Override
@@ -47,9 +47,10 @@ public class SplashActivity extends AppCompatActivity {
         } else {
             // Check if user has a saved token
             SharedPrefsManager prefsManager = new SharedPrefsManager(this);
-            String token = prefsManager.getToken();
-            if (token != null && !token.isEmpty()) {
-                intent = new Intent(this, MainActivity.class);
+            if (prefsManager.isLoggedIn()) {
+                com.example.tirtir_mcommerce.model.User user = prefsManager.getCachedUser();
+                intent = new Intent(this,
+                        user != null && user.isAdmin() ? AdminActivity.class : MainActivity.class);
             } else {
                 intent = new Intent(this, LoginActivity.class);
             }

@@ -44,7 +44,7 @@ public class ProfileRepository {
                     if (user != null) prefsManager.saveUser(user);
                     onSuccess.onSuccess(user);
                 } else {
-                    onError.onError("Không thể tải thông tin tài khoản");
+                    onError.onError("Unable to load your account.");
                 }
             }
 
@@ -55,7 +55,7 @@ public class ProfileRepository {
                 if (cachedUser != null) {
                     onSuccess.onSuccess(cachedUser);
                 } else {
-                    onError.onError("Lỗi kết nối: " + t.getMessage());
+                    onError.onError("Connection error. Please try again.");
                 }
             }
         });
@@ -70,13 +70,13 @@ public class ProfileRepository {
                     if (updatedUser != null) prefsManager.saveUser(updatedUser);
                     onSuccess.onSuccess(updatedUser);
                 } else {
-                    onError.onError("Cập nhật thất bại");
+                    onError.onError("Profile update failed.");
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponse<User>> call, Throwable t) {
-                onError.onError("Lỗi kết nối: " + t.getMessage());
+                onError.onError("Connection error. Please try again.");
             }
         });
     }
@@ -92,71 +92,90 @@ public class ProfileRepository {
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     onSuccess.onSuccess(response.body().getData());
                 } else {
-                    onError.onError("Không thể tải danh sách địa chỉ");
+                    onError.onError("Unable to load saved addresses.");
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponse<List<Address>>> call, Throwable t) {
-                onError.onError("Lỗi kết nối: " + t.getMessage());
+                onError.onError("Connection error. Please try again.");
             }
         });
     }
 
-    public void addAddress(Address address, OnSuccessListener<User> onSuccess, OnErrorListener onError) {
-        authApiService.addAddress(address).enqueue(new Callback<ApiResponse<User>>() {
+    public void addAddress(Address address, OnSuccessListener<List<Address>> onSuccess, OnErrorListener onError) {
+        authApiService.addAddress(address).enqueue(new Callback<ApiResponse<List<Address>>>() {
             @Override
-            public void onResponse(Call<ApiResponse<User>> call, Response<ApiResponse<User>> response) {
+            public void onResponse(Call<ApiResponse<List<Address>>> call, Response<ApiResponse<List<Address>>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    User updatedUser = response.body().getData();
-                    if (updatedUser != null) prefsManager.saveUser(updatedUser);
-                    onSuccess.onSuccess(updatedUser);
+                    onSuccess.onSuccess(response.body().getData());
                 } else {
-                    onError.onError("Thêm địa chỉ thất bại");
+                    onError.onError("Unable to add this address.");
                 }
             }
 
             @Override
-            public void onFailure(Call<ApiResponse<User>> call, Throwable t) {
-                onError.onError("Lỗi kết nối: " + t.getMessage());
+            public void onFailure(Call<ApiResponse<List<Address>>> call, Throwable t) {
+                onError.onError("Connection error. Please try again.");
             }
         });
     }
 
-    public void deleteAddress(String addressId, OnSuccessListener<Void> onSuccess, OnErrorListener onError) {
-        authApiService.deleteAddress(addressId).enqueue(new Callback<ApiResponse<Void>>() {
+    public void updateAddress(String addressId, Address address,
+                              OnSuccessListener<List<Address>> onSuccess,
+                              OnErrorListener onError) {
+        authApiService.updateAddress(addressId, address).enqueue(new Callback<ApiResponse<List<Address>>>() {
             @Override
-            public void onResponse(Call<ApiResponse<Void>> call, Response<ApiResponse<Void>> response) {
-                if (response.isSuccessful()) {
-                    onSuccess.onSuccess(null);
-                } else {
-                    onError.onError("Xóa địa chỉ thất bại");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {
-                onError.onError("Lỗi kết nối: " + t.getMessage());
-            }
-        });
-    }
-
-    public void setDefaultAddress(String addressId, OnSuccessListener<User> onSuccess, OnErrorListener onError) {
-        authApiService.setDefaultAddress(addressId).enqueue(new Callback<ApiResponse<User>>() {
-            @Override
-            public void onResponse(Call<ApiResponse<User>> call, Response<ApiResponse<User>> response) {
+            public void onResponse(Call<ApiResponse<List<Address>>> call,
+                                   Response<ApiResponse<List<Address>>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    User updatedUser = response.body().getData();
-                    if (updatedUser != null) prefsManager.saveUser(updatedUser);
-                    onSuccess.onSuccess(updatedUser);
+                    onSuccess.onSuccess(response.body().getData());
                 } else {
-                    onError.onError("Thao tác thất bại");
+                    onError.onError("Unable to update this address.");
                 }
             }
 
             @Override
-            public void onFailure(Call<ApiResponse<User>> call, Throwable t) {
-                onError.onError("Lỗi kết nối: " + t.getMessage());
+            public void onFailure(Call<ApiResponse<List<Address>>> call, Throwable t) {
+                onError.onError("Connection error. Please try again.");
+            }
+        });
+    }
+
+    public void deleteAddress(String addressId, OnSuccessListener<List<Address>> onSuccess, OnErrorListener onError) {
+        authApiService.deleteAddress(addressId).enqueue(new Callback<ApiResponse<List<Address>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Address>>> call,
+                                   Response<ApiResponse<List<Address>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    onSuccess.onSuccess(response.body().getData());
+                } else {
+                    onError.onError("Unable to delete this address.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<Address>>> call, Throwable t) {
+                onError.onError("Connection error. Please try again.");
+            }
+        });
+    }
+
+    public void setDefaultAddress(String addressId, OnSuccessListener<List<Address>> onSuccess, OnErrorListener onError) {
+        authApiService.setDefaultAddress(addressId).enqueue(new Callback<ApiResponse<List<Address>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Address>>> call,
+                                   Response<ApiResponse<List<Address>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    onSuccess.onSuccess(response.body().getData());
+                } else {
+                    onError.onError("Unable to set the default address.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<Address>>> call, Throwable t) {
+                onError.onError("Connection error. Please try again.");
             }
         });
     }

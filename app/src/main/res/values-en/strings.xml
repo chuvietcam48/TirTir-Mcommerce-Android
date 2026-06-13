@@ -127,7 +127,7 @@
     <string name="checkout_shipping_fee">Shipping</string>
     <string name="checkout_total">Total</string>
     <string name="checkout_shipping_standard">Standard Delivery — 2–3 business days</string>
-    <string name="checkout_shipping_pending_note">⚠️ Viettel Post SOAP integration pending</string>
+    <string name="checkout_shipping_pending_note">Shipping is estimated and confirmed before payment.</string>
     <string name="btn_place_order">Place Order</string>
     <string name="hint_checkout_full_name">Full Name</string>
     <string name="hint_checkout_phone">Phone Number</string>

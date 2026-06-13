@@ -17,7 +17,7 @@ public class OrderResponse {
     @SerializedName("status")
     private String status; // Pending, Processing, Shipped, Delivered, Cancelled
 
-    @SerializedName("totalPrice")
+    @SerializedName(value = "totalAmount", alternate = {"totalPrice"})
     private double totalPrice;
 
     @SerializedName("paymentMethod")

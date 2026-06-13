@@ -67,7 +67,7 @@ public class ProductDetailActivity extends AppCompatActivity {
 
 
 
-    private String productId, productName, productCategory, productImage;
+    private String productId, productName, productCategory, productImage, productIngredients;
     private double productPrice;
     private double displayPriceVnd;
     private int stockQuantity;
@@ -122,7 +122,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         productImage    = getIntent().getStringExtra("PRODUCT_IMAGE");
         stockQuantity   = getIntent().getIntExtra("PRODUCT_STOCK", 100);
         String skinTypes    = getIntent().getStringExtra("PRODUCT_SKIN_TYPES");
-        String ingredients  = getIntent().getStringExtra("PRODUCT_INGREDIENTS");
+        productIngredients  = getIntent().getStringExtra("PRODUCT_INGREDIENTS");
         String description  = getIntent().getStringExtra("PRODUCT_DESCRIPTION");
 
         // Normalize price: use PriceUtils (safe: < 1000 => USD-style => x25000, >= 1000 => already VND)
@@ -135,7 +135,9 @@ public class ProductDetailActivity extends AppCompatActivity {
         if (productCategory != null) tvProductCategory.setText(productCategory);
         tvProductPrice.setText(PriceUtils.formatPriceVnd(displayPriceVnd));
         tvSuitableSkinTypes.setText(skinTypes != null && !skinTypes.isEmpty() ? skinTypes : "Suitable for all skin types");
-        tvIngredientList.setText(ingredients != null && !ingredients.isEmpty() ? ingredients : "Ingredient list is not available yet.");
+        tvIngredientList.setText(productIngredients != null && !productIngredients.isEmpty()
+                ? productIngredients
+                : "Ingredient list is not available yet.");
         tvProductDescription.setText(description != null && !description.isEmpty() ? description : "Premium TirTir beauty care formula.");
 
         galleryImages = getIntent().getStringArrayListExtra("PRODUCT_GALLERY");
@@ -221,6 +223,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, ARTryOnActivity.class);
                 intent.putExtra("PRODUCT_ID", productId);
                 intent.putExtra("PRODUCT_NAME", productName);
+                intent.putExtra("PRODUCT_INGREDIENTS", productIngredients);
                 startActivity(intent);
             });
         }
@@ -287,6 +290,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         productName = product.getName();
         productCategory = product.getCategory();
         productImage = product.getThumbnailImages();
+        productIngredients = product.getKeyIngredients();
         productPrice = product.getPrice();
         stockQuantity = product.getStockQuantity();
         double activePrice = product.getSalePrice() > 0 ? product.getSalePrice() : productPrice;
@@ -296,7 +300,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         tvProductCategory.setText(firstNonEmpty(productCategory, getString(R.string.product_category_placeholder)));
         tvProductPrice.setText(PriceUtils.formatPriceVnd(displayPriceVnd));
         tvSuitableSkinTypes.setText(firstNonEmpty(product.getSkinTypeTarget(), "Suitable for all skin types"));
-        tvIngredientList.setText(firstNonEmpty(product.getKeyIngredients(), "Ingredient list is not available yet."));
+        tvIngredientList.setText(firstNonEmpty(productIngredients, "Ingredient list is not available yet."));
         tvProductDescription.setText(firstNonEmpty(product.getDescriptionShort(), product.getFullDescription(), "Premium TirTir beauty care formula."));
 
         galleryImages = product.getGalleryImages() != null

@@ -75,7 +75,7 @@ public class ProfileViewModel extends AndroidViewModel {
                 user -> {
                     isLoading.postValue(false);
                     userLiveData.postValue(user);
-                    successMessage.postValue("Cập nhật thành công!");
+                    successMessage.postValue("Profile updated.");
                 },
                 message -> {
                     isLoading.postValue(false);
@@ -98,12 +98,25 @@ public class ProfileViewModel extends AndroidViewModel {
     public void addAddress(Address address) {
         isLoading.setValue(true);
         profileRepository.addAddress(address,
-                user -> {
+                addresses -> {
                     isLoading.postValue(false);
-                    if (user != null && user.getAddresses() != null) {
-                        addressesLiveData.postValue(user.getAddresses());
-                    }
-                    successMessage.postValue("Đã thêm địa chỉ mới");
+                    addressesLiveData.postValue(addresses);
+                    successMessage.postValue("Address added.");
+                },
+                message -> {
+                    isLoading.postValue(false);
+                    errorMessage.postValue(message);
+                }
+        );
+    }
+
+    public void updateAddress(String addressId, Address address) {
+        isLoading.setValue(true);
+        profileRepository.updateAddress(addressId, address,
+                addresses -> {
+                    isLoading.postValue(false);
+                    addressesLiveData.postValue(addresses);
+                    successMessage.postValue("Address updated.");
                 },
                 message -> {
                     isLoading.postValue(false);
@@ -115,10 +128,10 @@ public class ProfileViewModel extends AndroidViewModel {
     public void deleteAddress(String addressId) {
         isLoading.setValue(true);
         profileRepository.deleteAddress(addressId,
-                result -> {
+                addresses -> {
                     isLoading.postValue(false);
-                    successMessage.postValue("Đã xóa địa chỉ");
-                    loadAddresses(); // Reload danh sách
+                    addressesLiveData.postValue(addresses);
+                    successMessage.postValue("Address deleted.");
                 },
                 message -> {
                     isLoading.postValue(false);
@@ -129,11 +142,9 @@ public class ProfileViewModel extends AndroidViewModel {
 
     public void setDefaultAddress(String addressId) {
         profileRepository.setDefaultAddress(addressId,
-                user -> {
-                    if (user != null && user.getAddresses() != null) {
-                        addressesLiveData.postValue(user.getAddresses());
-                    }
-                    successMessage.postValue("Đã đặt địa chỉ mặc định");
+                addresses -> {
+                    addressesLiveData.postValue(addresses);
+                    successMessage.postValue("Default address updated.");
                 },
                 message -> errorMessage.postValue(message)
         );
@@ -153,7 +164,7 @@ public class ProfileViewModel extends AndroidViewModel {
     public void uploadAvatar(Uri imageUri) {
         User cachedUser = prefsManager.getCachedUser();
         if (cachedUser == null) {
-            errorMessage.postValue("Đăng nhập lại để upload ảnh");
+            errorMessage.postValue("Please sign in again to update your photo.");
             return;
         }
 
@@ -176,7 +187,7 @@ public class ProfileViewModel extends AndroidViewModel {
                                 user -> {
                                     avatarUploadLoading.postValue(false);
                                     userLiveData.postValue(user);
-                                    successMessage.postValue("Ảnh đại diện đã được cập nhật!");
+                                    successMessage.postValue("Profile photo updated.");
                                 },
                                 message -> {
                                     avatarUploadLoading.postValue(false);
@@ -187,7 +198,7 @@ public class ProfileViewModel extends AndroidViewModel {
                 })
                 .addOnFailureListener(e -> {
                     avatarUploadLoading.postValue(false);
-                    errorMessage.postValue("Upload ảnh thất bại: " + e.getMessage());
+                    errorMessage.postValue("Photo upload failed. Please try again.");
                 });
     }
 }

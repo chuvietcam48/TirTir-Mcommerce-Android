@@ -1,154 +1,154 @@
 <resources>
     <!-- App -->
     <string name="app_name">TirTir</string>
-    <string name="app_tagline">Mỹ phẩm thông minh</string>
+    <string name="app_tagline">Smart Beauty</string>
 
     <!-- ===== AUTH ===== -->
-    <string name="login_title">Đăng nhập</string>
-    <string name="login_subtitle">Chào mừng bạn quay trở lại!</string>
-    <string name="register_title">Đăng ký</string>
-    <string name="register_subtitle">Tạo tài khoản mới</string>
-    <string name="hint_email">Địa chỉ email</string>
-    <string name="hint_password">Mật khẩu</string>
-    <string name="hint_confirm_password">Xác nhận mật khẩu</string>
-    <string name="hint_first_name">Tên</string>
-    <string name="hint_last_name">Họ</string>
-    <string name="hint_phone">Số điện thoại</string>
-    <string name="btn_login">Đăng nhập</string>
-    <string name="btn_register">Đăng ký</string>
-    <string name="btn_logout">Đăng xuất</string>
-    <string name="text_no_account">Chưa có tài khoản? </string>
-    <string name="text_has_account">Đã có tài khoản? </string>
-    <string name="text_sign_up">Đăng ký ngay</string>
-    <string name="text_sign_in">Đăng nhập</string>
-    <string name="text_forgot_password">Quên mật khẩu?</string>
+    <string name="login_title">Sign In</string>
+    <string name="login_subtitle">Welcome back!</string>
+    <string name="register_title">Sign Up</string>
+    <string name="register_subtitle">Create a new account</string>
+    <string name="hint_email">Email address</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_confirm_password">Confirm password</string>
+    <string name="hint_first_name">First name</string>
+    <string name="hint_last_name">Last name</string>
+    <string name="hint_phone">Phone number</string>
+    <string name="btn_login">Sign In</string>
+    <string name="btn_register">Sign Up</string>
+    <string name="btn_logout">Sign Out</string>
+    <string name="text_no_account">Don\'t have an account? </string>
+    <string name="text_has_account">Already have an account? </string>
+    <string name="text_sign_up">Sign Up</string>
+    <string name="text_sign_in">Sign In</string>
+    <string name="text_forgot_password">Forgot password?</string>
 
     <!-- ===== VALIDATION ===== -->
-    <string name="error_email_empty">Email không được để trống</string>
-    <string name="error_email_invalid">Email không hợp lệ</string>
-    <string name="error_password_empty">Mật khẩu không được để trống</string>
-    <string name="error_password_short">Mật khẩu phải có ít nhất 8 ký tự</string>
-    <string name="error_password_mismatch">Mật khẩu xác nhận không khớp</string>
-    <string name="error_name_empty">Tên không được để trống</string>
-    <string name="error_field_required">Trường này là bắt buộc</string>
+    <string name="error_email_empty">Email cannot be empty</string>
+    <string name="error_email_invalid">Invalid email address</string>
+    <string name="error_password_empty">Password cannot be empty</string>
+    <string name="error_password_short">Password must be at least 8 characters</string>
+    <string name="error_password_mismatch">Passwords do not match</string>
+    <string name="error_name_empty">Name cannot be empty</string>
+    <string name="error_field_required">This field is required</string>
 
     <!-- ===== PROFILE ===== -->
-    <string name="profile_title">Tài khoản</string>
-    <string name="profile_my_orders">Đơn hàng của tôi</string>
-    <string name="profile_my_addresses">Địa chỉ của tôi</string>
-    <string name="profile_my_wishlist">Danh sách yêu thích</string>
-    <string name="profile_settings">Cài đặt</string>
-    <string name="profile_language">Ngôn ngữ</string>
-    <string name="profile_edit">Chỉnh sửa hồ sơ</string>
-    <string name="profile_change_avatar">Thay ảnh đại diện</string>
-    <string name="profile_update">Cập nhật</string>
+    <string name="profile_title">Account</string>
+    <string name="profile_my_orders">My Orders</string>
+    <string name="profile_my_addresses">My Addresses</string>
+    <string name="profile_my_wishlist">Wishlist</string>
+    <string name="profile_settings">Settings</string>
+    <string name="profile_language">Language</string>
+    <string name="profile_edit">Edit Profile</string>
+    <string name="profile_change_avatar">Change Photo</string>
+    <string name="profile_update">Update</string>
 
     <!-- ===== ADDRESS ===== -->
-    <string name="address_title">Địa chỉ giao hàng</string>
-    <string name="address_add">Thêm địa chỉ mới</string>
-    <string name="address_edit">Chỉnh sửa địa chỉ</string>
-    <string name="address_delete">Xóa địa chỉ</string>
-    <string name="address_set_default">Đặt làm mặc định</string>
-    <string name="address_default_label">Mặc định</string>
-    <string name="address_empty">Bạn chưa có địa chỉ nào</string>
-    <string name="hint_street">Số nhà, tên đường</string>
-    <string name="hint_ward">Phường/Xã</string>
-    <string name="hint_district">Quận/Huyện</string>
-    <string name="hint_city">Tỉnh/Thành phố</string>
-    <string name="hint_full_name">Họ và tên người nhận</string>
+    <string name="address_title">Shipping Addresses</string>
+    <string name="address_add">Add New Address</string>
+    <string name="address_edit">Edit Address</string>
+    <string name="address_delete">Delete Address</string>
+    <string name="address_set_default">Set as Default</string>
+    <string name="address_default_label">Default</string>
+    <string name="address_empty">You have no saved addresses</string>
+    <string name="hint_street">House number, street name</string>
+    <string name="hint_ward">Ward</string>
+    <string name="hint_district">District</string>
+    <string name="hint_city">City / Province</string>
+    <string name="hint_full_name">Recipient full name</string>
 
     <!-- ===== DIALOG ===== -->
-    <string name="dialog_confirm_title">Xác nhận</string>
-    <string name="dialog_delete_address">Bạn có muốn xóa địa chỉ này không?</string>
-    <string name="dialog_logout_confirm">Bạn có muốn đăng xuất không?</string>
-    <string name="btn_confirm">Xác nhận</string>
-    <string name="btn_cancel">Hủy</string>
-    <string name="btn_delete">Xóa</string>
-    <string name="btn_save">Lưu</string>
+    <string name="dialog_confirm_title">Confirm</string>
+    <string name="dialog_delete_address">Do you want to delete this address?</string>
+    <string name="dialog_logout_confirm">Do you want to sign out?</string>
+    <string name="btn_confirm">Confirm</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_delete">Delete</string>
+    <string name="btn_save">Save</string>
 
     <!-- ===== TOAST ===== -->
-    <string name="toast_login_success">Đăng nhập thành công!</string>
-    <string name="toast_register_success">Đăng ký thành công! Vui lòng kiểm tra email để xác thực.</string>
-    <string name="toast_logout_success">Đã đăng xuất</string>
-    <string name="toast_update_success">Cập nhật thành công!</string>
-    <string name="toast_address_added">Đã thêm địa chỉ mới</string>
-    <string name="toast_address_deleted">Đã xóa địa chỉ</string>
-    <string name="toast_error_network">Lỗi kết nối mạng, vui lòng thử lại</string>
-    <string name="toast_error_server">Lỗi máy chủ, vui lòng thử lại sau</string>
-    <string name="toast_invalid_credentials">Email hoặc mật khẩu không đúng</string>
-    <string name="toast_loading">Đang xử lý...</string>
+    <string name="toast_login_success">Signed in successfully!</string>
+    <string name="toast_register_success">Account created! Please check your email to verify.</string>
+    <string name="toast_logout_success">Signed out</string>
+    <string name="toast_update_success">Updated successfully!</string>
+    <string name="toast_address_added">New address added</string>
+    <string name="toast_address_deleted">Address deleted</string>
+    <string name="toast_error_network">Network error, please try again</string>
+    <string name="toast_error_server">Server error, please try again later</string>
+    <string name="toast_invalid_credentials">Incorrect email or password</string>
+    <string name="toast_loading">Processing...</string>
 
     <!-- ===== GENERAL ===== -->
-    <string name="loading">Đang tải...</string>
-    <string name="retry">Thử lại</string>
-    <string name="empty_state">Không có dữ liệu</string>
-    <string name="back">Quay lại</string>
+    <string name="loading">Loading...</string>
+    <string name="retry">Retry</string>
+    <string name="empty_state">No data available</string>
+    <string name="back">Back</string>
 
     <!-- ===== BOTTOM NAV ===== -->
-    <string name="nav_home">Trang chủ</string>
-    <string name="nav_shop">Cửa hàng</string>
-    <string name="nav_ai">Tư vấn</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_shop">Shop</string>
+    <string name="nav_ai">Advisor</string>
     <string name="nav_routine">Routine</string>
-    <string name="nav_profile">Tài khoản</string>
-    <string name="nav_cart">Giỏ hàng</string>
-    <string name="nav_wishlist">Yêu thích</string>
+    <string name="nav_profile">Account</string>
+    <string name="nav_cart">Cart</string>
+    <string name="nav_wishlist">Wishlist</string>
 
     <!-- ===== PRODUCT DETAIL ===== -->
-    <string name="product_detail_title">Chi tiết sản phẩm</string>
-    <string name="product_category_placeholder">DANH MỤC</string>
-    <string name="product_name_placeholder">Tên sản phẩm</string>
-    <string name="product_price_placeholder">0 đ</string>
-    <string name="product_suitable_skin_types">Loại da phù hợp</string>
-    <string name="product_skin_types_placeholder">Mọi loại da, da nhạy cảm</string>
-    <string name="product_ingredients_title">Thành phần</string>
-    <string name="product_ingredients_placeholder">Nước, Glycerin, Niacinamide...</string>
-    <string name="product_description_title">Mô tả</string>
-    <string name="product_description_placeholder">Mô tả sản phẩm</string>
-    <string name="btn_add_to_cart">Thêm vào giỏ</string>
-    <string name="btn_wishlist">Yêu thích</string>
-    <string name="content_desc_wishlist">Thêm vào yêu thích</string>
+    <string name="product_detail_title">Product Detail</string>
+    <string name="product_category_placeholder">CATEGORY</string>
+    <string name="product_name_placeholder">Product Name</string>
+    <string name="product_price_placeholder">$0.00</string>
+    <string name="product_suitable_skin_types">Suitable Skin Types</string>
+    <string name="product_skin_types_placeholder">All skin types, sensitive skin</string>
+    <string name="product_ingredients_title">Ingredients</string>
+    <string name="product_ingredients_placeholder">Water, Glycerin, Niacinamide...</string>
+    <string name="product_description_title">Description</string>
+    <string name="product_description_placeholder">Product description</string>
+    <string name="btn_add_to_cart">Add to Cart</string>
+    <string name="btn_wishlist">Wishlist</string>
+    <string name="content_desc_wishlist">Add to wishlist</string>
 
     <!-- ===== CART ===== -->
-    <string name="cart_title">Giỏ hàng của bạn</string>
-    <string name="cart_subtotal">Tạm tính</string>
-    <string name="cart_shipping">Phí vận chuyển</string>
-    <string name="cart_total">Tổng cộng</string>
-    <string name="cart_empty_title">Giỏ hàng trống</string>
-    <string name="cart_price_placeholder">0 đ</string>
-    <string name="btn_checkout">Thanh toán</string>
+    <string name="cart_title">Your Cart</string>
+    <string name="cart_subtotal">Subtotal</string>
+    <string name="cart_shipping">Shipping</string>
+    <string name="cart_total">Total</string>
+    <string name="cart_empty_title">Your cart is empty</string>
+    <string name="cart_price_placeholder">$0.00</string>
+    <string name="btn_checkout">Checkout</string>
 
     <!-- ===== CHECKOUT ===== -->
-    <string name="checkout_title">Thanh toán</string>
-    <string name="checkout_shipping_address">Địa chỉ giao hàng</string>
-    <string name="checkout_payment_method">Phương thức thanh toán</string>
-    <string name="checkout_shipping_service">Dịch vụ vận chuyển</string>
-    <string name="checkout_order_summary">Tóm tắt đơn hàng</string>
-    <string name="checkout_subtotal">Tạm tính</string>
-    <string name="checkout_shipping_fee">Phí vận chuyển</string>
-    <string name="checkout_total">Tổng cộng</string>
-    <string name="checkout_shipping_standard">Giao hàng tiêu chuẩn — 2–3 ngày làm việc</string>
-    <string name="checkout_shipping_pending_note">⚠️ Tích hợp Viettel Post đang phát triển</string>
-    <string name="btn_place_order">Đặt hàng</string>
-    <string name="hint_checkout_full_name">Họ và tên</string>
-    <string name="hint_checkout_phone">Số điện thoại</string>
-    <string name="hint_checkout_street">Địa chỉ</string>
-    <string name="hint_checkout_district">Quận/Huyện</string>
-    <string name="hint_checkout_city">Tỉnh/Thành phố</string>
-    <string name="hint_checkout_note">Ghi chú đơn hàng (không bắt buộc)</string>
-    <string name="payment_cod">💵  Thanh toán khi nhận hàng (COD)</string>
-    <string name="payment_bank_transfer">🏦  Chuyển khoản ngân hàng</string>
-    <string name="payment_momo">📱  Ví MoMo</string>
+    <string name="checkout_title">Checkout</string>
+    <string name="checkout_shipping_address">Shipping Address</string>
+    <string name="checkout_payment_method">Payment Method</string>
+    <string name="checkout_shipping_service">Shipping Service</string>
+    <string name="checkout_order_summary">Order Summary</string>
+    <string name="checkout_subtotal">Subtotal</string>
+    <string name="checkout_shipping_fee">Shipping</string>
+    <string name="checkout_total">Total</string>
+    <string name="checkout_shipping_standard">Standard Delivery — 2–3 business days</string>
+    <string name="checkout_shipping_pending_note">Shipping is estimated and confirmed before payment.</string>
+    <string name="btn_place_order">Place Order</string>
+    <string name="hint_checkout_full_name">Full Name</string>
+    <string name="hint_checkout_phone">Phone Number</string>
+    <string name="hint_checkout_street">Street Address</string>
+    <string name="hint_checkout_district">District</string>
+    <string name="hint_checkout_city">City</string>
+    <string name="hint_checkout_note">Order Note (optional)</string>
+    <string name="payment_cod">💵  Cash on Delivery (COD)</string>
+    <string name="payment_bank_transfer">🏦  Bank Transfer</string>
+    <string name="payment_momo">📱  MoMo Wallet</string>
 
     <!-- ===== ORDER SUCCESS ===== -->
-    <string name="order_success_title">Đặt hàng thành công!</string>
-    <string name="order_success_subtitle">Cảm ơn bạn đã mua sắm tại TirTir!</string>
-    <string name="order_success_icon_desc">Đặt hàng thành công</string>
-    <string name="order_code_label">Mã đơn hàng</string>
+    <string name="order_success_title">Order Placed!</string>
+    <string name="order_success_subtitle">Thank you for your purchase!</string>
+    <string name="order_success_icon_desc">Order placed successfully</string>
+    <string name="order_code_label">Order Code</string>
     <string name="order_code_placeholder">ORD-000000</string>
-    <string name="order_status_label">Trạng thái</string>
-    <string name="order_status_confirmed">Đã xác nhận</string>
-    <string name="order_total_paid_label">Tổng thanh toán</string>
-    <string name="order_total_placeholder">0 đ</string>
-    <string name="btn_view_order_history">Xem lịch sử đơn hàng</string>
-    <string name="btn_back_home">Về trang chủ</string>
+    <string name="order_status_label">Status</string>
+    <string name="order_status_confirmed">Confirmed</string>
+    <string name="order_total_paid_label">Total Paid</string>
+    <string name="order_total_placeholder">$0.00</string>
+    <string name="btn_view_order_history">View Order History</string>
+    <string name="btn_back_home">Back to Home</string>
 </resources>

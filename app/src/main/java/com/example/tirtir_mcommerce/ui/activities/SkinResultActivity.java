@@ -44,7 +44,7 @@ public class SkinResultActivity extends AppCompatActivity {
         tvEmpty = findViewById(R.id.tvCushionEmpty);
         adapter = new CushionMatchAdapter(item -> {
             if (item.productId == null || item.productId.isEmpty()) {
-                Toast.makeText(this, "This recommendation is missing productId.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "This recommendation is temporarily unavailable.", Toast.LENGTH_SHORT).show();
                 return;
             }
             DatabaseHelper.getInstance(this).insertOrUpdateCartItem(
@@ -116,7 +116,8 @@ public class SkinResultActivity extends AppCompatActivity {
 
     private void bindTone() {
         String hex = getIntent().getStringExtra("SKIN_HEX");
-        String category = getIntent().getStringExtra("ITA_CATEGORY");
+        String skinTone = getIntent().getStringExtra("SKIN_TONE");
+        String undertone = getIntent().getStringExtra("UNDERTONE");
         double angle = getIntent().getDoubleExtra("ITA_ANGLE", Double.NaN);
         TextView meta = findViewById(R.id.tvSkinToneMeta);
         View swatch = findViewById(R.id.viewSkinToneSwatch);
@@ -126,8 +127,11 @@ public class SkinResultActivity extends AppCompatActivity {
             } catch (Exception ignored) {
                 swatch.setBackgroundResource(R.drawable.bg_shade_swatch);
             }
-            meta.setText(hex + " | " + (category == null ? "ITA" : category) + " | " + (Double.isNaN(angle) ? "--" : String.format("%.1f", angle)));
         }
+        String toneLabel = skinTone == null || skinTone.isEmpty() ? "Skin tone unavailable" : skinTone;
+        String undertoneLabel = undertone == null || undertone.isEmpty() ? "Undertone unavailable" : undertone;
+        String itaLabel = Double.isNaN(angle) ? "ITA unavailable" : String.format("ITA %.1f°", angle);
+        meta.setText(toneLabel + " • " + undertoneLabel + " • " + itaLabel);
     }
 
     private void bindScores() {

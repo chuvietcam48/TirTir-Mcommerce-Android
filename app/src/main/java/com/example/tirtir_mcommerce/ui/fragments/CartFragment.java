@@ -27,6 +27,7 @@ import com.example.tirtir_mcommerce.database.DatabaseHelper;
 import com.example.tirtir_mcommerce.model.CartItem;
 import com.example.tirtir_mcommerce.ui.activities.CheckoutActivity;
 import com.example.tirtir_mcommerce.ui.adapters.CartAdapter;
+import com.example.tirtir_mcommerce.repository.CartRepository;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import com.example.tirtir_mcommerce.utils.PriceUtils;
@@ -44,8 +45,8 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
     private List<CartItem> cartItemList;
 
     private DatabaseHelper databaseHelper;
+    private CartRepository cartRepository;
 
-    private final double shippingFee = 30000; // Mock shipping fee
     private double currentTotal = 0;
 
     @Nullable
@@ -54,6 +55,7 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
         View view = inflater.inflate(R.layout.fragment_cart, container, false);
 
         databaseHelper = DatabaseHelper.getInstance(getContext());
+        cartRepository = new CartRepository(requireContext());
 
         rvCartItems = view.findViewById(R.id.rvCartItems);
         tvCartSubtotal = view.findViewById(R.id.tvCartSubtotal);
@@ -121,12 +123,11 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
             subtotal += item.getPrice() * item.getQuantity();
         }
 
-        double tax = subtotal * 0.10;
-        currentTotal = subtotal + tax + shippingFee;
+        currentTotal = subtotal;
 
         tvCartSubtotal.setText(PriceUtils.formatPriceVnd(subtotal));
-        tvShippingFee.setText(PriceUtils.formatPriceVnd(shippingFee));
-        tvTaxFee.setText(PriceUtils.formatPriceVnd(tax));
+        tvShippingFee.setText("Calculated at checkout");
+        tvTaxFee.setText("Included");
         tvCartTotal.setText(PriceUtils.formatPriceVnd(currentTotal));
     }
 
@@ -134,7 +135,7 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
     public void onQuantityChanged(int position, int newQuantity) {
         CartItem item = cartItemList.get(position);
         item.setQuantity(newQuantity);
-        databaseHelper.updateCartQuantity(item.getProductId(), newQuantity);
+        cartRepository.updateQuantity(item.getProductId(), newQuantity);
         cartAdapter.notifyItemChanged(position);
         updateCartSummary();
     }
@@ -142,7 +143,7 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
     @Override
     public void onRemoveItem(int position) {
         CartItem item = cartItemList.get(position);
-        databaseHelper.removeCartItem(item.getProductId());
+        cartRepository.removeItem(item.getProductId());
         cartItemList.remove(position);
         cartAdapter.notifyItemRemoved(position);
         updateCartSummary();

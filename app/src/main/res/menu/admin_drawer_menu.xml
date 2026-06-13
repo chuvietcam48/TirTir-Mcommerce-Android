@@ -4,11 +4,11 @@
         <item
             android:id="@+id/nav_admin_products"
             android:icon="@android:drawable/ic_menu_edit"
-            android:title="Sản phẩm" />
+            android:title="Products" />
         <item
             android:id="@+id/nav_admin_orders"
             android:icon="@android:drawable/ic_menu_agenda"
-            android:title="Đơn hàng" />
+            android:title="Orders" />
         <item
             android:id="@+id/nav_admin_churn"
             android:icon="@android:drawable/ic_dialog_alert"
@@ -19,12 +19,12 @@
             android:title="Cart Recovery" />
     </group>
     
-    <item android:title="Cá nhân">
+    <item android:title="Account">
         <menu>
             <item
                 android:id="@+id/nav_admin_logout"
                 android:icon="@android:drawable/ic_lock_power_off"
-                android:title="Đăng xuất" />
+                android:title="Sign out" />
         </menu>
     </item>
 </menu>

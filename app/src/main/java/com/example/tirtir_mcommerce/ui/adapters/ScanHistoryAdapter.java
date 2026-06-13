@@ -23,11 +23,14 @@ public class ScanHistoryAdapter extends RecyclerView.Adapter<ScanHistoryAdapter.
         public final String productName;
         public final String date;
         public final String previewIngredients;
+        public final ArrayList<String> ingredients;
 
-        public ScanHistoryItem(String productName, String date, String previewIngredients) {
+        public ScanHistoryItem(String productName, String date, String previewIngredients,
+                               ArrayList<String> ingredients) {
             this.productName = productName;
             this.date = date;
             this.previewIngredients = previewIngredients;
+            this.ingredients = ingredients;
         }
     }
 

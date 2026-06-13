@@ -38,7 +38,7 @@ public class ARTryOnActivity extends AppCompatActivity {
 
         btnClose.setOnClickListener(v -> finish());
         btnCapture.setOnClickListener(v -> Toast.makeText(this,
-                "Capture + share se duoc noi voi AR SDK o buoc backend/ML.",
+                "The try-on preview is still preparing. Please try again shortly.",
                 Toast.LENGTH_SHORT).show());
 
         buildColorPicker();
@@ -53,7 +53,7 @@ public class ARTryOnActivity extends AppCompatActivity {
             params.setMargins(dp(6), 0, dp(6), 0);
             button.setLayoutParams(params);
             button.setBackground(createShadeBackground(SHADE_COLORS[i], i == selectedIndex));
-            button.setContentDescription("Chon shade " + (i + 1));
+            button.setContentDescription("Choose shade " + (i + 1));
             button.setScaleType(ImageView.ScaleType.CENTER);
             button.setPadding(0, 0, 0, 0);
             final int index = i;

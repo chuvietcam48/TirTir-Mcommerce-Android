@@ -17,28 +17,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tirtir_mcommerce.R;
+import com.example.tirtir_mcommerce.model.OrderResponse;
 import com.example.tirtir_mcommerce.repository.OrderRepository;
-import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * SCR-18 OrderHistoryFragment — Lịch sử đơn hàng
- *
- * API readiness (TASK 9):
- * ─────────────────────────────────────
- * loadOrdersFromApi():
- *   → GET /api/v1/orders/my-orders via OrderRepository (requires JWT)
- *   → On success: populate RecyclerView (Phase 2: build OrderHistoryAdapter)
- *   → On failure / not logged in: show empty state with message
- *
- * Phase 1 state: Shows loading → then empty state with informative message.
- * The method stubs are fully wired so PM can enable by adding an OrderHistoryAdapter.
- *
- * TODO Phase 2:
- *   1. Create OrderHistoryAdapter with item_order_history.xml
- *   2. Uncomment adapter binding in handleOrdersLoaded()
- *   3. Remove handleNotLoggedIn() empty state when auth is live
- *
- * Sprint 1.3
+ * SCR-18 Order history backed by GET /api/v1/orders/my-orders.
  */
 public class OrderHistoryFragment extends Fragment {
 
@@ -50,7 +36,7 @@ public class OrderHistoryFragment extends Fragment {
 
     private OrderRepository orderRepository;
     private com.example.tirtir_mcommerce.ui.adapters.OrderHistoryAdapter adapter;
-    private android.content.SharedPreferences demoPrefs;
+    private List<OrderResponse> allOrders = new ArrayList<>();
 
     @Nullable
     @Override
@@ -85,11 +71,16 @@ public class OrderHistoryFragment extends Fragment {
             btnRetryOrders.setOnClickListener(v -> loadOrders("All"));
         }
 
-        adapter = new com.example.tirtir_mcommerce.ui.adapters.OrderHistoryAdapter(new java.util.ArrayList<>());
+        adapter = new com.example.tirtir_mcommerce.ui.adapters.OrderHistoryAdapter(
+                new ArrayList<>(),
+                order -> {
+                    long downloadId = orderRepository.downloadInvoicePdf(order.getId(), order.getInvoiceUrl());
+                    android.widget.Toast.makeText(requireContext(),
+                            downloadId >= 0 ? "Invoice download started" : "Unable to start invoice download",
+                            android.widget.Toast.LENGTH_SHORT).show();
+                });
         rvOrderHistory.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(getContext()));
         rvOrderHistory.setAdapter(adapter);
-
-        demoPrefs = requireContext().getSharedPreferences("DemoOrders", android.content.Context.MODE_PRIVATE);
 
         setupFilters(view);
         loadOrders("All");
@@ -132,40 +123,52 @@ public class OrderHistoryFragment extends Fragment {
         }
     }
 
-    private void showEmptyState(String title, String message) {
-        showEmptyState(message);
+    private void loadOrders(String status) {
+        if (!"All".equals(status) && !allOrders.isEmpty()) {
+            displayFilteredOrders(status);
+            return;
+        }
+
+        showLoading(true);
+        orderRepository.getMyOrders(orders -> {
+            if (!isAdded()) return;
+            requireActivity().runOnUiThread(() -> {
+                showLoading(false);
+                allOrders = orders == null ? new ArrayList<>() : orders;
+                displayFilteredOrders(status);
+            });
+        }, error -> {
+            if (!isAdded()) return;
+            requireActivity().runOnUiThread(() -> {
+                showLoading(false);
+                btnRetryOrders.setVisibility(View.VISIBLE);
+                showEmptyState(error);
+            });
+        });
     }
 
-    private void loadOrders(String status) {
-        progressOrders.setVisibility(View.VISIBLE);
-        rvOrderHistory.setVisibility(View.GONE);
+    private void displayFilteredOrders(String status) {
+        List<OrderResponse> filtered = new ArrayList<>();
+        for (OrderResponse order : allOrders) {
+            if ("All".equals(status) || statusMatches(status, order.getStatus())) {
+                filtered.add(order);
+            }
+        }
+        btnRetryOrders.setVisibility(View.GONE);
+        if (filtered.isEmpty()) {
+            showEmptyState("No orders match this status yet.");
+            return;
+        }
+        adapter.setOrders(filtered);
         layoutEmptyOrders.setVisibility(View.GONE);
+        rvOrderHistory.setVisibility(View.VISIBLE);
+    }
 
-        // Simulate API call
-        new android.os.Handler().postDelayed(() -> {
-            if (!isAdded()) return;
-            progressOrders.setVisibility(View.GONE);
-
-            java.util.List<com.example.tirtir_mcommerce.ui.adapters.OrderHistoryAdapter.MockOrder> mockList = new java.util.ArrayList<>();
-            
-            // Read demo order if it exists
-            String code = demoPrefs.getString("latest_code", null);
-            if (code != null) {
-                String demoStatus = demoPrefs.getString("latest_status", "Processing");
-                String date = demoPrefs.getString("latest_date", "");
-                double total = Double.parseDouble(demoPrefs.getString("latest_total", "0.0"));
-                
-                if (status.equals("All") || status.equalsIgnoreCase(demoStatus)) {
-                    mockList.add(new com.example.tirtir_mcommerce.ui.adapters.OrderHistoryAdapter.MockOrder(code, demoStatus, date, total));
-                }
-            }
-
-            if (mockList.isEmpty()) {
-                showEmptyState("Khong co don hang", "Ban chua co don hang nao voi trang thai nay.");
-            } else {
-                adapter.setOrders(mockList);
-                rvOrderHistory.setVisibility(View.VISIBLE);
-            }
-        }, 800);
+    private boolean statusMatches(String filter, String value) {
+        if (value == null) return false;
+        if ("Shipping".equals(filter)) {
+            return "Shipping".equalsIgnoreCase(value) || "Shipped".equalsIgnoreCase(value);
+        }
+        return filter.equalsIgnoreCase(value);
     }
 }

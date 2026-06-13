@@ -9,36 +9,33 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tirtir_mcommerce.R;
+import com.example.tirtir_mcommerce.model.OrderResponse;
 import com.example.tirtir_mcommerce.utils.PriceUtils;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapter.OrderViewHolder> {
 
-    public static class MockOrder {
-        public String code;
-        public String status;
-        public String date;
-        public double total;
-
-        public MockOrder(String code, String status, String date, double total) {
-            this.code = code;
-            this.status = status;
-            this.date = date;
-            this.total = total;
-        }
+    public interface Listener {
+        void onDownloadInvoice(OrderResponse order);
     }
 
-    private List<MockOrder> orders;
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", new Locale("vi", "VN"));
+    private List<OrderResponse> orders;
+    private final Listener listener;
+    private final SimpleDateFormat displayDateFormat =
+            new SimpleDateFormat("MMM d, yyyy • HH:mm", Locale.ENGLISH);
 
-    public OrderHistoryAdapter(List<MockOrder> orders) {
+    public OrderHistoryAdapter(List<OrderResponse> orders, Listener listener) {
         this.orders = orders;
+        this.listener = listener;
     }
 
-    public void setOrders(List<MockOrder> orders) {
+    public void setOrders(List<OrderResponse> orders) {
         this.orders = orders;
         notifyDataSetChanged();
     }
@@ -52,11 +49,18 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
 
     @Override
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
-        MockOrder order = orders.get(position);
-        holder.tvOrderCode.setText(order.code);
-        holder.tvOrderStatus.setText(localizeStatus(order.status));
-        holder.tvOrderDate.setText(order.date);
-        holder.tvOrderTotal.setText(PriceUtils.formatPriceVnd(order.total));
+        OrderResponse order = orders.get(position);
+        String id = order.getId() == null ? "Pending ID" : order.getId();
+        String shortId = id.length() > 10 ? id.substring(id.length() - 10).toUpperCase(Locale.ENGLISH) : id;
+        holder.tvOrderCode.setText("Order #" + shortId);
+        holder.tvOrderStatus.setText(localizeStatus(order.getStatus()));
+        holder.tvOrderDate.setText(formatDate(order.getCreatedAt()));
+        holder.tvOrderTotal.setText(PriceUtils.formatPriceVnd(order.getTotalPrice()));
+        boolean hasInvoice = order.getInvoiceUrl() != null && !order.getInvoiceUrl().trim().isEmpty();
+        holder.btnDownloadPdf.setVisibility(hasInvoice ? View.VISIBLE : View.GONE);
+        holder.btnDownloadPdf.setOnClickListener(v -> {
+            if (listener != null) listener.onDownloadInvoice(order);
+        });
     }
 
     @Override
@@ -78,8 +82,30 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
         return status;
     }
 
+    private String formatDate(String value) {
+        if (value == null || value.trim().isEmpty()) return "Date unavailable";
+        String[] patterns = {
+                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+                "yyyy-MM-dd'T'HH:mm:ss'Z'",
+                "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+                "yyyy-MM-dd'T'HH:mm:ssXXX"
+        };
+        for (String pattern : patterns) {
+            try {
+                SimpleDateFormat parser = new SimpleDateFormat(pattern, Locale.US);
+                parser.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Date parsed = parser.parse(value);
+                if (parsed != null) return displayDateFormat.format(parsed);
+            } catch (ParseException ignored) {
+                // Try the next supported API date format.
+            }
+        }
+        return value;
+    }
+
     static class OrderViewHolder extends RecyclerView.ViewHolder {
         TextView tvOrderCode, tvOrderStatus, tvOrderDate, tvOrderTotal;
+        com.google.android.material.button.MaterialButton btnDownloadPdf;
 
         OrderViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -87,6 +113,7 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
             tvOrderStatus = itemView.findViewById(R.id.tvOrderStatus);
             tvOrderDate = itemView.findViewById(R.id.tvOrderDate);
             tvOrderTotal = itemView.findViewById(R.id.tvOrderTotal);
+            btnDownloadPdf = itemView.findViewById(R.id.btnDownloadPDF);
         }
     }
 }

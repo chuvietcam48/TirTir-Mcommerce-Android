@@ -15,7 +15,7 @@
             android:id="@+id/toolbarIngredientHistory"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Lich su ingredient"
+            app:title="Ingredient Scan History"
             app:titleTextColor="@color/tirtir_black" />
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -38,7 +38,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:padding="32dp"
-            android:text="No scans yet. OCR/API scan results will appear here."
+            android:text="No ingredient scans yet."
             android:textColor="@color/tirtir_text_secondary"
             android:textSize="14sp" />
     </FrameLayout>

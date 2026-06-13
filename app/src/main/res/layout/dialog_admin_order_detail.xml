@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Chi tiết đơn hàng"
+            android:text="Order details"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="#333333"
@@ -21,7 +21,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sản phẩm"
+            android:text="Products"
             android:textStyle="bold"
             android:layout_marginBottom="8dp"/>
 
@@ -35,14 +35,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Địa chỉ giao hàng"
+            android:text="Shipping address"
             android:textStyle="bold"
             android:layout_marginBottom="4dp"/>
         <TextView
             android:id="@+id/tvDetailAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="123 Lê Lợi, Quận 1, TP.HCM"
+            android:text="Shipping address"
             android:layout_marginBottom="16dp"/>
 
         <LinearLayout
@@ -53,7 +53,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Phí giao hàng:"
+                android:text="Shipping fee:"
                 android:textStyle="bold"/>
             <TextView
                 android:id="@+id/tvDetailShippingFee"
@@ -71,7 +71,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Thời gian đặt:"
+                android:text="Order time:"
                 android:textStyle="bold"/>
             <TextView
                 android:id="@+id/tvDetailTime"

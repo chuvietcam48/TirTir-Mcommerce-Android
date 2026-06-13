@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.example.tirtir_mcommerce.model.ApiResponse;
 import com.example.tirtir_mcommerce.model.CreateOrderRequest;
+import com.example.tirtir_mcommerce.model.CreateOrderResponse;
 import com.example.tirtir_mcommerce.model.OrderResponse;
 import com.example.tirtir_mcommerce.network.ApiService;
 import com.example.tirtir_mcommerce.network.RetrofitClient;
@@ -56,33 +57,32 @@ public class OrderRepository {
      * @param onError   Callback nhận thông báo lỗi
      */
     public void placeOrder(CreateOrderRequest request,
-                           Consumer<OrderResponse> onSuccess,
+                           Consumer<CreateOrderResponse> onSuccess,
                            Consumer<String> onError) {
         ApiService apiService = RetrofitClient.getAuthClient(context).create(ApiService.class);
 
-        apiService.createOrder(request).enqueue(new Callback<ApiResponse<OrderResponse>>() {
+        apiService.createOrder(request).enqueue(new Callback<CreateOrderResponse>() {
             @Override
-            public void onResponse(Call<ApiResponse<OrderResponse>> call,
-                                   Response<ApiResponse<OrderResponse>> response) {
+            public void onResponse(Call<CreateOrderResponse> call,
+                                   Response<CreateOrderResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    ApiResponse<OrderResponse> apiResponse = response.body();
-                    if (apiResponse.getData() != null) {
-                        Log.d(TAG, "Order placed: " + apiResponse.getData().getId());
-                        onSuccess.accept(apiResponse.getData());
+                    if (response.body().getOrderId() != null) {
+                        Log.d(TAG, "Order placed: " + response.body().getOrderId());
+                        onSuccess.accept(response.body());
                     } else {
-                        onError.accept("Phản hồi không hợp lệ từ server");
+                        onError.accept("The server did not return an order ID.");
                     }
                 } else {
-                    String msg = "Lỗi đặt hàng: " + response.code();
+                    String msg = "Order could not be placed (" + response.code() + ").";
                     Log.e(TAG, msg);
                     onError.accept(msg);
                 }
             }
 
             @Override
-            public void onFailure(Call<ApiResponse<OrderResponse>> call, Throwable t) {
+            public void onFailure(Call<CreateOrderResponse> call, Throwable t) {
                 Log.e(TAG, "Network error: " + t.getMessage());
-                onError.accept("Lỗi kết nối: " + t.getMessage());
+                onError.accept("Connection error. Please try again.");
             }
         });
     }
@@ -97,21 +97,20 @@ public class OrderRepository {
     public void getMyOrders(Consumer<List<OrderResponse>> onSuccess, Consumer<String> onError) {
         ApiService apiService = RetrofitClient.getAuthClient(context).create(ApiService.class);
 
-        apiService.getMyOrders().enqueue(new Callback<ApiResponse<List<OrderResponse>>>() {
+        apiService.getMyOrders().enqueue(new Callback<List<OrderResponse>>() {
             @Override
-            public void onResponse(Call<ApiResponse<List<OrderResponse>>> call,
-                                   Response<ApiResponse<List<OrderResponse>>> response) {
-                if (response.isSuccessful() && response.body() != null
-                        && response.body().getData() != null) {
-                    onSuccess.accept(response.body().getData());
+            public void onResponse(Call<List<OrderResponse>> call,
+                                   Response<List<OrderResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    onSuccess.accept(response.body());
                 } else {
-                    onError.accept("Không thể lấy lịch sử đơn hàng");
+                    onError.accept("Unable to load order history.");
                 }
             }
 
             @Override
-            public void onFailure(Call<ApiResponse<List<OrderResponse>>> call, Throwable t) {
-                onError.accept("Lỗi kết nối: " + t.getMessage());
+            public void onFailure(Call<List<OrderResponse>> call, Throwable t) {
+                onError.accept("Connection error. Please try again.");
             }
         });
     }
@@ -150,8 +149,8 @@ public class OrderRepository {
         Log.d(TAG, "Downloading PDF from: " + pdfUrl);
 
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(pdfUrl))
-                .setTitle("Hóa đơn TirTir")
-                .setDescription("Đang tải hóa đơn đơn hàng...")
+                .setTitle("TirTir invoice")
+                .setDescription("Downloading your order invoice...")
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
                 .setMimeType("application/pdf")

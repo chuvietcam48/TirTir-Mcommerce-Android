@@ -26,7 +26,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Don #ORD-XXXX"
+                android:text="Order #XXXXXXXX"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="@color/tirtir_black" />
@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Ngay dat: 20/10/2026"
+            android:text="Date unavailable"
             android:textSize="12sp"
             android:textColor="@color/tirtir_text_secondary" />
 
@@ -87,7 +87,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginTop="8dp"
-            android:text="Tải hóa đơn PDF"
+            android:text="Download invoice"
             android:textColor="@color/tirtir_red_primary"
             app:icon="@android:drawable/stat_sys_download"
             app:iconTint="@color/tirtir_red_primary" />

@@ -71,7 +71,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Waiting for Skin Analysis API results"
+                            android:text="Skin analysis details"
                             android:textColor="@color/tirtir_text_secondary"
                             android:textSize="13sp" />
                     </LinearLayout>
@@ -211,7 +211,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingVertical="24dp"
-                android:text="Cushion match se hien thi khi API tra danh sach shade phu hop."
+                android:text="No matching cushions are available right now."
                 android:textColor="@color/tirtir_text_secondary"
                 android:textSize="14sp" />
         </LinearLayout>
