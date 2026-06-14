@@ -72,3 +72,47 @@ exports.getScanHistory = async (req, res) => {
         res.status(500).json({ message: 'Lỗi khi lấy lịch sử scan' });
     }
 };
+
+// Static Conflict Table
+const CONFLICT_TABLE = [
+    { a: 'Retinol', b: 'Vitamin C', severity: 'High', explanation: 'Sử dụng chung có thể gây kích ứng mạnh, đỏ da và bong tróc.' },
+    { a: 'AHA', b: 'BHA', severity: 'Medium', explanation: 'Tăng nguy cơ quá tải acid làm khô da.' },
+    { a: 'Retinol', b: 'AHA', severity: 'High', explanation: 'Nguy cơ bỏng rát và tổn thương hàng rào bảo vệ da.' },
+    { a: 'Retinol', b: 'BHA', severity: 'High', explanation: 'Nguy cơ bỏng rát và tổn thương hàng rào bảo vệ da.' },
+    { a: 'Niacinamide', b: 'Vitamin C', severity: 'Low', explanation: 'Có thể làm giảm tác dụng của nhau nếu dùng ở nồng độ cao (tuỳ phái sinh).' }
+];
+
+// Helper function to find conflicts
+exports.findConflicts = (ingredients1 = [], ingredients2 = []) => {
+    const allIngredients = [...ingredients1, ...ingredients2].map(i => i.toLowerCase().trim());
+    const foundConflicts = [];
+
+    for (const rule of CONFLICT_TABLE) {
+        const hasA = allIngredients.some(i => i.includes(rule.a.toLowerCase()));
+        const hasB = allIngredients.some(i => i.includes(rule.b.toLowerCase()));
+        
+        if (hasA && hasB) {
+            foundConflicts.push({
+                ingredient_a: rule.a,
+                ingredient_b: rule.b,
+                severity: rule.severity,
+                explanation: rule.explanation
+            });
+        }
+    }
+    return foundConflicts;
+};
+
+// POST /api/v1/ingredient/check
+// Body: { ingredients1: [], ingredients2: [] }
+exports.checkConflict = (req, res) => {
+    try {
+        const { ingredients1, ingredients2 } = req.body;
+        const conflicts = exports.findConflicts(ingredients1 || [], ingredients2 || []);
+        
+        res.json({ success: true, conflicts });
+    } catch (error) {
+        console.error('Check Conflict Error:', error);
+        res.status(500).json({ success: false, message: 'Lỗi server khi kiểm tra thành phần' });
+    }
+};

@@ -17,6 +17,7 @@ const errorHandler = require('./middlewares/error');
 const logger = require('./utils/logger');
 require('./cron/abandonedCart.cron'); // Initialize Cron Jobs
 require('./cron/fcmCartRecovery.cron'); // Initialize FCM Cart Recovery
+require('./cron/fcmSkinTips.cron'); // Initialize FCM Skin Tips
 const socketService = require('./services/socket.service');
 
 const { apiLimiter } = require('./middlewares/rateLimit');

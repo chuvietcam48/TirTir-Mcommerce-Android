@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middlewares/auth');
-const { saveScanHistory, getScanHistory } = require('../controllers/ingredient.controller');
+const { saveScanHistory, getScanHistory, checkConflict } = require('../controllers/ingredient.controller');
+
+// POST /api/v1/ingredient/check — check ingredient conflict
+router.post('/check', checkConflict);
 
 // POST /api/v1/ingredient/scan-history — save a scan record to Firestore
 router.post('/scan-history', protect, saveScanHistory);

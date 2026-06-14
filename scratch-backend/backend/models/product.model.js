@@ -42,7 +42,11 @@ const ProductSchema = new mongoose.Schema({
     // Phase 2 fields
     isActive: { type: Boolean, default: true },
     brand: { type: String, default: '' },
-    ingredients: { type: mongoose.Schema.Types.Mixed, default: null }
+    ingredients: { type: mongoose.Schema.Types.Mixed, default: null },
+    
+    // Phase 3 fields
+    shade_color_hex: { type: String, default: null },
+    shade_name: { type: String, default: null }
 }, { collection: 'products', timestamps: true });
 
 // Add Text Index for Advanced Search

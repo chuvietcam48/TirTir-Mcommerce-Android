@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: tirtir-ai-flask
+    env: python
+    region: singapore
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app -b 0.0.0.0:$PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.12

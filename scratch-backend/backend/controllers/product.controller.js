@@ -386,8 +386,48 @@ exports.getAllProducts = async (req, res) => {
         });
 
     } catch (err) {
-        console.error("Aggregation Error:", err);
-        res.status(500).json({ message: err.message });
+        console.error("Advanced Search Error:", err);
+        res.status(500).json({ success: false, message: "Lỗi Server", error: err.message });
+    }
+};
+
+// @desc    Get shades of a product
+// @route   GET /api/v1/products/:id/shades
+// @access  Public
+exports.getProductShades = async (req, res) => {
+    try {
+        const Shade = require('../models/shade.model');
+        const product = await Product.findById(req.params.id);
+        
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        // Search shades by Product_ID string
+        const shades = await Shade.find({ Product_ID: product.Product_ID });
+        
+        // If no shades in Shade collection, fallback to the product's own shade if available
+        if (shades.length === 0 && product.shade_color_hex) {
+            return res.status(200).json({
+                success: true,
+                count: 1,
+                data: [{
+                    _id: product._id,
+                    Product_ID: product.Product_ID,
+                    Shade_Name: product.shade_name || "Default",
+                    Hex_Code: product.shade_color_hex
+                }]
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            count: shades.length,
+            data: shades
+        });
+    } catch (error) {
+        console.error("Get Product Shades Error:", error);
+        res.status(500).json({ success: false, message: "Lỗi Server", error: error.message });
     }
 };
 
