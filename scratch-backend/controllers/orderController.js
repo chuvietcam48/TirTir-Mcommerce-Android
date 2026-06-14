@@ -1,6 +1,7 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
+const admin = require('firebase-admin');
 
 // Build absolute invoice URL from request object
 const buildInvoiceUrl = (req, orderId) =>
@@ -73,6 +74,26 @@ exports.createOrder = async (req, res) => {
   // Clear server cart after successful order
   await Cart.findOneAndUpdate({ userId: req.user.id }, { items: [] });
 
+  // Sync to Firestore
+  try {
+    const db = admin.firestore();
+    const userSnapshot = await db.collection('users').where('backendUserId', '==', String(req.user.id)).limit(1).get();
+    if (!userSnapshot.empty) {
+      const firebaseUid = userSnapshot.docs[0].id;
+      const orderDocRef = db.collection('users').doc(firebaseUid).collection('orders').doc(String(order._id));
+      await orderDocRef.set({
+        id: String(order._id),
+        status: order.status,
+        totalPrice: order.totalPrice,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        itemsCount: orderItems.length
+      });
+    }
+  } catch (err) {
+    console.error('Error syncing order to Firestore:', err);
+  }
+
   res.status(201).json({
     success: true,
     message: 'Đặt hàng thành công.',
@@ -139,4 +160,38 @@ exports.getInvoice = async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Content-Disposition', `attachment; filename="TirTir_Invoice_${String(order._id).slice(-8)}.json"`);
   res.status(200).json(invoice);
+};
+
+// PATCH /api/v1/admin/orders/:id/status (or /api/v1/orders/:id/status)
+exports.updateAdminOrderStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+    order.status = status;
+    await order.save();
+
+    // Sync to Firestore
+    try {
+      const db = admin.firestore();
+      const userSnapshot = await db.collection('users').where('backendUserId', '==', String(order.userId)).limit(1).get();
+      if (!userSnapshot.empty) {
+        const firebaseUid = userSnapshot.docs[0].id;
+        const orderDocRef = db.collection('users').doc(firebaseUid).collection('orders').doc(String(order._id));
+        await orderDocRef.set({
+          status: order.status,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      }
+    } catch (err) {
+      console.error('Error syncing order status update to Firestore:', err);
+    }
+
+    res.status(200).json({ success: true, data: order });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
 };

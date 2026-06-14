@@ -47,8 +47,23 @@ public class ChurnListFragment extends Fragment {
         rvChurnList = v.findViewById(R.id.rvChurnList);
         rvChurnList.setLayoutManager(new LinearLayoutManager(getContext()));
         
+        com.example.tirtir_mcommerce.network.ApiService api = com.example.tirtir_mcommerce.network.RetrofitClient.getAuthClient(getContext()).create(com.example.tirtir_mcommerce.network.ApiService.class);
+
         rvChurnList.setAdapter(new ChurnUserAdapter(getContext(), new ArrayList<>(),
-                user -> {}, user -> {}));
+                user -> {
+                    java.util.Map<String, String> body = new java.util.HashMap<>();
+                    body.put("email", user.email);
+                    api.sendVoucher(body).enqueue(new retrofit2.Callback<com.example.tirtir_mcommerce.model.ApiResponse<Object>>() {
+                        @Override
+                        public void onResponse(retrofit2.Call<com.example.tirtir_mcommerce.model.ApiResponse<Object>> call, retrofit2.Response<com.example.tirtir_mcommerce.model.ApiResponse<Object>> response) {
+                            Toast.makeText(getContext(), "Voucher sent to " + user.name, Toast.LENGTH_SHORT).show();
+                        }
+                        @Override
+                        public void onFailure(retrofit2.Call<com.example.tirtir_mcommerce.model.ApiResponse<Object>> call, Throwable t) {
+                            Toast.makeText(getContext(), "Failed to send voucher", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }, user -> {}));
         TextView empty = v.findViewById(R.id.tvChurnEmpty);
         empty.setText("No " + (segment == null ? "customer" : segment)
                 + " retention segment is available right now.");

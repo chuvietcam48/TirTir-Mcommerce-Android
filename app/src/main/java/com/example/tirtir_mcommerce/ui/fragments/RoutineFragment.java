@@ -23,17 +23,30 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.bumptech.glide.Glide;
 import com.example.tirtir_mcommerce.MainActivity;
 import com.example.tirtir_mcommerce.R;
+import com.example.tirtir_mcommerce.model.ApiResponse;
 import com.example.tirtir_mcommerce.model.Product;
+import com.example.tirtir_mcommerce.network.ApiService;
+import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.example.tirtir_mcommerce.repository.ProductRepository;
+import com.example.tirtir_mcommerce.utils.RoutineConflictChecker;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class RoutineFragment extends Fragment {
 
@@ -100,35 +113,9 @@ public class RoutineFragment extends Fragment {
             productRepository = new ProductRepository(requireContext());
             RecyclerView list = view.findViewById(R.id.rvRoutineSteps);
             list.setLayoutManager(new LinearLayoutManager(getContext()));
-            adapter = new RoutineStepAdapter(buildTemplate(isMorning), this::openProductPicker);
+            adapter = new RoutineStepAdapter(new ArrayList<>(), this::removeProduct);
             list.setAdapter(adapter);
             saveButton = view.findViewById(R.id.btnSaveShareRoutine);
-
-            ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
-                    ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
-                @Override
-                public int getMovementFlags(@NonNull RecyclerView recyclerView,
-                                            @NonNull RecyclerView.ViewHolder viewHolder) {
-                    int position = viewHolder.getBindingAdapterPosition();
-                    if (position == RecyclerView.NO_POSITION || adapter.get(position).product == null) {
-                        return makeMovementFlags(0, 0);
-                    }
-                    return super.getMovementFlags(recyclerView, viewHolder);
-                }
-
-                @Override
-                public boolean onMove(@NonNull RecyclerView recyclerView,
-                                      @NonNull RecyclerView.ViewHolder viewHolder,
-                                      @NonNull RecyclerView.ViewHolder target) {
-                    adapter.move(viewHolder.getBindingAdapterPosition(),
-                            target.getBindingAdapterPosition());
-                    return true;
-                }
-
-                @Override
-                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {}
-            });
-            helper.attachToRecyclerView(list);
 
             TextView suggestion = view.findViewById(R.id.tvRoutineSuggestion);
             suggestionCard = view.findViewById(R.id.cardRoutineSuggestion);
@@ -143,20 +130,36 @@ public class RoutineFragment extends Fragment {
                         }
                     });
             view.findViewById(R.id.btnAddRoutineStep)
-                    .setOnClickListener(v -> openProductPicker(findFirstEmptyPosition()));
+                    .setOnClickListener(v -> openProductPicker());
             saveButton.setOnClickListener(v -> saveAndShare());
+            preloadProducts();
+            refreshActions();
+            fetchRecommendation();
+        }
             preloadProducts();
             refreshActions();
         }
 
-        private List<RoutineStep> buildTemplate(boolean morning) {
-            List<RoutineStep> steps = new ArrayList<>();
-            steps.add(new RoutineStep("Cleanser"));
-            steps.add(new RoutineStep("Toner"));
-            steps.add(new RoutineStep("Serum"));
-            steps.add(new RoutineStep("Moisturizer"));
-            if (morning) steps.add(new RoutineStep("SPF"));
-            return steps;
+        private void fetchRecommendation() {
+            ApiService api = RetrofitClient.getAuthClient(requireContext()).create(ApiService.class);
+            api.getRoutineRecommendation().enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
+                @Override
+                public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
+                    if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                        String suggestion = (String) response.body().getData().get("suggestion");
+                        if (suggestion != null && !suggestion.isEmpty()) {
+                            TextView tv = suggestionCard.findViewById(R.id.tvRoutineSuggestion);
+                            tv.setText(suggestion);
+                            suggestionCard.setVisibility(View.VISIBLE);
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
+                    // Ignore, fallback to default logic
+                }
+            });
         }
 
         private void preloadProducts() {
@@ -175,8 +178,11 @@ public class RoutineFragment extends Fragment {
             });
         }
 
-        private void openProductPicker(int stepPosition) {
-            if (stepPosition < 0 || stepPosition >= adapter.getItemCount()) return;
+        private void openProductPicker() {
+            if (adapter.getItemCount() >= 8) {
+                Toast.makeText(getContext(), "Max 8 products allowed per routine.", Toast.LENGTH_SHORT).show();
+                return;
+            }
             if (products.isEmpty()) {
                 preloadProducts();
                 Toast.makeText(getContext(), "Loading product catalog. Please try again in a moment.",
@@ -194,15 +200,99 @@ public class RoutineFragment extends Fragment {
             }
             List<Product> finalMatches = matches;
             new AlertDialog.Builder(requireContext())
-                    .setTitle("Choose " + step.slot)
+                    .setTitle("Choose Product")
                     .setAdapter(new ArrayAdapter<>(requireContext(),
                                     android.R.layout.simple_list_item_1, labels),
                             (dialog, which) -> {
-                                adapter.selectProduct(stepPosition, finalMatches.get(which));
-                                refreshActions();
+                                Product selected = finalMatches.get(which);
+                                if (!isMorning && isSpf(selected)) {
+                                    Toast.makeText(getContext(), "SPF should only be used in the morning.", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                addProductAndSort(selected);
                             })
                     .setNegativeButton("Cancel", null)
                     .show();
+        }
+
+        private void addProductAndSort(Product p) {
+            RoutineStep step = new RoutineStep(getCategorySlot(p));
+            step.product = p;
+            adapter.steps.add(step);
+            autoSortRoutine();
+            checkConflicts();
+            refreshActions();
+        }
+
+        private void removeProduct(int position) {
+            adapter.steps.remove(position);
+            autoSortRoutine();
+            checkConflicts();
+            refreshActions();
+        }
+
+        private void autoSortRoutine() {
+            Collections.sort(adapter.steps, (a, b) -> getSortWeight(a.slot) - getSortWeight(b.slot));
+            adapter.notifyDataSetChanged();
+        }
+
+        private void checkConflicts() {
+            List<Product> products = new ArrayList<>();
+            for (RoutineStep step : adapter.steps) {
+                step.hasWarning = false;
+                step.conflictReason = null;
+                products.add(step.product);
+            }
+            List<RoutineConflictChecker.ConflictResult> conflicts = RoutineConflictChecker.checkConflicts(requireContext(), products);
+            
+            if (!conflicts.isEmpty()) {
+                for (RoutineConflictChecker.ConflictResult c : conflicts) {
+                    for (RoutineStep step : adapter.steps) {
+                        if (step.product.getName().equals(c.productA) || step.product.getName().equals(c.productB)) {
+                            step.hasWarning = true;
+                            step.conflictReason = c.reason;
+                        }
+                    }
+                }
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Ingredient Conflict Warning")
+                        .setMessage("We detected conflicts in your routine:\n- " + conflicts.get(0).productA + " & " + conflicts.get(0).productB + "\nReason: " + conflicts.get(0).reason)
+                        .setPositiveButton("OK", null)
+                        .show();
+            }
+            adapter.notifyDataSetChanged();
+        }
+
+        private int getSortWeight(String slot) {
+            String s = slot.toLowerCase(Locale.ENGLISH);
+            if (s.contains("cleanser")) return 1;
+            if (s.contains("toner")) return 2;
+            if (s.contains("essence")) return 3;
+            if (s.contains("serum")) return 4;
+            if (s.contains("eye")) return 5;
+            if (s.contains("moisturizer") || s.contains("cream")) return 6;
+            if (s.contains("oil")) return 7;
+            if (s.contains("spf") || s.contains("sun")) return 8;
+            return 9;
+        }
+
+        private String getCategorySlot(Product p) {
+            String cat = p.getCategory() != null ? p.getCategory() : "";
+            if (cat.isEmpty()) {
+                String name = p.getName().toLowerCase();
+                if (name.contains("cleanser")) return "Cleanser";
+                if (name.contains("toner")) return "Toner";
+                if (name.contains("serum")) return "Serum";
+                if (name.contains("cream") || name.contains("moisturizer")) return "Moisturizer";
+                if (name.contains("spf") || name.contains("sun")) return "SPF";
+                return "Treatment";
+            }
+            return cat;
+        }
+
+        private boolean isSpf(Product p) {
+            String slot = getCategorySlot(p).toLowerCase(Locale.ENGLISH);
+            return slot.contains("spf") || slot.contains("sun");
         }
 
         private List<Product> filterForSlot(String slot) {
@@ -224,50 +314,83 @@ public class RoutineFragment extends Fragment {
             return matches;
         }
 
-        private int findFirstEmptyPosition() {
-            for (int i = 0; i < adapter.getItemCount(); i++) {
-                if (adapter.get(i).product == null) return i;
-            }
-            return 0;
-        }
-
-        private int findSuggestedPosition() {
-            String target = isMorning ? "SPF" : "Serum";
-            for (int i = 0; i < adapter.getItemCount(); i++) {
-                if (target.equals(adapter.get(i).slot)) return i;
-            }
-            return findFirstEmptyPosition();
-        }
-
         private void refreshActions() {
-            saveButton.setEnabled(adapter.selectedCount() > 0);
-            int suggestedPosition = findSuggestedPosition();
-            boolean missingSuggestion = suggestedPosition >= 0
-                    && adapter.get(suggestedPosition).product == null;
-            if (suggestionCard != null) {
-                suggestionCard.setVisibility(missingSuggestion ? View.VISIBLE : View.GONE);
-            }
+            saveButton.setEnabled(adapter.getItemCount() > 0);
         }
 
         private void saveAndShare() {
-            List<SavedRoutineStep> selected = new ArrayList<>();
-            StringBuilder share = new StringBuilder(isMorning ? "My TirTir AM routine" : "My TirTir PM routine");
-            for (RoutineStep step : adapter.steps) {
-                if (step.product == null) continue;
-                String productId = step.product.getProductId() != null
-                        ? step.product.getProductId() : step.product.getId();
-                selected.add(new SavedRoutineStep(step.slot, productId, step.product.getName()));
-                share.append("\n").append(selected.size()).append(". ")
-                        .append(step.slot).append(": ").append(step.product.getName());
-            }
-            String key = isMorning ? "routine_am" : "routine_pm";
-            requireContext().getSharedPreferences("tirtir_routines", 0)
-                    .edit().putString(key, new Gson().toJson(selected)).apply();
+            if (adapter.getItemCount() == 0) return;
 
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("text/plain");
-            intent.putExtra(Intent.EXTRA_TEXT, share.toString());
-            startActivity(Intent.createChooser(intent, "Share routine"));
+            scheduleReminder();
+
+            // Gamification API Call
+            ApiService api = RetrofitClient.getAuthClient(requireContext()).create(ApiService.class);
+            Map<String, Object> req = new HashMap<>();
+            req.put("isMorning", isMorning);
+            
+            List<Map<String, String>> items = new ArrayList<>();
+            for (RoutineStep step : adapter.steps) {
+                Map<String, String> i = new HashMap<>();
+                i.put("productId", step.product.getId());
+                i.put("name", step.product.getName());
+                items.add(i);
+            }
+            req.put("items", items);
+
+            api.saveRoutine(req).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
+                @Override
+                public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        String voucher = (String) response.body().getData().get("voucher");
+                        new AlertDialog.Builder(requireContext())
+                            .setTitle("Routine Saved!")
+                            .setMessage("Great job maintaining your skincare! You earned a 5% discount voucher: " + voucher)
+                            .setPositiveButton("Awesome", (d, w) -> shareToCommunity(items))
+                            .show();
+                    } else {
+                        shareToCommunity(items); // fallback if no gamification
+                    }
+                }
+                @Override
+                public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
+                    shareToCommunity(items);
+                }
+            });
+        }
+
+        private void scheduleReminder() {
+            android.app.AlarmManager alarmManager = (android.app.AlarmManager) requireContext().getSystemService(android.content.Context.ALARM_SERVICE);
+            android.content.Intent intent = new android.content.Intent(requireContext(), com.example.tirtir_mcommerce.utils.AlarmReceiver.class);
+            android.app.PendingIntent pendingIntent = android.app.PendingIntent.getBroadcast(
+                    requireContext(), 100, intent, android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_IMMUTABLE);
+
+            java.util.Calendar calendar = java.util.Calendar.getInstance();
+            calendar.set(java.util.Calendar.HOUR_OF_DAY, 20); // 8:00 PM
+            calendar.set(java.util.Calendar.MINUTE, 0);
+            calendar.set(java.util.Calendar.SECOND, 0);
+
+            if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
+                calendar.add(java.util.Calendar.DAY_OF_YEAR, 1);
+            }
+
+            if (alarmManager != null) {
+                alarmManager.setRepeating(android.app.AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                        android.app.AlarmManager.INTERVAL_DAY, pendingIntent);
+            }
+        }
+
+        private void shareToCommunity(List<Map<String, String>> items) {
+            String uid = FirebaseAuth.getInstance().getCurrentUser() != null ? FirebaseAuth.getInstance().getCurrentUser().getUid() : "anonymous";
+            Map<String, Object> routineData = new HashMap<>();
+            routineData.put("name", isMorning ? "My AM Routine" : "My PM Routine");
+            routineData.put("userName", "BeautyLover");
+            routineData.put("stepCount", items.size());
+            routineData.put("createdAt", System.currentTimeMillis());
+
+            FirebaseFirestore.getInstance().collection("public_routines").add(routineData)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(requireContext(), "Shared to Community Feed!", Toast.LENGTH_SHORT).show();
+                });
         }
     }
 
@@ -288,8 +411,22 @@ public class RoutineFragment extends Fragment {
             list.setLayoutManager(new LinearLayoutManager(getContext()));
             RoutineCommunityAdapter adapter = new RoutineCommunityAdapter();
             list.setAdapter(adapter);
-            adapter.submitList(new ArrayList<>());
-            empty.setVisibility(View.VISIBLE);
+
+            FirebaseFirestore.getInstance().collection("public_routines")
+                .orderBy("createdAt", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null || value == null) return;
+                    List<CommunityRoutine> routines = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : value) {
+                        routines.add(new CommunityRoutine(
+                            doc.getString("name"),
+                            doc.getString("userName"),
+                            doc.getLong("stepCount") != null ? doc.getLong("stepCount").intValue() : 0
+                        ));
+                    }
+                    adapter.submitList(routines);
+                    empty.setVisibility(routines.isEmpty() ? View.VISIBLE : View.GONE);
+                });
         }
     }
 
@@ -299,6 +436,7 @@ public class RoutineFragment extends Fragment {
         final String slot;
         Product product;
         boolean hasWarning;
+        String conflictReason;
 
         RoutineStep(String slot) { this.slot = slot; }
     }
@@ -329,19 +467,6 @@ public class RoutineFragment extends Fragment {
         void selectProduct(int position, Product product) {
             steps.get(position).product = product;
             notifyItemChanged(position);
-        }
-
-        int selectedCount() {
-            int count = 0;
-            for (RoutineStep step : steps) if (step.product != null) count++;
-            return count;
-        }
-
-        void move(int from, int to) {
-            if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) return;
-            Collections.swap(steps, from, to);
-            notifyItemMoved(from, to);
-            notifyItemRangeChanged(Math.min(from, to), Math.abs(from - to) + 1);
         }
 
         @NonNull
@@ -380,22 +505,24 @@ public class RoutineFragment extends Fragment {
             void bind(RoutineStep step, int position, OnStepClickListener listener) {
                 number.setText(String.valueOf(position + 1));
                 slot.setText(step.slot);
-                boolean selected = step.product != null;
-                name.setText(selected ? step.product.getName() : "Add product");
-                drag.setVisibility(selected ? View.VISIBLE : View.INVISIBLE);
+                name.setText(step.product.getName());
+                drag.setImageResource(R.drawable.ic_trash); // repurpose drag icon as delete
+                drag.setVisibility(View.VISIBLE);
+                drag.setOnClickListener(v -> listener.onStepClick(getBindingAdapterPosition()));
+
                 warning.setVisibility(step.hasWarning ? View.VISIBLE : View.GONE);
-                if (selected) {
-                    String path = step.product.getThumbnailImages();
-                    String url = com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(path);
-                    productImage.setPadding(4, 4, 4, 4);
-                    Glide.with(itemView).load(url).fitCenter()
-                            .placeholder(R.drawable.ic_product_placeholder)
-                            .error(R.drawable.ic_product_placeholder).into(productImage);
-                } else {
-                    productImage.setImageResource(R.drawable.ic_plus);
-                    productImage.setPadding(14, 14, 14, 14);
+                if (step.hasWarning) {
+                    warning.setOnClickListener(v -> {
+                        Toast.makeText(itemView.getContext(), step.conflictReason, Toast.LENGTH_LONG).show();
+                    });
                 }
-                itemView.setOnClickListener(v -> listener.onStepClick(getBindingAdapterPosition()));
+
+                String path = step.product.getThumbnailImages();
+                String url = com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(path);
+                productImage.setPadding(4, 4, 4, 4);
+                Glide.with(itemView).load(url).fitCenter()
+                        .placeholder(R.drawable.ic_product_placeholder)
+                        .error(R.drawable.ic_product_placeholder).into(productImage);
             }
         }
     }

@@ -67,7 +67,16 @@
         <!-- SCR-12: MainActivity (bottom nav host) -->
         <activity
             android:name=".MainActivity"
-            android:exported="false" />
+            android:exported="true"
+            android:launchMode="singleTask">
+            <!-- VNPAY return deep-link: tirtir://payment?status=success&orderId=... -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="tirtir" android:host="payment" />
+            </intent-filter>
+        </activity>
 
         <!-- SCR-14: ProductDetailActivity -->
         <activity
@@ -177,6 +186,11 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <receiver
+            android:name=".utils.AlarmReceiver"
+            android:enabled="true"
+            android:exported="false" />
 
     </application>
 

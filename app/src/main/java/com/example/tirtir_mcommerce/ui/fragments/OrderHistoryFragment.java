@@ -20,6 +20,11 @@ import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.OrderResponse;
 import com.example.tirtir_mcommerce.repository.OrderRepository;
 
+import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +42,11 @@ public class OrderHistoryFragment extends Fragment {
     private OrderRepository orderRepository;
     private com.example.tirtir_mcommerce.ui.adapters.OrderHistoryAdapter adapter;
     private List<OrderResponse> allOrders = new ArrayList<>();
+    private String currentFilterStatus = "All";
+    
+    private FirebaseFirestore firestore;
+    private ListenerRegistration ordersListener;
+    private SharedPrefsManager prefsManager;
 
     @Nullable
     @Override
@@ -66,9 +76,11 @@ public class OrderHistoryFragment extends Fragment {
         }
 
         orderRepository = new OrderRepository(requireContext());
+        firestore = FirebaseFirestore.getInstance();
+        prefsManager = new SharedPrefsManager(requireContext());
 
         if (btnRetryOrders != null) {
-            btnRetryOrders.setOnClickListener(v -> loadOrders("All"));
+            btnRetryOrders.setOnClickListener(v -> loadOrders(currentFilterStatus));
         }
 
         adapter = new com.example.tirtir_mcommerce.ui.adapters.OrderHistoryAdapter(
@@ -83,7 +95,16 @@ public class OrderHistoryFragment extends Fragment {
         rvOrderHistory.setAdapter(adapter);
 
         setupFilters(view);
-        loadOrders("All");
+        loadOrders(currentFilterStatus);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (ordersListener != null) {
+            ordersListener.remove();
+            ordersListener = null;
+        }
     }
 
     private void setupFilters(View view) {
@@ -96,6 +117,7 @@ public class OrderHistoryFragment extends Fragment {
                 if (id == R.id.chipPending) status = "Pending";
                 else if (id == R.id.chipShipping) status = "Shipping";
                 else if (id == R.id.chipDelivered) status = "Delivered";
+                currentFilterStatus = status;
                 loadOrders(status);
             });
         }
@@ -136,6 +158,7 @@ public class OrderHistoryFragment extends Fragment {
                 showLoading(false);
                 allOrders = orders == null ? new ArrayList<>() : orders;
                 displayFilteredOrders(status);
+                setupFirestoreListener(); // start listening for real-time updates
             });
         }, error -> {
             if (!isAdded()) return;
@@ -145,6 +168,38 @@ public class OrderHistoryFragment extends Fragment {
                 showEmptyState(error);
             });
         });
+    }
+
+    private void setupFirestoreListener() {
+        if (ordersListener != null) return; // Already listening
+        String uid = prefsManager.getFirebaseUid();
+        if (uid == null || uid.isEmpty()) return;
+
+        ordersListener = firestore.collection("users").document(uid).collection("orders")
+                .addSnapshotListener((snapshots, e) -> {
+                    if (e != null || snapshots == null) return;
+                    
+                    boolean changed = false;
+                    for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                        if (dc.getType() == DocumentChange.Type.ADDED || dc.getType() == DocumentChange.Type.MODIFIED) {
+                            String orderId = dc.getDocument().getId();
+                            String newStatus = dc.getDocument().getString("status");
+                            
+                            for (OrderResponse order : allOrders) {
+                                if (order.getId() != null && order.getId().equals(orderId)) {
+                                    if (!order.getStatus().equals(newStatus)) {
+                                        order.setStatus(newStatus);
+                                        changed = true;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (changed) {
+                        displayFilteredOrders(currentFilterStatus);
+                    }
+                });
     }
 
     private void displayFilteredOrders(String status) {

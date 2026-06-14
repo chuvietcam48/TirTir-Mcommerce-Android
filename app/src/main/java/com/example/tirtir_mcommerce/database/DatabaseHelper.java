@@ -107,6 +107,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "severity TEXT" +         // mức độ: HIGH / MEDIUM / LOW
             ")"
         );
+        seedIngredientConflicts(db);
+    }
+
+    private void seedIngredientConflicts(SQLiteDatabase db) {
+        db.execSQL("INSERT INTO " + TABLE_INGREDIENT_CONFLICTS + " (ingredient_a, ingredient_b, reason, severity) VALUES ('Retinol', 'AHA', 'Tăng nguy cơ kích ứng, mẩn đỏ và khô da', 'HIGH')");
+        db.execSQL("INSERT INTO " + TABLE_INGREDIENT_CONFLICTS + " (ingredient_a, ingredient_b, reason, severity) VALUES ('Retinol', 'BHA', 'Làm quá tải khả năng tẩy tế bào chết của da', 'HIGH')");
+        db.execSQL("INSERT INTO " + TABLE_INGREDIENT_CONFLICTS + " (ingredient_a, ingredient_b, reason, severity) VALUES ('Vitamin C', 'AHA', 'Làm thay đổi độ pH khiến Vitamin C mất tác dụng', 'MEDIUM')");
+        db.execSQL("INSERT INTO " + TABLE_INGREDIENT_CONFLICTS + " (ingredient_a, ingredient_b, reason, severity) VALUES ('Vitamin C', 'Retinol', 'Tác động mạnh làm mỏng màng bảo vệ da', 'HIGH')");
     }
 
     @Override

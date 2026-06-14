@@ -433,10 +433,23 @@ public class ProfileFragment extends Fragment {
                 String tier = String.valueOf(data.getOrDefault("loyaltyTier", "Bronze"));
                 String nextTier = String.valueOf(data.getOrDefault("nextTier", "Silver"));
                 tvLoyaltyTierBadge.setText(tier);
-                tvLoyaltyPoints.setText(points + " points");
                 int target = Math.max(points + toNext, 1);
                 pbLoyalty.setMax(target);
-                pbLoyalty.setProgress(Math.min(points, target));
+                
+                // ProgressBar animation
+                android.animation.ObjectAnimator animation = android.animation.ObjectAnimator.ofInt(pbLoyalty, "progress", 0, Math.min(points, target));
+                animation.setDuration(800);
+                animation.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
+                animation.start();
+                
+                // Points counter animation
+                android.animation.ValueAnimator valueAnimator = android.animation.ValueAnimator.ofInt(0, points);
+                valueAnimator.setDuration(800);
+                valueAnimator.addUpdateListener(animator -> {
+                    tvLoyaltyPoints.setText(animator.getAnimatedValue().toString() + " points");
+                });
+                valueAnimator.start();
+
                 tvLoyaltyProgress.setText(toNext > 0
                         ? points + " / " + target + " points to " + nextTier
                         : "Highest membership tier reached");

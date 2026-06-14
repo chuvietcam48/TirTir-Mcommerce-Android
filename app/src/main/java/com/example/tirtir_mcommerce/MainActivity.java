@@ -66,18 +66,64 @@ public class MainActivity extends AppCompatActivity {
 
         // Hiển thị HomeFragment lúc mới mở app
         if (savedInstanceState == null) {
-            if (getIntent().getBooleanExtra("OPEN_ORDER_HISTORY", false)) {
-                bottomNav.setSelectedItemId(R.id.nav_profile);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainer, new OrderHistoryFragment())
-                        .addToBackStack("order_history")
-                        .commit();
-            } else if (getIntent().getBooleanExtra("OPEN_PROFILE", false)) {
-                bottomNav.setSelectedItemId(R.id.nav_profile);
-            } else {
-                bottomNav.setSelectedItemId(R.id.nav_home);
+            if (!handleIntent(getIntent())) {
+                if (getIntent().getBooleanExtra("OPEN_ORDER_HISTORY", false)) {
+                    bottomNav.setSelectedItemId(R.id.nav_profile);
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer, new OrderHistoryFragment())
+                            .addToBackStack("order_history")
+                            .commit();
+                } else if (getIntent().getBooleanExtra("OPEN_CART", false)) {
+                    bottomNav.setSelectedItemId(R.id.nav_cart);
+                } else if (getIntent().getBooleanExtra("OPEN_PROFILE", false)) {
+                    bottomNav.setSelectedItemId(R.id.nav_profile);
+                } else {
+                    bottomNav.setSelectedItemId(R.id.nav_home);
+                }
             }
         }
+    }
+
+    @Override
+    protected void onNewIntent(android.content.Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIntent(intent);
+    }
+
+    private boolean handleIntent(android.content.Intent intent) {
+        if (intent == null) return false;
+
+        // Handle VNPAY return deep-link: tirtir://payment?status=success&orderId=...
+        android.net.Uri data = intent.getData();
+        if (data != null && "tirtir".equals(data.getScheme()) && "payment".equals(data.getHost())) {
+            String status  = data.getQueryParameter("status");
+            String orderId = data.getQueryParameter("orderId");
+            if ("success".equals(status) && orderId != null) {
+                android.content.Intent successIntent = new android.content.Intent(this,
+                        com.example.tirtir_mcommerce.ui.activities.OrderSuccessActivity.class);
+                successIntent.putExtra("ORDER_CODE", orderId);
+                startActivity(successIntent);
+            } else {
+                android.widget.Toast.makeText(this, "Payment cancelled or failed. Your order is pending.",
+                        android.widget.Toast.LENGTH_LONG).show();
+            }
+            return true;
+        }
+
+        String navigateTo = intent.getStringExtra("NAVIGATE_TO");
+        if ("cart".equals(navigateTo)) {
+            if (bottomNav != null) bottomNav.setSelectedItemId(R.id.nav_cart);
+            return true;
+        } else if ("order_history".equals(navigateTo)) {
+            if (bottomNav != null) bottomNav.setSelectedItemId(R.id.nav_profile);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, new OrderHistoryFragment())
+                    .addToBackStack("order_history")
+                    .commit();
+            return true;
+        }
+        return false;
     }
 
     @Override

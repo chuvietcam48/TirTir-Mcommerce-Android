@@ -323,6 +323,42 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+            <!-- Loyalty Points Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvLoyaltyBalance"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Loyalty Points"
+                        android:textSize="14sp"
+                        android:textColor="@color/tirtir_black_cover" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRedeemPoints"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dùng điểm"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:textColor="#E91E8C"
+                        app:strokeColor="#E91E8C" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Order Summary Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"

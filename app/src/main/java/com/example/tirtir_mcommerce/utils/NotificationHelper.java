@@ -124,6 +124,14 @@ public class NotificationHelper {
             intent = new Intent(context, MainActivity.class);
         }
 
+        // Handle screen deep link from S2.2
+        if (data != null && data.containsKey("screen")) {
+            String screen = data.get("screen");
+            if (screen != null) {
+                intent.putExtra("NAVIGATE_TO", screen.toLowerCase());
+            }
+        }
+
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;

@@ -1,6 +1,7 @@
 package com.example.tirtir_mcommerce.ui.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,23 +19,29 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.database.DatabaseHelper;
+import com.example.tirtir_mcommerce.model.ApiResponse;
+import com.example.tirtir_mcommerce.model.ArbitrateOrderRequest;
+import com.example.tirtir_mcommerce.model.ArbitrateOrderResponse;
 import com.example.tirtir_mcommerce.model.CartItem;
-import com.example.tirtir_mcommerce.model.CreateOrderRequest;
 import com.example.tirtir_mcommerce.model.Address;
 import com.example.tirtir_mcommerce.model.ShippingAddress;
 import com.example.tirtir_mcommerce.model.User;
-import com.example.tirtir_mcommerce.repository.OrderRepository;
+import com.example.tirtir_mcommerce.network.ApiService;
+import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.example.tirtir_mcommerce.repository.CartRepository;
+import com.example.tirtir_mcommerce.repository.OrderRepository;
 import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
-
 import com.example.tirtir_mcommerce.utils.PriceUtils;
-
 import com.google.android.material.card.MaterialCardView;
 
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * SCR-16 CheckoutActivity — Thanh toán
@@ -58,6 +65,11 @@ public class CheckoutActivity extends AppCompatActivity {
     private TextView tvCheckoutSubtotal, tvCheckoutShipping, tvCheckoutTax, tvCheckoutTotal;
     private MaterialButton btnPlaceOrder;
     private ProgressBar progressPlaceOrder;
+
+    private TextView tvLoyaltyBalance;
+    private MaterialButton btnRedeemPoints;
+    private double discountAmount = 0;
+    private int currentLoyaltyPoints = 0;
 
     private OrderRepository orderRepository;
     private CartRepository cartRepository;
@@ -93,6 +105,7 @@ public class CheckoutActivity extends AppCompatActivity {
         updateTotalsUI();
         setupPlaceOrder();
         checkLoyaltyMultiplier();
+        loadLoyaltyBalance();
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -141,6 +154,8 @@ public class CheckoutActivity extends AppCompatActivity {
                 tvLoyaltyBadgeText = (android.widget.TextView) child;
             }
         }
+        tvLoyaltyBalance = findViewById(R.id.tvLoyaltyBalance);
+        btnRedeemPoints = findViewById(R.id.btnRedeemPoints);
     }
 
     private void loadCartTotals() {
@@ -183,15 +198,32 @@ public class CheckoutActivity extends AppCompatActivity {
         setTextIfEmpty(etCity, selected.getCity());
     }
 
+    /**
+     * Displays the pre-checkout estimate from local cart data.
+     * Once arbitrate responds, real authoritative totals replace these values.
+     */
     private void updateTotalsUI() {
-        double total = cartSubtotal;
+        double tax   = cartSubtotal * 0.10;
+        double total = cartSubtotal + shippingFee + tax - discountAmount;
+        if (total < 0) total = 0;
 
         tvCheckoutSubtotal.setText(PriceUtils.formatPriceVnd(cartSubtotal));
-        tvCheckoutShipping.setText(PriceUtils.formatPriceVnd(shippingFee));
+        tvCheckoutShipping.setText(shippingFee > 0
+                ? PriceUtils.formatPriceVnd(shippingFee) : "Calculating...");
         if (tvCheckoutTax != null) {
-            tvCheckoutTax.setText("Included");
+            tvCheckoutTax.setText(PriceUtils.formatPriceVnd(tax));
         }
         tvCheckoutTotal.setText(PriceUtils.formatPriceVnd(total));
+    }
+
+    /** Refresh totals UI from authoritative server response. */
+    private void updateTotalsFromServer(ArbitrateOrderResponse.Totals totals, boolean isEstimated) {
+        tvCheckoutSubtotal.setText(PriceUtils.formatPriceVnd(totals.getSubtotal()));
+        String shippingLabel = PriceUtils.formatPriceVnd(totals.getShippingFee());
+        if (isEstimated) shippingLabel += " (estimated)";
+        tvCheckoutShipping.setText(shippingLabel);
+        if (tvCheckoutTax != null) tvCheckoutTax.setText(PriceUtils.formatPriceVnd(totals.getTax()));
+        tvCheckoutTotal.setText(PriceUtils.formatPriceVnd(totals.getFinalTotal()));
     }
 
     // ===========================
@@ -205,6 +237,82 @@ public class CheckoutActivity extends AppCompatActivity {
      */
     private void checkLoyaltyMultiplier() {
         if (cvLoyaltyBadge != null) cvLoyaltyBadge.setVisibility(View.GONE);
+    }
+
+    private void loadLoyaltyBalance() {
+        if (tvLoyaltyBalance == null) return;
+        com.example.tirtir_mcommerce.network.ApiService api = com.example.tirtir_mcommerce.network.RetrofitClient.getAuthClient(this).create(com.example.tirtir_mcommerce.network.ApiService.class);
+        api.getLoyaltyDetails().enqueue(new retrofit2.Callback<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>> call, retrofit2.Response<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    Object pts = response.body().getData().get("loyaltyPoints");
+                    currentLoyaltyPoints = pts instanceof Number ? ((Number) pts).intValue() : 0;
+                    tvLoyaltyBalance.setText("Available: " + currentLoyaltyPoints + " points");
+                }
+            }
+            @Override public void onFailure(retrofit2.Call<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>> call, Throwable t) {}
+        });
+        
+        btnRedeemPoints.setOnClickListener(v -> {
+            if (currentLoyaltyPoints <= 0) {
+                Toast.makeText(this, "You have no points to redeem", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            showRedeemDialog();
+        });
+    }
+
+    private void showRedeemDialog() {
+        android.widget.EditText input = new android.widget.EditText(this);
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        input.setHint("Max: " + currentLoyaltyPoints);
+        
+        int padding = 64;
+        android.widget.FrameLayout container = new android.widget.FrameLayout(this);
+        container.setPadding(padding, 16, padding, 16);
+        container.addView(input);
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Redeem Points")
+            .setMessage("Enter amount of points to redeem (1 point = 100 VND)")
+            .setView(container)
+            .setPositiveButton("Redeem", (dialog, which) -> {
+                String val = input.getText().toString();
+                if (!val.isEmpty()) {
+                    int pts = Integer.parseInt(val);
+                    if (pts > 0 && pts <= currentLoyaltyPoints) {
+                        redeemPointsApi(pts);
+                    } else {
+                        Toast.makeText(this, "Invalid points", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+    
+    private void redeemPointsApi(int points) {
+        com.example.tirtir_mcommerce.network.ApiService api = com.example.tirtir_mcommerce.network.RetrofitClient.getAuthClient(this).create(com.example.tirtir_mcommerce.network.ApiService.class);
+        java.util.Map<String, Integer> body = new java.util.HashMap<>();
+        body.put("points", points);
+        api.redeemPoints(body).enqueue(new retrofit2.Callback<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>> call, retrofit2.Response<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>> response) {
+                if (response.isSuccessful()) {
+                    discountAmount = points * 100;
+                    updateTotalsUI();
+                    Toast.makeText(CheckoutActivity.this, "Discount applied", Toast.LENGTH_SHORT).show();
+                    btnRedeemPoints.setEnabled(false);
+                    btnRedeemPoints.setText("Applied");
+                } else {
+                    Toast.makeText(CheckoutActivity.this, "Failed to redeem points", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override public void onFailure(retrofit2.Call<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>> call, Throwable t) {
+                Toast.makeText(CheckoutActivity.this, "Connection error", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void setupPlaceOrder() {
@@ -226,112 +334,140 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     // ===========================
-    // REAL API ORDER PLACEMENT
+    // ARBITRATE ORDER (real totals + VNPAY)
     // ===========================
 
     /**
-     * Builds CreateOrderRequest from form fields and calls
-     * POST /api/v1/orders/create via OrderRepository.
+     * Calls POST /api/v1/payments/arbitrate which:
+     * 1. Calls Viettel Post SOAP (5s race) for real shipping
+     * 2. Computes Subtotal + Tax(10%) + Shipping − Voucher server-side
+     * 3. Creates a pending_payment Order in MongoDB
+     * 4. Returns a signed VNPAY payment URL
      *
-     * On API success  → clear local cart → OrderSuccessActivity
-     * Requires valid JWT token (user must be logged in).
+     * On success:
+     *   - VNPAY → open in browser; wait for deep-link return
+     *   - CARD / COD → go directly to OrderSuccessActivity
      */
     private void placeOrderWithApi() {
-        // Check if user is logged in (has token)
         SharedPrefsManager prefs = new SharedPrefsManager(this);
-        String token = prefs.getToken();
-        boolean hasToken = prefs.isLoggedIn() && token != null && !token.trim().isEmpty();
-
-        if (!hasToken) {
+        if (!prefs.isLoggedIn() || prefs.getToken() == null) {
             Toast.makeText(this, "Please sign in to place your order", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(this, LoginActivity.class));
             return;
         }
-
         if (checkoutItems.isEmpty() || cartSubtotal <= 0) {
-            Toast.makeText(this, "Your cart is empty. Add a product before checkout.",
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Your cart is empty.", Toast.LENGTH_LONG).show();
             return;
         }
 
         orderSubmitting = true;
         showLoading(true);
 
-        // Build shipping address from form
-        // ShippingAddress has: fullName, phone, address, city
-        // We combine street + district into the address field
-        ShippingAddress shippingAddress = new ShippingAddress();
-        shippingAddress.setFullName(getText(etFullName));
-        shippingAddress.setPhone(getText(etPhone));
-        String combinedAddress = getText(etStreet);
-        String district = getText(etDistrict);
-        if (!district.isEmpty()) combinedAddress += ", " + district;
-        shippingAddress.setAddress(combinedAddress);
-        shippingAddress.setCity(getText(etCity));
+        // Build address
+        ShippingAddress addr = new ShippingAddress();
+        addr.setFullName(getText(etFullName));
+        addr.setPhone(getText(etPhone));
+        String combined = getText(etStreet);
+        String dist     = getText(etDistrict);
+        if (!dist.isEmpty()) combined += ", " + dist;
+        addr.setAddress(combined);
+        addr.setCity(getText(etCity));
 
-        // Determine payment method from radio group
         String paymentMethod = getSelectedPaymentMethod();
+        String city          = getText(etCity); // used as province hint for Viettel
+        String voucherCode   = null;            // future: read from voucher input field
 
-        // Build order request (compatible with POST /api/v1/orders/create)
-        CreateOrderRequest request = new CreateOrderRequest(shippingAddress, paymentMethod);
+        ArbitrateOrderRequest req = new ArbitrateOrderRequest(
+                addr, paymentMethod, city, voucherCode);
 
+        // Sync local cart to server before arbitrate call
         try {
             cartRepository.syncPendingToServer(
-                    () -> runOnUiThread(() -> {
-                        if (canUpdateUi()) submitOrderRequest(request);
-                    }),
-                    error -> runOnUiThread(() -> {
-                        if (!canUpdateUi()) return;
-                        orderSubmitting = false;
-                        showLoading(false);
-                        Toast.makeText(this,
-                                "Your cart has not synced yet. Check your connection and try again.",
-                                Toast.LENGTH_LONG).show();
-                    }));
-        } catch (RuntimeException error) {
-            Log.e(TAG, "Unable to start cart sync", error);
+                () -> runOnUiThread(() -> { if (canUpdateUi()) callArbitrateApi(req); }),
+                err -> runOnUiThread(() -> {
+                    if (!canUpdateUi()) return;
+                    orderSubmitting = false;
+                    showLoading(false);
+                    Toast.makeText(this,
+                        "Cart sync failed. Check your connection and try again.",
+                        Toast.LENGTH_LONG).show();
+                }));
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Cart sync error", e);
             orderSubmitting = false;
             showLoading(false);
-            Toast.makeText(this, "We could not start checkout. Please try again.",
-                    Toast.LENGTH_LONG).show();
         }
     }
 
-    private void submitOrderRequest(CreateOrderRequest request) {
-        try {
-            orderRepository.placeOrder(request,
-                    orderResponse -> runOnUiThread(() -> {
-                        if (!canUpdateUi()) return;
-                        orderSubmitting = false;
-                        showLoading(false);
-                        String orderId = orderResponse == null ? null : orderResponse.getOrderId();
-                        if (orderId == null || orderId.trim().isEmpty()) {
-                            Toast.makeText(this,
-                                    "Your order could not be confirmed. Please try again.",
-                                    Toast.LENGTH_LONG).show();
-                            return;
-                        }
-                        databaseHelper.clearCart();
-                        goToOrderSuccess(orderId, cartSubtotal);
-                    }),
-                    errorMessage -> runOnUiThread(() -> {
-                        if (!canUpdateUi()) return;
-                        orderSubmitting = false;
-                        showLoading(false);
-                        Toast.makeText(this,
-                                errorMessage == null || errorMessage.trim().isEmpty()
-                                        ? "We could not place your order. Please try again."
-                                        : errorMessage,
-                                Toast.LENGTH_LONG).show();
-                    })
-            );
-        } catch (RuntimeException error) {
-            Log.e(TAG, "Unable to start order request", error);
-            orderSubmitting = false;
-            showLoading(false);
-            Toast.makeText(this, "We could not start checkout. Please try again.",
+    private void callArbitrateApi(ArbitrateOrderRequest req) {
+        ApiService api = RetrofitClient.getAuthClient(this).create(ApiService.class);
+        api.arbitrateOrder(req).enqueue(new Callback<ApiResponse<ArbitrateOrderResponse>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<ArbitrateOrderResponse>> call,
+                                   Response<ApiResponse<ArbitrateOrderResponse>> response) {
+                if (!canUpdateUi()) return;
+                orderSubmitting = false;
+                showLoading(false);
+
+                if (!response.isSuccessful() || response.body() == null || !response.body().isSuccess()) {
+                    int code = response.code();
+                    String msg = code == 401 || code == 403
+                            ? "Session expired. Please sign in again."
+                            : "Could not place your order. Please try again.";
+                    Toast.makeText(CheckoutActivity.this, msg, Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                ArbitrateOrderResponse data = response.body().getData();
+
+                // Show real authoritative totals
+                if (data.getTotals() != null) {
+                    updateTotalsFromServer(data.getTotals(), data.isEstimatedShipping());
+                }
+
+                // Warn user if shipping is estimated (Viettel timed out)
+                if (data.isEstimatedShipping()) {
+                    Toast.makeText(CheckoutActivity.this,
+                        "⚠ Shipping fee is estimated. Real fee will be confirmed by the carrier.",
+                        Toast.LENGTH_LONG).show();
+                }
+
+                // Show voucher feedback
+                if (data.getVoucherMessage() != null) {
+                    Toast.makeText(CheckoutActivity.this, data.getVoucherMessage(), Toast.LENGTH_SHORT).show();
+                }
+
+                // Clear local SQLite cart
+                databaseHelper.clearCart();
+
+                String orderId     = data.getOrderId();
+                String paymentUrl  = data.getPaymentUrl();
+                long   finalTotal  = data.getTotals() != null ? data.getTotals().getFinalTotal() : 0;
+
+                if ("VNPAY".equals(req.getPaymentMethod()) && paymentUrl != null && !paymentUrl.isEmpty()) {
+                    // Open VNPAY payment page in the default browser
+                    Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(paymentUrl));
+                    browser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(browser);
+                    // OrderSuccessActivity is triggered by the deep-link return (tirtir://payment)
+                    finish();
+                } else {
+                    // CARD / COD — order already confirmed
+                    goToOrderSuccess(orderId, finalTotal);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<ArbitrateOrderResponse>> call, Throwable t) {
+                if (!canUpdateUi()) return;
+                orderSubmitting = false;
+                showLoading(false);
+                Log.e(TAG, "Arbitrate network failure", t);
+                Toast.makeText(CheckoutActivity.this,
+                    "Connection error. Check your network and try again.",
                     Toast.LENGTH_LONG).show();
-        }
+            }
+        });
     }
 
 

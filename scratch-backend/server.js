@@ -26,6 +26,8 @@ app.use('/api/v1/products', require('./routes/productRoutes'));
 app.use('/api/v1/cart', require('./routes/cartRoutes'));
 app.use('/api/v1/orders', require('./routes/orderRoutes'));
 app.use('/api/v1/upload', require('./routes/uploadRoutes'));
+app.use('/api/v1/routines', require('./routes/routineRoutes'));
+app.use('/api/v1/payments', require('./routes/paymentRoutes'));
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 

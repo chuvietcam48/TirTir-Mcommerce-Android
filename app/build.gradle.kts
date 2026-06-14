@@ -70,6 +70,7 @@ dependencies {
     implementation("com.google.android.flexbox:flexbox:3.0.0")
     implementation("com.google.android.gms:play-services-ads:23.6.0")
     implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
 
     // Testing
     testImplementation(libs.junit)

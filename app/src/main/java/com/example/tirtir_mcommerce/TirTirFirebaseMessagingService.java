@@ -8,6 +8,17 @@ import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import com.example.tirtir_mcommerce.network.ApiService;
+import com.example.tirtir_mcommerce.network.RetrofitClient;
+import com.example.tirtir_mcommerce.model.ApiResponse;
+
+import android.os.Vibrator;
+import android.os.VibrationEffect;
+import android.content.Context;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +43,21 @@ public class TirTirFirebaseMessagingService extends FirebaseMessagingService {
             try {
                 CloudRepository cloudRepository = new CloudRepository(this);
                 cloudRepository.syncFcmToken();
+                
+                // Gọi thêm API POST /api/users/device-token theo yêu cầu S2.2
+                ApiService api = RetrofitClient.getAuthClient(this).create(ApiService.class);
+                Map<String, String> body = new HashMap<>();
+                body.put("token", token);
+                api.updateDeviceToken(body).enqueue(new Callback<ApiResponse<Object>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
+                        Log.d(TAG, "updateDeviceToken success: " + response.isSuccessful());
+                    }
+                    @Override
+                    public void onFailure(Call<ApiResponse<Object>> call, Throwable t) {
+                        Log.e(TAG, "updateDeviceToken failed", t);
+                    }
+                });
             } catch (Exception e) {
                 Log.e(TAG, "Failed to sync FCM Token after generation", e);
             }
@@ -77,5 +103,15 @@ public class TirTirFirebaseMessagingService extends FirebaseMessagingService {
 
         // Hiển thị notification cục bộ
         NotificationHelper.showNotification(this, title, body, data);
+
+        // Vibrate 300ms
+        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (vibrator != null && vibrator.hasVibrator()) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(300, VibrationEffect.DEFAULT_AMPLITUDE));
+            } else {
+                vibrator.vibrate(300);
+            }
+        }
     }
 }

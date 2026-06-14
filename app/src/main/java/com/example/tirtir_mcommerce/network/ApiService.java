@@ -138,6 +138,16 @@ public interface ApiService {
     @POST("api/v1/ai/analyze-face")
     Call<ApiResponse<Map<String, Object>>> analyzeSkin(@Body Map<String, String> body);
 
+    @POST("api/v1/routines/save")
+    Call<ApiResponse<Map<String, Object>>> saveRoutine(@Body Map<String, Object> body);
+
+    @GET("api/v1/routines/recommendation")
+    Call<ApiResponse<Map<String, Object>>> getRoutineRecommendation();
+
+    /** Authoritative checkout: shipping (Viettel SOAP) + tax + voucher + VNPAY URL */
+    @POST("api/v1/payments/arbitrate")
+    Call<ApiResponse<ArbitrateOrderResponse>> arbitrateOrder(@Body ArbitrateOrderRequest request);
+
     @GET("api/v1/ingredient/scan-history")
     Call<Map<String, Object>> getIngredientHistory(@Query("userId") String userId);
 
@@ -280,4 +290,16 @@ public interface ApiService {
      */
     @POST("api/v1/notifications/fcm-token")
     Call<ApiResponse<Object>> registerFcmToken(@Body FcmTokenRequest request);
+
+    @POST("api/users/device-token")
+    Call<ApiResponse<Object>> updateDeviceToken(@Body Map<String, String> body);
+
+    @POST("api/admin/send-voucher")
+    Call<ApiResponse<Object>> sendVoucher(@Body Map<String, String> body);
+
+    @POST("api/loyalty/scan")
+    Call<ApiResponse<Map<String, Object>>> scanBarcode(@Body Map<String, String> body);
+
+    @POST("api/loyalty/redeem")
+    Call<ApiResponse<Map<String, Object>>> redeemPoints(@Body Map<String, Integer> body);
 }
