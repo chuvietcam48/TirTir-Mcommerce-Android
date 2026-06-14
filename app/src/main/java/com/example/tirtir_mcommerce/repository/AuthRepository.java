@@ -1,6 +1,7 @@
 package com.example.tirtir_mcommerce.repository;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
 
@@ -31,6 +32,7 @@ import retrofit2.Response;
  * Điều này giúp tách biệt hoàn toàn business logic ra khỏi UI.
  */
 public class AuthRepository {
+    private static final String TAG = "AuthRepository";
 
     private final Context context;
     private final ApiService apiService;
@@ -63,7 +65,7 @@ public class AuthRepository {
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     LoginResponse body = response.body();
-                    if (body.isSuccess() && body.getToken() != null) {
+                    if (body.getToken() != null && !body.getToken().trim().isEmpty()) {
                         // Lưu token vào SharedPreferences
                         // Lưu cache user nếu có
                         if (body.getUser() != null) {
@@ -85,24 +87,32 @@ public class AuthRepository {
                                 android.util.Log.e("AuthRepository", "Firebase sync failed", e);
                             }
                         }
-                        onSuccess.onSuccess(body.getUser());
+                        if (onSuccess != null) onSuccess.onSuccess(body.getUser());
                     } else {
-                        onError.onError("Sign-in failed. Please try again.");
+                        if (onError != null) onError.onError("Sign-in failed. Please try again.");
                     }
                 } else {
+                    Log.e(TAG, "Login API failed with HTTP " + response.code());
                     if (response.code() == 401) {
-                        onError.onError("Incorrect email or password");
+                        if (onError != null) onError.onError("Incorrect email or password");
                     } else if (response.code() == 403) {
-                        onError.onError("This account is locked. Please contact support.");
+                        if (onError != null) {
+                            onError.onError("This account is locked. Please contact support.");
+                        }
                     } else {
-                        onError.onError("Server error: " + response.code());
+                        if (onError != null) {
+                            onError.onError("Sign-in is temporarily unavailable. Please try again.");
+                        }
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
-                onError.onError("Connection error. Please check your network.");
+                Log.e(TAG, "Login request failed", t);
+                if (onError != null) {
+                    onError.onError("Connection error. Please check your network.");
+                }
             }
         });
     }

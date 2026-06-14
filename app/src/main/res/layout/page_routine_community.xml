@@ -9,7 +9,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:padding="12dp" />
+        android:paddingStart="12dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="96dp" />
 
     <TextView
         android:id="@+id/tvCommunityEmpty"
@@ -18,7 +21,7 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:padding="32dp"
-        android:text="Community routines will appear when public_routines is available from Firestore/API."
+        android:text="No community routines yet. Shared routines from the TirTir community will appear here."
         android:textColor="@color/tirtir_text_secondary"
         android:textSize="14sp" />
 </FrameLayout>

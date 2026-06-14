@@ -80,8 +80,8 @@
         <!-- Delete Button -->
         <ImageButton
             android:id="@+id/btnRemoveWishlist"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_delete"
             app:tint="@color/tirtir_text_secondary"

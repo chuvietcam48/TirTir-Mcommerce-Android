@@ -25,6 +25,7 @@
     <color name="tirtir_border_gray">#E5E5E5</color>
     <color name="tirtir_silver_gray">#BDBDBD</color>  <!-- Disabled state -->
     <color name="tirtir_text_secondary">#777777</color>
+    <color name="tirtir_nav_inactive">#5F6368</color>
     <color name="tirtir_text_hint">#9E9E9E</color>
 
     <!-- TEXT -->

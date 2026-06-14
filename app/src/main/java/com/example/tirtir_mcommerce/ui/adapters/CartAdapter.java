@@ -15,6 +15,7 @@ import com.example.tirtir_mcommerce.R;
 import com.bumptech.glide.Glide;
 import com.example.tirtir_mcommerce.model.CartItem;
 import com.example.tirtir_mcommerce.utils.PriceUtils;
+import com.example.tirtir_mcommerce.network.ApiConfig;
 
 import java.util.List;
 
@@ -49,15 +50,13 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         holder.tvName.setText(cartItem.getProductName());
         holder.tvPrice.setText(PriceUtils.formatPriceVnd(cartItem.getPrice()));
         
-        String imageUrl = cartItem.getThumbnail();
-        if (imageUrl != null && !imageUrl.startsWith("http")) {
-            imageUrl = "https://tirtir-project.onrender.com/" + imageUrl;
-        }
+        String imageUrl = ApiConfig.resolveMediaUrl(cartItem.getThumbnail());
         
         Glide.with(context)
                 .load(imageUrl)
                 .placeholder(R.drawable.ic_product_placeholder)
                 .error(R.drawable.ic_product_placeholder)
+                .fitCenter()
                 .into(holder.ivImage);
         
         holder.tvQuantity.setText(String.valueOf(cartItem.getQuantity()));

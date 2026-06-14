@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SkinResultActivity extends AppCompatActivity {
-    private static final String BASE_IMAGE_URL = "https://tirtir-project.onrender.com/";
     private CushionMatchAdapter adapter;
     private TextView tvEmpty;
 
@@ -36,6 +35,9 @@ public class SkinResultActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbarSkinResult);
         toolbar.setNavigationOnClickListener(v -> finish());
+        TextView demoBanner = findViewById(R.id.tvSkinDemoBanner);
+        demoBanner.setVisibility(getIntent().getBooleanExtra("IS_DEMO", false)
+                ? View.VISIBLE : View.GONE);
 
         bindScores();
         bindTone();
@@ -61,7 +63,7 @@ public class SkinResultActivity extends AppCompatActivity {
         repository.fetchProducts(products -> runOnUiThread(() -> bindMatches(products)),
                 error -> runOnUiThread(() -> {
                     adapter.submitList(new ArrayList<>());
-                    tvEmpty.setText("Unable to load cushion matches from API/cache.");
+                    tvEmpty.setText("Cushion matches could not be loaded. Please try again later.");
                     tvEmpty.setVisibility(View.VISIBLE);
                 }));
     }
@@ -110,8 +112,7 @@ public class SkinResultActivity extends AppCompatActivity {
 
     private String buildImageUrl(String path) {
         if (path == null || path.isEmpty()) return "";
-        if (path.startsWith("http")) return path;
-        return BASE_IMAGE_URL + path;
+        return com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(path);
     }
 
     private void bindTone() {

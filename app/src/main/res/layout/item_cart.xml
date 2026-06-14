@@ -17,7 +17,8 @@
             android:id="@+id/ivCartProductImage"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:scaleType="centerCrop"
+            android:scaleType="fitCenter"
+            android:padding="8dp"
             android:background="@color/tirtir_off_white"
             android:src="@drawable/ic_product_placeholder"
             app:layout_constraintTop_toTopOf="parent"
@@ -53,8 +54,8 @@
 
         <ImageButton
             android:id="@+id/btnRemoveCartItem"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_delete"
             app:tint="@color/tirtir_text_secondary"
@@ -73,8 +74,8 @@
 
             <ImageButton
                 android:id="@+id/btnDecreaseQty"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_media_previous"
                 app:tint="@color/tirtir_black"
@@ -93,8 +94,8 @@
 
             <ImageButton
                 android:id="@+id/btnIncreaseQty"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_input_add"
                 app:tint="@color/tirtir_black"

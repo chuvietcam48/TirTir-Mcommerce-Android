@@ -29,6 +29,7 @@ import com.example.tirtir_mcommerce.database.DatabaseHelper;
 import com.example.tirtir_mcommerce.repository.CartRepository;
 import com.example.tirtir_mcommerce.model.CartItem;
 import com.example.tirtir_mcommerce.model.Product;
+import com.example.tirtir_mcommerce.network.ApiConfig;
 
 import com.example.tirtir_mcommerce.utils.PriceUtils;
 import com.google.android.material.button.MaterialButton;
@@ -61,11 +62,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     private final Context context;
     private List<Product> productList;
     private final OnProductClickListener clickListener;
-
-    private static final String BASE_IMAGE_URL = "https://tirtir-project.onrender.com/";
-    private static final String DEV_LOCALHOST = "http://localhost:5001/";
-
-
 
     public ProductAdapter(Context context, List<Product> productList, OnProductClickListener listener) {
         this.context = context;
@@ -269,10 +265,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             if (btnWishlistToggle == null) return;
             if (wishlisted) {
                 btnWishlistToggle.setImageResource(R.drawable.ic_wishlist);
-                btnWishlistToggle.setColorFilter(0xFFC62828);
+                btnWishlistToggle.setColorFilter(0xFFE23B2E);
+                btnWishlistToggle.setAlpha(1f);
             } else {
                 btnWishlistToggle.setImageResource(R.drawable.ic_wishlist);
-                btnWishlistToggle.setColorFilter(0xFF9E9E9E);
+                btnWishlistToggle.setColorFilter(0xFF666666);
+                btnWishlistToggle.setAlpha(0.9f);
             }
         }
 
@@ -298,18 +296,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         }
 
         private String buildUrl(String path) {
-            if (path == null || path.trim().isEmpty()) return "";
-            if (path.startsWith(DEV_LOCALHOST)) {
-                return BASE_IMAGE_URL + path.substring(DEV_LOCALHOST.length());
-            }
-            if (path.startsWith("https://") || path.startsWith("http://")) {
-                return path;
-            }
-            // Strip leading slash to prevent double-slash: "https://host.com//assets/..."
-            String cleanPath = path.startsWith("/") ? path.substring(1) : path;
-            String finalUrl = BASE_IMAGE_URL + cleanPath;
-            android.util.Log.d("ProductAdapter", "Image URL: " + finalUrl);
-            return finalUrl;
+            return ApiConfig.resolveMediaUrl(path);
         }
     }
 }

@@ -41,7 +41,7 @@
                 android:id="@+id/btnLikeRoutine"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
+                android:layout_height="48dp"
                 android:text="Like"
                 android:textColor="@color/tirtir_red_primary"
                 app:strokeColor="@color/tirtir_red_primary" />
@@ -49,9 +49,9 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnApplyRoutine"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
+                android:layout_height="48dp"
                 android:layout_marginStart="8dp"
-                android:text="Ap dung"
+                android:text="Apply"
                 android:textColor="@color/tirtir_white"
                 app:backgroundTint="@color/tirtir_black" />
         </LinearLayout>

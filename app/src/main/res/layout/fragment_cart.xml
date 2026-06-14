@@ -102,7 +102,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Tax (10%)"
+                            android:text="Tax"
                             android:textColor="@color/tirtir_text_secondary" />
                         <TextView
                             android:id="@+id/tvTaxFee"

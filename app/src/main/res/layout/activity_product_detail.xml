@@ -238,22 +238,22 @@
                 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_height="48dp"
                 android:orientation="horizontal"
                 android:background="@drawable/bg_stepper"
                 android:gravity="center_vertical">
                 
                 <ImageButton
                     android:id="@+id/btnDecreaseQty"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:background="?attr/selectableItemBackground"
                     android:src="@drawable/ic_minus"
                     app:tint="@color/tirtir_black"/>
                     
                 <TextView
                     android:id="@+id/tvQuantity"
-                    android:layout_width="36dp"
+                    android:layout_width="40dp"
                     android:layout_height="wrap_content"
                     android:text="1"
                     android:gravity="center"
@@ -263,8 +263,8 @@
                     
                 <ImageButton
                     android:id="@+id/btnIncreaseQty"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:background="?attr/selectableItemBackground"
                     android:src="@drawable/ic_plus"
                     app:tint="@color/tirtir_black"/>

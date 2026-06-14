@@ -17,7 +17,7 @@ public class LoginResponse {
     @SerializedName("success")
     private boolean success;
 
-    @SerializedName("token")
+    @SerializedName(value = "token", alternate = {"accessToken", "access_token"})
     private String token;
 
     @SerializedName("refreshToken")

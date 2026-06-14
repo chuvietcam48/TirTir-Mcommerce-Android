@@ -68,8 +68,6 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.Wishli
     private final Context context;
     private final List<WishlistItem> items;
     private final OnRemoveClickListener removeListener;
-    private static final String BASE_IMAGE_URL = "https://tirtir-project.onrender.com/";
-
     public WishlistAdapter(Context context, List<WishlistItem> items, OnRemoveClickListener removeListener) {
         this.context = context;
         this.items = new ArrayList<>(items);
@@ -178,9 +176,7 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.Wishli
         }
 
         private String resolveImageUrl(String path) {
-            if (path == null || path.trim().isEmpty()) return "";
-            if (path.startsWith("https://") || path.startsWith("http://")) return path;
-            return BASE_IMAGE_URL + path;
+            return com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(path);
         }
     }
 }

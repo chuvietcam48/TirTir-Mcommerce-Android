@@ -1,6 +1,6 @@
 # TirTir Android Frontend Audit and User Flows
 
-Updated: 2026-06-13
+Updated: 2026-06-14
 
 ## Scope
 
@@ -28,7 +28,8 @@ Updated: 2026-06-13
 1. Home loads products and dynamic filters from the product API.
 2. While loading, the UI displays a loading state; cached products are used offline.
 3. Search filters the loaded catalog.
-4. Category and skin-type filters narrow the product grid.
+4. Category uses a bounded dialog selector while the chip row filters skin type only;
+   both filters can be combined with search.
 5. Quick actions open AI Advisor, Skin Analysis, and Ingredient Scan.
 6. Product cards support product details, wishlist toggle, and quick add to cart.
 7. Missing remote images show a branded TirTir placeholder instead of an empty block.
@@ -67,10 +68,15 @@ Updated: 2026-06-13
 
 1. Checkout validates recipient and shipping fields.
 2. Supported payment values are `CARD`, `VNPAY`, and `MOMO`, matching backend validation.
-3. Place Order calls the real create-order endpoint and never generates a local order.
-4. Success clears the local cart and displays the real order ID.
-5. View Order History opens the API-backed order list directly.
-6. Order History supports status filters and only shows invoice download when the API
+3. Checkout re-reads the local cart, blocks empty/invalid submissions, prefills the
+   cached default address, and prevents duplicate order taps.
+4. Pending local-first cart items must finish syncing to the server before the real
+   create-order request is sent.
+5. Missing token, address, payment, API body, or order ID produces a recoverable
+   user-facing state rather than closing the screen.
+6. Success clears the local cart and displays the real order ID.
+7. View Order History opens the API-backed order list directly.
+8. Order History supports status filters and only shows invoice download when the API
    provides a real `invoiceUrl`.
 
 ### 7. AI Advisor
@@ -83,22 +89,30 @@ Updated: 2026-06-13
 
 ### 8. Skin Analysis
 
-1. The app requests camera permission and binds CameraX to the front camera.
+1. The app explains and requests camera permission, supports Open Settings after
+   denial, and tries the rear camera if the front camera is unavailable.
 2. The user aligns their face in the oval guide.
 3. Capture sends the real JPEG as base64 to `/api/v1/ai/analyze-face`.
 4. Result displays skin tone, undertone, and calculated ITA angle when LAB debug values
    are returned.
 5. Cushion products come from the product API rather than a hardcoded list.
-6. Texture, pores, hydration, exact skin hex, and ranked shade-match scores cannot be
+6. When camera/ML is unavailable, users can retry or open a clearly labelled demo
+   result without making the production response look real.
+7. Texture, pores, hydration, exact skin hex, and ranked shade-match scores cannot be
    truthful until backend includes these values.
 
 ### 9. Ingredient Scan
 
-1. The app requests camera permission and binds CameraX to the rear camera.
-2. Product-origin scans can display ingredients already returned by Product API.
-3. Conflict Result supports ingredient chips and severity cards.
-4. Scan History loads the authenticated user's real history endpoint.
-5. Camera OCR and conflict inference remain blocked because no analysis endpoint exists.
+1. The app explains and requests camera permission, supports Open Settings after
+   denial, and tries an alternate camera when necessary.
+2. CameraX captures a real image while keeping retry on the same screen.
+3. Product-origin scans display ingredients already returned by Product API.
+4. If OCR is unavailable, a clearly labelled demo scan keeps emulator/Appetize
+   presentations usable and demonstrates the conflict-result flow.
+5. Conflict Result supports ingredient chips and severity cards.
+6. Scan History loads the authenticated user's real history endpoint.
+7. Production camera OCR and conflict inference remain blocked because no analysis
+   endpoint exists.
 
 ### 10. Routine Builder
 
@@ -108,8 +122,10 @@ Updated: 2026-06-13
 4. Only selected steps can be dragged.
 5. SPF appears only in AM.
 6. Save and Share stays disabled until at least one product is selected.
-7. Selected routine data is stored locally and shared through the Android share sheet.
-8. Community routines and cloud persistence remain blocked by missing APIs.
+7. The suggestion card is only visible while its target step is missing, and View Picks
+   opens Home with the relevant product search.
+8. Selected routine data is stored locally and shared through the Android share sheet.
+9. Community routines and cloud persistence remain blocked by missing APIs.
 
 ### 11. Account
 
@@ -188,6 +204,17 @@ Updated: 2026-06-13
 | P2 | Provide AR SDK/model contract and shade asset metadata | Current AR screen cannot perform real face tracking or cosmetic rendering. |
 | P2 | Add Loyalty Wallet, barcode scan, and voucher wallet APIs/screens for SCR-25, SCR-26, and SCR-27 | These screens are listed in the project inventory but are absent from the current Android implementation. |
 
+## Runtime Verification Note
+
+- The requested checkout logcat command was attempted on June 14, 2026.
+- `adb devices` returned no connected device, and `adb logcat` waited indefinitely for
+  a device.
+- A Pixel/API 34 AVD could not be installed because the machine had only about 3.2 GB
+  free and the Android SDK installer failed with `No space left on device`.
+- No FATAL stacktrace has been fabricated. Checkout was hardened from verified code
+  paths and must still be reproduced once Appetize logs or a connected emulator are
+  available.
+
 ## Frontend Follow-Up
 
 - Complete server wishlist merge/sync after backend accepts a stable product identifier.
@@ -196,4 +223,3 @@ Updated: 2026-06-13
 - Add review list/create flow using the existing review routes.
 - Add real AR capture/share after the AR renderer exists.
 - Run visual regression on Pixel 6 API 34 and a compact device after each Appetize upload.
-

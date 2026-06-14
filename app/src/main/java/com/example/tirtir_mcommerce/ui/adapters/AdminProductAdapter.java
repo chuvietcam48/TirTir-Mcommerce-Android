@@ -57,15 +57,16 @@ public class AdminProductAdapter extends RecyclerView.Adapter<AdminProductAdapte
         Product product = productList.get(position);
         holder.tvName.setText(product.getName());
         holder.tvPrice.setText(currencyFormat.format(product.getPrice()) + " đ");
-        holder.tvStock.setText("Kho: " + product.getStockQuantity());
+        holder.tvStock.setText("Stock: " + product.getStockQuantity());
 
         // Load image
-        String imageUrl = product.getThumbnailImages();
+        String imageUrl = com.example.tirtir_mcommerce.network.ApiConfig
+                .resolveMediaUrl(product.getThumbnailImages());
         if (imageUrl != null && !imageUrl.isEmpty()) {
-            if (!imageUrl.startsWith("http")) {
-                imageUrl = "https://tirtir-project.onrender.com/" + imageUrl;
-            }
-            Glide.with(context).load(imageUrl).into(holder.ivImage);
+            Glide.with(context).load(imageUrl).fitCenter()
+                    .placeholder(R.drawable.ic_product_placeholder)
+                    .error(R.drawable.ic_product_placeholder)
+                    .into(holder.ivImage);
         } else {
             holder.ivImage.setImageResource(android.R.drawable.ic_menu_gallery);
         }

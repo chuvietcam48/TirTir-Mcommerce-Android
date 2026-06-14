@@ -31,6 +31,19 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <TextView
+                android:id="@+id/tvSkinDemoBanner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_camera_panel"
+                android:gravity="center"
+                android:padding="12dp"
+                android:text="Demo analysis · Personal results will appear when live analysis is available."
+                android:textColor="@color/tirtir_white"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -14,7 +14,7 @@ public class RegisterResponse {
     @SerializedName("message")
     private String message;
 
-    @SerializedName("token")
+    @SerializedName(value = "token", alternate = {"accessToken", "access_token"})
     private String token;
 
     @SerializedName("refreshToken")

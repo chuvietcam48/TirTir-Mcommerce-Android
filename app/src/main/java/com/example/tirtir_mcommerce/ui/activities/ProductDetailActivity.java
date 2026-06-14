@@ -47,8 +47,6 @@ import retrofit2.Response;
  */
 public class ProductDetailActivity extends AppCompatActivity {
 
-    private static final String BASE_IMAGE_URL = "https://tirtir-project.onrender.com/";
-
     private Toolbar toolbarProductDetail;
     private TextView tvProductCategory;
     private TextView tvProductName;
@@ -388,7 +386,9 @@ public class ProductDetailActivity extends AppCompatActivity {
             iv.setLayoutParams(new android.view.ViewGroup.LayoutParams(
                     android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                     android.view.ViewGroup.LayoutParams.MATCH_PARENT));
-            iv.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
+            iv.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
+            int padding = (int) (16 * getResources().getDisplayMetrics().density);
+            iv.setPadding(padding, padding, padding, padding);
             iv.setBackgroundColor(0xFFF5F5F5); // tirtir_off_white
             return new ImageViewHolder(iv);
         }
@@ -400,7 +400,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                     .load(buildImageUrl(rawUrl))
                     .placeholder(R.drawable.ic_product_placeholder)
                     .error(R.drawable.ic_product_placeholder)
-                    .centerCrop()
+                    .fitCenter()
                     .into(holder.imageView);
         }
 
@@ -419,9 +419,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     }
 
     private String buildImageUrl(String path) {
-        if (path == null || path.isEmpty()) return "";
-        if (path.startsWith("http")) return path;
-        return BASE_IMAGE_URL + path;
+        return com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(path);
     }
 
     // ===========================

@@ -11,6 +11,7 @@ import com.example.tirtir_mcommerce.model.CreateOrderRequest;
 import com.example.tirtir_mcommerce.model.CreateOrderResponse;
 import com.example.tirtir_mcommerce.model.OrderResponse;
 import com.example.tirtir_mcommerce.network.ApiService;
+import com.example.tirtir_mcommerce.network.ApiConfig;
 import com.example.tirtir_mcommerce.network.RetrofitClient;
 
 import java.util.List;
@@ -36,8 +37,6 @@ import retrofit2.Response;
 public class OrderRepository {
 
     private static final String TAG = "OrderRepository";
-    private static final String BASE_URL = "https://tirtir-project.onrender.com/";
-
     private final Context context;
 
     public OrderRepository(Context context) {
@@ -59,6 +58,12 @@ public class OrderRepository {
     public void placeOrder(CreateOrderRequest request,
                            Consumer<CreateOrderResponse> onSuccess,
                            Consumer<String> onError) {
+        if (request == null || request.getShippingAddress() == null
+                || request.getPaymentMethod() == null || request.getPaymentMethod().trim().isEmpty()) {
+            if (onError != null) onError.accept("Please review your delivery and payment details.");
+            return;
+        }
+
         ApiService apiService = RetrofitClient.getAuthClient(context).create(ApiService.class);
 
         apiService.createOrder(request).enqueue(new Callback<CreateOrderResponse>() {
@@ -68,21 +73,34 @@ public class OrderRepository {
                 if (response.isSuccessful() && response.body() != null) {
                     if (response.body().getOrderId() != null) {
                         Log.d(TAG, "Order placed: " + response.body().getOrderId());
-                        onSuccess.accept(response.body());
+                        if (onSuccess != null) onSuccess.accept(response.body());
                     } else {
-                        onError.accept("The server did not return an order ID.");
+                        if (onError != null) {
+                            onError.accept("Your order could not be confirmed. Please try again.");
+                        }
                     }
                 } else {
-                    String msg = "Order could not be placed (" + response.code() + ").";
-                    Log.e(TAG, msg);
-                    onError.accept(msg);
+                    Log.e(TAG, "Order API failed with HTTP " + response.code());
+                    String message;
+                    if (response.code() == 401 || response.code() == 403) {
+                        message = "Your session has expired. Please sign in again.";
+                    } else if (response.code() == 400 || response.code() == 422) {
+                        message = "Please review your cart and delivery details.";
+                    } else if (response.code() == 409) {
+                        message = "One or more items are no longer available.";
+                    } else {
+                        message = "We could not place your order right now. Please try again.";
+                    }
+                    if (onError != null) onError.accept(message);
                 }
             }
 
             @Override
             public void onFailure(Call<CreateOrderResponse> call, Throwable t) {
-                Log.e(TAG, "Network error: " + t.getMessage());
-                onError.accept("Connection error. Please try again.");
+                Log.e(TAG, "Order network failure", t);
+                if (onError != null) {
+                    onError.accept("Check your connection and try placing the order again.");
+                }
             }
         });
     }
@@ -141,7 +159,7 @@ public class OrderRepository {
             pdfUrl = invoiceUrl;
         } else {
             // Pattern URL tự build — cần điều chỉnh theo backend thực tế
-            pdfUrl = BASE_URL + "api/v1/orders/" + orderId + "/invoice";
+            pdfUrl = ApiConfig.BASE_URL + "api/v1/orders/" + orderId + "/invoice";
         }
 
         String fileName = "TirTir_Invoice_" + orderId.substring(Math.max(0, orderId.length() - 8)) + ".pdf";

@@ -1,4 +1,5 @@
 <resources>
+    <string name="choose_category">Choose a category</string>
     <!-- App -->
     <string name="app_name">TirTir</string>
     <string name="app_tagline">Smart Beauty</string>

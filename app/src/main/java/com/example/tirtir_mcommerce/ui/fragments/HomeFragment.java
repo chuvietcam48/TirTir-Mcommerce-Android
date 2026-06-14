@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Locale;
 
 /**
  * SCR-13 HomeFragment — Danh sách sản phẩm
@@ -57,6 +59,8 @@ import java.util.Set;
  * Sprint 1.2 — Task A
  */
 public class HomeFragment extends Fragment {
+    private static final String TAG = "HomeFragment";
+    private static final String ARG_INITIAL_QUERY = "initial_query";
 
     private RecyclerView rvProducts;
     private ProductAdapter adapter;
@@ -80,6 +84,14 @@ public class HomeFragment extends Fragment {
     // Generated chip IDs to maintain selection state
     private static final int CHIP_ID_BASE = 9000;
 
+    public static HomeFragment newInstance(String initialQuery) {
+        HomeFragment fragment = new HomeFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_INITIAL_QUERY, initialQuery);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -100,6 +112,7 @@ public class HomeFragment extends Fragment {
         spinnerCategory      = view.findViewById(R.id.spinnerCategory);
 
         rvProducts.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        rvProducts.setHasFixedSize(true);
 
         adapter = new ProductAdapter(getContext(), new ArrayList<>(), product -> {
             Intent intent = new Intent(getContext(), ProductDetailActivity.class);
@@ -126,6 +139,13 @@ public class HomeFragment extends Fragment {
         productRepository = new ProductRepository(getContext());
 
         setupSearch();
+        if (getArguments() != null) {
+            String initialQuery = getArguments().getString(ARG_INITIAL_QUERY, "");
+            if (!initialQuery.trim().isEmpty()) {
+                currentSearchQuery = initialQuery.toLowerCase(Locale.ENGLISH).trim();
+                searchViewProducts.setQuery(initialQuery, false);
+            }
+        }
         setupAiActions(view);
         loadProducts();
 
@@ -178,12 +198,13 @@ public class HomeFragment extends Fragment {
                 }
             });
         }, error -> {
+            Log.e(TAG, "Product load failed: " + error);
             if (getActivity() == null) return;
             getActivity().runOnUiThread(() -> {
                 hideAllStates();
                 if (fullProductList.isEmpty()) {
                     // No cached data — show retry
-                    showErrorState("Connection issue. The server may still be waking up.\n" + error);
+                    showErrorState("We could not load the catalog. Check your connection and try again.");
                 } else {
                     // Have cached data already shown — just keep it
                     rvProducts.setVisibility(View.VISIBLE);
@@ -197,7 +218,7 @@ public class HomeFragment extends Fragment {
     // ===========================
 
     private void showLoadingState() {
-        progressProducts.setVisibility(View.VISIBLE);
+        progressProducts.setVisibility(View.GONE);
         layoutLoadingState.setVisibility(View.VISIBLE);
         layoutErrorState.setVisibility(View.GONE);
         layoutEmptyProducts.setVisibility(View.GONE);
@@ -266,7 +287,8 @@ public class HomeFragment extends Fragment {
 
     private String capitalize(String s) {
         if (s == null || s.isEmpty()) return s;
-        return Character.toUpperCase(s.charAt(0)) + s.substring(1).toLowerCase();
+        return Character.toUpperCase(s.charAt(0))
+                + s.substring(1).toLowerCase(Locale.ENGLISH);
     }
 
     // ===========================
@@ -277,14 +299,16 @@ public class HomeFragment extends Fragment {
         searchViewProducts.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                currentSearchQuery = query.toLowerCase().trim();
+                currentSearchQuery = query == null ? ""
+                        : query.toLowerCase(Locale.ENGLISH).trim();
                 applyFilters();
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                currentSearchQuery = newText.toLowerCase().trim();
+                currentSearchQuery = newText == null ? ""
+                        : newText.toLowerCase(Locale.ENGLISH).trim();
                 applyFilters();
                 return false;
             }
@@ -319,9 +343,12 @@ public class HomeFragment extends Fragment {
             boolean matchesSkinType = true;
 
             if (!currentSearchQuery.isEmpty()) {
-                String name = product.getName() != null ? product.getName().toLowerCase() : "";
-                String cat  = product.getCategory() != null ? product.getCategory().toLowerCase() : "";
-                String desc = product.getDescriptionShort() != null ? product.getDescriptionShort().toLowerCase() : "";
+                String name = product.getName() != null
+                        ? product.getName().toLowerCase(Locale.ENGLISH) : "";
+                String cat  = product.getCategory() != null
+                        ? product.getCategory().toLowerCase(Locale.ENGLISH) : "";
+                String desc = product.getDescriptionShort() != null
+                        ? product.getDescriptionShort().toLowerCase(Locale.ENGLISH) : "";
                 matchesSearch = name.contains(currentSearchQuery)
                         || cat.contains(currentSearchQuery)
                         || desc.contains(currentSearchQuery);
@@ -332,13 +359,14 @@ public class HomeFragment extends Fragment {
                 String catSlug = product.getCategorySlug() != null ? product.getCategorySlug() : "";
                 matchesCategory = cat.equalsIgnoreCase(currentCategoryFilter)
                         || catSlug.equalsIgnoreCase(currentCategoryFilter)
-                        || cat.toLowerCase().contains(currentCategoryFilter.toLowerCase());
+                        || cat.toLowerCase(Locale.ENGLISH)
+                        .contains(currentCategoryFilter.toLowerCase(Locale.ENGLISH));
             }
             
             if (!"All".equalsIgnoreCase(currentSkinTypeFilter)) {
                 String skinTarget = product.getSkinTypeTarget() != null ? product.getSkinTypeTarget() : "";
-                String normalized = skinTarget.toLowerCase();
-                String selected = currentSkinTypeFilter.toLowerCase();
+                String normalized = skinTarget.toLowerCase(Locale.ENGLISH);
+                String selected = currentSkinTypeFilter.toLowerCase(Locale.ENGLISH);
                 if ("combination".equals(selected)) {
                     matchesSkinType = normalized.contains("combination") || normalized.contains("combo");
                 } else {

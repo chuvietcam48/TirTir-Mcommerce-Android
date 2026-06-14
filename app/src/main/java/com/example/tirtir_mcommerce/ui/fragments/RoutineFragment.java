@@ -21,6 +21,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
+import com.example.tirtir_mcommerce.MainActivity;
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.Product;
 import com.example.tirtir_mcommerce.repository.ProductRepository;
@@ -76,6 +77,7 @@ public class RoutineFragment extends Fragment {
         private final List<Product> products = new ArrayList<>();
         private boolean productsLoading;
         private boolean isMorning;
+        private View suggestionCard;
 
         static RoutineStepsPageFragment newInstance(boolean morning) {
             RoutineStepsPageFragment fragment = new RoutineStepsPageFragment();
@@ -129,11 +131,17 @@ public class RoutineFragment extends Fragment {
             helper.attachToRecyclerView(list);
 
             TextView suggestion = view.findViewById(R.id.tvRoutineSuggestion);
+            suggestionCard = view.findViewById(R.id.cardRoutineSuggestion);
             suggestion.setText(isMorning
                     ? "Complete your AM protection with an SPF"
                     : "Add a targeted serum for overnight recovery");
             view.findViewById(R.id.btnViewRoutineSuggestion)
-                    .setOnClickListener(v -> openProductPicker(findSuggestedPosition()));
+                    .setOnClickListener(v -> {
+                        if (requireActivity() instanceof MainActivity) {
+                            ((MainActivity) requireActivity())
+                                    .openHomeWithSearch(isMorning ? "sunscreen" : "serum");
+                        }
+                    });
             view.findViewById(R.id.btnAddRoutineStep)
                     .setOnClickListener(v -> openProductPicker(findFirstEmptyPosition()));
             saveButton.setOnClickListener(v -> saveAndShare());
@@ -233,6 +241,12 @@ public class RoutineFragment extends Fragment {
 
         private void refreshActions() {
             saveButton.setEnabled(adapter.selectedCount() > 0);
+            int suggestedPosition = findSuggestedPosition();
+            boolean missingSuggestion = suggestedPosition >= 0
+                    && adapter.get(suggestedPosition).product == null;
+            if (suggestionCard != null) {
+                suggestionCard.setVisibility(missingSuggestion ? View.VISIBLE : View.GONE);
+            }
         }
 
         private void saveAndShare() {
@@ -372,9 +386,7 @@ public class RoutineFragment extends Fragment {
                 warning.setVisibility(step.hasWarning ? View.VISIBLE : View.GONE);
                 if (selected) {
                     String path = step.product.getThumbnailImages();
-                    String url = path == null ? null : path.startsWith("http")
-                            ? path
-                            : "https://tirtir-project.onrender.com/" + path.replaceFirst("^/", "");
+                    String url = com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(path);
                     productImage.setPadding(4, 4, 4, 4);
                     Glide.with(itemView).load(url).fitCenter()
                             .placeholder(R.drawable.ic_product_placeholder)

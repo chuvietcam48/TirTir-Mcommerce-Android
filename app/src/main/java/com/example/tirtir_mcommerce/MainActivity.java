@@ -21,6 +21,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.badge.BadgeDrawable;
 
 public class MainActivity extends AppCompatActivity {
+    private BottomNavigationView bottomNav;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         // ==========================================
         // KHỞI TẠO BOTTOM NAVIGATION
         // ==========================================
-        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigationView);
+        bottomNav = findViewById(R.id.bottomNavigationView);
 
         bottomNav.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
@@ -98,5 +99,14 @@ public class MainActivity extends AppCompatActivity {
                 bottomNav.removeBadge(R.id.nav_cart);
             }
         }
+    }
+
+    public void openHomeWithSearch(String query) {
+        if (bottomNav != null) {
+            bottomNav.setSelectedItemId(R.id.nav_home);
+        }
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragmentContainer, HomeFragment.newInstance(query))
+                .commit();
     }
 }

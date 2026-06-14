@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import retrofit2.Call;
@@ -149,6 +151,32 @@ public class CartRepository {
                     () -> Log.d(TAG, "Auto-synced: " + item.getProductName()),
                     error -> Log.w(TAG, "Auto-sync failed for " + item.getProductId() + ": " + error)
             );
+        }
+    }
+
+    /**
+     * Syncs all pending local items and completes only when the server cart is ready.
+     * Checkout uses this to avoid racing order creation against local-first cart writes.
+     */
+    public void syncPendingToServer(Runnable onComplete, Consumer<String> onError) {
+        List<CartItem> pendingItems = dbHelper.getPendingSyncItems();
+        if (pendingItems == null || pendingItems.isEmpty()) {
+            if (onComplete != null) onComplete.run();
+            return;
+        }
+
+        AtomicInteger remaining = new AtomicInteger(pendingItems.size());
+        AtomicBoolean failed = new AtomicBoolean(false);
+        for (CartItem item : pendingItems) {
+            syncItemToServer(item, () -> {
+                if (remaining.decrementAndGet() == 0 && !failed.get() && onComplete != null) {
+                    onComplete.run();
+                }
+            }, error -> {
+                if (failed.compareAndSet(false, true) && onError != null) {
+                    onError.accept(error);
+                }
+            });
         }
     }
 

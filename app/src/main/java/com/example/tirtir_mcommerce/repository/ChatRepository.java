@@ -1,9 +1,11 @@
 package com.example.tirtir_mcommerce.repository;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.tirtir_mcommerce.model.ApiResponse;
 import com.example.tirtir_mcommerce.network.ApiService;
+import com.example.tirtir_mcommerce.network.ApiConfig;
 import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
 import com.google.gson.JsonArray;
@@ -12,8 +14,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -26,7 +30,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class ChatRepository {
-    private static final String CHAT_URL = "https://tirtir-project.onrender.com/api/v1/chat";
+    private static final String TAG = "ChatRepository";
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     public static class Suggestion {
@@ -76,7 +80,7 @@ public class ChatRepository {
         JsonObject payload = new JsonObject();
         payload.addProperty("message", message);
         Request.Builder request = new Request.Builder()
-                .url(CHAT_URL)
+                .url(ApiConfig.CHAT_URL)
                 .header("Accept", "text/event-stream")
                 .post(RequestBody.create(JSON, payload.toString()));
         String token = prefs.getToken();
@@ -87,13 +91,17 @@ public class ChatRepository {
         client.newCall(request.build()).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                listener.onError("The advisor is temporarily unreachable. Please try again.");
+                Log.e(TAG, "Chat request failed", e);
+                listener.onError(e instanceof SocketTimeoutException
+                        ? "The advisor is taking longer than expected. Please try again."
+                        : "The advisor is temporarily unavailable. You can still browse products and routines.");
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful() || response.body() == null) {
-                    listener.onError("The advisor returned an error (" + response.code() + ").");
+                    Log.e(TAG, "Chat API failed with HTTP " + response.code());
+                    listener.onError("The advisor is temporarily unavailable. Please try again shortly.");
                     response.close();
                     return;
                 }
@@ -130,12 +138,15 @@ public class ChatRepository {
                 JsonObject data = payload.has("data") && payload.get("data").isJsonObject()
                         ? payload.getAsJsonObject("data") : payload;
                 listener.onDone(new ChatResult(
-                        stringValue(data, "message"),
-                        extractSuggestions(data.get("data"))));
+                        safeUserMessage(stringValue(data, "message")),
+                        extractSuggestions(data.has("data") ? data.get("data") : data)));
             } else if ("error".equals(event)) {
-                listener.onError(stringValue(payload, "message"));
+                String technicalMessage = stringValue(payload, "message");
+                Log.e(TAG, "Chat stream error: " + technicalMessage);
+                listener.onError(safeUserMessage(technicalMessage));
             }
         } catch (Exception e) {
+            Log.e(TAG, "Unable to parse chat stream event", e);
             if ("chunk".equals(event)) listener.onChunk(raw);
             else listener.onError("The advisor sent an unreadable response.");
         }
@@ -150,6 +161,8 @@ public class ChatRepository {
             JsonObject object = productData.getAsJsonObject();
             if (object.has("recommendations") && object.get("recommendations").isJsonArray()) {
                 addSuggestions(object.getAsJsonArray("recommendations"), result);
+            } else if (object.has("products") && object.get("products").isJsonArray()) {
+                addSuggestions(object.getAsJsonArray("products"), result);
             } else if (object.has("id") || object.has("_id")) {
                 addSuggestion(object, result);
             }
@@ -174,5 +187,22 @@ public class ChatRepository {
     private String stringValue(JsonObject object, String key) {
         return object != null && object.has(key) && !object.get(key).isJsonNull()
                 ? object.get(key).getAsString() : "";
+    }
+
+    private String safeUserMessage(String message) {
+        if (message == null || message.trim().isEmpty()) {
+            return "The advisor is temporarily unavailable. Please try again shortly.";
+        }
+        String normalized = message.toLowerCase(Locale.ROOT);
+        if (normalized.contains("localhost")
+                || normalized.contains("127.0.0.1")
+                || normalized.contains("10.0.2.2")
+                || normalized.contains(":8002")
+                || normalized.contains("service chưa")
+                || normalized.contains("exception")
+                || normalized.contains("stacktrace")) {
+            return "The advisor is temporarily unavailable. You can still browse products and routines.";
+        }
+        return message.trim();
     }
 }

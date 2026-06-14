@@ -38,8 +38,13 @@ public class ConflictResultActivity extends AppCompatActivity {
         adapter = new ConflictAdapter();
         rvConflicts.setAdapter(adapter);
 
-        bindIngredients(getIntent().getStringArrayListExtra("INGREDIENTS"));
-        bindConflicts(new ArrayList<>());
+        ArrayList<String> ingredients = getIntent().getStringArrayListExtra("INGREDIENTS");
+        bindIngredients(ingredients);
+        bindConflicts(buildKnownConflicts(ingredients));
+        if (getIntent().getBooleanExtra("IS_DEMO_OCR", false)) {
+            tvSummary.setText("Demo scan · Product-specific results will appear when live recognition is available.");
+            tvSummary.setVisibility(View.VISIBLE);
+        }
         bindAddBothAction();
     }
 
@@ -74,5 +79,26 @@ public class ConflictResultActivity extends AppCompatActivity {
         } else {
             tvSummary.setVisibility(View.GONE);
         }
+    }
+
+    private List<ConflictAdapter.IngredientConflict> buildKnownConflicts(List<String> ingredients) {
+        List<ConflictAdapter.IngredientConflict> conflicts = new ArrayList<>();
+        if (containsIngredient(ingredients, "retinol")
+                && containsIngredient(ingredients, "glycolic")) {
+            conflicts.add(new ConflictAdapter.IngredientConflict(
+                    "Retinol",
+                    "Glycolic Acid",
+                    "Using both in the same routine may increase dryness and irritation. Alternate nights or ask a dermatologist.",
+                    "HIGH"));
+        }
+        return conflicts;
+    }
+
+    private boolean containsIngredient(List<String> ingredients, String query) {
+        if (ingredients == null) return false;
+        for (String ingredient : ingredients) {
+            if (ingredient != null && ingredient.toLowerCase().contains(query)) return true;
+        }
+        return false;
     }
 }

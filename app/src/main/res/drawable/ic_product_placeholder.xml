@@ -7,8 +7,8 @@
         </shape>
     </item>
     <item
-        android:width="72dp"
-        android:height="72dp"
+        android:width="52dp"
+        android:height="52dp"
         android:gravity="center"
         android:drawable="@drawable/ic_tirtir_brand_circle" />
 </layer-list>

@@ -66,14 +66,14 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddCushionToCart"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:contentDescription="@string/btn_add_to_cart"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:padding="0dp"
             app:backgroundTint="@color/tirtir_black"
-            app:cornerRadius="22dp"
+            app:cornerRadius="24dp"
             app:icon="@drawable/ic_cart"
             app:iconGravity="textStart"
             app:iconPadding="0dp"
