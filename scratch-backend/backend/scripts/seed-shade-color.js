@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 
 // Load environment variables
-dotenv.config({ path: path.join(__dirname, '../.env') });
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 const Product = require('../models/product.model');
 
@@ -20,7 +20,7 @@ const shadeColors = [
 
 async function seedShadeColor() {
     try {
-        const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/tirtir';
+        const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/tirtir';
         console.log(`Connecting to MongoDB...`);
         await mongoose.connect(mongoUri);
         console.log('MongoDB connected.');

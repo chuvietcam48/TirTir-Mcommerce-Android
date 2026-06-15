@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
 
-dotenv.config({ path: path.join(__dirname, '../.env') });
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 const Product = require('../models/product.model');
 
 // TirTir Milk Blur Tint shades
@@ -17,7 +17,7 @@ const LIPSTICK_SHADES = [
 
 async function seedLipstickShades() {
     try {
-        const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/tirtir';
+        const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/tirtir';
         await mongoose.connect(mongoUri);
         console.log('MongoDB connected.');
 
