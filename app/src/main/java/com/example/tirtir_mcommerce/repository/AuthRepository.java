@@ -71,7 +71,7 @@ public class AuthRepository {
                         if (body.getUser() != null) {
                             prefsManager.saveUser(body.getUser());
                         }
-                        prefsManager.saveToken(body.getToken());
+                        prefsManager.saveSession(body.getToken(), body.getRefreshToken());
                         if (body.getUser() != null) {
                             
                             // Đồng bộ với Firebase/Firestore bất đồng bộ
@@ -138,7 +138,7 @@ public class AuthRepository {
                         prefsManager.saveUser(body.getUser());
                     }
                     if (body.getToken() != null && !body.getToken().isEmpty()) {
-                        prefsManager.saveToken(body.getToken());
+                        prefsManager.saveSession(body.getToken(), body.getRefreshToken());
                     }
                     onSuccess.onSuccess(body.getMessage());
                 } else {

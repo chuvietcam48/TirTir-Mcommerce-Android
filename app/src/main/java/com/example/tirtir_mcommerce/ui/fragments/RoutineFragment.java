@@ -136,9 +136,6 @@ public class RoutineFragment extends Fragment {
             refreshActions();
             fetchRecommendation();
         }
-            preloadProducts();
-            refreshActions();
-        }
 
         private void fetchRecommendation() {
             ApiService api = RetrofitClient.getAuthClient(requireContext()).create(ApiService.class);
@@ -190,9 +187,7 @@ public class RoutineFragment extends Fragment {
                 return;
             }
 
-            RoutineStep step = adapter.get(stepPosition);
-            List<Product> matches = filterForSlot(step.slot);
-            if (matches.isEmpty()) matches = new ArrayList<>(products);
+            List<Product> matches = new ArrayList<>(products);
             List<String> labels = new ArrayList<>();
             for (Product product : matches) {
                 String category = product.getCategory() == null ? "" : " · " + product.getCategory();
@@ -489,7 +484,7 @@ public class RoutineFragment extends Fragment {
             private final TextView name;
             private final TextView slot;
             private final ImageView productImage;
-            private final View drag;
+            private final ImageView drag;
             private final View warning;
 
             StepViewHolder(@NonNull View itemView) {
@@ -506,7 +501,7 @@ public class RoutineFragment extends Fragment {
                 number.setText(String.valueOf(position + 1));
                 slot.setText(step.slot);
                 name.setText(step.product.getName());
-                drag.setImageResource(R.drawable.ic_trash); // repurpose drag icon as delete
+                drag.setImageResource(android.R.drawable.ic_menu_delete);
                 drag.setVisibility(View.VISIBLE);
                 drag.setOnClickListener(v -> listener.onStepClick(getBindingAdapterPosition()));
 

@@ -2,11 +2,13 @@ package com.example.tirtir_mcommerce.network;
 
 import android.net.Uri;
 
+import com.example.tirtir_mcommerce.BuildConfig;
+
 /**
  * Single source of truth for frontend network endpoints and media URL resolution.
  */
 public final class ApiConfig {
-    public static final String BASE_URL = "https://tirtir-project.onrender.com/";
+    public static final String BASE_URL = normalizeBaseUrl(BuildConfig.API_BASE_URL);
     public static final String CHAT_URL = BASE_URL + "api/v1/chat";
 
     private static final String[] LOCAL_BACKEND_PREFIXES = {
@@ -16,6 +18,14 @@ public final class ApiConfig {
     };
 
     private ApiConfig() {}
+
+    private static String normalizeBaseUrl(String url) {
+        if (url == null || url.trim().isEmpty()) {
+            return "https://tirtir-project.onrender.com/";
+        }
+        String trimmed = url.trim();
+        return trimmed.endsWith("/") ? trimmed : trimmed + "/";
+    }
 
     public static String resolveMediaUrl(String path) {
         if (path == null || path.trim().isEmpty()) return "";

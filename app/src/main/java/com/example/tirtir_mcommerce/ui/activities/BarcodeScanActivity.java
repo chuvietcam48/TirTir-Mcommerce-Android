@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@androidx.camera.core.ExperimentalGetImage
 public class BarcodeScanActivity extends AppCompatActivity {
     private static final int REQUEST_CAMERA = 10;
     private PreviewView previewView;
@@ -83,7 +84,6 @@ public class BarcodeScanActivity extends AppCompatActivity {
         }, ContextCompat.getMainExecutor(this));
     }
 
-    @androidx.camera.core.ExperimentalGetImage
     private void processImageProxy(ImageProxy imageProxy) {
         if (!isScanning || imageProxy.getImage() == null) {
             imageProxy.close();

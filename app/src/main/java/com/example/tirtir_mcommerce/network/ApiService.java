@@ -2,6 +2,8 @@ package com.example.tirtir_mcommerce.network;
 
 import com.example.tirtir_mcommerce.model.Address;
 import com.example.tirtir_mcommerce.model.ApiResponse;
+import com.example.tirtir_mcommerce.model.ArbitrateOrderRequest;
+import com.example.tirtir_mcommerce.model.ArbitrateOrderResponse;
 import com.example.tirtir_mcommerce.model.CartItem;
 import com.example.tirtir_mcommerce.model.CreateOrderRequest;
 import com.example.tirtir_mcommerce.model.CreateOrderResponse;
@@ -12,6 +14,8 @@ import com.example.tirtir_mcommerce.model.Product;
 import com.example.tirtir_mcommerce.model.ProductResponse;
 import com.example.tirtir_mcommerce.model.RegisterRequest;
 import com.example.tirtir_mcommerce.model.RegisterResponse;
+import com.example.tirtir_mcommerce.model.RefreshTokenRequest;
+import com.example.tirtir_mcommerce.model.RefreshTokenResponse;
 import com.example.tirtir_mcommerce.model.User;
 import com.example.tirtir_mcommerce.model.FcmTokenRequest;
 
@@ -58,6 +62,9 @@ public interface ApiService {
      */
     @POST("api/v1/auth/register")
     Call<RegisterResponse> registerUser(@Body RegisterRequest request);
+
+    @POST("api/v1/auth/refresh-token")
+    Call<RefreshTokenResponse> refreshToken(@Body RefreshTokenRequest request);
 
     @POST("api/v1/auth/forgot-password")
     Call<ApiResponse<Void>> forgotPassword(@Body Map<String, String> body);

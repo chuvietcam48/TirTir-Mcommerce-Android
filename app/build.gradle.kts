@@ -4,6 +4,11 @@ plugins {
 
 }
 
+val tirtirApiBaseUrl = providers.gradleProperty("TIRTIR_API_BASE_URL")
+    .orElse("https://tirtir-project.onrender.com/")
+    .map { url -> if (url.endsWith("/")) url else "$url/" }
+    .get()
+
 android {
     namespace = "com.example.tirtir_mcommerce"
     compileSdk = 36
@@ -15,6 +20,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "API_BASE_URL", "\"$tirtirApiBaseUrl\"")
     }
 
     buildTypes {
@@ -29,6 +35,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+    buildFeatures {
+        buildConfig = true
     }
 }
 

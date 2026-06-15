@@ -27,7 +27,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(R.drawable.ic_bell)
+                .setSmallIcon(R.drawable.ic_routine)
                 .setContentTitle("It's Skincare Time! ✨")
                 .setContentText("Don't forget to do your daily skincare routine for glowing skin!")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)

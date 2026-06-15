@@ -20,6 +20,7 @@ public class SharedPrefsManager {
 
     private static final String PREF_NAME = "tirtir_prefs";
     private static final String KEY_TOKEN = "jwt_token";
+    private static final String KEY_REFRESH_TOKEN = "refresh_token";
     private static final String KEY_USER = "cached_user";
     private static final String KEY_LANGUAGE = "app_language";
     private static final String KEY_FCM_TOKEN = "fcm_token";
@@ -46,13 +47,31 @@ public class SharedPrefsManager {
                 .apply();
     }
 
+    public void saveSession(String token, String refreshToken) {
+        SharedPreferences.Editor editor = sharedPreferences.edit()
+                .putString(KEY_TOKEN, token)
+                .putLong(KEY_LOGIN_AT, System.currentTimeMillis());
+        if (refreshToken != null && !refreshToken.trim().isEmpty()) {
+            editor.putString(KEY_REFRESH_TOKEN, refreshToken);
+        }
+        editor.apply();
+    }
+
     public String getToken() {
         return sharedPreferences.getString(KEY_TOKEN, null);
     }
 
+    public String getRefreshToken() {
+        return sharedPreferences.getString(KEY_REFRESH_TOKEN, null);
+    }
+
     public boolean isLoggedIn() {
         String token = getToken();
-        if (token == null || token.isEmpty()) return false;
+        String refreshToken = getRefreshToken();
+        if ((token == null || token.isEmpty())
+                && (refreshToken == null || refreshToken.isEmpty())) {
+            return false;
+        }
 
         long loginAt = sharedPreferences.getLong(KEY_LOGIN_AT, 0L);
         if (loginAt == 0L) return true;
@@ -64,7 +83,7 @@ public class SharedPrefsManager {
                 : 30L * 24L * 60L * 60L * 1000L;
         if (System.currentTimeMillis() - loginAt <= maxAge) return true;
 
-        clear();
+        clearAuthSession();
         return false;
     }
 
@@ -135,9 +154,19 @@ public class SharedPrefsManager {
     // ===========================
 
     /**
-     * Xóa toàn bộ dữ liệu khi đăng xuất.
+     * Clears authentication data without resetting onboarding, language, or preferences.
      */
+    public void clearAuthSession() {
+        sharedPreferences.edit()
+                .remove(KEY_TOKEN)
+                .remove(KEY_REFRESH_TOKEN)
+                .remove(KEY_USER)
+                .remove(KEY_LOGIN_AT)
+                .remove(KEY_FIREBASE_UID)
+                .apply();
+    }
+
     public void clear() {
-        sharedPreferences.edit().clear().apply();
+        clearAuthSession();
     }
 }
