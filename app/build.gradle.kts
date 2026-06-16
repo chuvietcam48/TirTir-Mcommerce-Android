@@ -80,6 +80,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-ads:23.6.0")
     implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation("com.google.mlkit:barcode-scanning:17.3.0")
+    implementation("com.google.mlkit:face-detection:16.1.7")
+    implementation("androidx.camera:camera-mlkit-vision:1.4.2")
 
     // Testing
     testImplementation(libs.junit)
