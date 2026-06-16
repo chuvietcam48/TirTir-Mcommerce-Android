@@ -169,4 +169,25 @@ public class SharedPrefsManager {
     public void clear() {
         clearAuthSession();
     }
+
+    // ===========================
+    // SKIN PROFILE OFFLINE SYNC
+    // ===========================
+
+    private static final String KEY_PENDING_SKIN_SYNC = "pending_skin_profile_sync";
+
+    /**
+     * Kiểm tra xem có hồ sơ da chưa sync sau khi user đăng nhập không.
+     * Được set khi guest user hoàn thành phân tích da.
+     */
+    public boolean hasPendingSkinProfileSync() {
+        return sharedPreferences.getBoolean(KEY_PENDING_SKIN_SYNC, false);
+    }
+
+    /**
+     * Đặt cờ "cần sync skin profile lên server" sau khi user đăng nhập.
+     */
+    public void setPendingSkinProfileSync(boolean pending) {
+        sharedPreferences.edit().putBoolean(KEY_PENDING_SKIN_SYNC, pending).apply();
+    }
 }

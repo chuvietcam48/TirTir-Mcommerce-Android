@@ -8,7 +8,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.tirtir_mcommerce.model.CartItem;
 import com.example.tirtir_mcommerce.model.Product;
+import com.example.tirtir_mcommerce.model.RoutineStep;
+import com.example.tirtir_mcommerce.model.ShadeMatchResult;
+import com.example.tirtir_mcommerce.model.SkinAnalysisResult;
+import com.example.tirtir_mcommerce.model.SkinProfile;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +23,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "tirtir_cache.db";
     // v4: thêm bảng cart_items cho Offline Cart
-    private static final int DATABASE_VERSION = 4;
+    // v5: thêm bảng skin_profiles cho Offline Skin Analysis (Phase 3)
+    private static final int DATABASE_VERSION = 5;
+
+    private static final Gson GSON = new Gson();
 
     // === products table ===
     private static final String TABLE_PRODUCT = "products";
@@ -45,6 +55,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // === ingredient_conflicts FTS4 table ===
     public static final String TABLE_INGREDIENT_CONFLICTS = "ingredient_conflicts";
+
+    // === skin_profiles table ===
+    public static final String TABLE_SKIN_PROFILES = "skin_profiles";
+    public static final String SP_COL_ID = "id";
+    public static final String SP_COL_USER_ID = "user_id";
+    public static final String SP_COL_SKIN_TONE = "skin_tone";
+    public static final String SP_COL_UNDERTONE = "undertone";
+    public static final String SP_COL_SKIN_TYPE = "skin_type";
+    public static final String SP_COL_CONCERNS = "concerns";
+    public static final String SP_COL_CONFIDENCE = "confidence";
+    public static final String SP_COL_SKIN_HEX = "skin_hex";
+    public static final String SP_COL_SHADE_RESULTS = "shade_results";
+    public static final String SP_COL_ROUTINE_STEPS = "routine_steps";
+    public static final String SP_COL_TIMESTAMP = "timestamp";
+    public static final String SP_COL_SYNCED = "synced";
 
     private static DatabaseHelper instance;
 
@@ -77,6 +102,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         createIngredientConflictsTable(db);
         createCartTable(db);
+        createSkinProfilesTable(db);
     }
 
     private void createCartTable(SQLiteDatabase db) {
@@ -117,6 +143,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("INSERT INTO " + TABLE_INGREDIENT_CONFLICTS + " (ingredient_a, ingredient_b, reason, severity) VALUES ('Vitamin C', 'Retinol', 'Tác động mạnh làm mỏng màng bảo vệ da', 'HIGH')");
     }
 
+    private void createSkinProfilesTable(SQLiteDatabase db) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS " + TABLE_SKIN_PROFILES + " (" +
+            SP_COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            SP_COL_USER_ID + " TEXT, " +
+            SP_COL_SKIN_TONE + " TEXT, " +
+            SP_COL_UNDERTONE + " TEXT, " +
+            SP_COL_SKIN_TYPE + " TEXT, " +
+            SP_COL_CONCERNS + " TEXT, " +
+            SP_COL_CONFIDENCE + " REAL DEFAULT 0, " +
+            SP_COL_SKIN_HEX + " TEXT, " +
+            SP_COL_SHADE_RESULTS + " TEXT, " +
+            SP_COL_ROUTINE_STEPS + " TEXT, " +
+            SP_COL_TIMESTAMP + " INTEGER, " +
+            SP_COL_SYNCED + " INTEGER DEFAULT 0" +
+            ")"
+        );
+    }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion < 3) {
@@ -126,6 +171,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion < 4) {
             // Sprint 1.2: Thêm bảng giỏ hàng offline
             createCartTable(db);
+        }
+        if (oldVersion < 5) {
+            // Phase 3 Sprint 3.1: Thêm bảng skin_profiles cho offline skin analysis
+            createSkinProfilesTable(db);
         }
     }
 
@@ -331,5 +380,127 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) count = cursor.getInt(0);
         cursor.close();
         return count;
+    }
+
+    // ===========================
+    // SKIN PROFILES (Offline Skin Analysis)
+    // ===========================
+
+    /**
+     * Lưu kết quả phân tích da vào SQLite.
+     * Dùng khi user chưa đăng nhập (guest mode).
+     * @return row ID vừa insert, hoặc -1 nếu lỗi
+     */
+    public long saveSkinProfile(SkinProfile profile) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        SkinAnalysisResult result = profile.getAnalysisResult();
+
+        ContentValues values = new ContentValues();
+        values.put(SP_COL_USER_ID, profile.getUserId());
+        values.put(SP_COL_SKIN_TONE, result != null ? result.getSkinTone() : null);
+        values.put(SP_COL_UNDERTONE, result != null ? result.getUndertone() : null);
+        values.put(SP_COL_SKIN_TYPE, result != null ? result.getSkinType() : null);
+        values.put(SP_COL_CONCERNS, result != null ? GSON.toJson(result.getConcerns()) : null);
+        values.put(SP_COL_CONFIDENCE, result != null ? result.getConfidence() : 0);
+        values.put(SP_COL_SKIN_HEX, result != null ? result.getSkinHex() : null);
+        values.put(SP_COL_SHADE_RESULTS, GSON.toJson(profile.getShadeMatches()));
+        values.put(SP_COL_ROUTINE_STEPS, GSON.toJson(profile.getRoutineSteps()));
+        values.put(SP_COL_TIMESTAMP, profile.getTimestamp());
+        values.put(SP_COL_SYNCED, 0);
+
+        return db.insert(TABLE_SKIN_PROFILES, null, values);
+    }
+
+    /**
+     * Lấy hồ sơ da mới nhất từ SQLite.
+     * @return SkinProfile mới nhất, hoặc null nếu chưa có
+     */
+    public SkinProfile getLatestSkinProfile() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+            TABLE_SKIN_PROFILES, null, null, null, null, null,
+            SP_COL_TIMESTAMP + " DESC", "1"
+        );
+
+        if (cursor == null || !cursor.moveToFirst()) {
+            if (cursor != null) cursor.close();
+            return null;
+        }
+
+        try {
+            SkinAnalysisResult result = new SkinAnalysisResult();
+            result.setSkinTone(cursor.getString(cursor.getColumnIndexOrThrow(SP_COL_SKIN_TONE)));
+            result.setUndertone(cursor.getString(cursor.getColumnIndexOrThrow(SP_COL_UNDERTONE)));
+            result.setSkinType(cursor.getString(cursor.getColumnIndexOrThrow(SP_COL_SKIN_TYPE)));
+            result.setConfidence(cursor.getDouble(cursor.getColumnIndexOrThrow(SP_COL_CONFIDENCE)));
+            result.setSkinHex(cursor.getString(cursor.getColumnIndexOrThrow(SP_COL_SKIN_HEX)));
+
+            String concernsJson = cursor.getString(cursor.getColumnIndexOrThrow(SP_COL_CONCERNS));
+            if (concernsJson != null) {
+                Type listType = new TypeToken<List<String>>() {}.getType();
+                result.setConcerns(GSON.fromJson(concernsJson, listType));
+            }
+
+            String shadeJson = cursor.getString(cursor.getColumnIndexOrThrow(SP_COL_SHADE_RESULTS));
+            Type shadeListType = new TypeToken<List<ShadeMatchResult>>() {}.getType();
+            List<ShadeMatchResult> shadeMatches = shadeJson != null
+                ? GSON.fromJson(shadeJson, shadeListType) : new ArrayList<>();
+
+            String routineJson = cursor.getString(cursor.getColumnIndexOrThrow(SP_COL_ROUTINE_STEPS));
+            Type routineListType = new TypeToken<List<RoutineStep>>() {}.getType();
+            List<RoutineStep> routineSteps = routineJson != null
+                ? GSON.fromJson(routineJson, routineListType) : new ArrayList<>();
+
+            SkinProfile profile = new SkinProfile(
+                cursor.getString(cursor.getColumnIndexOrThrow(SP_COL_USER_ID)),
+                result, shadeMatches, routineSteps
+            );
+            profile.setId(cursor.getLong(cursor.getColumnIndexOrThrow(SP_COL_ID)));
+            profile.setSynced(cursor.getInt(cursor.getColumnIndexOrThrow(SP_COL_SYNCED)) == 1);
+            return profile;
+        } finally {
+            cursor.close();
+        }
+    }
+
+    /**
+     * Đánh dấu hồ sơ da đã sync lên server.
+     */
+    public void markProfileSynced(long profileId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(SP_COL_SYNCED, 1);
+        db.update(TABLE_SKIN_PROFILES, values, SP_COL_ID + "=?",
+            new String[]{String.valueOf(profileId)});
+    }
+
+    /**
+     * Lấy tất cả hồ sơ chưa sync (guest profiles).
+     */
+    public List<SkinProfile> getUnsyncedProfiles() {
+        List<SkinProfile> profiles = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+            TABLE_SKIN_PROFILES, null,
+            SP_COL_SYNCED + "=0", null, null, null,
+            SP_COL_TIMESTAMP + " DESC"
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                SkinAnalysisResult result = new SkinAnalysisResult();
+                result.setSkinTone(cursor.getString(cursor.getColumnIndexOrThrow(SP_COL_SKIN_TONE)));
+                result.setUndertone(cursor.getString(cursor.getColumnIndexOrThrow(SP_COL_UNDERTONE)));
+                result.setSkinType(cursor.getString(cursor.getColumnIndexOrThrow(SP_COL_SKIN_TYPE)));
+                result.setConfidence(cursor.getDouble(cursor.getColumnIndexOrThrow(SP_COL_CONFIDENCE)));
+                result.setSkinHex(cursor.getString(cursor.getColumnIndexOrThrow(SP_COL_SKIN_HEX)));
+
+                SkinProfile profile = new SkinProfile(null, result, new ArrayList<>(), new ArrayList<>());
+                profile.setId(cursor.getLong(cursor.getColumnIndexOrThrow(SP_COL_ID)));
+                profiles.add(profile);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return profiles;
     }
 }

@@ -24,4 +24,11 @@ public class PriceUtils {
     public static String formatPriceVnd(double normalizedPrice) {
         return currencyFormat.format(normalizedPrice) + " đ";
     }
+
+    /**
+     * Alias of formatPriceVnd — normalizes then formats.
+     */
+    public static String formatVnd(double rawPrice) {
+        return formatPriceVnd(normalizePrice(rawPrice));
+    }
 }

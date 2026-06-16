@@ -16,6 +16,9 @@ import com.example.tirtir_mcommerce.model.RegisterRequest;
 import com.example.tirtir_mcommerce.model.RegisterResponse;
 import com.example.tirtir_mcommerce.model.RefreshTokenRequest;
 import com.example.tirtir_mcommerce.model.RefreshTokenResponse;
+import com.example.tirtir_mcommerce.model.RoutineRecommendRequest;
+import com.example.tirtir_mcommerce.model.ShadeMatchRequest;
+import com.example.tirtir_mcommerce.model.ShadeMatchResult;
 import com.example.tirtir_mcommerce.model.User;
 import com.example.tirtir_mcommerce.model.FcmTokenRequest;
 
@@ -150,6 +153,22 @@ public interface ApiService {
 
     @POST("api/v1/ai/analyze-face")
     Call<ApiResponse<Map<String, Object>>> analyzeSkin(@Body Map<String, String> body);
+
+    /**
+     * Tìm sản phẩm nền phù hợp theo màu da - POST /api/v1/shades/match
+     * Body: { r, g, b, skinType }
+     * Response: danh sách sản phẩm + matchScore (Delta-E distance)
+     */
+    @POST("api/v1/shades/match")
+    Call<ApiResponse<List<ShadeMatchResult>>> matchShade(@Body ShadeMatchRequest request);
+
+    /**
+     * Giao đề xuất chu trình dưỡng da - POST /api/ai/recommend-routine
+     * Body: { skinType, skinTone, undertone, concerns[], shadeMatchProduct }
+     * Response: danh sách các bước skincare AI đề xuất
+     */
+    @POST("api/ai/recommend-routine")
+    Call<ApiResponse<Map<String, Object>>> recommendRoutine(@Body RoutineRecommendRequest request);
 
     @POST("api/v1/routines/save")
     Call<ApiResponse<Map<String, Object>>> saveRoutine(@Body Map<String, Object> body);

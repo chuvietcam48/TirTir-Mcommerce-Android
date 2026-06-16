@@ -6,10 +6,11 @@
     android:background="@color/tirtir_off_white">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarSkinResult"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/tirtir_white"
-        app:elevation="0dp">
+        app:elevation="2dp">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbarSkinResult"
@@ -18,215 +19,68 @@
             app:navigationIcon="@android:drawable/ic_media_previous"
             app:title="Skin Analysis Result"
             app:titleTextColor="@color/tirtir_black" />
-    </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <LinearLayout
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayoutSkinResult"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            app:tabGravity="fill"
+            app:tabIndicatorColor="@color/tirtir_red_primary"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="@color/tirtir_red_primary"
+            app:tabTextColor="@color/tirtir_text_secondary" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPagerSkinResult"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <!-- Loading Overlay -->
+    <FrameLayout
+        android:id="@+id/loadingOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#CC000000"
+        android:clickable="true"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottieLoading"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/typing_dots"
+                app:lottie_fallbackRes="@android:color/transparent" />
 
             <TextView
-                android:id="@+id/tvSkinDemoBanner"
-                android:layout_width="match_parent"
+                android:id="@+id/tvLoadingStatus"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:background="@drawable/bg_camera_panel"
-                android:gravity="center"
-                android:padding="12dp"
-                android:text="Demo analysis · Personal results will appear when live analysis is available."
+                android:layout_marginTop="16dp"
+                android:text="Analyzing your skin..."
                 android:textColor="@color/tirtir_white"
-                android:textSize="13sp"
-                android:visibility="gone" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/tirtir_white"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="16dp">
-
-                    <View
-                        android:id="@+id/viewSkinToneSwatch"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:background="@drawable/bg_shade_swatch" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="14dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Skin tone"
-                            android:textColor="@color/tirtir_black"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/tvSkinToneMeta"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="Skin analysis details"
-                            android:textColor="@color/tirtir_text_secondary"
-                            android:textSize="13sp" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="horizontal">
-
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="0dp"
-                    android:layout_height="140dp"
-                    android:layout_marginEnd="6dp"
-                    android:layout_weight="1"
-                    app:cardBackgroundColor="@color/tirtir_white"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <com.google.android.material.progressindicator.CircularProgressIndicator
-                            android:id="@+id/progressTexture"
-                            android:layout_width="56dp"
-                            android:layout_height="56dp"
-                            app:indicatorColor="@color/tirtir_red_primary"
-                            app:trackColor="@color/tirtir_red_surface"
-                            app:trackThickness="6dp" />
-
-                        <TextView
-                            android:id="@+id/tvTextureScore"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Texture"
-                            android:textColor="@color/tirtir_black"
-                            android:textSize="13sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="0dp"
-                    android:layout_height="140dp"
-                    android:layout_marginHorizontal="6dp"
-                    android:layout_weight="1"
-                    app:cardBackgroundColor="@color/tirtir_white"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <com.google.android.material.progressindicator.CircularProgressIndicator
-                            android:id="@+id/progressPores"
-                            android:layout_width="56dp"
-                            android:layout_height="56dp"
-                            app:indicatorColor="@color/tirtir_warning"
-                            app:trackColor="@color/tirtir_off_white"
-                            app:trackThickness="6dp" />
-
-                        <TextView
-                            android:id="@+id/tvPoresScore"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Pores"
-                            android:textColor="@color/tirtir_black"
-                            android:textSize="13sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="0dp"
-                    android:layout_height="140dp"
-                    android:layout_marginStart="6dp"
-                    android:layout_weight="1"
-                    app:cardBackgroundColor="@color/tirtir_white"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <com.google.android.material.progressindicator.CircularProgressIndicator
-                            android:id="@+id/progressHydration"
-                            android:layout_width="56dp"
-                            android:layout_height="56dp"
-                            app:indicatorColor="@color/tirtir_info"
-                            app:trackColor="@color/tirtir_off_white"
-                            app:trackThickness="6dp" />
-
-                        <TextView
-                            android:id="@+id/tvHydrationScore"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Hydration"
-                            android:textColor="@color/tirtir_black"
-                            android:textSize="13sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:text="Cushion match"
-                android:textColor="@color/tirtir_black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvCushionMatches"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:nestedScrollingEnabled="false" />
-
             <TextView
-                android:id="@+id/tvCushionEmpty"
-                android:layout_width="match_parent"
+                android:id="@+id/tvLoadingSubStatus"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingVertical="24dp"
-                android:text="No matching cushions are available right now."
-                android:textColor="@color/tirtir_text_secondary"
-                android:textSize="14sp" />
+                android:layout_marginTop="6dp"
+                android:text="Please wait, AI is processing"
+                android:textColor="#BBFFFFFF"
+                android:textSize="13sp" />
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+    </FrameLayout>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
