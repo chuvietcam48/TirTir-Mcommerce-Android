@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
@@ -31,7 +32,7 @@
                 android:textStyle="bold"
                 android:textColor="@color/tirtir_text_primary"
                 android:textSize="15sp"
-                android:text="Recipient name" />
+                tools:text="Recipient name" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/tvAddressLabel"
@@ -62,7 +63,7 @@
             android:textColor="@color/tirtir_text_secondary"
             android:textSize="13sp"
             android:layout_marginBottom="4dp"
-            android:text="0901234567" />
+            tools:text="0901234567" />
 
         <!-- Row 3: Address detail -->
         <TextView
@@ -72,7 +73,7 @@
             android:textColor="@color/tirtir_text_secondary"
             android:textSize="13sp"
             android:maxLines="2"
-            android:text="Shipping address" />
+            tools:text="Shipping address" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

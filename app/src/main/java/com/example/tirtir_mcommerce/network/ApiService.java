@@ -63,7 +63,7 @@ public interface ApiService {
     @POST("api/v1/auth/register")
     Call<RegisterResponse> registerUser(@Body RegisterRequest request);
 
-    @POST("api/v1/auth/refresh-token")
+    @POST("api/v1/auth/refresh")
     Call<RefreshTokenResponse> refreshToken(@Body RefreshTokenRequest request);
 
     @POST("api/v1/auth/forgot-password")
@@ -230,7 +230,7 @@ public interface ApiService {
     @GET("api/v1/admin/orders")
     Call<List<Map<String, Object>>> getAdminOrders(@Query("limit") int limit);
 
-    @PATCH("api/v1/admin/orders/{id}/status")
+    @PATCH("api/v1/orders/{id}/status")
     Call<Map<String, Object>> updateAdminOrderStatus(
             @Path("id") String orderId,
             @Body Map<String, String> body);

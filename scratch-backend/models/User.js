@@ -54,6 +54,17 @@ userSchema.methods.comparePassword = async function (candidate) {
 
 // Returns fields matching User.java SerializedName annotations exactly
 userSchema.methods.toClientJSON = function () {
+  const mappedAddresses = this.addresses.map(addr => ({
+    _id: addr._id,
+    fullName: addr.recipientName,
+    phone: addr.phone,
+    street: addr.street,
+    ward: addr.ward,
+    district: addr.district,
+    city: addr.province,
+    isDefault: addr.isDefault
+  }));
+
   return {
     _id: this._id,
     name: `${this.firstName} ${this.lastName}`.trim(),
@@ -64,7 +75,7 @@ userSchema.methods.toClientJSON = function () {
     isEmailVerified: this.isEmailVerified,
     gender: this.gender,
     birthDate: this.birthDate,
-    addresses: this.addresses,
+    addresses: mappedAddresses,
   };
 };
 

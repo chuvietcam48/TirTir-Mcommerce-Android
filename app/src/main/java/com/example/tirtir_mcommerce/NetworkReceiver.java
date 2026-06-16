@@ -8,7 +8,8 @@ import android.net.NetworkCapabilities;
 import android.os.Build;
 import android.util.Log;
 
-import com.example.tirtir_mcommerce.repository.CartRepository;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 /**
  * NetworkReceiver — BroadcastReceiver theo dõi kết nối mạng.
@@ -29,12 +30,10 @@ public class NetworkReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
             if (isNetworkAvailable(context)) {
-                Log.d(TAG, "Network restored — starting pending cart sync");
-                // Sync các pending cart items lên server trên background thread
-                new Thread(() -> {
-                    CartRepository cartRepository = new CartRepository(context);
-                    cartRepository.syncPendingToServer();
-                }).start();
+                Log.d(TAG, "Network restored — enqueueing CartSyncWorker");
+                // Thay thế luồng new Thread() bằng WorkManager
+                OneTimeWorkRequest syncRequest = new OneTimeWorkRequest.Builder(CartSyncWorker.class).build();
+                WorkManager.getInstance(context).enqueue(syncRequest);
             } else {
                 Log.d(TAG, "Network lost");
             }

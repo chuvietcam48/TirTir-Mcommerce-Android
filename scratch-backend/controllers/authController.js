@@ -20,8 +20,6 @@ const hashToken = (token) =>
   crypto.createHash('sha256').update(token).digest('hex');
 
 // POST /api/v1/auth/register
-// Body: { firstName, lastName, email, password }
-// Response: ApiResponse<Void> { success, message }
 exports.register = async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
 
@@ -37,8 +35,36 @@ exports.register = async (req, res) => {
     return res.status(409).json({ success: false, message: 'Email đã được sử dụng.' });
   }
 
-  await User.create({ firstName, lastName, email, password });
-  res.status(201).json({ success: true, message: 'Đăng ký thành công. Vui lòng đăng nhập.' });
+  const user = await User.create({ firstName, lastName, email, password });
+
+  try {
+    const admin = require('firebase-admin');
+    const uid = user._id.toString();
+    await admin.firestore().collection('users').doc(uid).set({
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role || 'user',
+      skinType: user.skinType || 'unknown',
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (error) {
+    console.error("Lỗi đồng bộ Firestore khi đăng ký:", error);
+  }
+
+  const token = signAccessToken(user._id, user.role);
+  const refreshToken = signRefreshToken(user._id);
+
+  user.refreshTokenHash = hashToken(refreshToken);
+  await user.save({ validateBeforeSave: false });
+
+  res.status(201).json({ 
+    success: true, 
+    message: 'Đăng ký thành công.', 
+    token, 
+    refreshToken, 
+    user: user.toClientJSON() 
+  });
 };
 
 // POST /api/v1/auth/login
@@ -113,4 +139,27 @@ exports.refreshToken = async (req, res) => {
   }
 
   res.status(200).json({ success: true, token: signAccessToken(user._id, user.role) });
+};
+
+// POST /api/v1/auth/forgot-password
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ success: false, message: 'Vui lòng cung cấp email.' });
+  }
+
+  const user = await User.findOne({ email: email.toLowerCase() });
+  if (!user) {
+    return res.status(200).json({ success: true, message: 'Nếu email tồn tại, hệ thống đã gửi link đặt lại mật khẩu.' });
+  }
+
+  try {
+    const admin = require('firebase-admin');
+    const resetLink = await admin.auth().generatePasswordResetLink(email);
+    console.log(`[DEBUG] Password reset link cho ${email}:`, resetLink);
+    res.status(200).json({ success: true, message: 'Hướng dẫn đặt lại mật khẩu đã được gửi đến email của bạn.' });
+  } catch (error) {
+    console.error('Lỗi generatePasswordResetLink:', error);
+    res.status(500).json({ success: false, message: 'Lỗi server nội bộ khi tạo link reset.' });
+  }
 };
