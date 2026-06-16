@@ -69,6 +69,12 @@ public interface ApiService {
     @POST("api/v1/auth/forgot-password")
     Call<ApiResponse<Void>> forgotPassword(@Body Map<String, String> body);
 
+    @POST("api/v1/auth/verify-otp")
+    Call<ApiResponse<String>> verifyOTP(@Body Map<String, String> body);
+
+    @POST("api/v1/auth/reset-password")
+    Call<ApiResponse<Void>> resetPassword(@Body Map<String, String> body);
+
     /**
      * Đăng xuất - POST /api/v1/auth/logout
      * Yêu cầu token (Bearer), xóa refreshToken trong DB

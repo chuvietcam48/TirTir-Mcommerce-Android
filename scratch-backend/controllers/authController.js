@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const User = require('../models/User');
+const sendEmail = require('../utils/sendEmail');
 
 const signAccessToken = (userId, role) => {
   const expiresIn =
@@ -150,16 +151,88 @@ exports.forgotPassword = async (req, res) => {
 
   const user = await User.findOne({ email: email.toLowerCase() });
   if (!user) {
-    return res.status(200).json({ success: true, message: 'Nếu email tồn tại, hệ thống đã gửi link đặt lại mật khẩu.' });
+    return res.status(200).json({ success: true, message: 'Nếu email tồn tại, hệ thống đã gửi mã xác nhận.' });
   }
 
   try {
-    const admin = require('firebase-admin');
-    const resetLink = await admin.auth().generatePasswordResetLink(email);
-    console.log(`[DEBUG] Password reset link cho ${email}:`, resetLink);
-    res.status(200).json({ success: true, message: 'Hướng dẫn đặt lại mật khẩu đã được gửi đến email của bạn.' });
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    user.resetPasswordOTP = await bcrypt.hash(otp, 12);
+    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await user.save({ validateBeforeSave: false });
+
+    const message = `Mã xác nhận (OTP) để đặt lại mật khẩu của bạn là: ${otp}\n\nMã này sẽ hết hạn trong vòng 10 phút.`;
+    await sendEmail({
+      email: user.email,
+      subject: 'Mã xác nhận đặt lại mật khẩu - TirTir',
+      message
+    });
+
+    res.status(200).json({ success: true, message: 'Mã xác nhận đã được gửi đến email của bạn.' });
   } catch (error) {
-    console.error('Lỗi generatePasswordResetLink:', error);
-    res.status(500).json({ success: false, message: 'Lỗi server nội bộ khi tạo link reset.' });
+    console.error('Lỗi gửi email OTP:', error);
+    user.resetPasswordOTP = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+    res.status(500).json({ success: false, message: 'Lỗi server khi gửi email.' });
   }
+};
+
+// POST /api/v1/auth/verify-otp
+exports.verifyOTP = async (req, res) => {
+  const { email, otp } = req.body;
+  if (!email || !otp) {
+    return res.status(400).json({ success: false, message: 'Vui lòng cung cấp email và mã OTP.' });
+  }
+
+  const user = await User.findOne({ 
+    email: email.toLowerCase(),
+    resetPasswordExpires: { $gt: Date.now() }
+  }).select('+resetPasswordOTP');
+
+  if (!user || !user.resetPasswordOTP) {
+    return res.status(400).json({ success: false, message: 'Mã OTP không hợp lệ hoặc đã hết hạn.' });
+  }
+
+  const isMatch = await bcrypt.compare(otp, user.resetPasswordOTP);
+  if (!isMatch) {
+    return res.status(400).json({ success: false, message: 'Mã OTP không chính xác.' });
+  }
+
+  // OTP hop le, tao resetToken
+  const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '10m' });
+  
+  user.resetPasswordOTP = undefined;
+  await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({ success: true, message: 'Xác thực OTP thành công.', data: resetToken });
+};
+
+// POST /api/v1/auth/reset-password
+exports.resetPassword = async (req, res) => {
+  const { email, resetToken, newPassword } = req.body;
+  if (!email || !resetToken || !newPassword) {
+    return res.status(400).json({ success: false, message: 'Vui lòng cung cấp đầy đủ thông tin.' });
+  }
+
+  let decoded;
+  try {
+    decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+  } catch (err) {
+    return res.status(401).json({ success: false, message: 'Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.' });
+  }
+
+  const user = await User.findOne({ _id: decoded.id, email: email.toLowerCase() }).select('+resetPasswordExpires');
+  if (!user) {
+    return res.status(400).json({ success: false, message: 'Tài khoản không tồn tại.' });
+  }
+
+  if (newPassword.length < 8) {
+    return res.status(400).json({ success: false, message: 'Mật khẩu phải có ít nhất 8 ký tự.' });
+  }
+
+  user.password = newPassword;
+  user.resetPasswordExpires = undefined;
+  await user.save();
+
+  res.status(200).json({ success: true, message: 'Đặt lại mật khẩu thành công. Bạn có thể đăng nhập.' });
 };

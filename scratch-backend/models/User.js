@@ -38,6 +38,8 @@ const userSchema = new mongoose.Schema(
     addresses: [addressSchema],
     refreshTokenHash: { type: String, select: false, default: null },
     isActive: { type: Boolean, default: true },
+    resetPasswordOTP: { type: String, select: false },
+    resetPasswordExpires: { type: Date, select: false },
   },
   { timestamps: true }
 );

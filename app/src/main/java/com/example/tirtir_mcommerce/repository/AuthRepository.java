@@ -178,6 +178,66 @@ public class AuthRepository {
         });
     }
 
+    public void verifyOTP(String email, String otp,
+                          OnSuccessListener<String> onSuccess,
+                          OnErrorListener onError) {
+        java.util.Map<String, String> body = new java.util.HashMap<>();
+        body.put("email", email);
+        body.put("otp", otp);
+        apiService.verifyOTP(body).enqueue(new Callback<ApiResponse<String>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<String>> call, Response<ApiResponse<String>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    if (response.body().isSuccess()) {
+                        String resetToken = response.body().getData();
+                        onSuccess.onSuccess(resetToken);
+                    } else {
+                        onError.onError(response.body().getMessage() != null ? response.body().getMessage() : "Mã OTP không hợp lệ");
+                    }
+                } else {
+                    onError.onError("Mã OTP không hợp lệ hoặc đã hết hạn.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<String>> call, Throwable t) {
+                onError.onError("Connection error. Please check your network.");
+            }
+        });
+    }
+
+    public void resetPassword(String email, String resetToken, String newPassword,
+                              OnSuccessListener<String> onSuccess,
+                              OnErrorListener onError) {
+        java.util.Map<String, String> body = new java.util.HashMap<>();
+        body.put("email", email);
+        body.put("resetToken", resetToken);
+        body.put("newPassword", newPassword);
+
+        apiService.resetPassword(body).enqueue(new Callback<ApiResponse<Void>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Void>> call, Response<ApiResponse<Void>> response) {
+                // If the response is 401, Retrofit considers isSuccessful() false.
+                if (response.isSuccessful() && response.body() != null) {
+                    if (response.body().isSuccess()) {
+                        onSuccess.onSuccess("Password updated successfully");
+                    } else {
+                        onError.onError(response.body().getMessage() != null ? response.body().getMessage() : "Failed to reset password.");
+                    }
+                } else if (response.code() == 401) {
+                    onError.onError("401"); // Special signal for token expired
+                } else {
+                    onError.onError("Failed to reset password. Please try again.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {
+                onError.onError("Connection error. Please check your network.");
+            }
+        });
+    }
+
     // ===========================
     // LOGOUT
     // ===========================

@@ -60,6 +60,18 @@
             android:name=".ui.activities.LoginActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.activities.ForgotPasswordActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.VerifyEmailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.NewPasswordActivity"
+            android:exported="false" />
+
         <!-- SCR-11: RegisterActivity -->
         <activity
             android:name=".ui.activities.RegisterActivity"

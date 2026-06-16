@@ -20,6 +20,10 @@
     <color name="tirtir_milk_white">#FFFFFF</color>
     <color name="tirtir_off_white">#F8F8F8</color>   <!-- Main page background -->
     <color name="tirtir_bg_gray">#F8F8F8</color>
+    <color name="tirtir_auth_input_bg">#F2F2F2</color>
+    <color name="tirtir_auth_btn">#5C0000</color>
+    <color name="tirtir_dark_gray_btn">#292929</color>
+    <color name="tirtir_divider">#E0E0E0</color>
 
     <!-- GRAY SCALE (borders, dividers, secondary text) -->
     <color name="tirtir_border_gray">#E5E5E5</color>

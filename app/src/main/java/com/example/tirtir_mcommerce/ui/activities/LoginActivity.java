@@ -141,46 +141,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void showForgotPasswordDialog() {
-        TextInputEditText emailInput = new TextInputEditText(this);
-        emailInput.setInputType(android.text.InputType.TYPE_CLASS_TEXT
-                | android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-        emailInput.setHint("Email address");
-        if (etEmail.getText() != null) {
-            emailInput.setText(etEmail.getText().toString().trim());
-        }
-        int padding = (int) (20 * getResources().getDisplayMetrics().density);
-        android.widget.FrameLayout container = new android.widget.FrameLayout(this);
-        container.setPadding(padding, 0, padding, 0);
-        container.addView(emailInput);
-
-        androidx.appcompat.app.AlertDialog dialog = new MaterialAlertDialogBuilder(this)
-                .setTitle("Reset password")
-                .setMessage("We will email you a secure reset link.")
-                .setView(container)
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("Send link", null)
-                .create();
-        dialog.setOnShowListener(ignored -> dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)
-                .setOnClickListener(v -> {
-                    String email = emailInput.getText() == null
-                            ? ""
-                            : emailInput.getText().toString().trim();
-                    if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                        emailInput.setError("Enter a valid email");
-                        return;
-                    }
-                    dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-                    authRepository.forgotPassword(email,
-                            message -> runOnUiThread(() -> {
-                                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-                                dialog.dismiss();
-                            }),
-                            error -> runOnUiThread(() -> {
-                                dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-                                emailInput.setError(error);
-                            }));
-                }));
-        dialog.show();
+        startActivity(new Intent(this, ForgotPasswordActivity.class));
     }
 
     private void goToDestination(User user) {

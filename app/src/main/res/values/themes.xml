@@ -70,6 +70,31 @@
         <item name="boxCornerRadiusBottomEnd">8dp</item>
     </style>
 
+    <!-- ===== TEXT INPUT (filled, no border for auth) ===== -->
+    <style name="Widget.TirTir.TextInputLayout.AuthFilled" parent="Widget.Material3.TextInputLayout.FilledBox">
+        <item name="boxBackgroundColor">@color/tirtir_auth_input_bg</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
+        <item name="boxCornerRadiusTopStart">8dp</item>
+        <item name="boxCornerRadiusTopEnd">8dp</item>
+        <item name="boxCornerRadiusBottomStart">8dp</item>
+        <item name="boxCornerRadiusBottomEnd">8dp</item>
+        <item name="hintEnabled">false</item>
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:paddingEnd">4dp</item>
+    </style>
+
+    <!-- ===== TEXT INPUT (underline only for auth recovery) ===== -->
+    <style name="Widget.TirTir.TextInputLayout.AuthUnderline" parent="Widget.Material3.TextInputLayout.FilledBox">
+        <item name="boxBackgroundColor">@android:color/transparent</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">1dp</item>
+        <item name="boxStrokeColor">@color/tirtir_black</item>
+        <item name="hintEnabled">false</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+    </style>
+
     <!-- ===== CARD ===== -->
     <style name="Widget.TirTir.Card" parent="Widget.Material3.CardView.Elevated">
         <item name="cardCornerRadius">12dp</item>
