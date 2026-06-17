@@ -12,9 +12,28 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
 
+import android.graphics.Bitmap;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.PixelCopy;
+import java.io.File;
+import java.io.FileOutputStream;
 import com.example.tirtir_mcommerce.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.ar.core.ArCoreApk;
+import com.google.ar.core.AugmentedFace;
+import com.google.ar.core.TrackingState;
+import com.google.ar.sceneform.ArSceneView;
+import com.google.ar.sceneform.rendering.Material;
+import com.google.ar.sceneform.rendering.MaterialFactory;
+import com.google.ar.sceneform.ux.ArFrontFacingFragment;
+import com.google.ar.sceneform.ux.AugmentedFaceNode;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ARTryOnActivity extends AppCompatActivity {
     private static final int[] SHADE_COLORS = {
@@ -25,6 +44,10 @@ public class ARTryOnActivity extends AppCompatActivity {
     private LinearLayout layoutColors;
     private TextView tvLoading;
     private int selectedIndex = 0;
+
+    private ArFrontFacingFragment arFragment;
+    private Material faceMaterial;
+    private final HashMap<AugmentedFace, AugmentedFaceNode> faceNodeMap = new HashMap<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,12 +60,116 @@ public class ARTryOnActivity extends AppCompatActivity {
         FloatingActionButton btnCapture = findViewById(R.id.fabArCapture);
 
         btnClose.setOnClickListener(v -> finish());
-        btnCapture.setOnClickListener(v -> Toast.makeText(this,
-                "The try-on preview is still preparing. Please try again shortly.",
-                Toast.LENGTH_SHORT).show());
+        btnCapture.setOnClickListener(v -> takeArScreenshot());
 
         buildColorPicker();
-        tvLoading.postDelayed(() -> tvLoading.setVisibility(View.GONE), 900);
+
+        if (checkArCoreSupport()) {
+            setupAr();
+        }
+    }
+
+    private boolean checkArCoreSupport() {
+        ArCoreApk.Availability availability = ArCoreApk.getInstance().checkAvailability(this);
+        if (availability.isTransient()) {
+            // Re-check later
+            tvLoading.postDelayed(() -> checkArCoreSupport(), 200);
+            return false;
+        }
+        if (!availability.isSupported()) {
+            showArNotSupportedDialog();
+            return false;
+        }
+        return true;
+    }
+
+    private void showArNotSupportedDialog() {
+        tvLoading.setVisibility(View.GONE);
+        new AlertDialog.Builder(this)
+                .setTitle("AR Not Supported")
+                .setMessage("Your device does not support ARCore. Try-on is not available.")
+                .setPositiveButton("OK", (dialog, which) -> finish())
+                .setCancelable(false)
+                .show();
+    }
+
+    private void setupAr() {
+        arFragment = new ArFrontFacingFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.arFragmentContainer, arFragment)
+                .commit();
+
+        updateMaterialColor();
+
+        // Delay to allow fragment to attach
+        tvLoading.postDelayed(() -> {
+            ArSceneView sceneView = arFragment.getArSceneView();
+            if (sceneView != null) {
+                sceneView.getScene().addOnUpdateListener(frameTime -> {
+                    if (sceneView.getSession() == null) return;
+                    Collection<AugmentedFace> faceList = sceneView.getSession().getAllTrackables(AugmentedFace.class);
+
+                    // Xóa trackables cũ
+                    for (Map.Entry<AugmentedFace, AugmentedFaceNode> entry : new HashMap<>(faceNodeMap).entrySet()) {
+                        AugmentedFace face = entry.getKey();
+                        if (face.getTrackingState() == TrackingState.STOPPED) {
+                            AugmentedFaceNode node = entry.getValue();
+                            node.setParent(null);
+                            faceNodeMap.remove(face);
+                        }
+                    }
+
+                    // Thêm trackables mới
+                    for (AugmentedFace face : faceList) {
+                        if (!faceNodeMap.containsKey(face)) {
+                            AugmentedFaceNode faceNode = new AugmentedFaceNode(face);
+                            faceNode.setParent(sceneView.getScene());
+                            if (faceMaterial != null) {
+                                faceNode.setFaceMeshMaterial(faceMaterial);
+                            }
+                            faceNodeMap.put(face, faceNode);
+                        }
+                    }
+                    tvLoading.setVisibility(View.GONE);
+                });
+            }
+        }, 1000);
+    }
+
+    private void updateMaterialColor() {
+        int color = SHADE_COLORS[selectedIndex];
+        // Create an opaque or semi-transparent material with the selected color
+        MaterialFactory.makeTransparentWithColor(this, new com.google.ar.sceneform.rendering.Color(color))
+                .thenAccept(material -> {
+                    faceMaterial = material;
+                    // Apply to existing face nodes
+                    for (AugmentedFaceNode node : faceNodeMap.values()) {
+                        node.setFaceMeshMaterial(faceMaterial);
+                    }
+                });
+    }
+
+    private void takeArScreenshot() {
+        if (arFragment == null || arFragment.getArSceneView() == null) return;
+        ArSceneView view = arFragment.getArSceneView();
+        
+        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+        PixelCopy.request(view, bitmap, copyResult -> {
+            if (copyResult == PixelCopy.SUCCESS) {
+                try {
+                    File file = new File(getExternalFilesDir(null), "ar_tryon_" + System.currentTimeMillis() + ".png");
+                    FileOutputStream fos = new FileOutputStream(file);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                    fos.flush();
+                    fos.close();
+                    Toast.makeText(this, "Screenshot saved to " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Toast.makeText(this, "Failed to save screenshot", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Failed to capture AR view", Toast.LENGTH_SHORT).show();
+            }
+        }, new Handler(Looper.getMainLooper()));
     }
 
     private void buildColorPicker() {
@@ -59,6 +186,7 @@ public class ARTryOnActivity extends AppCompatActivity {
             final int index = i;
             button.setOnClickListener(v -> {
                 selectedIndex = index;
+                updateMaterialColor();
                 buildColorPicker();
             });
             layoutColors.addView(button);

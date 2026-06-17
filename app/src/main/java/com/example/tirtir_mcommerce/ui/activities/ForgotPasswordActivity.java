@@ -17,7 +17,6 @@ import com.example.tirtir_mcommerce.repository.AuthRepository;
 public class ForgotPasswordActivity extends AppCompatActivity {
 
     private AuthRepository authRepository;
-    private ProgressBar progressBar;
     private MaterialButton btnSendCode;
 
     @Override
@@ -25,13 +24,12 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forgot_password);
 
-        authRepository = new AuthRepository();
+        authRepository = new AuthRepository(this);
 
         findViewById(R.id.toolbar).setOnClickListener(v -> finish());
 
         btnSendCode = findViewById(R.id.btnSendCode);
         EditText etEmail = findViewById(R.id.etEmail);
-        progressBar = findViewById(R.id.progressBar); // Might be missing from layout, need to handle if null
 
         btnSendCode.setOnClickListener(v -> {
             String email = etEmail.getText() != null ? etEmail.getText().toString().trim() : "";
@@ -40,12 +38,12 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 return;
             }
 
-            if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+
             btnSendCode.setEnabled(false);
 
             authRepository.forgotPassword(email, 
                 message -> {
-                    if (progressBar != null) progressBar.setVisibility(View.GONE);
+
                     btnSendCode.setEnabled(true);
                     Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
 
@@ -54,7 +52,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     startActivity(intent);
                 },
                 error -> {
-                    if (progressBar != null) progressBar.setVisibility(View.GONE);
+
                     btnSendCode.setEnabled(true);
                     Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
                 });

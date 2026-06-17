@@ -23,7 +23,7 @@ public class NewPasswordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_password);
 
-        authRepository = new AuthRepository();
+        authRepository = new AuthRepository(this);
         email = getIntent().getStringExtra("EMAIL");
         resetToken = getIntent().getStringExtra("RESET_TOKEN");
 

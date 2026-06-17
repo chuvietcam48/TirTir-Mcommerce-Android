@@ -2,6 +2,8 @@ package com.example.tirtir_mcommerce.ui.fragments;
 
 import android.content.Intent;
 import android.content.Context;
+import android.content.BroadcastReceiver;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -36,6 +38,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -52,6 +56,13 @@ public class ChatFragment extends Fragment {
     private ChatRepository chatRepository;
     private View offlineBanner;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
+
+    private final BroadcastReceiver networkReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateConnectivityState();
+        }
+    };
 
     @Nullable
     @Override
@@ -93,8 +104,24 @@ public class ChatFragment extends Fragment {
         bindPrompt(view, R.id.chipPromptRoutine);
         bindPrompt(view, R.id.chipPromptIngredient);
         bindProductContextIfAvailable();
-        updateConnectivityState();
         loadHistory();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        requireContext().registerReceiver(networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        updateConnectivityState();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        try {
+            requireContext().unregisterReceiver(networkReceiver);
+        } catch (IllegalArgumentException e) {
+            // Ignored
+        }
     }
 
     private void bindProductContextIfAvailable() {
@@ -168,8 +195,19 @@ public class ChatFragment extends Fragment {
                         recommendations.add(new ChatMessageAdapter.RecommendedProduct(
                                 suggestion.productId, suggestion.name));
                     }
+                    
+                    // Parse [PRODUCT:id:name] from text
+                    Pattern pattern = Pattern.compile("\\[PRODUCT:([^:]+):([^]]+)\\]");
+                    Matcher matcher = pattern.matcher(finalText);
+                    while (matcher.find()) {
+                        String pId = matcher.group(1);
+                        String pName = matcher.group(2);
+                        recommendations.add(new ChatMessageAdapter.RecommendedProduct(pId, pName));
+                    }
+                    finalText = matcher.replaceAll(""); // remove tags from display text
+                    
                     ChatMessageAdapter.ChatMessage message = new ChatMessageAdapter.ChatMessage(
-                            false, finalText, timeFormat.format(new Date()), recommendations);
+                            false, finalText.trim(), timeFormat.format(new Date()), recommendations);
                     if (botPosition[0] < 0) {
                         botPosition[0] = adapter.addAndReturnPosition(message);
                     } else {
@@ -264,5 +302,7 @@ public class ChatFragment extends Fragment {
         boolean online = capabilities != null
                 && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
         offlineBanner.setVisibility(online ? View.GONE : View.VISIBLE);
+        etChatInput.setEnabled(online);
+        btnSendMessage.setEnabled(online);
     }
 }

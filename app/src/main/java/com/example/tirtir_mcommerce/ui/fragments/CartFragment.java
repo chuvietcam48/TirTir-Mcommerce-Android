@@ -78,7 +78,7 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
                 Toast.makeText(getContext(), "Your cart is empty", Toast.LENGTH_SHORT).show();
             } else {
                 double subtotal = getSubtotal();
-                Intent intent = new Intent(getContext(), CheckoutActivity.class);
+                Intent intent = new Intent(requireContext(), CheckoutActivity.class);
                 intent.putExtra("CART_SUBTOTAL", subtotal);
                 startActivity(intent);
             }

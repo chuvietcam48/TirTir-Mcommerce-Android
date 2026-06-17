@@ -6,12 +6,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.widget.EditText;
+import android.app.AlertDialog;
+import java.util.Calendar;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import com.example.tirtir_mcommerce.model.ApiResponse;
+import com.example.tirtir_mcommerce.network.ApiService;
+import com.example.tirtir_mcommerce.network.RetrofitClient;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ItemTouchHelper;
 
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.database.DatabaseHelper;
@@ -67,6 +82,13 @@ public class AiRoutineFragment extends Fragment {
         rvRoutineSteps      = view.findViewById(R.id.rvRoutineSteps);
         tvRoutineEmpty      = view.findViewById(R.id.tvRoutineEmpty);
 
+        View layoutActions = view.findViewById(R.id.layoutRoutineActions);
+        View btnReminder = view.findViewById(R.id.btnSetReminder);
+        View btnCommunity = view.findViewById(R.id.btnApplyCommunity);
+
+        btnReminder.setOnClickListener(v -> setReminder());
+        btnCommunity.setOnClickListener(v -> showCommunityDialog());
+
         adapter = new RoutineStepAdapter(
                 this::onStepSkipToggled,
                 this::onAddToCart
@@ -75,6 +97,30 @@ public class AiRoutineFragment extends Fragment {
         rvRoutineSteps.setAdapter(adapter);
 
         if (routineSteps != null) populateData();
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
+                ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                int fromPosition = viewHolder.getAdapterPosition();
+                int toPosition = target.getAdapterPosition();
+                adapter.swapItems(fromPosition, toPosition);
+                return true;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                // Do nothing
+            }
+
+            @Override
+            public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                super.clearView(recyclerView, viewHolder);
+                routineSteps = adapter.getReorderedList();
+                DatabaseHelper.getInstance(requireContext()).updateRoutineSteps(routineSteps);
+            }
+        });
+        itemTouchHelper.attachToRecyclerView(rvRoutineSteps);
     }
 
     /**
@@ -105,6 +151,7 @@ public class AiRoutineFragment extends Fragment {
 
         tvRoutineEmpty.setVisibility(View.GONE);
         rvRoutineSteps.setVisibility(View.VISIBLE);
+        if (getView() != null) getView().findViewById(R.id.layoutRoutineActions).setVisibility(View.VISIBLE);
         adapter.submitList(new ArrayList<>(routineSteps));
         updateEvolutionForecast();
     }
@@ -156,5 +203,61 @@ public class AiRoutineFragment extends Fragment {
         DatabaseHelper.getInstance(requireContext()).insertOrUpdateCartItem(item);
         Toast.makeText(requireContext(), step.getStepName() + " product added to cart!",
                 Toast.LENGTH_SHORT).show();
+    }
+
+    private void setReminder() {
+        AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(requireContext(), com.example.tirtir_mcommerce.receivers.RoutineReminderReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                requireContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, 20);
+        calendar.set(Calendar.MINUTE, 0);
+        
+        if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+        }
+
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY, pendingIntent);
+        Toast.makeText(requireContext(), "Daily reminder set for 8:00 PM", Toast.LENGTH_SHORT).show();
+    }
+
+    private void showCommunityDialog() {
+        EditText input = new EditText(requireContext());
+        input.setHint("Enter Community Routine ID");
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Apply Community Routine")
+                .setView(input)
+                .setPositiveButton("Apply", (dialog, which) -> {
+                    String id = input.getText().toString().trim();
+                    if (!id.isEmpty()) applyCommunityRoutine(id);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void applyCommunityRoutine(String id) {
+        ApiService apiService = RetrofitClient.getAuthClient(requireContext()).create(ApiService.class);
+        apiService.getCommunityRoutine(id).enqueue(new Callback<ApiResponse<List<RoutineStep>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<RoutineStep>>> call, Response<ApiResponse<List<RoutineStep>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    updateData(response.body().getData());
+                    DatabaseHelper.getInstance(requireContext()).updateRoutineSteps(routineSteps);
+                    Toast.makeText(requireContext(), "Community routine applied!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(requireContext(), "Routine not found", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<RoutineStep>>> call, Throwable t) {
+                Toast.makeText(requireContext(), "Failed to fetch routine", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

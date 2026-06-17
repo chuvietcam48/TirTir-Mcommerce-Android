@@ -23,6 +23,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.Product;
 import com.example.tirtir_mcommerce.model.ProductResponse;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.example.tirtir_mcommerce.repository.ProductRepository;
 import com.example.tirtir_mcommerce.ui.activities.ChatActivity;
 import com.example.tirtir_mcommerce.ui.activities.IngredientScanActivity;
@@ -137,6 +140,15 @@ public class HomeFragment extends Fragment {
         rvProducts.setAdapter(adapter);
 
         productRepository = new ProductRepository(getContext());
+
+        // Setup AdMob
+        MobileAds.initialize(requireContext(), initializationStatus -> {});
+        AdView mAdView = view.findViewById(R.id.adViewSlot);
+        if (mAdView != null) {
+            mAdView.setVisibility(View.VISIBLE);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
 
         setupSearch();
         if (getArguments() != null) {

@@ -101,6 +101,17 @@ public class TirTirFirebaseMessagingService extends FirebaseMessagingService {
 
         Log.d(TAG, "Notification Title: " + title + ", Body: " + body + ", Data: " + data);
 
+        SharedPrefsManager prefs = new SharedPrefsManager(this);
+        String type = data.get("type");
+        if ("RESTOCK".equalsIgnoreCase(type) && !prefs.getBoolean("pref_restock", true)) {
+            Log.d(TAG, "Restock notification blocked by user preference.");
+            return;
+        }
+        if ("ROUTINE".equalsIgnoreCase(type) && !prefs.getBoolean("pref_routine", true)) {
+            Log.d(TAG, "Routine notification blocked by user preference.");
+            return;
+        }
+
         // Hiển thị notification cục bộ
         NotificationHelper.showNotification(this, title, body, data);
 

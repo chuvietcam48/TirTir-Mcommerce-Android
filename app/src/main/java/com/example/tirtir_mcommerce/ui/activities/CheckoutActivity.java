@@ -86,32 +86,46 @@ public class CheckoutActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_checkout);
+        try {
+            setContentView(R.layout.activity_checkout);
 
-        Toolbar toolbar = findViewById(R.id.toolbarCheckout);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Checkout");
-        }
-
-        orderRepository = new OrderRepository(this);
-        cartRepository = new CartRepository(this);
-        databaseHelper  = DatabaseHelper.getInstance(this);
-
-        bindViews();
-        loadCartTotals();
-        prefillSavedAddress();
-        updateTotalsUI();
-        setupPlaceOrder();
-        checkLoyaltyMultiplier();
-        loadLoyaltyBalance();
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                handleBackAttempt();
+            Toolbar toolbar = findViewById(R.id.toolbarCheckout);
+            setSupportActionBar(toolbar);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setTitle("Checkout");
             }
-        });
+
+            orderRepository = new OrderRepository(this);
+            cartRepository = new CartRepository(this);
+            databaseHelper  = DatabaseHelper.getInstance(this);
+
+            bindViews();
+            loadCartTotals();
+            prefillSavedAddress();
+            updateTotalsUI();
+            setupPlaceOrder();
+            checkLoyaltyMultiplier();
+            loadLoyaltyBalance();
+
+            getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
+                @Override
+                public void handleOnBackPressed() {
+                    handleBackAttempt();
+                }
+            });
+
+            // If intent has explicit cart subtotal (e.g. buy now)
+            double passedSubtotal = getIntent().getDoubleExtra("CART_SUBTOTAL", 0.0);
+            if (passedSubtotal > 0 && cartSubtotal == 0) {
+                cartSubtotal = passedSubtotal;
+                updateTotalsUI();
+            }
+        } catch (Exception e) {
+            android.util.Log.e(TAG, "Crash in onCreate: ", e);
+            e.printStackTrace();
+            Toast.makeText(this, "Error loading Checkout: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override

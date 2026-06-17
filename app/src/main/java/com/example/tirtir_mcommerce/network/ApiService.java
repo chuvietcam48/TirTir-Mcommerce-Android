@@ -25,6 +25,8 @@ import com.example.tirtir_mcommerce.model.FcmTokenRequest;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.MultipartBody;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -34,6 +36,8 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.Multipart;
+import retrofit2.http.Part;
 
 /**
  * Interface định nghĩa tất cả các API endpoint của hệ thống TirTir.
@@ -154,6 +158,16 @@ public interface ApiService {
     @POST("api/v1/ai/analyze-face")
     Call<ApiResponse<Map<String, Object>>> analyzeSkin(@Body Map<String, String> body);
 
+    @Multipart
+    @POST("/analyze")
+    Call<SkinAnalysisResult> analyzeSkinPython(@Part MultipartBody.Part image);
+
+    @GET("api/products/cushion-match")
+    Call<ApiResponse<List<ShadeMatchResult>>> matchCushion(@Query("skin_tone_hex") String skinToneHex);
+
+    @POST("api/ingredients/check")
+    Call<ApiResponse<Map<String, Object>>> checkIngredients(@Body Map<String, String> body);
+
     /**
      * Tìm sản phẩm nền phù hợp theo màu da - POST /api/v1/shades/match
      * Body: { r, g, b, skinType }
@@ -169,6 +183,9 @@ public interface ApiService {
      */
     @POST("api/ai/recommend-routine")
     Call<ApiResponse<Map<String, Object>>> recommendRoutine(@Body RoutineRecommendRequest request);
+
+    @GET("api/routines/{id}")
+    Call<ApiResponse<List<RoutineStep>>> getCommunityRoutine(@Path("id") String id);
 
     @POST("api/v1/routines/save")
     Call<ApiResponse<Map<String, Object>>> saveRoutine(@Body Map<String, Object> body);
@@ -326,12 +343,12 @@ public interface ApiService {
     @POST("api/users/device-token")
     Call<ApiResponse<Object>> updateDeviceToken(@Body Map<String, String> body);
 
-    @POST("api/admin/send-voucher")
+    @POST("api/v1/admin/churn/send-voucher")
     Call<ApiResponse<Object>> sendVoucher(@Body Map<String, String> body);
 
-    @POST("api/loyalty/scan")
+    @POST("api/v1/loyalty/scan")
     Call<ApiResponse<Map<String, Object>>> scanBarcode(@Body Map<String, String> body);
 
-    @POST("api/loyalty/redeem")
+    @POST("api/v1/loyalty/redeem")
     Call<ApiResponse<Map<String, Object>>> redeemPoints(@Body Map<String, Integer> body);
 }

@@ -28,6 +28,9 @@ import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.example.tirtir_mcommerce.ui.fragments.AiRoutineFragment;
 import com.example.tirtir_mcommerce.ui.fragments.ShadeFinderFragment;
 import com.example.tirtir_mcommerce.ui.fragments.SkinReportFragment;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.example.tirtir_mcommerce.utils.PriceUtils;
 import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
 import com.google.android.material.tabs.TabLayout;
@@ -96,7 +99,6 @@ public class SkinResultActivity extends AppCompatActivity {
     private final AtomicInteger pendingApiCount = new AtomicInteger(2);
 
     // Input data
-    private String imageBase64;
     private int avgR, avgG, avgB;
 
     @Override
@@ -117,7 +119,8 @@ public class SkinResultActivity extends AppCompatActivity {
         setupViewPager();
 
         // Extract input data
-        imageBase64 = getIntent().getStringExtra(EXTRA_IMAGE_BASE64);
+        String analysisJson = getIntent().getStringExtra("SKIN_ANALYSIS_JSON");
+        String matchesJson = getIntent().getStringExtra("SHADE_MATCHES_JSON");
         avgR = getIntent().getIntExtra(EXTRA_AVG_R, 216);
         avgG = getIntent().getIntExtra(EXTRA_AVG_G, 160);
         avgB = getIntent().getIntExtra(EXTRA_AVG_B, 135);
@@ -127,9 +130,29 @@ public class SkinResultActivity extends AppCompatActivity {
 
         if (isDemo) {
             loadDemoData();
+        } else if (analysisJson != null && matchesJson != null) {
+            showLoading(true, "Building your routine...", "Almost done!");
+            analysisResult = gson.fromJson(analysisJson, SkinAnalysisResult.class);
+            Type listType = new TypeToken<List<ShadeMatchResult>>(){}.getType();
+            shadeResults = gson.fromJson(matchesJson, listType);
+            
+            String skinHex = analysisResult != null ? analysisResult.getSkinHex() : null;
+            
+            // Cập nhật UI của Tab 1 và Tab 2 trước
+            shadeFinderFragment.updateData(shadeResults, skinHex);
+            skinReportFragment.updateData(analysisResult, -1, -1, -1,
+                    analysisResult != null ? analysisResult.computeItaAngle() : Double.NaN);
+
+            callRecommendRoutineApi();
         } else {
-            showLoading(true, "Analyzing your skin...", "Calling AI services in parallel");
-            callParallelApis();
+            loadDemoData();
+        }
+        
+        MobileAds.initialize(this, initializationStatus -> {});
+        AdView mAdView = findViewById(R.id.adViewSkinResult);
+        if (mAdView != null) {
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
         }
     }
 
@@ -172,93 +195,8 @@ public class SkinResultActivity extends AppCompatActivity {
     }
 
     // ===========================
-    // PARALLEL API CALLS
+    // ROUTINE API CALL
     // ===========================
-
-    /**
-     * Gọi song song API 1 (shadeMatch) và API 2 (analyzeSkin).
-     * Dùng AtomicInteger countdown: khi cả 2 xong → gọi API 3.
-     */
-    private void callParallelApis() {
-        pendingApiCount.set(2);
-
-        // API 1: Shade Match
-        ShadeMatchRequest shadeRequest = new ShadeMatchRequest(avgR, avgG, avgB, null);
-        apiService.matchShade(shadeRequest).enqueue(new Callback<ApiResponse<List<ShadeMatchResult>>>() {
-            @Override
-            public void onResponse(Call<ApiResponse<List<ShadeMatchResult>>> call,
-                                   Response<ApiResponse<List<ShadeMatchResult>>> response) {
-                if (response.isSuccessful() && response.body() != null
-                        && response.body().getData() != null) {
-                    shadeResults = response.body().getData();
-                } else {
-                    Log.w(TAG, "Shade match API failed (HTTP " + response.code() + "), using client fallback");
-                    shadeResults = buildClientSideShadeMatches();
-                }
-                checkAndProceedToRoutine();
-            }
-
-            @Override
-            public void onFailure(Call<ApiResponse<List<ShadeMatchResult>>> call, Throwable t) {
-                Log.w(TAG, "Shade match API unavailable, using client fallback", t);
-                shadeResults = buildClientSideShadeMatches();
-                checkAndProceedToRoutine();
-            }
-        });
-
-        // API 2: Analyze Face
-        if (imageBase64 != null && !imageBase64.isEmpty()) {
-            Map<String, String> analyzeBody = new HashMap<>();
-            analyzeBody.put("imageData", "data:image/jpeg;base64," + imageBase64);
-
-            apiService.analyzeSkin(analyzeBody).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
-                @Override
-                public void onResponse(Call<ApiResponse<Map<String, Object>>> call,
-                                       Response<ApiResponse<Map<String, Object>>> response) {
-                    if (response.isSuccessful() && response.body() != null
-                            && response.body().getData() != null) {
-                        analysisResult = parseAnalysisResult(response.body().getData());
-                    } else {
-                        Log.w(TAG, "Analyze face API failed (HTTP " + response.code() + ")");
-                        analysisResult = buildDemoAnalysisResult();
-                    }
-                    checkAndProceedToRoutine();
-                }
-
-                @Override
-                public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
-                    Log.w(TAG, "Analyze face API unavailable", t);
-                    analysisResult = buildDemoAnalysisResult();
-                    checkAndProceedToRoutine();
-                }
-            });
-        } else {
-            // Không có ảnh → dùng demo
-            analysisResult = buildDemoAnalysisResult();
-            checkAndProceedToRoutine();
-        }
-    }
-
-    /**
-     * Countdown: khi cả 2 API parallel đều xong → call API 3.
-     * Thread-safe nhờ AtomicInteger.
-     */
-    private void checkAndProceedToRoutine() {
-        int remaining = pendingApiCount.decrementAndGet();
-        if (remaining == 0) {
-            // Cập nhật UI của Tab 1 và Tab 2 trước
-            String skinHex = analysisResult != null ? analysisResult.getSkinHex() : null;
-            runOnUiThread(() -> {
-                updateLoadingStatus("Building your routine...", "Almost done!");
-                shadeFinderFragment.updateData(shadeResults, skinHex);
-                skinReportFragment.updateData(analysisResult, -1, -1, -1,
-                        analysisResult != null ? analysisResult.computeItaAngle() : Double.NaN);
-            });
-
-            // API 3: Recommend Routine
-            callRecommendRoutineApi();
-        }
-    }
 
     /**
      * API 3 — gọi sau khi cả 2 API parallel đã xong.

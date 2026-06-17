@@ -150,6 +150,14 @@ public class SharedPrefsManager {
     }
 
     // ===========================
+    // GENERAL PREFERENCES
+    // ===========================
+
+    public boolean getBoolean(String key, boolean defaultValue) {
+        return sharedPreferences.getBoolean(key, defaultValue);
+    }
+
+    // ===========================
     // LOGOUT
     // ===========================
 

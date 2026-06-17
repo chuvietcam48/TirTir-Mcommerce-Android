@@ -503,4 +503,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         return profiles;
     }
+
+    /**
+     * Cập nhật danh sách bước vào hồ sơ da mới nhất
+     */
+    public void updateRoutineSteps(List<RoutineStep> steps) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(
+            TABLE_SKIN_PROFILES, new String[]{SP_COL_ID}, null, null, null, null,
+            SP_COL_TIMESTAMP + " DESC", "1"
+        );
+        if (cursor != null && cursor.moveToFirst()) {
+            long id = cursor.getLong(0);
+            ContentValues values = new ContentValues();
+            values.put(SP_COL_ROUTINE_STEPS, GSON.toJson(steps));
+            db.update(TABLE_SKIN_PROFILES, values, SP_COL_ID + " = ?", new String[]{String.valueOf(id)});
+        }
+        if (cursor != null) cursor.close();
+    }
 }

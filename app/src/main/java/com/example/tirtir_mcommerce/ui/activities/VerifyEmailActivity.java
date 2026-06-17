@@ -27,7 +27,7 @@ public class VerifyEmailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_verify_email);
 
-        authRepository = new AuthRepository();
+        authRepository = new AuthRepository(this);
         email = getIntent().getStringExtra("EMAIL");
 
         TextView tvVerifySubtitle = findViewById(R.id.tvVerifySubtitle);

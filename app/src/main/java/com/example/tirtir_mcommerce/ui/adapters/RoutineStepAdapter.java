@@ -17,6 +17,10 @@ import com.example.tirtir_mcommerce.model.RoutineStep;
 import com.example.tirtir_mcommerce.utils.PriceUtils;
 import com.google.android.material.button.MaterialButton;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Adapter cho danh sách các bước AI Routine trong AiRoutineFragment.
  * Hỗ trợ tính năng "Skip step" và cập nhật Skin Evolution scores.
@@ -79,6 +83,28 @@ public class RoutineStepAdapter extends ListAdapter<RoutineStep, RoutineStepAdap
     @Override
     public void onBindViewHolder(@NonNull StepViewHolder holder, int position) {
         holder.bind(getItem(position));
+    }
+
+    public void swapItems(int fromPosition, int toPosition) {
+        List<RoutineStep> currentList = new ArrayList<>(getCurrentList());
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(currentList, i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i > toPosition; i--) {
+                Collections.swap(currentList, i, i - 1);
+            }
+        }
+        // Update steps to reflect new order
+        for (int i = 0; i < currentList.size(); i++) {
+            currentList.get(i).setStep(i + 1);
+        }
+        submitList(currentList);
+    }
+
+    public List<RoutineStep> getReorderedList() {
+        return new ArrayList<>(getCurrentList());
     }
 
     class StepViewHolder extends RecyclerView.ViewHolder {

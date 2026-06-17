@@ -23,6 +23,15 @@ android {
         buildConfigField("String", "API_BASE_URL", "\"$tirtirApiBaseUrl\"")
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("release-key.keystore")
+            storePassword = "password"
+            keyAlias = "tirtir_alias"
+            keyPassword = "password"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -30,6 +39,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -82,6 +92,11 @@ dependencies {
     implementation("com.google.mlkit:barcode-scanning:17.3.0")
     implementation("com.google.mlkit:face-detection:16.1.7")
     implementation("androidx.camera:camera-mlkit-vision:1.4.2")
+    implementation("com.google.mlkit:text-recognition:16.0.1")
+
+    // AR Try-On (ARCore & Sceneform)
+    implementation("com.google.ar:core:1.40.0")
+    implementation("com.gorisse.thomas.sceneform:sceneform:1.23.0")
 
     // Testing
     testImplementation(libs.junit)

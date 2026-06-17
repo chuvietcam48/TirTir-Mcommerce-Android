@@ -121,6 +121,36 @@
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false" />
 
+        <LinearLayout
+            android:id="@+id/layoutRoutineActions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            android:weightSum="2">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSetReminder"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="Reminder"
+                app:icon="@android:drawable/ic_popup_reminder" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnApplyCommunity"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="Community"
+                app:icon="@android:drawable/ic_menu_share" />
+        </LinearLayout>
+
         <!-- Empty state -->
         <TextView
             android:id="@+id/tvRoutineEmpty"

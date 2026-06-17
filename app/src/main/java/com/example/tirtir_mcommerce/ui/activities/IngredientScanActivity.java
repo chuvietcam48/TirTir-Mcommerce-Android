@@ -25,6 +25,9 @@ import com.example.tirtir_mcommerce.R;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.TextRecognition;
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -128,10 +131,31 @@ public class IngredientScanActivity extends AppCompatActivity {
                 new ImageCapture.OnImageSavedCallback() {
                     @Override
                     public void onImageSaved(ImageCapture.OutputFileResults outputFileResults) {
-                        captureButton.setText("Capture");
-                        captureButton.setEnabled(true);
-                        openIngredientResult();
-                        output.delete();
+                        captureButton.setText("Analyzing...");
+                        try {
+                            InputImage image = InputImage.fromFilePath(IngredientScanActivity.this, Uri.fromFile(output));
+                            TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS).process(image)
+                                .addOnSuccessListener(text -> {
+                                    captureButton.setText("Capture");
+                                    captureButton.setEnabled(true);
+                                    String rawText = text.getText().replaceAll("\\n", ", ");
+                                    openIngredientResult(rawText);
+                                    output.delete();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "OCR failed", e);
+                                    captureButton.setText("Capture");
+                                    captureButton.setEnabled(true);
+                                    openIngredientResult(null);
+                                    output.delete();
+                                });
+                        } catch (Exception e) {
+                            Log.e(TAG, "Failed to load InputImage", e);
+                            captureButton.setText("Capture");
+                            captureButton.setEnabled(true);
+                            openIngredientResult(null);
+                            output.delete();
+                        }
                     }
 
                     @Override
@@ -144,8 +168,8 @@ public class IngredientScanActivity extends AppCompatActivity {
                 });
     }
 
-    private void openIngredientResult() {
-        String ingredients = getIntent().getStringExtra("PRODUCT_INGREDIENTS");
+    private void openIngredientResult(String scannedText) {
+        String ingredients = scannedText != null ? scannedText : getIntent().getStringExtra("PRODUCT_INGREDIENTS");
         boolean demo = ingredients == null || ingredients.trim().isEmpty();
         ArrayList<String> ingredientList = new ArrayList<>();
         if (demo) {
@@ -199,7 +223,7 @@ public class IngredientScanActivity extends AppCompatActivity {
         androidx.appcompat.app.AlertDialog dialog = new MaterialAlertDialogBuilder(this)
                 .setTitle(title)
                 .setMessage(message)
-                .setNeutralButton("Use demo", (ignored, which) -> openIngredientResult())
+                .setNeutralButton("Use demo", (ignored, which) -> openIngredientResult(null))
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton(openSettings ? "Open Settings" : "Retry",
                         (ignored, which) -> {
