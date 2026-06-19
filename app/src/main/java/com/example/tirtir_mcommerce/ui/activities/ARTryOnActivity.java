@@ -125,7 +125,7 @@ public class ARTryOnActivity extends AppCompatActivity {
                             AugmentedFaceNode faceNode = new AugmentedFaceNode(face);
                             faceNode.setParent(sceneView.getScene());
                             if (faceMaterial != null) {
-                                faceNode.setFaceMeshMaterial(faceMaterial);
+                                setFaceMeshMaterial(faceNode, faceMaterial);
                             }
                             faceNodeMap.put(face, faceNode);
                         }
@@ -144,7 +144,7 @@ public class ARTryOnActivity extends AppCompatActivity {
                     faceMaterial = material;
                     // Apply to existing face nodes
                     for (AugmentedFaceNode node : faceNodeMap.values()) {
-                        node.setFaceMeshMaterial(faceMaterial);
+                        setFaceMeshMaterial(node, faceMaterial);
                     }
                 });
     }
@@ -203,5 +203,15 @@ public class ARTryOnActivity extends AppCompatActivity {
 
     private int dp(int value) {
         return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
+    }
+
+    private void setFaceMeshMaterial(AugmentedFaceNode node, Material material) {
+        try {
+            java.lang.reflect.Field field = AugmentedFaceNode.class.getDeclaredField("overrideFaceMeshMaterial");
+            field.setAccessible(true);
+            field.set(node, material);
+        } catch (Exception e) {
+            android.util.Log.e("ARTryOnActivity", "Failed to set face mesh material via reflection", e);
+        }
     }
 }

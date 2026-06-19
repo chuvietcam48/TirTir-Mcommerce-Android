@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/tirtir_white"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/tirtir_border_gray">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="14dp">
+
+        <!-- Icon container -->
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/ic_tirtir_brand_circle"
+            android:layout_marginEnd="14dp">
+
+            <ImageView
+                android:id="@+id/ivPointIcon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@android:drawable/ic_dialog_info"
+                app:tint="@color/tirtir_red_primary" />
+        </FrameLayout>
+
+        <!-- Description and date -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvPointDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Quét mã vạch tích điểm"
+                android:textColor="@color/tirtir_black"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvPointDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="19/06/2026 15:00"
+                android:textColor="@color/tirtir_text_secondary"
+                android:textSize="12sp"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <!-- Points value (bold +/- points) -->
+        <TextView
+            android:id="@+id/tvPointValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+50"
+            android:textColor="@color/tirtir_success"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

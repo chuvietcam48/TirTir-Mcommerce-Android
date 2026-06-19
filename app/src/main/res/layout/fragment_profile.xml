@@ -170,12 +170,16 @@
                 android:paddingBottom="96dp">
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/cardLoyalty"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/tirtir_white">
+                app:cardBackgroundColor="@color/tirtir_white"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

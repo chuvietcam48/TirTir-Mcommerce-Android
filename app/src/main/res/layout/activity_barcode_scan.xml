@@ -9,23 +9,21 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <View
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:background="@drawable/bg_scanner_frame"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+    <com.example.tirtir_mcommerce.utils.BarcodeScannerOverlayView
+        android:id="@+id/overlayView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <TextView
+        android:id="@+id/tvInstruction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Align barcode within frame"
+        android:text="Đưa mã barcode vào khung để quét"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toTopOf="parent"
+        android:textStyle="bold"
+        android:layout_marginBottom="48dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

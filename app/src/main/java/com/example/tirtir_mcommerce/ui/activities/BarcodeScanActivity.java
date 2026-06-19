@@ -2,8 +2,12 @@ package com.example.tirtir_mcommerce.ui.activities;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -109,49 +113,71 @@ public class BarcodeScanActivity extends AppCompatActivity {
     private void processLoyaltyBarcode(String code) {
         ApiService api = RetrofitClient.getAuthClient(this).create(ApiService.class);
         Map<String, String> body = new HashMap<>();
-        body.put("code", code);
+        body.put("barcodeValue", code); // Bug fixed: change from "code" to "barcodeValue"
         
         api.scanBarcode(body).enqueue(new retrofit2.Callback<com.example.tirtir_mcommerce.model.ApiResponse<Map<String, Object>>>() {
             @Override
             public void onResponse(retrofit2.Call<com.example.tirtir_mcommerce.model.ApiResponse<Map<String, Object>>> call, retrofit2.Response<com.example.tirtir_mcommerce.model.ApiResponse<Map<String, Object>>> response) {
-                showResultBottomSheet(response.isSuccessful(), code);
+                if (!isFinishing()) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        showResultBottomSheet(true, code, response.body().getMessage());
+                    } else {
+                        String errorMsg = "Mã vạch không hợp lệ hoặc đã được sử dụng.";
+                        if (response.errorBody() != null) {
+                            try {
+                                String errStr = response.errorBody().string();
+                                com.example.tirtir_mcommerce.model.ApiResponse<?> errResp = 
+                                    new com.google.gson.Gson().fromJson(errStr, com.example.tirtir_mcommerce.model.ApiResponse.class);
+                                if (errResp != null && errResp.getMessage() != null) {
+                                    errorMsg = errResp.getMessage();
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        showResultBottomSheet(false, code, errorMsg);
+                    }
+                }
             }
 
             @Override
             public void onFailure(retrofit2.Call<com.example.tirtir_mcommerce.model.ApiResponse<Map<String, Object>>> call, Throwable t) {
-                showResultBottomSheet(false, code);
+                if (!isFinishing()) {
+                    showResultBottomSheet(false, code, "Không thể kết nối máy chủ");
+                }
             }
         });
     }
 
-    private void showResultBottomSheet(boolean success, String code) {
+    private void showResultBottomSheet(boolean success, String code, String message) {
         BottomSheetDialog dialog = new BottomSheetDialog(this);
-        // Simple programmatically created layout for BottomSheet
-        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
-        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-        layout.setPadding(64, 64, 64, 64);
+        View view = getLayoutInflater().inflate(R.layout.dialog_scan_result, null);
         
-        android.widget.TextView tvTitle = new android.widget.TextView(this);
-        tvTitle.setText(success ? "Scan Successful!" : "Scan Failed");
-        tvTitle.setTextSize(20);
-        tvTitle.setTypeface(null, android.graphics.Typeface.BOLD);
+        ImageView ivIcon = view.findViewById(R.id.ivResultStatusIcon);
+        TextView tvTitle = view.findViewById(R.id.tvResultTitle);
+        TextView tvDesc = view.findViewById(R.id.tvResultDesc);
+        com.google.android.material.button.MaterialButton btnClose = view.findViewById(R.id.btnResultClose);
         
-        android.widget.TextView tvDesc = new android.widget.TextView(this);
-        tvDesc.setText("Code: " + code);
-        tvDesc.setPadding(0, 32, 0, 32);
+        if (success) {
+            ivIcon.setImageResource(android.R.drawable.ic_dialog_info);
+            ivIcon.setColorFilter(Color.parseColor("#2E7D32")); // Success green
+            tvTitle.setText("+50 điểm");
+            tvTitle.setTextColor(Color.parseColor("#2E7D32"));
+            tvDesc.setText(message != null ? message : "Quét mã vạch thành công! Bạn nhận được 50 điểm.");
+        } else {
+            ivIcon.setImageResource(android.R.drawable.ic_dialog_alert);
+            ivIcon.setColorFilter(Color.parseColor("#D32F2F")); // Error red
+            tvTitle.setText("Thất bại");
+            tvTitle.setTextColor(Color.parseColor("#D32F2F"));
+            tvDesc.setText(message != null ? message : "Mã vạch không hợp lệ hoặc đã được sử dụng.");
+        }
         
-        com.google.android.material.button.MaterialButton btnClose = new com.google.android.material.button.MaterialButton(this);
-        btnClose.setText("Close");
         btnClose.setOnClickListener(v -> {
             dialog.dismiss();
             finish();
         });
         
-        layout.addView(tvTitle);
-        layout.addView(tvDesc);
-        layout.addView(btnClose);
-        
-        dialog.setContentView(layout);
+        dialog.setContentView(view);
         dialog.setOnDismissListener(d -> finish());
         dialog.show();
     }

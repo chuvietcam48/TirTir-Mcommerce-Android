@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/tirtir_bg_gray">
+
+    <!-- TOOLBAR -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/tirtir_white"
+        android:elevation="2dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_revert"
+            android:contentDescription="Back"
+            app:tint="@color/tirtir_black" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Thành viên &amp; Ưu đãi"
+            android:textColor="@color/tirtir_black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- MAIN LOYALTY CARD -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardLoyaltyBadge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:id="@+id/layoutCardBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp"
+                    android:background="#CD7F32"> <!-- Dynamic background color changed in code, fallback bronze -->
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/tvLoyaltyTierTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Hạng thành viên"
+                            android:textColor="@color/tirtir_white"
+                            android:textSize="14sp"
+                            android:alpha="0.8" />
+
+                        <!-- TIER BADGE CONTAINER -->
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            app:cardCornerRadius="12dp"
+                            app:cardBackgroundColor="#22000000"
+                            app:cardElevation="0dp">
+
+                            <TextView
+                                android:id="@+id/tvLoyaltyTierLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="BRONZE"
+                                android:textColor="@color/tirtir_white"
+                                android:textStyle="bold"
+                                android:textSize="12sp"
+                                android:paddingStart="12dp"
+                                android:paddingEnd="12dp"
+                                android:paddingTop="6dp"
+                                android:paddingBottom="6dp" />
+                        </androidx.cardview.widget.CardView>
+                    </RelativeLayout>
+
+                    <!-- POINTS NUMBER (MUST BE 56sp) -->
+                    <TextView
+                        android:id="@+id/tvLoyaltyPointsMain"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="@color/tirtir_white"
+                        android:textSize="56sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Điểm tích lũy"
+                        android:textColor="@color/tirtir_white"
+                        android:textSize="12sp"
+                        android:alpha="0.8"
+                        android:layout_marginBottom="20dp" />
+
+                    <!-- PROGRESS BAR FOR UPGRADE -->
+                    <ProgressBar
+                        android:id="@+id/pbLoyaltyUpgrade"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="8dp"
+                        android:progressTint="@color/tirtir_white"
+                        android:progressBackgroundTint="#44FFFFFF"
+                        android:max="100"
+                        android:progress="0" />
+
+                    <!-- TARGET LABEL (Còn X điểm lên [tier]) -->
+                    <TextView
+                        android:id="@+id/tvLoyaltyNextTierLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Còn 100 điểm lên Silver"
+                        android:textColor="@color/tirtir_white"
+                        android:textStyle="bold"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ACTION BUTTONS -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRedeemVoucher"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="54dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="Đổi Voucher"
+                    android:textColor="@color/tirtir_white"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/tirtir_black"
+                    app:cornerRadius="12dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnScanBarcode"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="54dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Quét Barcode"
+                    android:textColor="@color/tirtir_black"
+                    android:textStyle="bold"
+                    app:strokeColor="@color/tirtir_black"
+                    app:strokeWidth="1.5dp"
+                    app:cornerRadius="12dp" />
+            </LinearLayout>
+
+            <!-- RECENT TRANSACTIONS HEADER -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LỊCH SỬ ĐIỂM TÍCH LŨY"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/tirtir_text_secondary"
+                android:letterSpacing="0.08"
+                android:layout_marginBottom="12dp" />
+
+            <!-- POINT HISTORY RECYCLERVIEW -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPointHistory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:scrollbars="vertical" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

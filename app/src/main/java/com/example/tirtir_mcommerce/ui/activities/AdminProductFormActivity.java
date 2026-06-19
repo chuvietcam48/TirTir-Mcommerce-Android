@@ -139,8 +139,16 @@ public class AdminProductFormActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 try {
-                    int color = android.graphics.Color.parseColor(s.toString());
-                    viewShadePreview.setBackgroundColor(color);
+                    String hexStr = s.toString().trim();
+                    if (!hexStr.isEmpty()) {
+                        if (!hexStr.startsWith("#")) {
+                            hexStr = "#" + hexStr;
+                        }
+                        int color = android.graphics.Color.parseColor(hexStr);
+                        viewShadePreview.setBackgroundColor(color);
+                    } else {
+                        viewShadePreview.setBackgroundColor(android.graphics.Color.LTGRAY);
+                    }
                 } catch (Exception e) {
                     viewShadePreview.setBackgroundColor(android.graphics.Color.LTGRAY);
                 }
@@ -156,6 +164,34 @@ public class AdminProductFormActivity extends AppCompatActivity {
         etProductPrice.setText(String.valueOf(getIntent().getDoubleExtra("PRODUCT_PRICE", 0)));
         etProductStock.setText(String.valueOf(getIntent().getIntExtra("PRODUCT_STOCK", 0)));
         etProductDescription.setText(getIntent().getStringExtra("PRODUCT_DESC"));
+        etProductBrand.setText(getIntent().getStringExtra("PRODUCT_BRAND"));
+        etProductIngredients.setText(getIntent().getStringExtra("PRODUCT_INGREDIENTS"));
+        etProductShadeHex.setText(getIntent().getStringExtra("PRODUCT_SHADE_HEX"));
+
+        // Load Category Spinner
+        String category = getIntent().getStringExtra("PRODUCT_CATEGORY");
+        if (category != null) {
+            for (int i = 0; i < spinnerCategory.getCount(); i++) {
+                if (spinnerCategory.getItemAtPosition(i).toString().equalsIgnoreCase(category)) {
+                    spinnerCategory.setSelection(i);
+                    break;
+                }
+            }
+        }
+
+        // Load Skin Types
+        String skinTypes = getIntent().getStringExtra("PRODUCT_SKINTYPE");
+        if (skinTypes != null) {
+            String lower = skinTypes.toLowerCase();
+            com.google.android.material.chip.Chip chipOily = findViewById(R.id.chipOily);
+            com.google.android.material.chip.Chip chipDry = findViewById(R.id.chipDry);
+            com.google.android.material.chip.Chip chipSensitive = findViewById(R.id.chipSensitive);
+            com.google.android.material.chip.Chip chipCombination = findViewById(R.id.chipCombination);
+            if (chipOily != null) chipOily.setChecked(lower.contains("oily"));
+            if (chipDry != null) chipDry.setChecked(lower.contains("dry"));
+            if (chipSensitive != null) chipSensitive.setChecked(lower.contains("sensitive"));
+            if (chipCombination != null) chipCombination.setChecked(lower.contains("combination"));
+        }
     }
 
     private void updateImageGrid() {
@@ -250,6 +286,7 @@ public class AdminProductFormActivity extends AppCompatActivity {
         fields.put("Key_Ingredients", textBody(valueOf(etProductIngredients)));
         fields.put("Brand", textBody(valueOf(etProductBrand)));
         fields.put("Skin_Type_Target", textBody(selectedSkinTypes()));
+        fields.put("shade_color_hex", textBody(valueOf(etProductShadeHex)));
         fields.put("isActive", textBody("true"));
         return fields;
     }
