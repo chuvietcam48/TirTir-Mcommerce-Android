@@ -19,12 +19,14 @@ import java.util.List;
 public class ChurnUserAdapter extends RecyclerView.Adapter<ChurnUserAdapter.ViewHolder> {
 
     public static class ChurnUser {
+        public String id;
         public String name;
         public String email;
         public String segment;
         public int r, f, m;
 
-        public ChurnUser(String name, String email, String segment, int r, int f, int m) {
+        public ChurnUser(String id, String name, String email, String segment, int r, int f, int m) {
+            this.id = id;
             this.name = name;
             this.email = email;
             this.segment = segment;

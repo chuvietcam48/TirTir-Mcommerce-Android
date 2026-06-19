@@ -46,7 +46,7 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Vi
     private final Context context;
     private final List<AdminOrder> orders;
     private final OnOrderActionListener listener;
-    private final String[] statusOptions = {"Pending", "Processing", "Shipped", "Delivered", "Cancelled"};
+    private final String[] statusOptions = {"pending", "confirmed", "shipping", "delivered"};
 
     public interface OnOrderActionListener {
         void onShowDetail(AdminOrder order);
@@ -78,25 +78,53 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Vi
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         holder.spinnerStatus.setAdapter(spinnerAdapter);
 
-        // Set current status
+        // Map backend status to UI status
+        String uiStatus;
+        if (order.status == null) {
+            uiStatus = "pending";
+        } else {
+            switch (order.status.toLowerCase()) {
+                case "pending": uiStatus = "pending"; break;
+                case "processing": uiStatus = "confirmed"; break;
+                case "shipped": uiStatus = "shipping"; break;
+                case "delivered": uiStatus = "delivered"; break;
+                default: uiStatus = "pending"; break;
+            }
+        }
+
+        // Set spinner selection
+        int selectionIndex = 0;
         for (int i = 0; i < statusOptions.length; i++) {
-            if (statusOptions[i].equalsIgnoreCase(order.status)) {
-                holder.spinnerStatus.setSelection(i);
+            if (statusOptions[i].equalsIgnoreCase(uiStatus)) {
+                selectionIndex = i;
                 break;
             }
         }
+        holder.spinnerStatus.setSelection(selectionIndex);
+
         holder.spinnerStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             private boolean initialized;
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int selected, long id) {
-                String status = statusOptions[selected];
+                String selectedUiStatus = statusOptions[selected];
                 if (!initialized) {
                     initialized = true;
                     return;
                 }
-                if (!status.equalsIgnoreCase(order.status) && listener != null) {
-                    listener.onStatusChanged(order, status);
+                
+                // Map UI status back to backend status
+                String beStatus;
+                switch (selectedUiStatus) {
+                    case "pending": beStatus = "Pending"; break;
+                    case "confirmed": beStatus = "Processing"; break;
+                    case "shipping": beStatus = "Shipped"; break;
+                    case "delivered": beStatus = "Delivered"; break;
+                    default: beStatus = "Pending"; break;
+                }
+
+                if (!beStatus.equalsIgnoreCase(order.status) && listener != null) {
+                    listener.onStatusChanged(order, beStatus);
                 }
             }
 

@@ -81,6 +81,12 @@ public class Product {
     @SerializedName("isActive")
     private boolean isActive = true;
 
+    @SerializedName("shade_color_hex")
+    private String shadeColorHex;
+
+    @SerializedName("Brand")
+    private String brand;
+
     public Product() {
     }
 
@@ -159,4 +165,10 @@ public class Product {
 
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }
+
+    public String getShadeColorHex() { return shadeColorHex; }
+    public void setShadeColorHex(String shadeColorHex) { this.shadeColorHex = shadeColorHex; }
+
+    public String getBrand() { return brand; }
+    public void setBrand(String brand) { this.brand = brand; }
 }

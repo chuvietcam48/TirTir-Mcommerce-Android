@@ -92,6 +92,7 @@ public class ProfileFragment extends Fragment {
     private TextView tvUserName, tvEmail, tvInitials;
     private TextView tvLoyaltyTierBadge, tvLoyaltyPoints, tvLoyaltyProgress;
     private ProgressBar pbLoyalty;
+    private View cardLoyalty;
     private MaterialButton btnEditProfile;
     private LinearLayout layoutMyOrders, layoutMyAddresses, layoutMyWishlist, layoutScanHistory, layoutNotificationSettings;
     private com.google.android.material.button.MaterialButton btnLogout;
@@ -197,6 +198,7 @@ public class ProfileFragment extends Fragment {
         tvLoyaltyPoints = view.findViewById(R.id.tvLoyaltyPoints);
         tvLoyaltyProgress = view.findViewById(R.id.tvLoyaltyProgress);
         pbLoyalty = view.findViewById(R.id.pbLoyalty);
+        cardLoyalty = view.findViewById(R.id.cardLoyalty);
         
         chipGroupSkinType = view.findViewById(R.id.chipGroupSkinType);
         chipSkinOily = view.findViewById(R.id.chipSkinOily);
@@ -383,6 +385,16 @@ public class ProfileFragment extends Fragment {
         btnEditProfile.setOnClickListener(v -> {
             showEditProfileDialog();
         });
+
+        if (cardLoyalty != null) {
+            cardLoyalty.setOnClickListener(v -> {
+                requireActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, new LoyaltyFragment())
+                        .addToBackStack("loyalty")
+                        .commit();
+            });
+        }
     }
 
     private void showEditProfileDialog() {

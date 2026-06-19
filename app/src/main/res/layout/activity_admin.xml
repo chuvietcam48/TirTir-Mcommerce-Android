@@ -62,7 +62,7 @@
                         app:cardElevation="2dp"
                         app:cardCornerRadius="8dp">
                         <LinearLayout android:orientation="vertical" android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
-                            <TextView android:text="Revenue (VND)" android:textSize="12sp" android:textColor="#666666" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Doanh thu VND" android:textSize="12sp" android:textColor="#666666" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                             <TextView android:id="@+id/tvRevenue" android:text="0 đ" android:textSize="18sp" android:textStyle="bold" android:textColor="#4CAF50" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -75,7 +75,7 @@
                         app:cardElevation="2dp"
                         app:cardCornerRadius="8dp">
                         <LinearLayout android:orientation="vertical" android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
-                            <TextView android:text="Orders today" android:textSize="12sp" android:textColor="#666666" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Tổng đơn hôm nay" android:textSize="12sp" android:textColor="#666666" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                             <TextView android:id="@+id/tvOrders" android:text="0" android:textSize="18sp" android:textStyle="bold" android:textColor="#2196F3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -88,7 +88,7 @@
                         app:cardElevation="2dp"
                         app:cardCornerRadius="8dp">
                         <LinearLayout android:orientation="vertical" android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
-                            <TextView android:text="New users" android:textSize="12sp" android:textColor="#666666" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="User mới" android:textSize="12sp" android:textColor="#666666" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                             <TextView android:id="@+id/tvUsers" android:text="0" android:textSize="18sp" android:textStyle="bold" android:textColor="#E91E8C" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -101,7 +101,7 @@
                         app:cardElevation="2dp"
                         app:cardCornerRadius="8dp">
                         <LinearLayout android:orientation="vertical" android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
-                            <TextView android:text="Active carts" android:textSize="12sp" android:textColor="#666666" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Giỏ active" android:textSize="12sp" android:textColor="#666666" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                             <TextView android:id="@+id/tvVisits" android:text="0" android:textSize="18sp" android:textStyle="bold" android:textColor="#FF9800" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -125,9 +125,9 @@
                     app:tabMode="fixed"
                     app:tabIndicatorColor="@color/tirtir_red_primary"
                     app:tabSelectedTextColor="@color/tirtir_red_primary">
-                    <com.google.android.material.tabs.TabItem android:text="7 days" />
-                    <com.google.android.material.tabs.TabItem android:text="30 days" />
-                    <com.google.android.material.tabs.TabItem android:text="90 days" />
+                    <com.google.android.material.tabs.TabItem android:text="7 ngày" />
+                    <com.google.android.material.tabs.TabItem android:text="30 ngày" />
+                    <com.google.android.material.tabs.TabItem android:text="90 ngày" />
                 </com.google.android.material.tabs.TabLayout>
 
                 <com.github.mikephil.charting.charts.LineChart

@@ -23,6 +23,8 @@ import com.example.tirtir_mcommerce.model.SkinAnalysisResult;
 import com.example.tirtir_mcommerce.model.RoutineStep;
 import com.example.tirtir_mcommerce.model.User;
 import com.example.tirtir_mcommerce.model.FcmTokenRequest;
+import com.example.tirtir_mcommerce.model.SkinAnalysisResult;
+import com.example.tirtir_mcommerce.model.RoutineStep;
 
 import java.util.List;
 import java.util.Map;
@@ -358,12 +360,21 @@ public interface ApiService {
     @POST("api/users/device-token")
     Call<ApiResponse<Object>> updateDeviceToken(@Body Map<String, String> body);
 
+    @GET("api/v1/admin/churn")
+    Call<ApiResponse<List<com.example.tirtir_mcommerce.model.ChurnResponseItem>>> getChurnList();
+
     @POST("api/v1/admin/churn/send-voucher")
-    Call<ApiResponse<Object>> sendVoucher(@Body Map<String, String> body);
+    Call<ApiResponse<Object>> sendVoucher(@Body Map<String, Object> body);
+
+    @POST("api/v1/admin/notifications/send-voucher-fcm")
+    Call<ApiResponse<Object>> sendVoucherFcm(@Body Map<String, Object> body);
 
     @POST("api/v1/loyalty/scan")
     Call<ApiResponse<Map<String, Object>>> scanBarcode(@Body Map<String, String> body);
 
     @POST("api/v1/loyalty/redeem")
     Call<ApiResponse<Map<String, Object>>> redeemPoints(@Body Map<String, Integer> body);
+
+    @GET("api/v1/loyalty/wallet")
+    Call<ApiResponse<List<Map<String, Object>>>> getWallet();
 }

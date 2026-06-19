@@ -148,6 +148,10 @@ public class AdminProductListActivity extends AppCompatActivity implements Admin
         intent.putExtra("PRODUCT_DESC", product.getDescriptionShort());
         intent.putExtra("PRODUCT_CATEGORY", product.getCategory());
         intent.putExtra("PRODUCT_IMAGE", product.getThumbnailImages());
+        intent.putExtra("PRODUCT_SHADE_HEX", product.getShadeColorHex());
+        intent.putExtra("PRODUCT_BRAND", product.getBrand());
+        intent.putExtra("PRODUCT_INGREDIENTS", product.getKeyIngredients());
+        intent.putExtra("PRODUCT_SKINTYPE", product.getSkinTypeTarget());
         startActivity(intent);
     }
 

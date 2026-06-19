@@ -142,9 +142,9 @@ public class ARTryOnActivity extends AppCompatActivity {
                         if (!faceNodeMap.containsKey(face)) {
                             AugmentedFaceNode faceNode = new AugmentedFaceNode(face);
                             faceNode.setParent(sceneView.getScene());
-                            // NOTE: gorisse sceneform 1.23 AugmentedFaceNode does not expose
-                            // a public setMaterial API. Color overlay via shader is skipped.
-                            // The face mesh node is still tracked correctly.
+                            if (faceMaterial != null) {
+                                setFaceMeshMaterial(faceNode, faceMaterial);
+                            }
                             faceNodeMap.put(face, faceNode);
                         }
                     }
@@ -162,7 +162,7 @@ public class ARTryOnActivity extends AppCompatActivity {
                     faceMaterial = material;
                     // Apply to existing face nodes
                     for (AugmentedFaceNode node : faceNodeMap.values()) {
-                        // Color overlay skipped (API not available in gorisse sceneform 1.23)
+                        setFaceMeshMaterial(node, faceMaterial);
                     }
                 });
     }
@@ -227,5 +227,15 @@ public class ARTryOnActivity extends AppCompatActivity {
 
     private int dp(int value) {
         return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
+    }
+
+    private void setFaceMeshMaterial(AugmentedFaceNode node, Material material) {
+        try {
+            java.lang.reflect.Field field = AugmentedFaceNode.class.getDeclaredField("overrideFaceMeshMaterial");
+            field.setAccessible(true);
+            field.set(node, material);
+        } catch (Exception e) {
+            android.util.Log.e("ARTryOnActivity", "Failed to set face mesh material via reflection", e);
+        }
     }
 }

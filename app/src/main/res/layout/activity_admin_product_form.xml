@@ -220,7 +220,7 @@
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Choose images"
+                android:text="Chọn ảnh"
                 app:icon="@android:drawable/ic_menu_camera"
                 android:layout_marginBottom="32dp"/>
 

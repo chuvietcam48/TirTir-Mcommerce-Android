@@ -182,6 +182,14 @@
             android:name=".ui.activities.AdminCartRecoveryActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.activities.BarcodeScanActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.VoucherWalletActivity"
+            android:exported="false" />
+
         <!-- FileProvider - Dùng cho Camera intent (Android 7+) -->
         <provider
             android:name="androidx.core.content.FileProvider"

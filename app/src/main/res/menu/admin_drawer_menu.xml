@@ -4,11 +4,11 @@
         <item
             android:id="@+id/nav_admin_products"
             android:icon="@android:drawable/ic_menu_edit"
-            android:title="Products" />
+            android:title="Sản phẩm" />
         <item
             android:id="@+id/nav_admin_orders"
             android:icon="@android:drawable/ic_menu_agenda"
-            android:title="Orders" />
+            android:title="Đơn hàng" />
         <item
             android:id="@+id/nav_admin_churn"
             android:icon="@android:drawable/ic_dialog_alert"
