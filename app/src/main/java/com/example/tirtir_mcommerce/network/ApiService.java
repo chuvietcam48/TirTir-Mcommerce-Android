@@ -19,6 +19,8 @@ import com.example.tirtir_mcommerce.model.RefreshTokenResponse;
 import com.example.tirtir_mcommerce.model.RoutineRecommendRequest;
 import com.example.tirtir_mcommerce.model.ShadeMatchRequest;
 import com.example.tirtir_mcommerce.model.ShadeMatchResult;
+import com.example.tirtir_mcommerce.model.SkinAnalysisResult;
+import com.example.tirtir_mcommerce.model.RoutineStep;
 import com.example.tirtir_mcommerce.model.User;
 import com.example.tirtir_mcommerce.model.FcmTokenRequest;
 
@@ -148,6 +150,19 @@ public interface ApiService {
      */
     @PATCH("api/v1/users/addresses/{id}/set-default")
     Call<ApiResponse<List<Address>>> setDefaultAddress(@Path("id") String addressId);
+
+    // ===========================
+    // SHIPPING MODULE
+    // ===========================
+
+    @GET("api/shipping/locations/provinces")
+    Call<Map<String, Object>> getProvinces();
+
+    @GET("api/shipping/locations/districts")
+    Call<Map<String, Object>> getDistricts(@Query("provinceId") String provinceId);
+
+    @GET("api/shipping/locations/wards")
+    Call<Map<String, Object>> getWards(@Query("districtId") String districtId);
 
     @GET("api/v1/loyalty/me")
     Call<ApiResponse<Map<String, Object>>> getLoyaltyDetails();

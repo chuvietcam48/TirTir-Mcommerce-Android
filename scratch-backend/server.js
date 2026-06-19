@@ -28,6 +28,8 @@ app.use('/api/v1/orders', require('./routes/orderRoutes'));
 app.use('/api/v1/upload', require('./routes/uploadRoutes'));
 app.use('/api/v1/routines', require('./routes/routineRoutes'));
 app.use('/api/v1/payments', require('./routes/paymentRoutes'));
+app.use('/soap', require('./shipping/ShippingSoapRouter'));
+app.use('/api/shipping', require('./shipping/ShippingSoapRouter'));
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 

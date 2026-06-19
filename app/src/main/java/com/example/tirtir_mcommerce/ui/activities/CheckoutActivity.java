@@ -60,7 +60,7 @@ import retrofit2.Response;
 public class CheckoutActivity extends AppCompatActivity {
     private static final String TAG = "CheckoutActivity";
 
-    private TextInputEditText etFullName, etPhone, etStreet, etDistrict, etCity, etNote;
+    private TextInputEditText etFullName, etPhone, etStreet, etNote;
     private RadioGroup rgPaymentMethod;
     private TextView tvCheckoutSubtotal, tvCheckoutShipping, tvCheckoutTax, tvCheckoutTotal;
     private MaterialButton btnPlaceOrder;
@@ -82,6 +82,24 @@ public class CheckoutActivity extends AppCompatActivity {
     private double cartSubtotal = 0;
     private List<CartItem> checkoutItems = Collections.emptyList();
     private boolean orderSubmitting;
+    
+    // Address Selection
+    private android.widget.AutoCompleteTextView actvProvince, actvDistrict, actvWard;
+    private String selectedProvinceId, selectedDistrictId, selectedWardCode;
+    
+    // SOAP Shipping Quote
+    private String selectedQuoteId;
+    private String selectedServiceId;
+    private String idempotencyKey = java.util.UUID.randomUUID().toString();
+    private List<ShippingQuote> currentQuotes = new java.util.ArrayList<>();
+    
+    // Simple Quote Data Class
+    public static class ShippingQuote {
+        public String serviceId;
+        public String serviceName;
+        public double fee;
+        public String estimatedDeliveryTime;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -106,6 +124,16 @@ public class CheckoutActivity extends AppCompatActivity {
             updateTotalsUI();
             setupPlaceOrder();
             checkLoyaltyMultiplier();
+
+            SharedPrefsManager prefs = new SharedPrefsManager(this);
+            if (prefs.getPendingVoucherCode() != null) {
+                discountAmount = prefs.getPendingVoucherDiscount();
+                if (btnRedeemPoints != null) {
+                    btnRedeemPoints.setEnabled(false);
+                    btnRedeemPoints.setText("Applied");
+                }
+            }
+
             loadLoyaltyBalance();
 
             getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
@@ -150,8 +178,6 @@ public class CheckoutActivity extends AppCompatActivity {
         etFullName           = findViewById(R.id.etFullName);
         etPhone              = findViewById(R.id.etPhone);
         etStreet             = findViewById(R.id.etStreet);
-        etDistrict           = findViewById(R.id.etDistrict);
-        etCity               = findViewById(R.id.etCity);
         etNote               = findViewById(R.id.etNote);
         rgPaymentMethod      = findViewById(R.id.rgPaymentMethod);
         tvCheckoutSubtotal   = findViewById(R.id.tvCheckoutSubtotal);
@@ -161,7 +187,11 @@ public class CheckoutActivity extends AppCompatActivity {
         btnPlaceOrder        = findViewById(R.id.btnPlaceOrder);
         progressPlaceOrder   = findViewById(R.id.progressPlaceOrder);
         cvLoyaltyBadge       = findViewById(R.id.cvLoyaltyBadge);
-        // The loyalty badge has a single child TextView
+        
+        actvProvince         = findViewById(R.id.actvProvince);
+        actvDistrict         = findViewById(R.id.actvDistrict);
+        actvWard             = findViewById(R.id.actvWard);
+
         if (cvLoyaltyBadge != null && cvLoyaltyBadge.getChildCount() > 0) {
             android.view.View child = cvLoyaltyBadge.getChildAt(0);
             if (child instanceof android.widget.TextView) {
@@ -170,7 +200,109 @@ public class CheckoutActivity extends AppCompatActivity {
         }
         tvLoyaltyBalance = findViewById(R.id.tvLoyaltyBalance);
         btnRedeemPoints = findViewById(R.id.btnRedeemPoints);
+        
+        // Disable Place Order until Quote is valid
+        btnPlaceOrder.setEnabled(false);
+        loadProvinces();
     }
+    
+    // ===========================
+    // ADDRESS DROPDOWNS
+    // ===========================
+
+    private void loadProvinces() {
+        ApiService api = RetrofitClient.getClient().create(ApiService.class);
+        api.getProvinces().enqueue(new Callback<java.util.Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<java.util.Map<String, Object>> call, Response<java.util.Map<String, Object>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<java.util.Map<String, Object>> data = (List<java.util.Map<String, Object>>) response.body().get("data");
+                    if (data == null) return;
+                    
+                    List<String> names = new java.util.ArrayList<>();
+                    List<String> ids = new java.util.ArrayList<>();
+                    for (java.util.Map<String, Object> prov : data) {
+                        names.add((String) prov.get("ProvinceName"));
+                        ids.add(String.valueOf(((Number) prov.get("ProvinceID")).intValue()));
+                    }
+                    
+                    android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(CheckoutActivity.this, android.R.layout.simple_dropdown_item_1line, names);
+                    actvProvince.setAdapter(adapter);
+                    actvProvince.setOnItemClickListener((parent, view, position, id) -> {
+                        selectedProvinceId = ids.get(position);
+                        selectedDistrictId = null;
+                        selectedWardCode = null;
+                        actvDistrict.setText("");
+                        actvWard.setText("");
+                        invalidateQuote();
+                        loadDistricts(selectedProvinceId);
+                    });
+                }
+            }
+            @Override public void onFailure(Call<java.util.Map<String, Object>> call, Throwable t) {}
+        });
+    }
+
+    private void loadDistricts(String provinceId) {
+        ApiService api = RetrofitClient.getClient().create(ApiService.class);
+        api.getDistricts(provinceId).enqueue(new Callback<java.util.Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<java.util.Map<String, Object>> call, Response<java.util.Map<String, Object>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<java.util.Map<String, Object>> data = (List<java.util.Map<String, Object>>) response.body().get("data");
+                    if (data == null) return;
+                    
+                    List<String> names = new java.util.ArrayList<>();
+                    List<String> ids = new java.util.ArrayList<>();
+                    for (java.util.Map<String, Object> dist : data) {
+                        names.add((String) dist.get("DistrictName"));
+                        ids.add(String.valueOf(((Number) dist.get("DistrictID")).intValue()));
+                    }
+                    
+                    android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(CheckoutActivity.this, android.R.layout.simple_dropdown_item_1line, names);
+                    actvDistrict.setAdapter(adapter);
+                    actvDistrict.setOnItemClickListener((parent, view, position, id) -> {
+                        selectedDistrictId = ids.get(position);
+                        selectedWardCode = null;
+                        actvWard.setText("");
+                        invalidateQuote();
+                        loadWards(selectedDistrictId);
+                    });
+                }
+            }
+            @Override public void onFailure(Call<java.util.Map<String, Object>> call, Throwable t) {}
+        });
+    }
+
+    private void loadWards(String districtId) {
+        ApiService api = RetrofitClient.getClient().create(ApiService.class);
+        api.getWards(districtId).enqueue(new Callback<java.util.Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<java.util.Map<String, Object>> call, Response<java.util.Map<String, Object>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<java.util.Map<String, Object>> data = (List<java.util.Map<String, Object>>) response.body().get("data");
+                    if (data == null) return;
+                    
+                    List<String> names = new java.util.ArrayList<>();
+                    List<String> codes = new java.util.ArrayList<>();
+                    for (java.util.Map<String, Object> ward : data) {
+                        names.add((String) ward.get("WardName"));
+                        codes.add((String) ward.get("WardCode"));
+                    }
+                    
+                    android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(CheckoutActivity.this, android.R.layout.simple_dropdown_item_1line, names);
+                    actvWard.setAdapter(adapter);
+                    actvWard.setOnItemClickListener((parent, view, position, id) -> {
+                        selectedWardCode = codes.get(position);
+                        invalidateQuote();
+                        fetchShippingQuoteSoap();
+                    });
+                }
+            }
+            @Override public void onFailure(Call<java.util.Map<String, Object>> call, Throwable t) {}
+        });
+    }
+
 
     private void loadCartTotals() {
         List<CartItem> items = databaseHelper.getCartItems();
@@ -208,8 +340,13 @@ public class CheckoutActivity extends AppCompatActivity {
         setTextIfEmpty(etPhone, selected.getPhone());
         String street = joinAddressParts(selected.getStreet(), selected.getWard());
         setTextIfEmpty(etStreet, street);
-        setTextIfEmpty(etDistrict, selected.getDistrict());
-        setTextIfEmpty(etCity, selected.getCity());
+        
+        if (actvProvince.getText().toString().isEmpty()) {
+            actvProvince.setText(selected.getCity() != null ? selected.getCity() : "", false);
+        }
+        if (actvDistrict.getText().toString().isEmpty()) {
+            actvDistrict.setText(selected.getDistrict() != null ? selected.getDistrict() : "", false);
+        }
     }
 
     /**
@@ -313,8 +450,12 @@ public class CheckoutActivity extends AppCompatActivity {
         api.redeemPoints(body).enqueue(new retrofit2.Callback<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>>() {
             @Override
             public void onResponse(retrofit2.Call<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>> call, retrofit2.Response<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>> response) {
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
                     discountAmount = points * 100;
+                    Object codeObj = response.body().getData().get("voucherCode");
+                    String code = codeObj != null ? codeObj.toString() : "LOYALTY_VOUCHER";
+                    new SharedPrefsManager(CheckoutActivity.this).savePendingVoucher(code, discountAmount);
+
                     updateTotalsUI();
                     Toast.makeText(CheckoutActivity.this, "Discount applied", Toast.LENGTH_SHORT).show();
                     btnRedeemPoints.setEnabled(false);
@@ -325,6 +466,147 @@ public class CheckoutActivity extends AppCompatActivity {
             }
             @Override public void onFailure(retrofit2.Call<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>> call, Throwable t) {
                 Toast.makeText(CheckoutActivity.this, "Connection error", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // ===========================
+    // SOAP SHIPPING QUOTE
+    // ===========================
+
+    private void invalidateQuote() {
+        selectedQuoteId = null;
+        selectedServiceId = null;
+        currentQuotes.clear();
+        btnPlaceOrder.setEnabled(false);
+        tvCheckoutShipping.setText("Calculating...");
+    }
+
+    private void fetchShippingQuoteSoap() {
+        if (selectedDistrictId == null || selectedWardCode == null) return;
+        
+        showLoading(true);
+        tvCheckoutShipping.setText("Fetching real quote...");
+        
+        new Thread(() -> {
+            try {
+                // Approximate weight from cart (100g per item for demo)
+                int totalWeightGrams = 0;
+                for (CartItem item : checkoutItems) {
+                    totalWeightGrams += item.getQuantity() * 100;
+                }
+                if (totalWeightGrams == 0) totalWeightGrams = 200;
+
+                String xmlBody = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                        "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tir=\"http://tirtir.vn/shipping\">\n" +
+                        "  <soap:Body>\n" +
+                        "    <tir:GetShippingQuoteRequest>\n" +
+                        "      <tir:toDistrictId>" + selectedDistrictId + "</tir:toDistrictId>\n" +
+                        "      <tir:toWardCode>" + selectedWardCode + "</tir:toWardCode>\n" +
+                        "      <tir:weightGrams>" + totalWeightGrams + "</tir:weightGrams>\n" +
+                        "      <tir:lengthCm>20</tir:lengthCm>\n" +
+                        "      <tir:widthCm>15</tir:widthCm>\n" +
+                        "      <tir:heightCm>10</tir:heightCm>\n" +
+                        "      <tir:orderValue>" + (long)cartSubtotal + "</tir:orderValue>\n" +
+                        "    </tir:GetShippingQuoteRequest>\n" +
+                        "  </soap:Body>\n" +
+                        "</soap:Envelope>";
+
+                String url = com.example.tirtir_mcommerce.network.ApiConfig.BASE_URL + "soap/shipping-quote";
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL(url).openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "text/xml");
+                SharedPrefsManager prefs = new SharedPrefsManager(CheckoutActivity.this);
+                if (prefs.getToken() != null) {
+                    conn.setRequestProperty("Authorization", "Bearer " + prefs.getToken());
+                }
+                conn.setDoOutput(true);
+                
+                try (java.io.OutputStream os = conn.getOutputStream()) {
+                    os.write(xmlBody.getBytes("UTF-8"));
+                }
+                
+                int code = conn.getResponseCode();
+                if (code >= 200 && code < 300) {
+                    parseSoapResponse(conn.getInputStream());
+                } else {
+                    runOnUiThread(() -> {
+                        showLoading(false);
+                        Toast.makeText(CheckoutActivity.this, "Không thể lấy phí ship thực tế. Vui lòng kiểm tra địa chỉ hoặc thử lại.", Toast.LENGTH_LONG).show();
+                        tvCheckoutShipping.setText("N/A");
+                    });
+                }
+                conn.disconnect();
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> {
+                    showLoading(false);
+                    Toast.makeText(CheckoutActivity.this, "Lỗi kết nối SOAP Gateway.", Toast.LENGTH_LONG).show();
+                    tvCheckoutShipping.setText("Error");
+                });
+            }
+        }).start();
+    }
+
+    private void parseSoapResponse(java.io.InputStream is) throws Exception {
+        org.xmlpull.v1.XmlPullParserFactory factory = org.xmlpull.v1.XmlPullParserFactory.newInstance();
+        factory.setNamespaceAware(true);
+        org.xmlpull.v1.XmlPullParser parser = factory.newPullParser();
+        parser.setInput(is, null);
+
+        int eventType = parser.getEventType();
+        String currentTag = "";
+        
+        currentQuotes.clear();
+        ShippingQuote currentQuote = null;
+        
+        while (eventType != org.xmlpull.v1.XmlPullParser.END_DOCUMENT) {
+            if (eventType == org.xmlpull.v1.XmlPullParser.START_TAG) {
+                currentTag = parser.getName();
+                if ("quote".equals(currentTag)) {
+                    currentQuote = new ShippingQuote();
+                }
+            } else if (eventType == org.xmlpull.v1.XmlPullParser.TEXT) {
+                String text = parser.getText().trim();
+                if (!text.isEmpty()) {
+                    if ("quoteId".equals(currentTag)) {
+                        selectedQuoteId = text;
+                    } else if (currentQuote != null) {
+                        switch (currentTag) {
+                            case "serviceId": currentQuote.serviceId = text; break;
+                            case "serviceName": currentQuote.serviceName = text; break;
+                            case "fee": currentQuote.fee = Double.parseDouble(text); break;
+                            case "estimatedDeliveryTime": currentQuote.estimatedDeliveryTime = text; break;
+                        }
+                    }
+                }
+            } else if (eventType == org.xmlpull.v1.XmlPullParser.END_TAG) {
+                if ("quote".equals(parser.getName()) && currentQuote != null) {
+                    currentQuotes.add(currentQuote);
+                    currentQuote = null;
+                }
+                currentTag = "";
+            }
+            eventType = parser.next();
+        }
+        
+        runOnUiThread(() -> {
+            showLoading(false);
+            if (!currentQuotes.isEmpty()) {
+                // Auto-select the first service for demo
+                ShippingQuote q = currentQuotes.get(0);
+                selectedServiceId = q.serviceId;
+                shippingFee = q.fee;
+                btnPlaceOrder.setEnabled(true);
+                
+                android.widget.TextView tvShippingService = findViewById(R.id.tvShippingService);
+                if (tvShippingService != null) {
+                    tvShippingService.setText(q.serviceName + " - ETA: " + q.estimatedDeliveryTime.substring(0, 10));
+                }
+                updateTotalsUI();
+            } else {
+                Toast.makeText(CheckoutActivity.this, "Không có dịch vụ giao hàng phù hợp.", Toast.LENGTH_LONG).show();
+                tvCheckoutShipping.setText("N/A");
             }
         });
     }
@@ -343,6 +625,10 @@ public class CheckoutActivity extends AppCompatActivity {
                 return;
             }
             if (!validateForm()) return;
+            if (selectedQuoteId == null || selectedServiceId == null) {
+                Toast.makeText(this, "Vui lòng chọn địa chỉ giao hàng để tính phí ship thực tế.", Toast.LENGTH_LONG).show();
+                return;
+            }
             placeOrderWithApi();
         });
     }
@@ -381,18 +667,18 @@ public class CheckoutActivity extends AppCompatActivity {
         ShippingAddress addr = new ShippingAddress();
         addr.setFullName(getText(etFullName));
         addr.setPhone(getText(etPhone));
-        String combined = getText(etStreet);
-        String dist     = getText(etDistrict);
-        if (!dist.isEmpty()) combined += ", " + dist;
-        addr.setAddress(combined);
-        addr.setCity(getText(etCity));
+        addr.setAddress(getText(etStreet));
+        
+        String cityText = actvProvince != null && actvProvince.getText() != null ? actvProvince.getText().toString() : "";
+        addr.setCity(cityText);
+        addr.setDistrictId(selectedDistrictId);
+        addr.setWardCode(selectedWardCode);
 
         String paymentMethod = getSelectedPaymentMethod();
-        String city          = getText(etCity); // used as province hint for Viettel
-        String voucherCode   = null;            // future: read from voucher input field
+        String voucherCode   = prefs.getPendingVoucherCode();
 
         ArbitrateOrderRequest req = new ArbitrateOrderRequest(
-                addr, paymentMethod, city, voucherCode);
+                addr, paymentMethod, cityText, voucherCode, selectedQuoteId, selectedServiceId, idempotencyKey);
 
         // Sync local cart to server before arbitrate call
         try {
@@ -453,6 +739,7 @@ public class CheckoutActivity extends AppCompatActivity {
 
                 // Clear local SQLite cart
                 databaseHelper.clearCart();
+                new SharedPrefsManager(CheckoutActivity.this).clearPendingVoucher();
 
                 String orderId     = data.getOrderId();
                 String paymentUrl  = data.getPaymentUrl();
@@ -507,9 +794,8 @@ public class CheckoutActivity extends AppCompatActivity {
             if (valid) etStreet.requestFocus();
             valid = false;
         }
-        if (TextUtils.isEmpty(getText(etCity))) {
-            etCity.setError("Please enter your city");
-            if (valid) etCity.requestFocus();
+        if (selectedProvinceId == null || selectedDistrictId == null || selectedWardCode == null) {
+            Toast.makeText(this, "Vui lòng chọn đầy đủ Tỉnh/Thành phố, Quận/Huyện, Phường/Xã.", Toast.LENGTH_SHORT).show();
             valid = false;
         }
         if (rgPaymentMethod == null || rgPaymentMethod.getCheckedRadioButtonId() == -1) {

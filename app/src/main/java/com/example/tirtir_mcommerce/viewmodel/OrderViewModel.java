@@ -58,7 +58,7 @@ public class OrderViewModel extends AndroidViewModel {
                            String city, String paymentMethod) {
         isLoading.setValue(true);
 
-        ShippingAddress shippingAddress = new ShippingAddress(fullName, phone, address, city);
+        ShippingAddress shippingAddress = new ShippingAddress(fullName, phone, address, city, null, null);
         CreateOrderRequest request = new CreateOrderRequest(shippingAddress, paymentMethod);
 
         orderRepository.placeOrder(request,

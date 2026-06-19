@@ -49,7 +49,7 @@ public class RetrofitClient {
     public static Retrofit getAuthClient(Context context) {
         SharedPrefsManager prefsManager = new SharedPrefsManager(context);
         AuthInterceptor authInterceptor = new AuthInterceptor(prefsManager);
-        TokenAuthenticator tokenAuthenticator = new TokenAuthenticator(prefsManager);
+        TokenAuthenticator tokenAuthenticator = new TokenAuthenticator(context, prefsManager);
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(60, TimeUnit.SECONDS)

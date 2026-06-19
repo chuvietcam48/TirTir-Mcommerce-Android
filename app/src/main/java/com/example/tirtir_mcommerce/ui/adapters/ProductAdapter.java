@@ -62,17 +62,23 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     private final Context context;
     private List<Product> productList;
     private final OnProductClickListener clickListener;
+    private final int layoutResId;
 
     public ProductAdapter(Context context, List<Product> productList, OnProductClickListener listener) {
+        this(context, productList, R.layout.item_product, listener);
+    }
+    
+    public ProductAdapter(Context context, List<Product> productList, int layoutResId, OnProductClickListener listener) {
         this.context = context;
         this.productList = productList;
+        this.layoutResId = layoutResId;
         this.clickListener = listener;
     }
 
     @NonNull
     @Override
     public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_product, parent, false);
+        View view = LayoutInflater.from(context).inflate(layoutResId, parent, false);
         return new ProductViewHolder(view);
     }
 
@@ -106,6 +112,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         private final TextView tvImageFallback;
         private final ImageButton btnWishlistToggle;
         private final MaterialButton btnQuickAdd;
+        private final TextView tvRatingCount;
 
         ProductViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -118,31 +125,59 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             tvImageFallback  = itemView.findViewById(R.id.tvImageFallback);
             btnWishlistToggle = itemView.findViewById(R.id.btnWishlistToggle);
             btnQuickAdd = itemView.findViewById(R.id.btnQuickAdd);
+            tvRatingCount = itemView.findViewById(R.id.tvRatingCount);
         }
 
         void bind(Product product) {
             // Name
             tvName.setText(product.getName() != null ? product.getName() : "TirTir product");
 
-            // Category
-            String cat = product.getCategory();
-            tvCategory.setText(cat != null && !cat.isEmpty() ? cat.toUpperCase() : "");
+            // Subtitle (reusing tvCategory)
+            String subtitle = product.getKeyIngredients();
+            if (subtitle == null || subtitle.isEmpty()) {
+                subtitle = product.getSkinTypeTarget();
+            }
+            if (subtitle == null || subtitle.isEmpty()) {
+                subtitle = product.getCategory();
+            }
+            if (tvCategory != null) {
+                tvCategory.setText(subtitle != null ? subtitle : "");
+            }
 
             // Price: Sale_Price if > 0, else Price
             double displayPrice = buildDisplayPrice(product);
-            tvPrice.setText(PriceUtils.formatPriceVnd(displayPrice));
+            tvPrice.setText(PriceUtils.formatPriceUsd(displayPrice)); // Formatting as USD as requested in screenshot "$32.00"
 
-            // Discount Badge
+            // Discount Badge / Bestseller Badge
             if (tvDiscountBadge != null) {
                 double basePrice = product.getPrice();
                 double salePrice = product.getSalePrice();
-                if (salePrice > 0 && salePrice < basePrice) {
-                    int discountPct = (int) Math.round((1 - (salePrice / basePrice)) * 100);
-                    tvDiscountBadge.setText("-" + discountPct + "%");
+                if (layoutResId == R.layout.item_product_bestseller) {
                     tvDiscountBadge.setVisibility(View.VISIBLE);
+                    if (salePrice > 0 && salePrice < basePrice) {
+                        tvDiscountBadge.setText("SALE");
+                        tvDiscountBadge.setBackgroundResource(R.drawable.ic_tirtir_brand_circle); // Reusing as dark background, or we could set a dark color
+                        tvDiscountBadge.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF333333)); // Dark gray
+                    } else {
+                        tvDiscountBadge.setText("Bestseller");
+                        tvDiscountBadge.setBackgroundResource(R.drawable.bg_badge_bestseller);
+                        tvDiscountBadge.setBackgroundTintList(null);
+                    }
                 } else {
-                    tvDiscountBadge.setVisibility(View.GONE);
+                    if (salePrice > 0 && salePrice < basePrice) {
+                        int discountPct = (int) Math.round((1 - (salePrice / basePrice)) * 100);
+                        tvDiscountBadge.setText("-" + discountPct + "%");
+                        tvDiscountBadge.setVisibility(View.VISIBLE);
+                    } else {
+                        tvDiscountBadge.setVisibility(View.GONE);
+                    }
                 }
+            }
+
+            // Rating
+            if (tvRatingCount != null) {
+                // Hardcoding mock rating count for now as per design
+                tvRatingCount.setText("(1.2k)");
             }
 
             // Out-of-stock badge

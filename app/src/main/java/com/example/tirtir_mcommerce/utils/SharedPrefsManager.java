@@ -198,4 +198,32 @@ public class SharedPrefsManager {
     public void setPendingSkinProfileSync(boolean pending) {
         sharedPreferences.edit().putBoolean(KEY_PENDING_SKIN_SYNC, pending).apply();
     }
+
+    // ===========================
+    // CHECKOUT VOUCHER (LOCAL PERSISTENCE)
+    // ===========================
+    private static final String KEY_PENDING_VOUCHER_CODE = "pending_voucher_code";
+    private static final String KEY_PENDING_VOUCHER_DISCOUNT = "pending_voucher_discount";
+
+    public void savePendingVoucher(String code, double discount) {
+        sharedPreferences.edit()
+                .putString(KEY_PENDING_VOUCHER_CODE, code)
+                .putFloat(KEY_PENDING_VOUCHER_DISCOUNT, (float) discount)
+                .apply();
+    }
+
+    public String getPendingVoucherCode() {
+        return sharedPreferences.getString(KEY_PENDING_VOUCHER_CODE, null);
+    }
+
+    public double getPendingVoucherDiscount() {
+        return sharedPreferences.getFloat(KEY_PENDING_VOUCHER_DISCOUNT, 0f);
+    }
+
+    public void clearPendingVoucher() {
+        sharedPreferences.edit()
+                .remove(KEY_PENDING_VOUCHER_CODE)
+                .remove(KEY_PENDING_VOUCHER_DISCOUNT)
+                .apply();
+    }
 }

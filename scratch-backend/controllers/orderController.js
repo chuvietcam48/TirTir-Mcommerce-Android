@@ -12,13 +12,32 @@ const buildInvoiceUrl = (req, orderId) =>
 // Backend reads the user's server-side cart (Cart model) to populate items.
 // Response: ApiResponse<OrderResponse> { success, message, data }
 exports.createOrder = async (req, res) => {
-  const { shippingAddress, paymentMethod } = req.body;
+  const { shippingAddress, paymentMethod, quoteId, serviceId, idempotencyKey } = req.body;
 
-  if (!shippingAddress || !shippingAddress.fullName || !shippingAddress.phone || !shippingAddress.address || !shippingAddress.city) {
+  if (!shippingAddress || !shippingAddress.fullName || !shippingAddress.phone || !shippingAddress.address) {
     return res.status(400).json({ success: false, message: 'Vui lòng điền đầy đủ địa chỉ giao hàng.' });
   }
-  if (!paymentMethod) {
-    return res.status(400).json({ success: false, message: 'Vui lòng chọn phương thức thanh toán.' });
+  if (!paymentMethod || !quoteId || !serviceId) {
+    return res.status(400).json({ success: false, message: 'Thiếu phương thức thanh toán hoặc thông tin vận chuyển (Quote).' });
+  }
+
+  // Idempotency check (simple implementation)
+  const existingOrder = await Order.findOne({ idempotencyKey, userId: req.user.id });
+  if (existingOrder && idempotencyKey) {
+     return res.status(200).json({ success: true, message: 'Đơn hàng đã được tạo trước đó.', data: existingOrder });
+  }
+
+  // Verify Quote
+  const ShippingQuoteRepository = require('../shipping/ShippingQuoteRepository');
+  const quoteData = ShippingQuoteRepository.get(quoteId);
+  
+  if (!quoteData || quoteData.userId !== req.user.id) {
+     return res.status(409).json({ success: false, message: 'Báo giá vận chuyển đã hết hạn hoặc không hợp lệ. Vui lòng lấy lại phí ship.' });
+  }
+  
+  const selectedQuote = quoteData.quotes.find(q => String(q.serviceId) === String(serviceId));
+  if (!selectedQuote) {
+     return res.status(400).json({ success: false, message: 'Dịch vụ vận chuyển không khớp với báo giá.' });
   }
 
   // Read server-side cart
@@ -55,16 +74,22 @@ exports.createOrder = async (req, res) => {
     totalPrice += unitPrice * cartItem.quantity;
   }
 
+  // Add shipping fee from the validated quote
+  const shippingFee = selectedQuote.fee;
+  totalPrice += shippingFee;
+
   // Create order (invoiceUrl updated after save to include _id)
   const order = await Order.create({
     userId: req.user.id,
     status: 'Pending',
     totalPrice,
+    shippingFee,
     paymentMethod,
     isPaid: false,
     shippingAddress,
     items: orderItems,
     invoiceUrl: '',
+    idempotencyKey
   });
 
   // Attach invoice URL now that _id is known

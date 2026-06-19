@@ -31,4 +31,13 @@ public class PriceUtils {
     public static String formatVnd(double rawPrice) {
         return formatPriceVnd(normalizePrice(rawPrice));
     }
+
+    /**
+     * Formats a raw price into USD string, e.g. "$32.00".
+     */
+    public static String formatPriceUsd(double displayPrice) {
+        // Assume displayPrice might have been normalized to VND by buildDisplayPrice
+        double usdPrice = displayPrice > 1000 ? displayPrice / 25000.0 : displayPrice;
+        return String.format(Locale.US, "$%.2f", usdPrice);
+    }
 }

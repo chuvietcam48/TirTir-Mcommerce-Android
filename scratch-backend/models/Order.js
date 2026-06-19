@@ -12,13 +12,14 @@ const orderItemSchema = new mongoose.Schema(
   { _id: false }
 );
 
-// Matches ShippingAddress.java SerializedName annotations
 const shippingAddressSchema = new mongoose.Schema(
   {
     fullName: { type: String, required: true },
     phone: { type: String, required: true },
     address: { type: String, required: true }, // street/address line
-    city: { type: String, required: true },
+    city: { type: String, required: false },
+    districtId: { type: String, required: false },
+    wardCode: { type: String, required: false },
   },
   { _id: false }
 );
@@ -37,6 +38,7 @@ const orderSchema = new mongoose.Schema(
       default: 'Pending',
     },
     totalPrice: { type: Number, required: true },
+    shippingFee: { type: Number, default: 0 },
     paymentMethod: {
       type: String,
       enum: ['VNPAY', 'MOMO', 'CARD', 'COD'],
@@ -47,6 +49,7 @@ const orderSchema = new mongoose.Schema(
     items: { type: [orderItemSchema], required: true },
     // Backend-generated URL: /api/v1/orders/:id/invoice
     invoiceUrl: { type: String, default: '' },
+    idempotencyKey: { type: String, index: true },
   },
   { timestamps: true }
 );

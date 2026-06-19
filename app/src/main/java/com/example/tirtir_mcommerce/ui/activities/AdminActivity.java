@@ -234,4 +234,14 @@ public class AdminActivity extends AppCompatActivity {
                 .setNegativeButton("Cancel", null)
                 .show();
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!new com.example.tirtir_mcommerce.utils.SharedPrefsManager(this).isLoggedIn()) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        }
+    }
 }

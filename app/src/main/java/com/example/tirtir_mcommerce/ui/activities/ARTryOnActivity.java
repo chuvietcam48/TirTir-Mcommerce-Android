@@ -45,6 +45,8 @@ public class ARTryOnActivity extends AppCompatActivity {
     private TextView tvLoading;
     private int selectedIndex = 0;
 
+    private androidx.activity.result.ActivityResultLauncher<String> cameraPermissionLauncher;
+
     private ArFrontFacingFragment arFragment;
     private Material faceMaterial;
     private final HashMap<AugmentedFace, AugmentedFaceNode> faceNodeMap = new HashMap<>();
@@ -64,8 +66,24 @@ public class ARTryOnActivity extends AppCompatActivity {
 
         buildColorPicker();
 
-        if (checkArCoreSupport()) {
-            setupAr();
+        cameraPermissionLauncher = registerForActivityResult(
+                new androidx.activity.result.contract.ActivityResultContracts.RequestPermission(),
+                isGranted -> {
+                    if (isGranted) {
+                        if (checkArCoreSupport()) {
+                            setupAr();
+                        }
+                    } else {
+                        showArNotSupportedDialog();
+                    }
+                });
+
+        if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            if (checkArCoreSupport()) {
+                setupAr();
+            }
+        } else {
+            cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA);
         }
     }
 
@@ -124,9 +142,9 @@ public class ARTryOnActivity extends AppCompatActivity {
                         if (!faceNodeMap.containsKey(face)) {
                             AugmentedFaceNode faceNode = new AugmentedFaceNode(face);
                             faceNode.setParent(sceneView.getScene());
-                            if (faceMaterial != null) {
-                                faceNode.setFaceMeshMaterial(faceMaterial);
-                            }
+                            // NOTE: gorisse sceneform 1.23 AugmentedFaceNode does not expose
+                            // a public setMaterial API. Color overlay via shader is skipped.
+                            // The face mesh node is still tracked correctly.
                             faceNodeMap.put(face, faceNode);
                         }
                     }
@@ -144,7 +162,7 @@ public class ARTryOnActivity extends AppCompatActivity {
                     faceMaterial = material;
                     // Apply to existing face nodes
                     for (AugmentedFaceNode node : faceNodeMap.values()) {
-                        node.setFaceMeshMaterial(faceMaterial);
+                        // Color overlay skipped (API not available in gorisse sceneform 1.23)
                     }
                 });
     }
@@ -162,7 +180,13 @@ public class ARTryOnActivity extends AppCompatActivity {
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
                     fos.flush();
                     fos.close();
-                    Toast.makeText(this, "Screenshot saved to " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+                    
+                    android.net.Uri uri = androidx.core.content.FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
+                    android.content.Intent shareIntent = new android.content.Intent(android.content.Intent.ACTION_SEND);
+                    shareIntent.setType("image/png");
+                    shareIntent.putExtra(android.content.Intent.EXTRA_STREAM, uri);
+                    shareIntent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(android.content.Intent.createChooser(shareIntent, "Share Try-On"));
                 } catch (Exception e) {
                     Toast.makeText(this, "Failed to save screenshot", Toast.LENGTH_SHORT).show();
                 }

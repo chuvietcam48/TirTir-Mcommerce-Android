@@ -2,6 +2,7 @@ package com.example.tirtir_mcommerce;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -50,10 +51,10 @@ public class MainActivity extends AppCompatActivity {
                 selectedFragment = new ChatFragment();
             } else if (itemId == R.id.nav_routine) {
                 selectedFragment = new RoutineFragment();
-            } else if (itemId == R.id.nav_cart) {
-                selectedFragment = new CartFragment();
             } else if (itemId == R.id.nav_profile) {
                 selectedFragment = new ProfileFragment();
+            } else if (itemId == R.id.nav_placeholder) {
+                return false; // Ignore clicks on the placeholder
             }
 
             if (selectedFragment != null) {
@@ -63,6 +64,16 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         });
+
+        // FAB Scan Button
+        View fabScan = findViewById(R.id.fabScan);
+        if (fabScan != null) {
+            fabScan.setOnClickListener(v -> {
+                // Open Scanner (Ingredient Scan or AR Try On)
+                android.content.Intent intent = new android.content.Intent(MainActivity.this, com.example.tirtir_mcommerce.ui.activities.IngredientScanActivity.class);
+                startActivity(intent);
+            });
+        }
 
         // Hiển thị HomeFragment lúc mới mở app
         if (savedInstanceState == null) {
@@ -74,7 +85,10 @@ public class MainActivity extends AppCompatActivity {
                             .addToBackStack("order_history")
                             .commit();
                 } else if (getIntent().getBooleanExtra("OPEN_CART", false)) {
-                    bottomNav.setSelectedItemId(R.id.nav_cart);
+                    // Load CartFragment directly since it's removed from bottom nav
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer, new CartFragment())
+                            .commit();
                 } else if (getIntent().getBooleanExtra("OPEN_PROFILE", false)) {
                     bottomNav.setSelectedItemId(R.id.nav_profile);
                 } else {
@@ -113,7 +127,10 @@ public class MainActivity extends AppCompatActivity {
 
         String navigateTo = intent.getStringExtra("NAVIGATE_TO");
         if ("cart".equals(navigateTo)) {
-            if (bottomNav != null) bottomNav.setSelectedItemId(R.id.nav_cart);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, new CartFragment())
+                    .addToBackStack(null)
+                    .commit();
             return true;
         } else if ("order_history".equals(navigateTo)) {
             if (bottomNav != null) bottomNav.setSelectedItemId(R.id.nav_profile);
@@ -133,18 +150,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateCartBadge() {
-        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigationView);
-        if (bottomNav != null) {
-            int cartCount = DatabaseHelper.getInstance(this).getCartCount();
-            if (cartCount > 0) {
-                BadgeDrawable badge = bottomNav.getOrCreateBadge(R.id.nav_cart);
-                badge.setVisible(true);
-                badge.setNumber(cartCount);
-                badge.setBackgroundColor(getResources().getColor(R.color.tirtir_red_primary, null));
-            } else {
-                bottomNav.removeBadge(R.id.nav_cart);
-            }
-        }
+        // Cart badge is now handled directly in HomeFragment's header
+        // This method can be kept empty or left for other global badge updates
     }
 
     public void openHomeWithSearch(String query) {

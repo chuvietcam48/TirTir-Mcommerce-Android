@@ -79,11 +79,11 @@
             android:id="@+id/tvChatOfflineBanner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/tirtir_black"
+            android:background="#FFC107"
             android:gravity="center"
             android:padding="8dp"
             android:text="You are offline. Previous messages remain available."
-            android:textColor="@color/tirtir_white"
+            android:textColor="#000000"
             android:textSize="12sp"
             android:visibility="gone" />
 

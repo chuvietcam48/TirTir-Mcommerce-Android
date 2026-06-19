@@ -258,16 +258,25 @@ public class RoutineFragment extends Fragment {
             adapter.notifyDataSetChanged();
         }
 
+        private static final Map<String, Integer> SLOT_ORDER = new HashMap<>();
+        static {
+            SLOT_ORDER.put("cleanser", 1);
+            SLOT_ORDER.put("toner", 2);
+            SLOT_ORDER.put("essence", 3);
+            SLOT_ORDER.put("serum", 4);
+            SLOT_ORDER.put("eye", 5);
+            SLOT_ORDER.put("moisturizer", 6);
+            SLOT_ORDER.put("cream", 6);
+            SLOT_ORDER.put("oil", 7);
+            SLOT_ORDER.put("spf", 8);
+            SLOT_ORDER.put("sun", 8);
+        }
+
         private int getSortWeight(String slot) {
             String s = slot.toLowerCase(Locale.ENGLISH);
-            if (s.contains("cleanser")) return 1;
-            if (s.contains("toner")) return 2;
-            if (s.contains("essence")) return 3;
-            if (s.contains("serum")) return 4;
-            if (s.contains("eye")) return 5;
-            if (s.contains("moisturizer") || s.contains("cream")) return 6;
-            if (s.contains("oil")) return 7;
-            if (s.contains("spf") || s.contains("sun")) return 8;
+            for (Map.Entry<String, Integer> entry : SLOT_ORDER.entrySet()) {
+                if (s.contains(entry.getKey())) return entry.getValue();
+            }
             return 9;
         }
 
@@ -322,6 +331,7 @@ public class RoutineFragment extends Fragment {
             ApiService api = RetrofitClient.getAuthClient(requireContext()).create(ApiService.class);
             Map<String, Object> req = new HashMap<>();
             req.put("isMorning", isMorning);
+            req.put("isPublic", true);
             
             List<Map<String, String>> items = new ArrayList<>();
             for (RoutineStep step : adapter.steps) {
@@ -414,6 +424,7 @@ public class RoutineFragment extends Fragment {
                     List<CommunityRoutine> routines = new ArrayList<>();
                     for (QueryDocumentSnapshot doc : value) {
                         routines.add(new CommunityRoutine(
+                            doc.getId(),
                             doc.getString("name"),
                             doc.getString("userName"),
                             doc.getLong("stepCount") != null ? doc.getLong("stepCount").intValue() : 0
@@ -544,6 +555,49 @@ public class RoutineFragment extends Fragment {
             CommunityRoutine routine = routines.get(position);
             holder.name.setText(routine.name);
             holder.meta.setText(routine.userName + " - " + routine.stepCount + " steps");
+
+            if (holder.btnApplyRoutine != null) {
+                holder.btnApplyRoutine.setOnClickListener(v -> {
+                    ApiService api = RetrofitClient.getAuthClient(holder.itemView.getContext()).create(ApiService.class);
+                    api.getCommunityRoutine(routine.id).enqueue(new Callback<ApiResponse<List<com.example.tirtir_mcommerce.model.RoutineStep>>>() {
+                        @Override
+                        public void onResponse(Call<ApiResponse<List<com.example.tirtir_mcommerce.model.RoutineStep>>> call, Response<ApiResponse<List<com.example.tirtir_mcommerce.model.RoutineStep>>> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                List<com.example.tirtir_mcommerce.model.RoutineStep> steps = response.body().getData();
+                                List<Product> products = new ArrayList<>();
+                                if (steps != null) {
+                                    for(com.example.tirtir_mcommerce.model.RoutineStep s : steps) {
+                                        if(s.getProductId() != null && !s.getProductId().isEmpty()) {
+                                            Product p = new Product();
+                                            p.setProductId(s.getProductId());
+                                            p.setName(s.getProductName());
+                                            products.add(p);
+                                        }
+                                    }
+                                }
+                                List<RoutineConflictChecker.ConflictResult> conflicts = RoutineConflictChecker.checkConflicts(holder.itemView.getContext(), products);
+                                String warning = "";
+                                if(!conflicts.isEmpty()) {
+                                    warning = "\n\nCẢNH BÁO: Phát hiện xung đột thành phần: " + conflicts.get(0).productA + " & " + conflicts.get(0).productB;
+                                }
+                                new AlertDialog.Builder(holder.itemView.getContext())
+                                    .setTitle("Confirm overwrite")
+                                    .setMessage("Hành động này sẽ xóa toàn bộ chu trình Skincare hiện tại của bạn và thay bằng chu trình mới. Bạn có chắc chắn?" + warning)
+                                    .setPositiveButton("OK", (dialog, which) -> {
+                                        com.example.tirtir_mcommerce.database.DatabaseHelper.getInstance(holder.itemView.getContext()).updateRoutineSteps(steps);
+                                        Toast.makeText(holder.itemView.getContext(), "Routine applied!", Toast.LENGTH_SHORT).show();
+                                    })
+                                    .setNegativeButton("Cancel", null)
+                                    .show();
+                            }
+                        }
+                        @Override
+                        public void onFailure(Call<ApiResponse<List<com.example.tirtir_mcommerce.model.RoutineStep>>> call, Throwable t) {
+                            Toast.makeText(holder.itemView.getContext(), "Failed to copy routine", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                });
+            }
         }
 
         @Override
@@ -552,21 +606,25 @@ public class RoutineFragment extends Fragment {
         static class CommunityViewHolder extends RecyclerView.ViewHolder {
             final TextView name;
             final TextView meta;
+            final MaterialButton btnApplyRoutine;
 
             CommunityViewHolder(@NonNull View itemView) {
                 super(itemView);
                 name = itemView.findViewById(R.id.tvCommunityRoutineName);
                 meta = itemView.findViewById(R.id.tvCommunityRoutineMeta);
+                btnApplyRoutine = itemView.findViewById(R.id.btnApplyRoutine);
             }
         }
     }
 
     private static class CommunityRoutine {
+        final String id;
         final String name;
         final String userName;
         final int stepCount;
 
-        CommunityRoutine(String name, String userName, int stepCount) {
+        CommunityRoutine(String id, String name, String userName, int stepCount) {
+            this.id = id;
             this.name = name;
             this.userName = userName;
             this.stepCount = stepCount;

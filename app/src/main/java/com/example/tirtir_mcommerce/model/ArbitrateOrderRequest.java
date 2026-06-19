@@ -28,15 +28,27 @@ public class ArbitrateOrderRequest {
     /** Optional voucher code, e.g. "TIRTIR_ROUTINE_5" */
     @SerializedName("voucherCode")
     private String voucherCode;
+    
+    @SerializedName("quoteId")
+    private String quoteId;
+    
+    @SerializedName("serviceId")
+    private String serviceId;
+    
+    @SerializedName("idempotencyKey")
+    private String idempotencyKey;
 
     public ArbitrateOrderRequest() {}
 
     public ArbitrateOrderRequest(ShippingAddress shippingAddress, String paymentMethod,
-                                  String toProvince, String voucherCode) {
+                                  String toProvince, String voucherCode, String quoteId, String serviceId, String idempotencyKey) {
         this.shippingAddress = shippingAddress;
         this.paymentMethod   = paymentMethod;
         this.toProvince      = toProvince;
         this.voucherCode     = voucherCode;
+        this.quoteId = quoteId;
+        this.serviceId = serviceId;
+        this.idempotencyKey = idempotencyKey;
     }
 
     // Getters / Setters
@@ -48,4 +60,10 @@ public class ArbitrateOrderRequest {
     public void setToProvince(String v) { this.toProvince = v; }
     public String getVoucherCode() { return voucherCode; }
     public void setVoucherCode(String v) { this.voucherCode = v; }
+    public String getQuoteId() { return quoteId; }
+    public void setQuoteId(String v) { this.quoteId = v; }
+    public String getServiceId() { return serviceId; }
+    public void setServiceId(String v) { this.serviceId = v; }
+    public String getIdempotencyKey() { return idempotencyKey; }
+    public void setIdempotencyKey(String v) { this.idempotencyKey = v; }
 }

@@ -2,71 +2,62 @@ package com.example.tirtir_mcommerce.ui.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.Product;
-import com.example.tirtir_mcommerce.model.ProductResponse;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
+import com.example.tirtir_mcommerce.model.User;
 import com.example.tirtir_mcommerce.repository.ProductRepository;
 import com.example.tirtir_mcommerce.ui.activities.ChatActivity;
 import com.example.tirtir_mcommerce.ui.activities.IngredientScanActivity;
 import com.example.tirtir_mcommerce.ui.activities.ProductDetailActivity;
 import com.example.tirtir_mcommerce.ui.activities.SkinAnalysisActivity;
 import com.example.tirtir_mcommerce.ui.adapters.ProductAdapter;
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
+import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Locale;
 
 /**
- * SCR-13 HomeFragment — Danh sách sản phẩm
+ * SCR-13 HomeFragment — Redesigned Home Page
  *
- * API-first (TASK 2):
- * - Primary: GET /api/v1/products?limit=1000 via ProductRepository
- * - Fallback: SQLite cache → MockProductFallbackProvider (last resort)
- *
- * Category chips (TASK 3):
- * - Built DYNAMICALLY from API response categories[] + unique Category fields
- * - NOT hardcoded (no more Cushion/Toner/Serum as only options)
- * - "No products found" only shown after successful load with empty filter result
- *
- * Cold-start UX (TASK 8):
- * - Loading state shows "Loading TirTir products... Server may take 30–60s to wake up"
- * - Cache shown immediately if available while API refreshes
- * - Retry button on failure with no cache
- * - Empty state only shown AFTER load completes
- *
- * Sprint 1.2 — Task A
+ * Layout:
+ *  - Custom Search Bar + Cart Icon with badge
+ *  - Greeting "Hello, {Name} 👋"
+ *  - Category Row (Cleanser, Serum, Moisturizer, Sunscreen)
+ *  - Best Sellers horizontal RecyclerView (first 6 products)
+ *  - Promotional Banner "Hydra + Hyaluronic Collection"
+ *  - Explore All vertical 2-column grid
  */
 public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
     private static final String ARG_INITIAL_QUERY = "initial_query";
 
+    // Best Sellers
+    private RecyclerView rvBestSellers;
+    private ProductAdapter bestSellersAdapter;
+
+    // Explore All
     private RecyclerView rvProducts;
-    private ProductAdapter adapter;
+    private ProductAdapter exploreAllAdapter;
+
+    // State views
     private ProgressBar progressProducts;
     private LinearLayout layoutEmptyProducts;
     private LinearLayout layoutLoadingState;
@@ -74,18 +65,29 @@ public class HomeFragment extends Fragment {
     private TextView tvLoadingMessage;
     private TextView tvErrorMessage;
     private Button btnRetry;
-    private SearchView searchViewProducts;
-    private com.google.android.material.chip.ChipGroup chipGroupSkinTypeFilter;
-    private android.widget.Spinner spinnerCategory;
+
+    // Header
+    private TextView tvGreeting;
+    private TextView tvCartBadge;
+    private LinearLayout layoutSearch;
+    private LinearLayout containerCategories;
+
+    // Banner CTA
+    private View btnShopCollection;
 
     private ProductRepository productRepository;
     private List<Product> fullProductList = new ArrayList<>();
     private String currentSearchQuery = "";
-    private String currentSkinTypeFilter = "All";
     private String currentCategoryFilter = "All";
 
-    // Generated chip IDs to maintain selection state
-    private static final int CHIP_ID_BASE = 9000;
+    // Category definitions: {label, iconResId}
+    private static final String[] CATEGORY_LABELS = {"Cleanser", "Serum", "Moisturizer", "Sunscreen"};
+    private static final int[] CATEGORY_ICONS = {
+            R.drawable.ic_skin,   // Cleanser
+            R.drawable.ic_routine, // Serum
+            R.drawable.ic_skin,   // Moisturizer
+            R.drawable.ic_scan    // Sunscreen
+    };
 
     public static HomeFragment newInstance(String initialQuery) {
         HomeFragment fragment = new HomeFragment();
@@ -102,111 +104,206 @@ public class HomeFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        rvProducts           = view.findViewById(R.id.rvProducts);
-        progressProducts     = view.findViewById(R.id.progressProducts);
-        layoutEmptyProducts  = view.findViewById(R.id.layoutEmptyProducts);
-        layoutLoadingState   = view.findViewById(R.id.layoutLoadingState);
-        layoutErrorState     = view.findViewById(R.id.layoutErrorState);
-        tvLoadingMessage     = view.findViewById(R.id.tvLoadingMessage);
-        tvErrorMessage       = view.findViewById(R.id.tvErrorMessage);
-        btnRetry             = view.findViewById(R.id.btnRetry);
-        searchViewProducts   = view.findViewById(R.id.searchViewProducts);
-        chipGroupSkinTypeFilter = view.findViewById(R.id.chipGroupSkinTypeFilter);
-        spinnerCategory      = view.findViewById(R.id.spinnerCategory);
+        bindViews(view);
+        setupGreeting();
+        setupCategoryRow();
+        setupBestSellers();
+        setupExploreAll();
+        setupClickListeners(view);
+        loadProducts();
 
-        rvProducts.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        rvProducts.setHasFixedSize(true);
-
-        adapter = new ProductAdapter(getContext(), new ArrayList<>(), product -> {
-            Intent intent = new Intent(getContext(), ProductDetailActivity.class);
-            // Pass all product fields needed by ProductDetailActivity
-            String pid = product.getProductId() != null ? product.getProductId() : product.getId();
-            intent.putExtra("PRODUCT_ID",          pid);
-            intent.putExtra("PRODUCT_NAME",        product.getName());
-            // Price: raw value from API (see ProductAdapter price comments)
-            intent.putExtra("PRODUCT_PRICE",       product.getPrice());
-            intent.putExtra("PRODUCT_SALE_PRICE",  product.getSalePrice());
-            intent.putExtra("PRODUCT_CATEGORY",    product.getCategory());
-            intent.putExtra("PRODUCT_IMAGE",       product.getThumbnailImages());
-            intent.putExtra("PRODUCT_SKIN_TYPES",  product.getSkinTypeTarget());
-            intent.putExtra("PRODUCT_INGREDIENTS", product.getKeyIngredients());
-            intent.putExtra("PRODUCT_DESCRIPTION", product.getDescriptionShort());
-            intent.putExtra("PRODUCT_STOCK",       product.getStockQuantity());
-            if (product.getGalleryImages() != null) {
-                intent.putStringArrayListExtra("PRODUCT_GALLERY", new java.util.ArrayList<>(product.getGalleryImages()));
-            }
-            startActivity(intent);
-        });
-        rvProducts.setAdapter(adapter);
-
-        productRepository = new ProductRepository(getContext());
-
-        // Setup AdMob
-        MobileAds.initialize(requireContext(), initializationStatus -> {});
-        AdView mAdView = view.findViewById(R.id.adViewSlot);
-        if (mAdView != null) {
-            mAdView.setVisibility(View.VISIBLE);
-            AdRequest adRequest = new AdRequest.Builder().build();
-            mAdView.loadAd(adRequest);
-        }
-
-        setupSearch();
         if (getArguments() != null) {
             String initialQuery = getArguments().getString(ARG_INITIAL_QUERY, "");
             if (!initialQuery.trim().isEmpty()) {
                 currentSearchQuery = initialQuery.toLowerCase(Locale.ENGLISH).trim();
-                searchViewProducts.setQuery(initialQuery, false);
             }
         }
-        setupAiActions(view);
-        loadProducts();
-
-        btnRetry.setOnClickListener(v -> loadProducts());
 
         return view;
     }
 
-    private void setupAiActions(View view) {
-        View btnHomeChat = view.findViewById(R.id.btnHomeChat);
-        View btnHomeSkin = view.findViewById(R.id.btnHomeSkin);
-        View btnHomeScan = view.findViewById(R.id.btnHomeScan);
+    // ===========================
+    // BIND VIEWS
+    // ===========================
 
-        if (btnHomeChat != null) {
-            btnHomeChat.setOnClickListener(v -> startActivity(new Intent(requireContext(), ChatActivity.class)));
+    private void bindViews(View view) {
+        rvBestSellers       = view.findViewById(R.id.rvBestSellers);
+        rvProducts          = view.findViewById(R.id.rvProducts);
+        progressProducts    = view.findViewById(R.id.progressProducts);
+        layoutEmptyProducts = view.findViewById(R.id.layoutEmptyProducts);
+        layoutLoadingState  = view.findViewById(R.id.layoutLoadingState);
+        layoutErrorState    = view.findViewById(R.id.layoutErrorState);
+        tvLoadingMessage    = view.findViewById(R.id.tvLoadingMessage);
+        tvErrorMessage      = view.findViewById(R.id.tvErrorMessage);
+        btnRetry            = view.findViewById(R.id.btnRetry);
+        tvGreeting          = view.findViewById(R.id.tvGreeting);
+        tvCartBadge         = view.findViewById(R.id.tvCartBadge);
+        layoutSearch        = view.findViewById(R.id.layoutSearch);
+        containerCategories = view.findViewById(R.id.containerCategories);
+        btnShopCollection   = view.findViewById(R.id.btnShopCollection);
+    }
+
+    // ===========================
+    // GREETING
+    // ===========================
+
+    private void setupGreeting() {
+        if (tvGreeting == null) return;
+        SharedPrefsManager prefs = new SharedPrefsManager(requireContext());
+        User user = prefs.getCachedUser();
+        
+        String firstName = "Guest";
+        String fullName = "Guest User";
+        
+        if (user != null) {
+            fullName = user.getName() != null && !user.getName().isEmpty() ? user.getName() : user.getEmail();
+            if (fullName != null && !fullName.isEmpty()) {
+                // Extract first name only
+                firstName = fullName.split(" ")[0];
+                // Remove email part if no display name
+                if (firstName.contains("@")) firstName = firstName.split("@")[0];
+            }
         }
-        if (btnHomeSkin != null) {
-            btnHomeSkin.setOnClickListener(v -> startActivity(new Intent(requireContext(), SkinAnalysisActivity.class)));
+        
+        TextView tvGreetingSub = getView() != null ? getView().findViewById(R.id.tvGreetingSub) : null;
+        if (tvGreetingSub != null) {
+            tvGreetingSub.setText("Hi " + firstName + ",");
         }
-        if (btnHomeScan != null) {
-            btnHomeScan.setOnClickListener(v -> startActivity(new Intent(requireContext(), IngredientScanActivity.class)));
+        tvGreeting.setText(fullName);
+    }
+
+    // ===========================
+    // CATEGORY ROW
+    // ===========================
+
+    private void setupCategoryRow() {
+        if (containerCategories == null) return;
+        containerCategories.removeAllViews();
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+
+        for (int i = 0; i < CATEGORY_LABELS.length; i++) {
+            String label = CATEGORY_LABELS[i];
+            int iconRes = CATEGORY_ICONS[i];
+
+            View categoryItem = inflater.inflate(R.layout.item_category, containerCategories, false);
+            ImageView ivIcon = categoryItem.findViewById(R.id.ivCategoryIcon);
+            TextView tvLabel = categoryItem.findViewById(R.id.tvCategoryName);
+
+            ivIcon.setImageResource(iconRes);
+            tvLabel.setText(label);
+
+            final String categoryFilter = label;
+            categoryItem.setOnClickListener(v -> {
+                currentCategoryFilter = categoryFilter;
+                applyFilters();
+            });
+
+            containerCategories.addView(categoryItem);
         }
+    }
+
+    // ===========================
+    // ADAPTER SETUP
+    // ===========================
+
+    private void setupBestSellers() {
+        if (rvBestSellers == null) return;
+        bestSellersAdapter = new ProductAdapter(
+                getContext(), new ArrayList<>(), R.layout.item_product_bestseller, this::openProductDetail);
+        rvBestSellers.setLayoutManager(
+                new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        rvBestSellers.setHasFixedSize(false);
+        rvBestSellers.setAdapter(bestSellersAdapter);
+    }
+
+    private void setupExploreAll() {
+        if (rvProducts == null) return;
+        exploreAllAdapter = new ProductAdapter(
+                getContext(), new ArrayList<>(), R.layout.item_product, this::openProductDetail);
+        rvProducts.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        rvProducts.setHasFixedSize(false);
+        rvProducts.setNestedScrollingEnabled(false);
+        rvProducts.setAdapter(exploreAllAdapter);
+    }
+
+    private void openProductDetail(Product product) {
+        Intent intent = new Intent(getContext(), ProductDetailActivity.class);
+        String pid = product.getProductId() != null ? product.getProductId() : product.getId();
+        intent.putExtra("PRODUCT_ID",          pid);
+        intent.putExtra("PRODUCT_NAME",        product.getName());
+        intent.putExtra("PRODUCT_PRICE",       product.getPrice());
+        intent.putExtra("PRODUCT_SALE_PRICE",  product.getSalePrice());
+        intent.putExtra("PRODUCT_CATEGORY",    product.getCategory());
+        intent.putExtra("PRODUCT_IMAGE",       product.getThumbnailImages());
+        intent.putExtra("PRODUCT_SKIN_TYPES",  product.getSkinTypeTarget());
+        intent.putExtra("PRODUCT_INGREDIENTS", product.getKeyIngredients());
+        intent.putExtra("PRODUCT_DESCRIPTION", product.getDescriptionShort());
+        intent.putExtra("PRODUCT_STOCK",       product.getStockQuantity());
+        if (product.getGalleryImages() != null) {
+            intent.putStringArrayListExtra("PRODUCT_GALLERY",
+                    new ArrayList<>(product.getGalleryImages()));
+        }
+        startActivity(intent);
+    }
+
+    // ===========================
+    // CLICK LISTENERS
+    // ===========================
+
+    private void setupClickListeners(View view) {
+        if (btnRetry != null)          btnRetry.setOnClickListener(v -> loadProducts());
+        if (btnShopCollection != null) btnShopCollection.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), ChatActivity.class)));
+
+        // Search bar tap opens HomeFragment search or navigates
+        if (layoutSearch != null) layoutSearch.setOnClickListener(v -> {
+            // Focus a search bar or re-use SearchView logic
+        });
+
+        // Cart icon
+        View btnCart = view.findViewById(R.id.btnCart);
+        if (btnCart != null) btnCart.setOnClickListener(v -> {
+            if (requireActivity() instanceof com.example.tirtir_mcommerce.MainActivity) {
+                requireActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentContainer, new com.example.tirtir_mcommerce.ui.fragments.CartFragment())
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
+        // "View All" best sellers
+        View tvViewAll = view.findViewById(R.id.tvViewAllBestSellers);
+        if (tvViewAll != null) tvViewAll.setOnClickListener(v -> {
+            currentCategoryFilter = "All";
+            applyFilters();
+        });
+
+        // Filters button opens category filter (for now, resets to "All")
+        View btnFilters = view.findViewById(R.id.btnFilters);
+        if (btnFilters != null) btnFilters.setOnClickListener(v -> {
+            currentCategoryFilter = "All";
+            applyFilters();
+        });
     }
 
     // ===========================
     // PRODUCT LOADING
     // ===========================
 
-    /**
-     * API-first product load with cold-start UX.
-     * Shows loading message during Render wake-up (can take 30–60s).
-     * Shows cached products immediately if available.
-     */
     private void loadProducts() {
         showLoadingState();
 
-        // If SQLite cache has data, show it immediately while API refreshes
-        // (happens on subsequent opens — first open shows spinner only)
+        productRepository = new ProductRepository(getContext());
         productRepository.fetchProducts(products -> {
             if (getActivity() == null) return;
             getActivity().runOnUiThread(() -> {
                 hideAllStates();
                 if (products != null && !products.isEmpty()) {
                     fullProductList = new ArrayList<>(products);
-                    setupCategorySpinner(products);
                     applyFilters();
                     rvProducts.setVisibility(View.VISIBLE);
                 } else {
-                    showEmptyState("No products found");
+                    showEmptyState();
                 }
             });
         }, error -> {
@@ -215,10 +312,8 @@ public class HomeFragment extends Fragment {
             getActivity().runOnUiThread(() -> {
                 hideAllStates();
                 if (fullProductList.isEmpty()) {
-                    // No cached data — show retry
                     showErrorState("We could not load the catalog. Check your connection and try again.");
                 } else {
-                    // Have cached data already shown — just keep it
                     rvProducts.setVisibility(View.VISIBLE);
                 }
             });
@@ -230,174 +325,102 @@ public class HomeFragment extends Fragment {
     // ===========================
 
     private void showLoadingState() {
-        progressProducts.setVisibility(View.GONE);
-        layoutLoadingState.setVisibility(View.VISIBLE);
-        layoutErrorState.setVisibility(View.GONE);
-        layoutEmptyProducts.setVisibility(View.GONE);
-        // Don't hide rvProducts if we have cached data to show
+        if (layoutLoadingState != null) layoutLoadingState.setVisibility(View.VISIBLE);
+        if (layoutErrorState != null)   layoutErrorState.setVisibility(View.GONE);
+        if (layoutEmptyProducts != null) layoutEmptyProducts.setVisibility(View.GONE);
     }
 
     private void hideAllStates() {
-        progressProducts.setVisibility(View.GONE);
-        layoutLoadingState.setVisibility(View.GONE);
-        layoutErrorState.setVisibility(View.GONE);
-        layoutEmptyProducts.setVisibility(View.GONE);
+        if (progressProducts != null)   progressProducts.setVisibility(View.GONE);
+        if (layoutLoadingState != null) layoutLoadingState.setVisibility(View.GONE);
+        if (layoutErrorState != null)   layoutErrorState.setVisibility(View.GONE);
+        if (layoutEmptyProducts != null) layoutEmptyProducts.setVisibility(View.GONE);
     }
 
     private void showErrorState(String message) {
-        layoutErrorState.setVisibility(View.VISIBLE);
-        rvProducts.setVisibility(View.GONE);
-        if (tvErrorMessage != null) tvErrorMessage.setText(message);
+        if (layoutErrorState != null)  layoutErrorState.setVisibility(View.VISIBLE);
+        if (rvProducts != null)        rvProducts.setVisibility(View.GONE);
+        if (rvBestSellers != null)     rvBestSellers.setVisibility(View.GONE);
+        if (tvErrorMessage != null)    tvErrorMessage.setText(message);
     }
 
-    private void showEmptyState(String message) {
-        layoutEmptyProducts.setVisibility(View.VISIBLE);
-        rvProducts.setVisibility(View.GONE);
-    }
-
-    // ===========================
-    // CATEGORY CHIPS (DYNAMIC)
-    // ===========================
-
-    private void setupCategorySpinner(List<Product> products) {
-        Set<String> categories = new LinkedHashSet<>();
-        categories.add("All");
-        
-        List<ProductResponse.CategoryItem> apiCategories = productRepository.getLastKnownCategories();
-        if (apiCategories != null) {
-            for (ProductResponse.CategoryItem item : apiCategories) {
-                if (item != null && item.getName() != null && !item.getName().trim().isEmpty()) {
-                    categories.add(capitalize(item.getName().trim()));
-                }
-            }
-        }
-        
-        if (products != null) {
-            for (Product p : products) {
-                if (p != null && p.getCategory() != null && !p.getCategory().trim().isEmpty()) {
-                    categories.add(capitalize(p.getCategory().trim()));
-                }
-            }
-        }
-        
-        List<String> categoryList = new ArrayList<>(categories);
-        android.widget.ArrayAdapter<String> spinnerAdapter = new android.widget.ArrayAdapter<>(
-                requireContext(), android.R.layout.simple_spinner_item, categoryList);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerCategory.setAdapter(spinnerAdapter);
-        
-        spinnerCategory.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
-                currentCategoryFilter = categoryList.get(position);
-                applyFilters();
-            }
-            @Override
-            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
-        });
-    }
-
-    private String capitalize(String s) {
-        if (s == null || s.isEmpty()) return s;
-        return Character.toUpperCase(s.charAt(0))
-                + s.substring(1).toLowerCase(Locale.ENGLISH);
+    private void showEmptyState() {
+        if (layoutEmptyProducts != null) layoutEmptyProducts.setVisibility(View.VISIBLE);
+        if (rvProducts != null)          rvProducts.setVisibility(View.GONE);
     }
 
     // ===========================
-    // SEARCH & FILTER
+    // FILTER & SPLIT
     // ===========================
-
-    private void setupSearch() {
-        searchViewProducts.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                currentSearchQuery = query == null ? ""
-                        : query.toLowerCase(Locale.ENGLISH).trim();
-                applyFilters();
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                currentSearchQuery = newText == null ? ""
-                        : newText.toLowerCase(Locale.ENGLISH).trim();
-                applyFilters();
-                return false;
-            }
-        });
-
-        chipGroupSkinTypeFilter.setOnCheckedStateChangeListener((group, checkedIds) -> {
-            int checkedId = group.getCheckedChipId();
-            if (checkedId == R.id.chipFilterAll) currentSkinTypeFilter = "All";
-            else if (checkedId == R.id.chipFilterOily) currentSkinTypeFilter = "Oily";
-            else if (checkedId == R.id.chipFilterDry) currentSkinTypeFilter = "Dry";
-            else if (checkedId == R.id.chipFilterCombo) currentSkinTypeFilter = "Combination";
-            else if (checkedId == R.id.chipFilterSensitive) currentSkinTypeFilter = "Sensitive";
-            else currentSkinTypeFilter = "All";
-            applyFilters();
-        });
-    }
 
     /**
-     * Filter products by search query + selected category chip.
-     *
-     * "No products found" is ONLY shown when:
-     * - API loaded successfully AND
-     * - active filter/search produces no matching results
-     *
-     * It is NOT shown during loading or API failure.
+     * Splits products:
+     *  - Best Sellers RecyclerView: first 6 products (or category match)
+     *  - Explore All grid: remaining products
      */
     private void applyFilters() {
-        List<Product> filteredList = new ArrayList<>();
+        List<Product> filtered = new ArrayList<>();
         for (Product product : fullProductList) {
-            boolean matchesSearch = true;
             boolean matchesCategory = true;
-            boolean matchesSkinType = true;
-
-            if (!currentSearchQuery.isEmpty()) {
-                String name = product.getName() != null
-                        ? product.getName().toLowerCase(Locale.ENGLISH) : "";
-                String cat  = product.getCategory() != null
-                        ? product.getCategory().toLowerCase(Locale.ENGLISH) : "";
-                String desc = product.getDescriptionShort() != null
-                        ? product.getDescriptionShort().toLowerCase(Locale.ENGLISH) : "";
-                matchesSearch = name.contains(currentSearchQuery)
-                        || cat.contains(currentSearchQuery)
-                        || desc.contains(currentSearchQuery);
-            }
+            boolean matchesSearch = true;
 
             if (!"All".equalsIgnoreCase(currentCategoryFilter)) {
                 String cat = product.getCategory() != null ? product.getCategory() : "";
-                String catSlug = product.getCategorySlug() != null ? product.getCategorySlug() : "";
                 matchesCategory = cat.equalsIgnoreCase(currentCategoryFilter)
-                        || catSlug.equalsIgnoreCase(currentCategoryFilter)
-                        || cat.toLowerCase(Locale.ENGLISH)
-                        .contains(currentCategoryFilter.toLowerCase(Locale.ENGLISH));
-            }
-            
-            if (!"All".equalsIgnoreCase(currentSkinTypeFilter)) {
-                String skinTarget = product.getSkinTypeTarget() != null ? product.getSkinTypeTarget() : "";
-                String normalized = skinTarget.toLowerCase(Locale.ENGLISH);
-                String selected = currentSkinTypeFilter.toLowerCase(Locale.ENGLISH);
-                if ("combination".equals(selected)) {
-                    matchesSkinType = normalized.contains("combination") || normalized.contains("combo");
-                } else {
-                    matchesSkinType = normalized.contains(selected);
-                }
+                        || cat.toLowerCase(Locale.ENGLISH).contains(
+                                currentCategoryFilter.toLowerCase(Locale.ENGLISH));
             }
 
-            if (matchesSearch && matchesCategory && matchesSkinType) {
-                filteredList.add(product);
+            if (!currentSearchQuery.isEmpty()) {
+                String name = product.getName() != null ? product.getName().toLowerCase(Locale.ENGLISH) : "";
+                String cat  = product.getCategory() != null ? product.getCategory().toLowerCase(Locale.ENGLISH) : "";
+                matchesSearch = name.contains(currentSearchQuery) || cat.contains(currentSearchQuery);
+            }
+
+            if (matchesCategory && matchesSearch) {
+                filtered.add(product);
             }
         }
 
-        if (filteredList.isEmpty()) {
-            rvProducts.setVisibility(View.GONE);
-            layoutEmptyProducts.setVisibility(View.VISIBLE);
-        } else {
-            rvProducts.setVisibility(View.VISIBLE);
-            layoutEmptyProducts.setVisibility(View.GONE);
-            adapter.updateData(filteredList);
+        if (filtered.isEmpty()) {
+            showEmptyState();
+            return;
         }
+
+        // Best Sellers: first 6 items
+        int bestSellersCount = Math.min(6, filtered.size());
+        List<Product> bestSellers = filtered.subList(0, bestSellersCount);
+
+        // Explore All: everything
+        List<Product> exploreAll = filtered;
+
+        if (bestSellersAdapter != null) {
+            bestSellersAdapter.updateData(new ArrayList<>(bestSellers));
+            if (rvBestSellers != null) rvBestSellers.setVisibility(View.VISIBLE);
+        }
+
+        if (exploreAllAdapter != null) {
+            exploreAllAdapter.updateData(new ArrayList<>(exploreAll));
+            if (rvProducts != null) rvProducts.setVisibility(View.VISIBLE);
+        }
+
+        hideAllStates();
+    }
+
+    // ===========================
+    // PUBLIC API (called by MainActivity)
+    // ===========================
+
+    /** Updates cart badge count shown in the top bar. */
+    public void updateCartBadge(int count) {
+        if (tvCartBadge == null || getView() == null) return;
+        requireActivity().runOnUiThread(() -> {
+            if (count > 0) {
+                tvCartBadge.setVisibility(View.VISIBLE);
+                tvCartBadge.setText(count > 99 ? "99+" : String.valueOf(count));
+            } else {
+                tvCartBadge.setVisibility(View.GONE);
+            }
+        });
     }
 }

@@ -11,7 +11,7 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 
 import com.example.tirtir_mcommerce.R;
-import com.example.tirtir_mcommerce.ui.activities.MainActivity;
+import com.example.tirtir_mcommerce.MainActivity;
 
 public class RoutineReminderReceiver extends BroadcastReceiver {
     private static final String CHANNEL_ID = "RoutineReminderChannel";
@@ -34,16 +34,14 @@ public class RoutineReminderReceiver extends BroadcastReceiver {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, mainIntent, PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_notification) // Ensure this exists, using default might crash if missing
+                .setSmallIcon(android.R.drawable.ic_popup_reminder)
                 .setContentTitle("Skincare Routine Time!")
                 .setContentText("It's time for your daily TirTir skincare routine.")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
 
-        // Fallback icon if ic_notification doesn't exist
-        builder.setSmallIcon(android.R.drawable.ic_popup_reminder);
-
+        // Fallback icon already set above
         notificationManager.notify(1001, builder.build());
     }
 }

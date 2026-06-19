@@ -19,9 +19,11 @@ import retrofit2.Response;
 public class TokenAuthenticator implements Authenticator {
     private static final Object REFRESH_LOCK = new Object();
 
+    private final android.content.Context context;
     private final SharedPrefsManager prefsManager;
 
-    public TokenAuthenticator(SharedPrefsManager prefsManager) {
+    public TokenAuthenticator(android.content.Context context, SharedPrefsManager prefsManager) {
+        this.context = context;
         this.prefsManager = prefsManager;
     }
 
@@ -64,6 +66,13 @@ public class TokenAuthenticator implements Authenticator {
                 int statusCode = refreshResponse.code();
                 if (statusCode == 400 || statusCode == 401 || statusCode == 403) {
                     prefsManager.clearAuthSession();
+                    if (context != null) {
+                        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                            android.content.Intent intent = new android.content.Intent(context, com.example.tirtir_mcommerce.ui.activities.LoginActivity.class);
+                            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            context.startActivity(intent);
+                        });
+                    }
                 }
             } catch (IOException ignored) {
                 return null;
