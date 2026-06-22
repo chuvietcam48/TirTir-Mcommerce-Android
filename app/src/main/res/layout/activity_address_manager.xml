@@ -16,6 +16,7 @@
             android:id="@+id/toolbarAddressManager"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back"
             app:title="My Addresses"
             app:titleTextColor="#1A1A1A" />
     </com.google.android.material.appbar.AppBarLayout>

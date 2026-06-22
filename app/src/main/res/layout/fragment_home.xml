@@ -39,7 +39,7 @@
                         android:id="@+id/tvGreetingSub"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Hi Leo,"
+                        android:text="Hi,"
                         android:textColor="@color/tirtir_text_secondary"
                         android:textSize="12sp" />
 

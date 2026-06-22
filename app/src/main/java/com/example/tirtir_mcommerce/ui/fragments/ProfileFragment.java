@@ -20,6 +20,8 @@ import android.widget.Toast;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.tirtir_mcommerce.ui.activities.SkinAnalysisActivity;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -93,9 +95,10 @@ public class ProfileFragment extends Fragment {
     private TextView tvLoyaltyTierBadge, tvLoyaltyPoints, tvLoyaltyProgress;
     private ProgressBar pbLoyalty;
     private View cardLoyalty;
-    private MaterialButton btnEditProfile;
-    private LinearLayout layoutMyOrders, layoutMyAddresses, layoutMyWishlist, layoutScanHistory, layoutNotificationSettings;
-    private com.google.android.material.button.MaterialButton btnLogout;
+    private View btnEditProfile;
+    private LinearLayout layoutMyOrders, layoutMyAddresses, layoutMyWishlist, layoutScanHistory;
+    private TextView btnLogout;
+    private TextView tvScanHistoryStatus;
     private ProgressBar progressAvatarUpload;
     private com.google.android.material.chip.ChipGroup chipGroupSkinType;
     private com.google.android.material.chip.Chip chipSkinOily, chipSkinDry, chipSkinCombo, chipSkinSensitive, chipSkinNormal;
@@ -177,6 +180,25 @@ public class ProfileFragment extends Fragment {
         loadLoyalty();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadSkinHistory();
+    }
+
+    private void loadSkinHistory() {
+        if (tvScanHistoryStatus == null) return;
+        com.example.tirtir_mcommerce.model.SkinProfile profile = 
+            com.example.tirtir_mcommerce.database.DatabaseHelper.getInstance(requireContext()).getLatestSkinProfile();
+        if (profile != null && profile.getAnalysisResult() != null && profile.getAnalysisResult().getSkinTone() != null) {
+            tvScanHistoryStatus.setText("Tone " + profile.getAnalysisResult().getSkinTone());
+            tvScanHistoryStatus.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.tirtir_red_primary));
+        } else {
+            tvScanHistoryStatus.setText("VIEW");
+            tvScanHistoryStatus.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.tirtir_text_secondary));
+        }
+    }
+
     // ===========================
     // BIND VIEWS
     // ===========================
@@ -191,7 +213,7 @@ public class ProfileFragment extends Fragment {
         layoutMyAddresses = view.findViewById(R.id.layoutMyAddresses);
         layoutMyWishlist = view.findViewById(R.id.layoutMyWishlist);
         layoutScanHistory = view.findViewById(R.id.layoutScanHistory);
-        layoutNotificationSettings = view.findViewById(R.id.layoutNotificationSettings);
+        tvScanHistoryStatus = view.findViewById(R.id.tvScanHistoryStatus);
         btnLogout = view.findViewById(R.id.btnLogout);
         progressAvatarUpload = view.findViewById(R.id.progressAvatarUpload);
         tvLoyaltyTierBadge = view.findViewById(R.id.tvLoyaltyTierBadge);
@@ -373,13 +395,18 @@ public class ProfileFragment extends Fragment {
         layoutMyWishlist.setOnClickListener(v -> navigateToWishlist());
 
         if (layoutScanHistory != null) {
-            layoutScanHistory.setOnClickListener(v ->
-                    startActivity(new Intent(requireContext(), IngredientHistoryActivity.class)));
-        }
-
-        if (layoutNotificationSettings != null) {
-            layoutNotificationSettings.setOnClickListener(v ->
-                    startActivity(new Intent(requireContext(), NotificationSettingsActivity.class)));
+            layoutScanHistory.setOnClickListener(v -> {
+                com.example.tirtir_mcommerce.model.SkinProfile profile = 
+                    com.example.tirtir_mcommerce.database.DatabaseHelper.getInstance(requireContext()).getLatestSkinProfile();
+                if (profile != null && profile.getAnalysisResult() != null) {
+                    Intent intent = new Intent(requireContext(), com.example.tirtir_mcommerce.ui.activities.SkinResultActivity.class);
+                    intent.putExtra("SKIN_ANALYSIS_JSON", new com.google.gson.Gson().toJson(profile.getAnalysisResult()));
+                    intent.putExtra("SHADE_MATCHES_JSON", new com.google.gson.Gson().toJson(profile.getShadeMatches()));
+                    startActivity(intent);
+                } else {
+                    startActivity(new Intent(requireContext(), SkinAnalysisActivity.class));
+                }
+            });
         }
 
         btnEditProfile.setOnClickListener(v -> {
@@ -458,7 +485,8 @@ public class ProfileFragment extends Fragment {
                 android.animation.ValueAnimator valueAnimator = android.animation.ValueAnimator.ofInt(0, points);
                 valueAnimator.setDuration(800);
                 valueAnimator.addUpdateListener(animator -> {
-                    tvLoyaltyPoints.setText(animator.getAnimatedValue().toString() + " points");
+                    int val = (int) animator.getAnimatedValue();
+                    tvLoyaltyPoints.setText(String.format(Locale.getDefault(), "%,d points", val));
                 });
                 valueAnimator.start();
 

@@ -67,6 +67,7 @@ public class HomeFragment extends Fragment {
     private Button btnRetry;
 
     // Header
+    private TextView tvGreetingSub;
     private TextView tvGreeting;
     private TextView tvCartBadge;
     private LinearLayout layoutSearch;
@@ -136,6 +137,7 @@ public class HomeFragment extends Fragment {
         tvLoadingMessage    = view.findViewById(R.id.tvLoadingMessage);
         tvErrorMessage      = view.findViewById(R.id.tvErrorMessage);
         btnRetry            = view.findViewById(R.id.btnRetry);
+        tvGreetingSub       = view.findViewById(R.id.tvGreetingSub);
         tvGreeting          = view.findViewById(R.id.tvGreeting);
         tvCartBadge         = view.findViewById(R.id.tvCartBadge);
         layoutSearch        = view.findViewById(R.id.layoutSearch);
@@ -165,9 +167,8 @@ public class HomeFragment extends Fragment {
             }
         }
         
-        TextView tvGreetingSub = getView() != null ? getView().findViewById(R.id.tvGreetingSub) : null;
         if (tvGreetingSub != null) {
-            tvGreetingSub.setText("Hi " + firstName + ",");
+            tvGreetingSub.setText("Hi,");
         }
         tvGreeting.setText(fullName);
     }

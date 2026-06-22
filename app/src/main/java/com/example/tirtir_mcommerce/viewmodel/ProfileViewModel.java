@@ -168,37 +168,39 @@ public class ProfileViewModel extends AndroidViewModel {
             return;
         }
 
-        String userId = cachedUser.getId();
         avatarUploadLoading.setValue(true);
 
-        // Upload lên Firebase Storage: avatars/{userId}.jpg
-        StorageReference storageRef = FirebaseStorage.getInstance()
-                .getReference("avatars/" + userId + ".jpg");
-
-        storageRef.putFile(imageUri)
-                .addOnSuccessListener(taskSnapshot -> {
-                    // Lấy URL tải xuống
-                    storageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-                        String avatarUrl = downloadUri.toString();
-                        // Cập nhật avatar URL lên server
-                        Map<String, String> body = new HashMap<>();
-                        body.put("avatar", avatarUrl);
-                        profileRepository.updateProfile(body,
-                                user -> {
-                                    avatarUploadLoading.postValue(false);
-                                    userLiveData.postValue(user);
-                                    successMessage.postValue("Profile photo updated.");
-                                },
-                                message -> {
-                                    avatarUploadLoading.postValue(false);
-                                    errorMessage.postValue(message);
-                                }
-                        );
-                    });
-                })
-                .addOnFailureListener(e -> {
+        // Firebase Storage cần nâng cấp gói trả phí (Blaze plan) nên tạm bỏ qua.
+        // Lưu thẳng local URI vào backend để UI cập nhật được.
+        String avatarUrl = imageUri.toString();
+        Map<String, String> body = new HashMap<>();
+        body.put("avatar", avatarUrl);
+        profileRepository.updateProfile(body,
+                user -> {
                     avatarUploadLoading.postValue(false);
-                    errorMessage.postValue("Photo upload failed. Please try again.");
-                });
+                    userLiveData.postValue(user);
+                    successMessage.postValue("Profile photo updated.");
+                },
+                message -> {
+                    avatarUploadLoading.postValue(false);
+                    errorMessage.postValue(message);
+                }
+        );
+    }
+
+    private void updateAvatarUrlToBackend(String avatarUrl) {
+        Map<String, String> body = new HashMap<>();
+        body.put("avatar", avatarUrl);
+        profileRepository.updateProfile(body,
+                user -> {
+                    avatarUploadLoading.postValue(false);
+                    userLiveData.postValue(user);
+                    successMessage.postValue("Profile photo updated.");
+                },
+                message -> {
+                    avatarUploadLoading.postValue(false);
+                    errorMessage.postValue(message);
+                }
+        );
     }
 }

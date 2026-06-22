@@ -16,6 +16,7 @@
             android:id="@+id/toolbarOrderHistory"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back"
             app:title="@string/profile_my_orders"
             app:titleTextColor="@color/tirtir_black" />
     </com.google.android.material.appbar.AppBarLayout>

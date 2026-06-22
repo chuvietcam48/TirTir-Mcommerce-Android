@@ -44,7 +44,7 @@ public class ProfileRepository {
                     if (user != null) prefsManager.saveUser(user);
                     onSuccess.onSuccess(user);
                 } else {
-                    onError.onError("Unable to load your account.");
+                    onError.onError("Unable to load your account. HTTP: " + response.code());
                 }
             }
 
@@ -70,7 +70,7 @@ public class ProfileRepository {
                     if (updatedUser != null) prefsManager.saveUser(updatedUser);
                     onSuccess.onSuccess(updatedUser);
                 } else {
-                    onError.onError("Profile update failed.");
+                    onError.onError("Profile update failed. HTTP: " + response.code());
                 }
             }
 

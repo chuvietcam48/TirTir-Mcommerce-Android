@@ -4,453 +4,363 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/tirtir_bg_gray">
+    android:background="#FAFAFA">
 
-    <!-- HEADER CARD -->
-    <com.google.android.material.appbar.AppBarLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/tirtir_white"
-        app:elevation="0dp">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/tirtir_white"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="20dp">
+            android:gravity="center_horizontal"
+            android:paddingTop="32dp"
+            android:paddingBottom="64dp">
 
+            <!-- Avatar with circular progress -->
+            <FrameLayout
+                android:layout_width="120dp"
+                android:layout_height="120dp">
+
+                <ProgressBar
+                    android:id="@+id/pbLoyalty"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:indeterminate="false"
+                    android:progressDrawable="@drawable/circular_progress_bar"
+                    android:max="1000"
+                    android:progress="250" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivAvatar"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:scaleType="centerCrop"
+                    android:background="@color/tirtir_red_surface"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent" />
+
+                <TextView
+                    android:id="@+id/tvInitials"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:background="@drawable/ic_tirtir_brand_circle"
+                    android:textColor="@color/tirtir_red_primary"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    android:text="TT" />
+
+                <ProgressBar
+                    android:id="@+id/progressAvatarUpload"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
+                    android:indeterminateTint="@color/tirtir_red_primary"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- Name -->
             <TextView
+                android:id="@+id/tvUserName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Account"
-                android:textSize="20sp"
-                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:text="Name"
                 android:textColor="@color/tirtir_black"
-                android:layout_marginBottom="16dp" />
+                android:textSize="22sp"
+                android:textStyle="normal"
+                android:fontFamily="serif" />
 
+            <!-- Hidden Views (kept to avoid Java NullPointerExceptions or complex edits) -->
+            <TextView android:id="@+id/tvEmail" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+            <TextView android:id="@+id/tvLoyaltyProgress" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+            <View android:id="@+id/cardLoyalty" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+            <View android:id="@+id/btnEditProfile" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+            <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvAddresses" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+
+            <!-- Tier and Points -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp">
 
-                <FrameLayout
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_marginEnd="16dp">
-
-                    <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/ivAvatar"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:scaleType="centerCrop"
-                        android:background="@color/tirtir_red_surface"
-                        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
-                        android:visibility="invisible"
-                        tools:visibility="visible" />
-
-                    <TextView
-                        android:id="@+id/tvInitials"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:gravity="center"
-                        android:background="@drawable/ic_tirtir_brand_circle"
-                        android:textColor="@color/tirtir_red_primary"
-                        android:textSize="24sp"
-                        android:textStyle="bold"
-                        android:visibility="visible"
-                        android:text="TT" />
-                        
-                    <ProgressBar
-                        android:id="@+id/progressAvatarUpload"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:layout_gravity="center"
-                        android:indeterminateTint="@color/tirtir_red_primary"
-                        android:visibility="gone" />
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvUserName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/tirtir_black"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:text="Loading..." />
-
-                    <TextView
-                        android:id="@+id/tvEmail"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/tirtir_text_secondary"
-                        android:textSize="13sp"
-                        android:layout_marginTop="2dp"
-                        android:text="email@example.com" />
-                </LinearLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnEditProfile"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                <TextView
+                    android:id="@+id/tvLoyaltyTierBadge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Edit"
-                    android:textColor="@color/tirtir_red_primary" />
+                    android:background="@drawable/bg_pill_red_outline"
+                    android:backgroundTint="#333333"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="4dp"
+                    android:text="SILVER"
+                    android:textColor="@color/tirtir_white"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="true" />
 
+                <TextView
+                    android:id="@+id/tvLoyaltyPoints"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="1,250 points"
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:textSize="12sp" />
             </LinearLayout>
 
+            <!-- Skin Types -->
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroupSkinType"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:singleSelection="true">
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipSkinOily"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Oily" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipSkinDry"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Dry" />
+                android:layout_marginTop="24dp"
+                android:layout_marginHorizontal="24dp"
+                app:singleSelection="true"
+                app:chipSpacingHorizontal="8dp"
+                app:chipSpacingVertical="8dp"
+                android:gravity="center">
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipSkinCombo"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Combination" />
+                    app:chipBackgroundColor="@android:color/transparent"
+                    app:chipStrokeColor="@color/chip_stroke_profile"
+                    app:chipStrokeWidth="1dp"
+                    android:textColor="@color/chip_text_profile"
+                    android:text="COMBINATION" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSkinOily"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:chipBackgroundColor="@android:color/transparent"
+                    app:chipStrokeColor="@color/chip_stroke_profile"
+                    app:chipStrokeWidth="1dp"
+                    android:textColor="@color/chip_text_profile"
+                    android:text="OILY" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSkinDry"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:chipBackgroundColor="@android:color/transparent"
+                    app:chipStrokeColor="@color/chip_stroke_profile"
+                    app:chipStrokeWidth="1dp"
+                    android:textColor="@color/chip_text_profile"
+                    android:text="DRY" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipSkinSensitive"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Sensitive" />
+                    app:chipBackgroundColor="@android:color/transparent"
+                    app:chipStrokeColor="@color/chip_stroke_profile"
+                    app:chipStrokeWidth="1dp"
+                    android:textColor="@color/chip_text_profile"
+                    android:text="SENSITIVE" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipSkinNormal"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Normal" />
+                    app:chipBackgroundColor="@android:color/transparent"
+                    app:chipStrokeColor="@color/chip_stroke_profile"
+                    app:chipStrokeWidth="1dp"
+                    android:textColor="@color/chip_text_profile"
+                    android:text="NORMAL" />
             </com.google.android.material.chip.ChipGroup>
 
-        </LinearLayout>
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-                android:paddingStart="16dp"
-                android:paddingTop="16dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="96dp">
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardLoyalty"
+            <!-- Menu List -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/tirtir_white"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
-                <LinearLayout
+                android:orientation="vertical"
+                android:layout_marginTop="32dp"
+                android:paddingHorizontal="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="YOUR ACCOUNT"
+                    android:textSize="10sp"
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:letterSpacing="0.2"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginStart="8dp" />
+
+                <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@color/tirtir_white">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-                        <TextView
-                            android:id="@+id/tvLoyaltyTierBadge"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Silver"
-                            android:textColor="@color/tirtir_white"
-                            android:background="@color/tirtir_black"
-                            android:paddingStart="8dp"
-                            android:paddingEnd="8dp"
-                            android:paddingTop="4dp"
-                            android:paddingBottom="4dp"
-                            android:textStyle="bold"
-                            android:textSize="12sp" />
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="0dp"
-                            android:layout_weight="1" />
-                        <TextView
-                            android:id="@+id/tvLoyaltyPoints"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0 points"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/tirtir_black" />
-                    </LinearLayout>
-                    <ProgressBar
-                        android:id="@+id/pbLoyalty"
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:progressTint="@color/tirtir_red_primary"
-                        android:max="1000"
-                        android:progress="150" />
+                        android:orientation="vertical"
+                        android:paddingVertical="8dp">
 
-                    <TextView
-                        android:id="@+id/tvLoyaltyProgress"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="Loading loyalty progress..."
-                        android:textColor="@color/tirtir_text_secondary"
-                        android:textSize="12sp" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                        <!-- My Orders -->
+                        <LinearLayout
+                            android:id="@+id/layoutMyOrders"
+                            android:layout_width="match_parent"
+                            android:layout_height="64dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="20dp"
+                            android:background="?attr/selectableItemBackground">
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_product_placeholder"
+                                app:tint="@color/tirtir_red_primary" />
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="16dp"
+                                android:text="My Orders"
+                                android:textColor="@color/tirtir_black"
+                                android:textSize="15sp" />
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_chevron_right"
+                                app:tint="@color/tirtir_text_secondary" />
+                        </LinearLayout>
+
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginHorizontal="20dp"/>
+
+                        <!-- My Addresses -->
+                        <LinearLayout
+                            android:id="@+id/layoutMyAddresses"
+                            android:layout_width="match_parent"
+                            android:layout_height="64dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="20dp"
+                            android:background="?attr/selectableItemBackground">
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@android:drawable/ic_menu_mylocation"
+                                app:tint="@color/tirtir_red_primary" />
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="16dp"
+                                android:text="My Addresses"
+                                android:textColor="@color/tirtir_black"
+                                android:textSize="15sp" />
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_chevron_right"
+                                app:tint="@color/tirtir_text_secondary" />
+                        </LinearLayout>
+
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginHorizontal="20dp"/>
+
+                        <!-- Wishlist -->
+                        <LinearLayout
+                            android:id="@+id/layoutMyWishlist"
+                            android:layout_width="match_parent"
+                            android:layout_height="64dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="20dp"
+                            android:background="?attr/selectableItemBackground">
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_wishlist"
+                                app:tint="@color/tirtir_red_primary" />
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="16dp"
+                                android:text="Wishlist"
+                                android:textColor="@color/tirtir_black"
+                                android:textSize="15sp" />
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_chevron_right"
+                                app:tint="@color/tirtir_text_secondary" />
+                        </LinearLayout>
+
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginHorizontal="20dp"/>
+
+                        <!-- Scan history -->
+                        <LinearLayout
+                            android:id="@+id/layoutScanHistory"
+                            android:layout_width="match_parent"
+                            android:layout_height="64dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="20dp"
+                            android:background="?attr/selectableItemBackground">
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_skin"
+                                app:tint="@color/tirtir_red_primary" />
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="16dp"
+                                android:text="Skin analysis"
+                                android:textColor="@color/tirtir_black"
+                                android:textSize="15sp" />
+                            <TextView
+                                android:id="@+id/tvScanHistoryStatus"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="VIEW"
+                                android:textColor="@color/tirtir_text_secondary"
+                                android:textSize="10sp"
+                                android:layout_marginEnd="8dp" />
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_chevron_right"
+                                app:tint="@color/tirtir_text_secondary" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
 
             <TextView
+                android:id="@+id/btnLogout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="YOUR ACCOUNT"
-                android:textSize="11sp"
-                android:textColor="@color/tirtir_text_secondary"
+                android:text="SIGN OUT"
+                android:textColor="#C08080"
+                android:textSize="12sp"
+                android:textStyle="bold"
                 android:letterSpacing="0.1"
-                android:textAllCaps="true"
-                android:layout_marginBottom="8dp"
-                android:layout_marginStart="4dp" />
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/tirtir_white"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/tirtir_border_gray">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:id="@+id/layoutMyOrders"
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:background="?attr/selectableItemBackground">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/profile_my_orders"
-                            android:textColor="@color/tirtir_text_primary"
-                            android:textSize="15sp" />
-
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@android:drawable/ic_media_next"
-                            android:alpha="0.65"
-                            app:tint="@color/tirtir_text_secondary" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/tirtir_border_gray" />
-
-                    <LinearLayout
-                        android:id="@+id/layoutMyAddresses"
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:background="?attr/selectableItemBackground">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/profile_my_addresses"
-                            android:textColor="@color/tirtir_text_primary"
-                            android:textSize="15sp" />
-
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@android:drawable/ic_media_next"
-                            android:alpha="0.65"
-                            app:tint="@color/tirtir_text_secondary" />
-                    </LinearLayout>
-                    
-                    <!-- Include Address List here -->
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvAddresses"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false"
-                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/tirtir_border_gray" />
-
-                    <LinearLayout
-                        android:id="@+id/layoutMyWishlist"
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:background="?attr/selectableItemBackground">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/profile_my_wishlist"
-                            android:textColor="@color/tirtir_text_primary"
-                            android:textSize="15sp" />
-
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@android:drawable/ic_media_next"
-                            android:alpha="0.65"
-                            app:tint="@color/tirtir_text_secondary" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/tirtir_border_gray" />
-
-                    <LinearLayout
-                        android:id="@+id/layoutScanHistory"
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:background="?attr/selectableItemBackground">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Scan history"
-                            android:textColor="@color/tirtir_text_primary"
-                            android:textSize="15sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="View"
-                            android:textColor="@color/tirtir_text_secondary"
-                            android:textSize="12sp"
-                            android:layout_marginEnd="8dp" />
-
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@android:drawable/ic_media_next"
-                            android:alpha="0.65"
-                            app:tint="@color/tirtir_text_secondary" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/tirtir_border_gray" />
-
-                    <LinearLayout
-                        android:id="@+id/layoutNotificationSettings"
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:background="?attr/selectableItemBackground">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Notification settings"
-                            android:textColor="@color/tirtir_text_primary"
-                            android:textSize="15sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Routine, restock"
-                            android:textColor="@color/tirtir_text_secondary"
-                            android:textSize="12sp"
-                            android:layout_marginEnd="8dp" />
-
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@android:drawable/ic_media_next"
-                            android:alpha="0.65"
-                            app:tint="@color/tirtir_text_secondary" />
-                    </LinearLayout>
-
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnLogout"
-                style="@style/Widget.TirTir.Button.Outline"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:text="@string/btn_logout"
-                android:textColor="@color/tirtir_error"
-                app:strokeColor="@color/tirtir_error"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="32dp" />
+                android:layout_marginTop="32dp"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
