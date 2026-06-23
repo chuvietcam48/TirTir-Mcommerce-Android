@@ -44,18 +44,22 @@ public class AdminCartRecoveryActivity extends AppCompatActivity {
         RecyclerView list = findViewById(R.id.rvCartRecovery);
         list.setLayoutManager(new LinearLayoutManager(this));
         
-        java.util.List<CartRecoveryAdapter.CartRecoveryItem> mockItems = new java.util.ArrayList<>();
-        mockItems.add(new CartRecoveryAdapter.CartRecoveryItem("Nguyễn Văn An", "an.nguyen@gmail.com", "Abandoned", "TIRTIR Mask Fit Red Cushion x1, Milk Skin Toner x1", 870000, "2 hours ago"));
-        mockItems.add(new CartRecoveryAdapter.CartRecoveryItem("Trần Thị Mai", "mai.tran@yahoo.com", "Recovered", "Ceramide Cream x2, Water Serum x1", 1120000, "5 hours ago"));
-        mockItems.add(new CartRecoveryAdapter.CartRecoveryItem("Lê Hoàng Nam", "nam.le@gmail.com", "Abandoned", "Collagent Fit Cushion x1", 520000, "1 day ago"));
-        mockItems.add(new CartRecoveryAdapter.CartRecoveryItem("Phạm Minh Thư", "thu.pham@hotmail.com", "Recovered", "Rose Oil Balm x1, Sunscreen SPF50+ x2", 980000, "3 days ago"));
-        mockItems.add(new CartRecoveryAdapter.CartRecoveryItem("Vũ Đức Huy", "huy.vu@gmail.com", "Abandoned", "Mask Fit Red Mini x1, Lip Tint x2", 730000, "4 days ago"));
-
-        list.setAdapter(new CartRecoveryAdapter(this, mockItems));
+        list.setAdapter(new CartRecoveryAdapter(this, loadFallbackCartRecoveryItems()));
         if (tvEmpty != null) {
             tvEmpty.setVisibility(android.view.View.GONE);
         }
         loadStats();
+    }
+
+    private java.util.List<CartRecoveryAdapter.CartRecoveryItem> loadFallbackCartRecoveryItems() {
+        android.util.Log.d("AdminCartRecovery", "Using local fallback cart recovery list. Backend only supports aggregate recovery statistics.");
+        java.util.List<CartRecoveryAdapter.CartRecoveryItem> items = new java.util.ArrayList<>();
+        items.add(new CartRecoveryAdapter.CartRecoveryItem("Nguyễn Văn An", "an.nguyen@gmail.com", "Abandoned", "TIRTIR Mask Fit Red Cushion x1, Milk Skin Toner x1", 870000, "2 hours ago"));
+        items.add(new CartRecoveryAdapter.CartRecoveryItem("Trần Thị Mai", "mai.tran@yahoo.com", "Recovered", "Ceramide Cream x2, Water Serum x1", 1120000, "5 hours ago"));
+        items.add(new CartRecoveryAdapter.CartRecoveryItem("Lê Hoàng Nam", "nam.le@gmail.com", "Abandoned", "Collagent Fit Cushion x1", 520000, "1 day ago"));
+        items.add(new CartRecoveryAdapter.CartRecoveryItem("Phạm Minh Thư", "thu.pham@hotmail.com", "Recovered", "Rose Oil Balm x1, Sunscreen SPF50+ x2", 980000, "3 days ago"));
+        items.add(new CartRecoveryAdapter.CartRecoveryItem("Vũ Đức Huy", "huy.vu@gmail.com", "Abandoned", "Mask Fit Red Mini x1, Lip Tint x2", 730000, "4 days ago"));
+        return items;
     }
 
     private void loadStats() {
