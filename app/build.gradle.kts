@@ -81,6 +81,7 @@ dependencies {
 
     // Lottie
     implementation("com.airbnb.android:lottie:6.4.0")
+    implementation("com.facebook.shimmer:shimmer:0.5.0")
 
     // Phase 3 frontend widgets
     implementation("androidx.camera:camera-camera2:1.4.2")

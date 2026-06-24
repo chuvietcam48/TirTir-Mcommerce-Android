@@ -94,10 +94,11 @@
                             android:background="@drawable/ic_tirtir_brand_circle"
                             android:backgroundTint="@color/tirtir_red_primary"
                             android:gravity="center"
-                            android:text="13"
+                            android:text="0"
                             android:textColor="@color/tirtir_white"
                             android:textSize="9sp"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"
+                            android:visibility="gone" />
                     </FrameLayout>
                 </LinearLayout>
             </LinearLayout>

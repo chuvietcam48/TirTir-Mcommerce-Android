@@ -84,10 +84,10 @@ public class HomeFragment extends Fragment {
     // Category definitions: {label, iconResId}
     private static final String[] CATEGORY_LABELS = {"Cleanser", "Serum", "Moisturizer", "Sunscreen"};
     private static final int[] CATEGORY_ICONS = {
-            R.drawable.ic_skin,   // Cleanser
-            R.drawable.ic_routine, // Serum
-            R.drawable.ic_skin,   // Moisturizer
-            R.drawable.ic_scan    // Sunscreen
+            R.drawable.ic_category_cleanser,
+            R.drawable.ic_category_serum,
+            R.drawable.ic_category_moisturizer,
+            R.drawable.ic_category_sunscreen
     };
 
     public static HomeFragment newInstance(String initialQuery) {

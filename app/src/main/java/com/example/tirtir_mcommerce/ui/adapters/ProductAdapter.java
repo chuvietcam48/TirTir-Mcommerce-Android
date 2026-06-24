@@ -106,6 +106,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         private final ImageView imgProduct;
         private final TextView tvName;
         private final TextView tvPrice;
+        private final TextView tvOriginalPrice;
         private final TextView tvCategory;
         private final TextView tvOutOfStock;
         private final TextView tvDiscountBadge;
@@ -116,16 +117,17 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
         ProductViewHolder(@NonNull View itemView) {
             super(itemView);
-            imgProduct       = itemView.findViewById(R.id.ivProductImage);
-            tvName           = itemView.findViewById(R.id.tvProductName);
-            tvPrice          = itemView.findViewById(R.id.tvProductPrice);
-            tvCategory       = itemView.findViewById(R.id.tvProductCategory);
-            tvOutOfStock     = itemView.findViewById(R.id.tvOutOfStock);
-            tvDiscountBadge  = itemView.findViewById(R.id.tvDiscountBadge);
-            tvImageFallback  = itemView.findViewById(R.id.tvImageFallback);
+            imgProduct        = itemView.findViewById(R.id.ivProductImage);
+            tvName            = itemView.findViewById(R.id.tvProductName);
+            tvPrice           = itemView.findViewById(R.id.tvProductPrice);
+            tvOriginalPrice   = itemView.findViewById(R.id.tvOriginalPrice);
+            tvCategory        = itemView.findViewById(R.id.tvProductCategory);
+            tvOutOfStock      = itemView.findViewById(R.id.tvOutOfStock);
+            tvDiscountBadge   = itemView.findViewById(R.id.tvDiscountBadge);
+            tvImageFallback   = itemView.findViewById(R.id.tvImageFallback);
             btnWishlistToggle = itemView.findViewById(R.id.btnWishlistToggle);
-            btnQuickAdd = itemView.findViewById(R.id.btnQuickAdd);
-            tvRatingCount = itemView.findViewById(R.id.tvRatingCount);
+            btnQuickAdd       = itemView.findViewById(R.id.btnQuickAdd);
+            tvRatingCount     = itemView.findViewById(R.id.tvRatingCount);
         }
 
         void bind(Product product) {
@@ -144,14 +146,23 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 tvCategory.setText(subtitle != null ? subtitle : "");
             }
 
-            // Price: Sale_Price if > 0, else Price
+            // Price: show sale price (red) + strikethrough original if on sale
+            double basePrice = product.getPrice();
+            double salePrice = product.getSalePrice();
             double displayPrice = buildDisplayPrice(product);
-            tvPrice.setText(PriceUtils.formatPriceUsd(displayPrice)); // Formatting as USD as requested in screenshot "$32.00"
+            tvPrice.setText(PriceUtils.formatPriceUsd(displayPrice));
+            if (tvOriginalPrice != null) {
+                if (salePrice > 0 && salePrice < basePrice) {
+                    tvOriginalPrice.setText(PriceUtils.formatPriceUsd(basePrice));
+                    tvOriginalPrice.setPaintFlags(tvOriginalPrice.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+                    tvOriginalPrice.setVisibility(View.VISIBLE);
+                } else {
+                    tvOriginalPrice.setVisibility(View.GONE);
+                }
+            }
 
             // Discount Badge / Bestseller Badge
             if (tvDiscountBadge != null) {
-                double basePrice = product.getPrice();
-                double salePrice = product.getSalePrice();
                 if (layoutResId == R.layout.item_product_bestseller) {
                     tvDiscountBadge.setVisibility(View.VISIBLE);
                     if (salePrice > 0 && salePrice < basePrice) {
