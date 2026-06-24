@@ -43,6 +43,11 @@ public class LoginActivity extends AppCompatActivity {
         authRepository = new AuthRepository(this);
         bindViews();
         setListeners();
+        
+        // Prefill admin credentials for convenience
+        etEmail.setText("admin@tirtir.com");
+        etPassword.setText("admin123");
+        
         String registeredEmail = getIntent().getStringExtra("REGISTERED_EMAIL");
         if (registeredEmail != null && !registeredEmail.isEmpty()) {
             etEmail.setText(registeredEmail);
