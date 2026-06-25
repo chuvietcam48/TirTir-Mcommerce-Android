@@ -17,6 +17,7 @@ import com.example.tirtir_mcommerce.ui.fragments.ProfileFragment;
 import com.example.tirtir_mcommerce.ui.fragments.CartFragment;
 import com.example.tirtir_mcommerce.ui.fragments.ChatFragment;
 import com.example.tirtir_mcommerce.ui.fragments.RoutineFragment;
+import com.example.tirtir_mcommerce.ui.fragments.LoyaltyFragment;
 import com.example.tirtir_mcommerce.database.DatabaseHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.badge.BadgeDrawable;
@@ -126,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         String navigateTo = intent.getStringExtra("NAVIGATE_TO");
-        if ("cart".equals(navigateTo)) {
+        if ("cart".equals(navigateTo) || "cart_recovery".equals(navigateTo)) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragmentContainer, new CartFragment())
                     .addToBackStack(null)
@@ -138,6 +139,25 @@ public class MainActivity extends AppCompatActivity {
                     .replace(R.id.fragmentContainer, new OrderHistoryFragment())
                     .addToBackStack("order_history")
                     .commit();
+            return true;
+        } else if ("voucher_wallet".equals(navigateTo) || "voucher".equals(navigateTo)) {
+            android.content.Intent voucherIntent = new android.content.Intent(this,
+                    com.example.tirtir_mcommerce.ui.activities.VoucherWalletActivity.class);
+            startActivity(voucherIntent);
+            return true;
+        } else if ("loyalty".equals(navigateTo) || "loyalty_milestone".equals(navigateTo)) {
+            if (bottomNav != null) bottomNav.setSelectedItemId(R.id.nav_profile);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, new LoyaltyFragment())
+                    .addToBackStack("loyalty")
+                    .commit();
+            return true;
+        } else if ("product_detail".equals(navigateTo) || "restock_alert".equals(navigateTo)) {
+            String productId = intent.getStringExtra("PRODUCT_ID");
+            android.content.Intent productIntent = new android.content.Intent(this,
+                    com.example.tirtir_mcommerce.ui.activities.ProductDetailActivity.class);
+            productIntent.putExtra("PRODUCT_ID", productId);
+            startActivity(productIntent);
             return true;
         }
         return false;

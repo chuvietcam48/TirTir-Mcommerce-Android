@@ -74,10 +74,11 @@ async function runCartRecovery() {
                 continue;
             }
 
-            // Convert lastUpdatedAt timestamp
+            // Convert lastUpdatedAt or updatedAt timestamp
             let lastUpdatedAt = null;
-            if (cartData.lastUpdatedAt) {
-                lastUpdatedAt = cartData.lastUpdatedAt.toDate ? cartData.lastUpdatedAt.toDate() : new Date(cartData.lastUpdatedAt);
+            const updatedTime = cartData.lastUpdatedAt || cartData.updatedAt;
+            if (updatedTime) {
+                lastUpdatedAt = updatedTime.toDate ? updatedTime.toDate() : new Date(updatedTime);
             }
 
             if (!lastUpdatedAt) {
@@ -123,22 +124,25 @@ async function runCartRecovery() {
 
             // Trigger notification
             try {
+                console.log(`[BE2][CART_RECOVERY] Processing recovery: cartId=${doc.id}, uid=${firebaseUid || cartData.userId}`);
                 const tokens = await getTokensForFirebaseUid(firebaseUid);
+                console.log(`[BE2][CART_RECOVERY] Tokens lookup: found ${tokens.length} active tokens for uid=${firebaseUid}`);
+                
                 if (tokens.length === 0) {
-                    console.log(`[BE2][CART_RECOVERY] Skipping cart recovery for UID: ${firebaseUid} (no FCM tokens)`);
+                    console.log(`[BE2][CART_RECOVERY] Skipping cart recovery for cartId=${doc.id}, uid=${firebaseUid} (no FCM tokens)`);
                     stats.skipped++;
                     continue;
                 }
 
                 const firstItemName = cartData.items[0].name || "sản phẩm";
                 
-                // Build payload matching Phase 2 requirements
+                // Build payload matching Phase 2 requirements (lowercased type/screen)
                 const payload = {
                     title: "Bạn quên sản phẩm trong giỏ hàng",
                     body: `Bạn còn ${firstItemName} trong giỏ!`,
                     data: {
-                        screen: "CART",
-                        type: "CART_RECOVERY"
+                        screen: "cart",
+                        type: "cart_recovery"
                     }
                 };
 
@@ -153,15 +157,15 @@ async function runCartRecovery() {
                     });
 
                     stats.sent++;
-                    console.log(`[BE2][CART_RECOVERY] Sent cart recovery FCM to UID: ${firebaseUid}`);
+                    console.log(`[BE2][CART_RECOVERY] SUCCESS: Sent cart recovery FCM for cartId=${doc.id}, uid=${firebaseUid}. Success count: ${pushResult.successCount}`);
                 } else {
                     stats.errors++;
-                    console.warn(`[BE2][CART_RECOVERY] Failed to deliver FCM to tokens for UID: ${firebaseUid}`);
+                    console.warn(`[BE2][CART_RECOVERY] FAIL: Failed to deliver FCM to tokens for cartId=${doc.id}, uid=${firebaseUid}. Result: ${JSON.stringify(pushResult)}`);
                 }
 
             } catch (notifErr) {
                 stats.errors++;
-                console.error(`[BE2][CART_RECOVERY] Error sending recovery push to ${firebaseUid}:`, notifErr.message);
+                console.error(`[BE2][CART_RECOVERY] ERROR: Error sending recovery push for cartId=${doc.id}, uid=${firebaseUid}:`, notifErr.message);
             }
         }
 

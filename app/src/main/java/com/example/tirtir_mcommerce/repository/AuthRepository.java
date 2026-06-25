@@ -73,16 +73,11 @@ public class AuthRepository {
                         }
                         prefsManager.saveSession(body.getToken(), body.getRefreshToken());
                         if (body.getUser() != null) {
-                            
-                            // Đồng bộ với Firebase/Firestore bất đồng bộ
+                            // Đồng bộ với Firebase/Firestore bất đồng bộ bằng Email/Password
                             try {
                                 CloudRepository cloudRepository = new CloudRepository(context);
-                                cloudRepository.ensureFirebaseUser(firebaseUid -> {
-                                    if (firebaseUid != null) {
-                                        cloudRepository.syncUserProfileToFirestore(body.getUser());
-                                        cloudRepository.syncFcmToken();
-                                    }
-                                });
+                                cloudRepository.syncUserProfileToFirestore(body.getUser(), email, password);
+                                cloudRepository.syncFcmToken();
                             } catch (Exception e) {
                                 android.util.Log.e("AuthRepository", "Firebase sync failed", e);
                             }
@@ -136,6 +131,14 @@ public class AuthRepository {
                     RegisterResponse body = response.body();
                     if (body.getUser() != null) {
                         prefsManager.saveUser(body.getUser());
+                        // Đồng bộ với Firebase/Firestore bất đồng bộ bằng Email/Password sau khi đăng ký thành công
+                        try {
+                            CloudRepository cloudRepository = new CloudRepository(context);
+                            cloudRepository.syncUserProfileToFirestore(body.getUser(), email, password);
+                            cloudRepository.syncFcmToken();
+                        } catch (Exception e) {
+                            android.util.Log.e("AuthRepository", "Firebase registration sync failed", e);
+                        }
                     }
                     if (body.getToken() != null && !body.getToken().isEmpty()) {
                         prefsManager.saveSession(body.getToken(), body.getRefreshToken());

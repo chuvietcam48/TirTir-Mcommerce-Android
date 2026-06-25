@@ -26,46 +26,79 @@ const SKIN_TIPS = {
     }
 };
 
-// Run every Monday at 10:00 AM
-// cron format: '0 10 * * 1'
-cron.schedule('0 10 * * 1', async () => {
+async function sendWeeklySkinTips() {
     console.log('[CRON] Running Weekly Skin Tips FCM...');
+    const stats = { scanned: 0, sent: 0, skipped: 0, errors: 0 };
+    
     try {
         if (!firebaseAdmin.isFirebaseEnabled()) {
             console.log('[CRON] Firebase disabled, skipping Skin Tips.');
-            return;
+            return stats;
         }
 
-        // Find users with skin type and valid FCM tokens
+        const now = new Date();
+        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+        // Find users with skin type, valid FCM tokens, and who haven't received a tip in the last 7 days
         const users = await User.find({
             "skinProfile.skinType": { $exists: true, $ne: null },
-            "fcmTokens.0": { $exists: true }
+            "fcmTokens.0": { $exists: true },
+            $or: [
+                { lastSkinTipSentAt: { $exists: false } },
+                { lastSkinTipSentAt: null },
+                { lastSkinTipSentAt: { $lte: sevenDaysAgo } }
+            ]
         });
 
-        console.log(`[CRON] Found ${users.length} users with skin profiles.`);
+        stats.scanned = users.length;
+        console.log(`[CRON] Found ${users.length} users due for skin tips.`);
 
-        let sentCount = 0;
         for (const user of users) {
             const skinType = user.skinProfile.skinType;
             const tip = SKIN_TIPS[skinType] || SKIN_TIPS['Sensitive']; // fallback
 
-            if (user.fcmTokens && user.fcmTokens.length > 0) {
-                await firebaseAdmin.sendPushToTokens(user.fcmTokens, {
-                    notification: {
+            const activeTokens = user.fcmTokens.filter(t => t.active !== false).map(t => t.token);
+            if (activeTokens.length > 0) {
+                try {
+                    const pushResult = await firebaseAdmin.sendPushToTokens(activeTokens, {
                         title: tip.title,
-                        body: tip.body
-                    },
-                    data: {
-                        type: "SKIN_TIP",
-                        link: tip.link
+                        body: tip.body,
+                        data: {
+                            type: "skin_tip",
+                            screen: "home",
+                            link: tip.link
+                        }
+                    });
+                    
+                    if (pushResult && pushResult.successCount > 0) {
+                        user.lastSkinTipSentAt = new Date();
+                        await user.save({ validateBeforeSave: false });
+                        stats.sent++;
+                        console.log(`[CRON] Sent skin tip to user ${user._id}`);
+                    } else {
+                        stats.errors++;
+                        console.warn(`[CRON] Failed to deliver weekly tip to user ${user._id}`);
                     }
-                });
-                sentCount++;
+                } catch (sendErr) {
+                    stats.errors++;
+                    console.error(`[CRON] Error sending tip to user ${user._id}:`, sendErr.message);
+                }
+            } else {
+                stats.skipped++;
             }
         }
-        
-        console.log(`[CRON] Successfully sent weekly tips to ${sentCount} users.`);
     } catch (error) {
-        console.error('[CRON] Error in Skin Tips Cron:', error);
+        console.error('[CRON] Error in sendWeeklySkinTips:', error);
     }
+    return stats;
+}
+
+// Run every Monday at 10:00 AM
+// cron format: '0 10 * * 1'
+cron.schedule('0 10 * * 1', async () => {
+    await sendWeeklySkinTips();
 });
+
+module.exports = {
+    sendWeeklySkinTips
+};

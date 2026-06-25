@@ -45,4 +45,8 @@ router.route('/addresses/:id')
 
 router.patch('/addresses/:id/set-default', protect, setDefaultAddress);
 
+// FCM token registration for authenticated/anonymous users
+const { registerFcmToken } = require('../controllers/notification.controller');
+router.post('/fcm-token', registerFcmToken);
+
 module.exports = router;

@@ -331,6 +331,9 @@ app.use("/api/v1/notifications", require("./routes/notification.routes")); // Ad
 app.use("/api/v1/shipping", require("./routes/shipping.routes")); // GHN Shipping Integration
 app.use("/api/v1/ingredient", require("./routes/ingredient.routes")); // Ingredient scan history (Firestore)
 app.use("/api/v1/loyalty", require("./routes/loyalty.routes")); // Loyalty Points & Tier Engine
+app.use("/api/v1/chatbot", require("./routes/chatbot.routes"));
+app.use("/api/v1/routines", require("./routes/routine.routes"));
+app.use("/api/v1/routine", require("./routes/routine.routes"));
 
 // Sentry Error Handler (Must be before any other error middleware)
 if (process.env.SENTRY_DSN) {

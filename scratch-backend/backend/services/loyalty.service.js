@@ -9,17 +9,14 @@ const { findFirebaseUidByMongoUserId } = require('./firestoreUser.service');
 function determineTier(points) {
     if (points >= 2000) return 'Platinum';
     if (points >= 500) return 'Gold';
-    if (points >= 100) return 'Silver';
-    return 'Bronze'; // Default tier below 100 points
+    return 'Silver'; // Default tier
 }
 
 /**
  * Get next tier details
  */
 function getNextTierDetails(points) {
-    if (points < 100) {
-        return { nextTier: 'Silver', pointsToNextTier: 100 - points };
-    } else if (points < 500) {
+    if (points < 500) {
         return { nextTier: 'Gold', pointsToNextTier: 500 - points };
     } else if (points < 2000) {
         return { nextTier: 'Platinum', pointsToNextTier: 2000 - points };
@@ -73,13 +70,13 @@ async function addPoints(userId, orderTotal, options = {}) {
         }
 
         // 4. Calculate Multipliers
-        // Condition A: First order (check past completed/confirmed orders excluding current order)
+        // Condition A: First order (check past completed/confirmed orders excluding current order, or MongoDB totalOrders === 0)
         const pastOrdersCount = await Order.countDocuments({
             user: userId,
             _id: { $ne: orderId },
             status: { $in: ['Processing', 'Shipped', 'Delivered'] }
         });
-        const isFirstOrder = pastOrdersCount === 0;
+        const isFirstOrder = pastOrdersCount === 0 || (user.totalOrders || 0) === 0;
 
         // Condition B: Birthday Month matches current month
         let isBirthdayMonth = false;
@@ -108,8 +105,8 @@ async function addPoints(userId, orderTotal, options = {}) {
 
         // 5. Firestore Transaction to update user points and tier
         const admin = require('firebase-admin');
-        let oldTier = 'Bronze';
-        let newTier = 'Bronze';
+        let oldTier = 'Silver';
+        let newTier = 'Silver';
         let tierChanged = false;
         let finalPointsTotal = 0;
 
@@ -138,17 +135,19 @@ async function addPoints(userId, orderTotal, options = {}) {
                 updatedAt: admin.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
 
-            // Create loyalty history document
+            // Create loyalty history document (using exact keys: points, basePoints, multiplier, reason, orderId, createdAt)
             transaction.set(historyRef, {
-                orderId: String(orderId),
-                source: "ORDER",
+                points: finalPoints,
                 basePoints,
                 multiplier,
+                reason: reasons.join(', ') || 'ORDER',
+                orderId: String(orderId),
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                source: "ORDER",
                 reasons,
                 finalPoints,
                 oldTier,
-                newTier,
-                createdAt: admin.firestore.FieldValue.serverTimestamp()
+                newTier
             });
         });
 

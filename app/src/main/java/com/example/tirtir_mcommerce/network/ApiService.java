@@ -377,4 +377,25 @@ public interface ApiService {
 
     @GET("api/v1/loyalty/wallet")
     Call<ApiResponse<List<Map<String, Object>>>> getWallet();
+
+    @POST("api/v1/auth/google-login")
+    Call<LoginResponse> googleLogin(@Body Map<String, String> body);
+
+    @POST("api/v1/chatbot/message")
+    Call<Map<String, Object>> getChatbotMessage(@Body Map<String, Object> body);
+
+    @POST("api/v1/users/fcm-token")
+    Call<ApiResponse<Object>> registerUserFcmToken(@Body Map<String, Object> body);
+
+    @GET("api/v1/routines/community")
+    Call<ApiResponse<List<Map<String, Object>>>> getCommunityRoutines();
+
+    @POST("api/v1/routines/{id}/like")
+    Call<ApiResponse<Map<String, Object>>> likeRoutine(@Path("id") String id);
+
+    @POST("api/v1/routines/{id}/apply")
+    Call<ApiResponse<Map<String, Object>>> applyRoutine(@Path("id") String id);
+
+    @GET("api/v1/routine/suggest")
+    Call<ApiResponse<Map<String, Object>>> suggestRoutine(@Query("userId") String userId, @Query("missingStep") String missingStep);
 }

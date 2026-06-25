@@ -88,6 +88,8 @@ public class NotificationHelper {
      */
     public static void showNotification(Context context, String title, String body, Map<String, String> data) {
         String type = data != null ? data.get("type") : "";
+        if (type != null) type = type.toLowerCase();
+        
         String orderId = data != null ? data.get("orderId") : "";
         String orderCode = data != null ? data.get("orderCode") : "";
 
@@ -95,10 +97,10 @@ public class NotificationHelper {
         String channelId = CHANNEL_SYSTEM;
         int importance = NotificationCompat.PRIORITY_DEFAULT;
 
-        if ("order_success".equals(type) || "order_status".equals(type) || "order".equals(type)) {
+        if ("order_success".equals(type) || "order_status".equals(type) || "order".equals(type) || "ingredient_conflict".equals(type)) {
             channelId = CHANNEL_ORDERS;
             importance = NotificationCompat.PRIORITY_HIGH;
-        } else if ("cart_recovery".equals(type) || "promotion".equals(type)) {
+        } else if ("cart_recovery".equals(type) || "promotion".equals(type) || "restock_alert".equals(type)) {
             channelId = CHANNEL_MARKETING;
         }
 
@@ -120,6 +122,7 @@ public class NotificationHelper {
             // Cart là Fragment trong MainActivity, mở MainActivity và gửi flag
             intent = new Intent(context, MainActivity.class);
             intent.putExtra("OPEN_CART", true);
+            intent.putExtra("NAVIGATE_TO", "cart");
         } else {
             intent = new Intent(context, MainActivity.class);
         }
@@ -129,6 +132,14 @@ public class NotificationHelper {
             String screen = data.get("screen");
             if (screen != null) {
                 intent.putExtra("NAVIGATE_TO", screen.toLowerCase());
+            }
+        }
+
+        // Extract productId/product_id and pass it as an extra
+        if (data != null) {
+            String prodId = data.containsKey("productId") ? data.get("productId") : data.get("product_id");
+            if (prodId != null) {
+                intent.putExtra("PRODUCT_ID", prodId);
             }
         }
 

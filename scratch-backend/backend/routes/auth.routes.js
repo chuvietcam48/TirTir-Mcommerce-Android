@@ -10,7 +10,8 @@ const {
     forgotPassword,
     resetPassword,
     logout,
-    refreshToken
+    refreshToken,
+    googleLogin
 } = require('../controllers/auth.controller');
 
 // Import middleware
@@ -111,6 +112,29 @@ router.post('/register', authLimiter, registerValidator, validate, register);
  *         description: Tài khoản bị khóa
  */
 router.post('/login', authLimiter, loginValidator, validate, login);
+
+/**
+ * @swagger
+ * /auth/google-login:
+ *   post:
+ *     summary: Đăng nhập bằng Google
+ *     tags: [Auth]
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [idToken]
+ *             properties:
+ *               idToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Đăng nhập thành công
+ */
+router.post('/google-login', googleLogin);
 
 /**
  * @swagger

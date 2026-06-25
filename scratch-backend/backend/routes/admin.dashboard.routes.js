@@ -72,5 +72,78 @@ router.post('/notifications/send-voucher-fcm', async (req, res, next) => {
     }
 });
 
+// Demo: Trigger Cart Recovery Scan
+router.post('/demo/trigger-cart-recovery', async (req, res, next) => {
+    try {
+        const { runCartRecovery } = require('../services/cartRecoveryFcm.service');
+        const stats = await runCartRecovery();
+        res.status(200).json({ success: true, message: 'Cart recovery job completed', data: stats });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// Demo: Trigger Restock Alert Push
+router.post('/demo/restock-alert', async (req, res, next) => {
+    try {
+        const { productId, productName } = req.body;
+        const Product = require('../models/product.model');
+        const User = require('../models/user.model');
+        const firebaseAdmin = require('../services/firebaseAdmin.service');
+
+        let prodName = productName || 'Sản phẩm TirTir';
+        let prodId = productId;
+
+        if (!prodId) {
+            const p = await Product.findOne().select('_id Name');
+            if (p) {
+                prodId = String(p._id);
+                prodName = p.Name;
+            } else {
+                prodId = 'mock_product_id_123';
+            }
+        }
+
+        const users = await User.find({ "fcmTokens.0": { $exists: true } });
+        let sentCount = 0;
+
+        for (const user of users) {
+            const activeTokens = user.fcmTokens.filter(t => t.active !== false).map(t => t.token);
+            if (activeTokens.length > 0) {
+                await firebaseAdmin.sendPushToTokens(activeTokens, {
+                    title: "Sản phẩm yêu thích đã có hàng! 🎉",
+                    body: `Sản phẩm ${prodName} của bạn quan tâm đã được restock. Hãy nhanh tay đặt mua ngay kẻo hết!`,
+                    data: {
+                        type: "restock_alert",
+                        screen: "product_detail",
+                        productId: String(prodId)
+                    }
+                });
+                sentCount++;
+            }
+        }
+
+        res.status(200).json({
+            success: true,
+            message: `Restock alerts sent successfully to ${sentCount} users`,
+            productId: prodId,
+            productName: prodName
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// Demo: Trigger Weekly Skin Tips Push
+router.post('/demo/weekly-skin-tip', async (req, res, next) => {
+    try {
+        const { sendWeeklySkinTips } = require('../cron/fcmSkinTips.cron');
+        const stats = await sendWeeklySkinTips();
+        res.status(200).json({ success: true, message: 'Weekly skin tips processing completed', data: stats });
+    } catch (err) {
+        next(err);
+    }
+});
+
 module.exports = router;
 

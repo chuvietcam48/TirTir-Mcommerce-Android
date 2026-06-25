@@ -52,43 +52,79 @@ public class CloudRepository {
     }
 
     /**
-     * 1. Khởi tạo / Đảm bảo Firebase User đã được xác thực ẩn danh.
+     * 1. Khởi tạo / Đảm bảo Firebase User đã được xác thực ẩn danh hoặc bằng email/password.
      */
     public void ensureFirebaseUser(AuthCallback callback) {
+        ensureFirebaseUser(null, null, callback);
+    }
+
+    public void ensureFirebaseUser(String email, String password, AuthCallback callback) {
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-        if (currentUser != null) {
+        if (email != null && !email.trim().isEmpty() && password != null && !password.trim().isEmpty()) {
+            firebaseAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && firebaseAuth.getCurrentUser() != null) {
+                            String uid = firebaseAuth.getCurrentUser().getUid();
+                            prefsManager.saveFirebaseUid(uid);
+                            Log.d(TAG, "Firebase Email Sign-in Successful. UID: " + uid);
+                            if (callback != null) callback.onComplete(uid);
+                        } else {
+                            // If user doesn't exist, try to create one
+                            firebaseAuth.createUserWithEmailAndPassword(email, password)
+                                    .addOnCompleteListener(createTask -> {
+                                        if (createTask.isSuccessful() && firebaseAuth.getCurrentUser() != null) {
+                                            String uid = firebaseAuth.getCurrentUser().getUid();
+                                            prefsManager.saveFirebaseUid(uid);
+                                            Log.d(TAG, "Firebase Email Registration Successful. UID: " + uid);
+                                            if (callback != null) callback.onComplete(uid);
+                                        } else {
+                                            Log.e(TAG, "Firebase Email Auth failed, falling back to anonymous", createTask.getException());
+                                            signInAnonymously(callback);
+                                        }
+                                    });
+                        }
+                    });
+        } else if (currentUser != null) {
             String uid = currentUser.getUid();
             prefsManager.saveFirebaseUid(uid);
             if (callback != null) {
                 callback.onComplete(uid);
             }
         } else {
-            firebaseAuth.signInAnonymously()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && firebaseAuth.getCurrentUser() != null) {
-                            String uid = firebaseAuth.getCurrentUser().getUid();
-                            prefsManager.saveFirebaseUid(uid);
-                            Log.d(TAG, "Firebase Anonymous Sign-in Successful. UID: " + uid);
-                            if (callback != null) {
-                                callback.onComplete(uid);
-                            }
-                        } else {
-                            Log.e(TAG, "Firebase Anonymous Sign-in Failed", task.getException());
-                            if (callback != null) {
-                                callback.onComplete(null);
-                            }
-                        }
-                    });
+            signInAnonymously(callback);
         }
+    }
+
+    private void signInAnonymously(AuthCallback callback) {
+        firebaseAuth.signInAnonymously()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && firebaseAuth.getCurrentUser() != null) {
+                        String uid = firebaseAuth.getCurrentUser().getUid();
+                        prefsManager.saveFirebaseUid(uid);
+                        Log.d(TAG, "Firebase Anonymous Sign-in Successful. UID: " + uid);
+                        if (callback != null) {
+                            callback.onComplete(uid);
+                        }
+                    } else {
+                        Log.e(TAG, "Firebase Anonymous Sign-in Failed", task.getException());
+                        if (callback != null) {
+                            callback.onComplete(null);
+                        }
+                    }
+                });
     }
 
     /**
      * 2. Đồng bộ profile thông tin User lên Firestore.
      */
     public void syncUserProfileToFirestore(User user) {
+        syncUserProfileToFirestore(user, null, null);
+    }
+
+    public void syncUserProfileToFirestore(User user, String email, String password) {
         if (user == null) return;
 
-        ensureFirebaseUser(firebaseUid -> {
+        ensureFirebaseUser(email, password, firebaseUid -> {
             if (firebaseUid == null) {
                 Log.e(TAG, "Cannot sync profile: Firebase UID is null");
                 return;
@@ -98,6 +134,7 @@ public class CloudRepository {
             data.put("uid", firebaseUid);
             data.put("backendUserId", user.getId());
             data.put("email", user.getEmail());
+            data.put("displayName", user.getName());
             data.put("fullName", user.getName());
             data.put("phone", user.getPhone());
             data.put("role", user.getRole() != null ? user.getRole() : "user");
@@ -157,6 +194,13 @@ public class CloudRepository {
                                 .set(tokenData, SetOptions.merge())
                                 .addOnSuccessListener(aVoid -> Log.d(TAG, "FCM token synced to Firestore"))
                                 .addOnFailureListener(e -> Log.e(TAG, "Error syncing FCM token to Firestore", e));
+
+                        // Cập nhật deviceToken và updatedAt trên user document để tuân thủ BRD
+                        Map<String, Object> userUpdate = new HashMap<>();
+                        userUpdate.put("deviceToken", token);
+                        userUpdate.put("updatedAt", FieldValue.serverTimestamp());
+                        firestore.collection("users").document(firebaseUid)
+                                .set(userUpdate, SetOptions.merge());
 
                         // b. Gửi lên Node.js Backend API
                         sendFcmTokenToBackend(token, firebaseUid, deviceModel, appVersion);

@@ -57,6 +57,12 @@ service cloud.firestore {
         allow read: if isOwner(uid) || isAdmin();
         allow write: if false;
       }
+
+      // Nested: User chat history (read-only for clients, written by server)
+      match /chat_history/{chatId} {
+        allow read: if isOwner(uid) || isAdmin();
+        allow write: if false;
+      }
     }
 
     // 2. Carts (Realtime Cart Recovery)

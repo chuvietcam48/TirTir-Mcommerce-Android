@@ -737,17 +737,21 @@ async function _runAfterOrderStatusChanged(order, oldStatus, newStatus, performe
                     const highConflicts = conflicts.filter(c => c.severity === 'High');
 
                     if (highConflicts.length > 0) {
-                        await firebaseAdmin.sendPushToTokens(user.fcmTokens, {
-                            notification: {
+                        const activeTokens = user.fcmTokens.filter(t => t.active !== false).map(t => t.token);
+                        if (activeTokens.length > 0) {
+                            await firebaseAdmin.sendPushToTokens(activeTokens, {
                                 title: "Cảnh báo an toàn thành phần",
-                                body: `Đơn hàng #${order._id.toString().slice(-6).toUpperCase()} của bạn chứa sản phẩm có thành phần xung đột (${highConflicts[0].ingredient_a} & ${highConflicts[0].ingredient_b}). Vui lòng lưu ý khi sử dụng chung!`
-                            },
-                            data: {
-                                type: "INGREDIENT_CONFLICT",
-                                orderId: order._id.toString()
-                            }
-                        });
-                        console.log(`[BE2][FCM] Sent ingredient conflict alert to user ${user._id}`);
+                                body: `Đơn hàng #${order._id.toString().slice(-6).toUpperCase()} của bạn chứa sản phẩm có thành phần xung đột (${highConflicts[0].ingredient_a} & ${highConflicts[0].ingredient_b}). Vui lòng lưu ý khi sử dụng chung!`,
+                                data: {
+                                    type: "ingredient_conflict",
+                                    screen: "order_detail",
+                                    orderId: order._id.toString()
+                                }
+                            });
+                            console.log(`[BE2][FCM] Sent ingredient conflict alert to user ${user._id} (tokens: ${activeTokens.length})`);
+                        } else {
+                            console.log(`[BE2][FCM] Skipping ingredient conflict alert for user ${user._id} (no active FCM tokens)`);
+                        }
                     }
                 }
             } catch (err) {

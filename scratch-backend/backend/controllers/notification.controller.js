@@ -138,23 +138,41 @@ exports.createNotification = async (userId, type, title, message, link, image) =
 // @access  Private
 exports.registerFcmToken = async (req, res, next) => {
     try {
-        const userId = req.user.id;
-        const { token, platform, firebaseUid, deviceModel, appVersion } = req.body;
+        const reqUserId = req.user?.id || req.body.userId;
+        const incomingToken = req.body.token || req.body.fcmToken;
+        const { platform, firebaseUid, deviceModel, appVersion } = req.body;
 
-        if (!token) {
+        if (!incomingToken) {
             return next(new ErrorResponse('Please provide an FCM token', 400));
         }
 
-        const user = await User.findById(userId);
+        let user;
+        if (reqUserId) {
+            const mongoose = require('mongoose');
+            if (mongoose.Types.ObjectId.isValid(reqUserId)) {
+                user = await User.findById(reqUserId);
+            }
+        }
+        if (!user && firebaseUid) {
+            user = await User.findOne({ firebaseUid });
+        }
+        if (!user && reqUserId) {
+            user = await User.findOne({ firebaseUid: reqUserId });
+        }
+
         if (!user) {
-            return next(new ErrorResponse('User not found', 404));
+            console.warn(`[BE2][FCM] Register FCM token: User not found for userId=${reqUserId}, firebaseUid=${firebaseUid}. Skipping save.`);
+            return res.status(200).json({
+                success: true,
+                message: 'FCM token registration skipped: User not found'
+            });
         }
 
         if (!user.fcmTokens) {
             user.fcmTokens = [];
         }
 
-        const tokenIndex = user.fcmTokens.findIndex(item => item.token === token);
+        const tokenIndex = user.fcmTokens.findIndex(item => item.token === incomingToken);
 
         if (tokenIndex > -1) {
             user.fcmTokens[tokenIndex].active = true;
@@ -165,7 +183,7 @@ exports.registerFcmToken = async (req, res, next) => {
             if (appVersion) user.fcmTokens[tokenIndex].appVersion = appVersion;
         } else {
             user.fcmTokens.push({
-                token,
+                token: incomingToken,
                 platform: platform || 'android',
                 firebaseUid,
                 deviceModel,
@@ -180,7 +198,7 @@ exports.registerFcmToken = async (req, res, next) => {
             user.firebaseUid = firebaseUid;
         }
 
-        await user.save();
+        await user.save({ validateBeforeSave: false });
 
         // Sync FCM token to Firestore
         const effectiveUid = firebaseUid || user.firebaseUid;
@@ -194,10 +212,9 @@ exports.registerFcmToken = async (req, res, next) => {
                     if (doc.exists && doc.data().fcmTokens) {
                         currentTokens = doc.data().fcmTokens;
                     }
-                    // Filter out this token if it exists
-                    currentTokens = currentTokens.filter(item => item.token !== token);
+                    currentTokens = currentTokens.filter(item => item.token !== incomingToken);
                     currentTokens.push({
-                        token,
+                        token: incomingToken,
                         platform: platform || 'android',
                         deviceModel: deviceModel || '',
                         appVersion: appVersion || '',
@@ -207,10 +224,10 @@ exports.registerFcmToken = async (req, res, next) => {
                     
                     await userRef.set({
                         fcmTokens: currentTokens,
-                        backendUserId: String(userId),
+                        backendUserId: String(user._id),
                         updatedAt: new Date().toISOString()
                     }, { merge: true });
-                    console.log(`[BE2][FCM] Synced token ${token.slice(0, 6)}... to Firestore users/${effectiveUid}`);
+                    console.log(`[BE2][FCM] Synced token ${incomingToken.slice(0, 6)}... to Firestore users/${effectiveUid}`);
                 }
             } catch (fsErr) {
                 console.error(`[BE2][FCM] Firestore token sync error:`, fsErr.message);

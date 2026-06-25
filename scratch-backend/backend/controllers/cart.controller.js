@@ -2,6 +2,60 @@ const Cart = require('../models/cart.model');
 const Product = require('../models/product.model');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const { getFirestore, isFirebaseEnabled } = require('../services/firebaseAdmin.service');
+const User = require('../models/user.model');
+
+const syncCartToFirestore = async (userId) => {
+    try {
+        if (!isFirebaseEnabled()) return;
+        const db = getFirestore();
+        if (!db) return;
+
+        const user = await User.findById(userId);
+        if (!user || !user.firebaseUid) {
+            console.warn(`[BE2][CartSync] User or Firebase UID not found for Mongoose ID: ${userId}`);
+            return;
+        }
+
+        const cart = await Cart.findOne({ user: userId }).populate('items.product');
+        if (!cart || cart.items.length === 0) {
+            const cartData = {
+                userId: String(userId),
+                items: [],
+                status: cart ? cart.status : 'active',
+                totalPrice: 0,
+                updatedAt: new Date().toISOString()
+            };
+            await db.collection('carts').doc(user.firebaseUid).set(cartData);
+            console.log(`[BE2][CartSync] Synced empty cart to Firestore for uid: ${user.firebaseUid}`);
+            return;
+        }
+
+        const firestoreItems = cart.items
+            .filter(item => item.product != null)
+            .map(item => ({
+                productId: String(item.product._id),
+                name: item.product.Name || '',
+                price: Number(item.price || item.product.Price || 0),
+                qty: Number(item.quantity),
+                imageUrl: item.product.Thumbnail_Images?.[0] || '',
+                addedAt: cart.updatedAt ? cart.updatedAt.toISOString() : new Date().toISOString()
+            }));
+
+        const cartData = {
+            userId: String(userId),
+            items: firestoreItems,
+            status: cart.status || 'active',
+            totalPrice: Number(cart.totalPrice || 0),
+            updatedAt: new Date().toISOString()
+        };
+
+        await db.collection('carts').doc(user.firebaseUid).set(cartData);
+        console.log(`[BE2][CartSync] Synced cart to Firestore for uid: ${user.firebaseUid} (items: ${firestoreItems.length})`);
+    } catch (err) {
+        console.error(`[BE2][CartSync] Error syncing cart to Firestore for user ${userId}:`, err.message);
+    }
+};
 
 // Helper to recalculate total price
 const calculateTotal = (cart) => {
@@ -193,6 +247,7 @@ exports.addToCart = async (req, res) => {
 
         await cart.save();
         console.log("✅ Cart Saved Successfully!");
+        syncCartToFirestore(userId);
 
         const populatedCart = await Cart.findById(cart._id).populate({
             path: 'items.product',
@@ -291,6 +346,7 @@ exports.updateCartItem = async (req, res) => {
         cart.recoveryStatus = 'pending';
         cart.lastAbandonedAt = new Date();
         await cart.save();
+        syncCartToFirestore(userId);
 
         const populatedCart = await Cart.findById(cart._id).populate({
             path: 'items.product',
@@ -336,6 +392,7 @@ exports.removeFromCart = async (req, res) => {
         cart.recoveryStatus = 'pending';
         cart.lastAbandonedAt = new Date();
         await cart.save();
+        syncCartToFirestore(userId);
 
         const populatedCart = await Cart.findById(cart._id).populate({
             path: 'items.product',
@@ -359,6 +416,7 @@ exports.clearCart = async (req, res) => {
             cart.items = [];
             cart.totalPrice = 0;
             await cart.save();
+            syncCartToFirestore(userId);
         }
 
         res.status(200).json({ message: "Cart cleared", items: [], totalPrice: 0 });
@@ -503,6 +561,7 @@ exports.mergeCart = async (req, res) => {
 
             await guestCart.save({ session });
             await userCart.save({ session });
+            syncCartToFirestore(userId);
 
             let CartRecoveryEvent;
             try { CartRecoveryEvent = require('../models/cart_recovery_event.model'); } catch(e) {}
@@ -566,6 +625,9 @@ exports.abandonCart = async (req, res) => {
 
         cart.status = 'abandoned';
         await cart.save();
+        if (userId) {
+            syncCartToFirestore(userId);
+        }
 
         res.status(200).json({ message: "Scheduled cart recovery events." });
     } catch (err) {

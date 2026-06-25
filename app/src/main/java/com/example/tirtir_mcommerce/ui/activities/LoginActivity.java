@@ -19,6 +19,13 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import com.example.tirtir_mcommerce.network.FirebaseAuthManager;
+import com.google.firebase.auth.FirebaseUser;
+import com.example.tirtir_mcommerce.network.ApiService;
+import com.example.tirtir_mcommerce.network.RetrofitClient;
+import com.example.tirtir_mcommerce.model.LoginResponse;
+import android.util.Log;
+
 /**
  * SCR-10 LoginActivity — Màn hình Đăng nhập.
  *
@@ -75,14 +82,87 @@ public class LoginActivity extends AppCompatActivity {
             loginWithApi(email, password);
         });
 
-        // The current Firebase project has no OAuth client configured. Hiding the
-        // dead action is safer than exposing a button that can never complete.
-        btnGoogleLogin.setVisibility(View.GONE);
+        // Enable Google sign-in button
+        btnGoogleLogin.setVisibility(View.VISIBLE);
+        btnGoogleLogin.setOnClickListener(v -> {
+            FirebaseAuthManager authManager = new FirebaseAuthManager(this);
+            authManager.startGoogleSignIn(this);
+        });
 
         tvGoRegister.setOnClickListener(v ->
                 startActivity(new Intent(this, RegisterActivity.class)));
 
         tvForgotPassword.setOnClickListener(v -> showForgotPasswordDialog());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == FirebaseAuthManager.RC_SIGN_IN) {
+            FirebaseAuthManager authManager = new FirebaseAuthManager(this);
+            authManager.handleGoogleSignInResult(data, new FirebaseAuthManager.AuthCallback() {
+                @Override
+                public void onSuccess(FirebaseUser user) {
+                    user.getIdToken(true).addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            String idToken = task.getResult().getToken();
+                            loginWithGoogle(idToken);
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Failed to get ID token from Firebase", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(Exception exception) {
+                    Toast.makeText(LoginActivity.this, "Google Sign-In failed: " + exception.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+    }
+
+    private void loginWithGoogle(String idToken) {
+        showLoading(true);
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        java.util.Map<String, String> body = new java.util.HashMap<>();
+        body.put("idToken", idToken);
+        
+        apiService.googleLogin(body).enqueue(new retrofit2.Callback<LoginResponse>() {
+            @Override
+            public void onResponse(retrofit2.Call<LoginResponse> call, retrofit2.Response<LoginResponse> response) {
+                showLoading(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    LoginResponse loginResponse = response.body();
+                    if (loginResponse.getToken() != null) {
+                        com.example.tirtir_mcommerce.utils.SharedPrefsManager prefsManager = new com.example.tirtir_mcommerce.utils.SharedPrefsManager(LoginActivity.this);
+                        if (loginResponse.getUser() != null) {
+                            prefsManager.saveUser(loginResponse.getUser());
+                        }
+                        prefsManager.saveSession(loginResponse.getToken(), loginResponse.getRefreshToken());
+                        
+                        // Sync FCM token
+                        try {
+                            com.example.tirtir_mcommerce.data.repository.CloudRepository cloudRepository = new com.example.tirtir_mcommerce.data.repository.CloudRepository(LoginActivity.this);
+                            cloudRepository.syncFcmToken();
+                        } catch (Exception e) {
+                            Log.e("LoginActivity", "Firebase FCM token sync failed", e);
+                        }
+                        
+                        goToDestination(loginResponse.getUser());
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Google sign-in failed: No token returned", Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(LoginActivity.this, "Google sign-in failed on server", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<LoginResponse> call, Throwable t) {
+                showLoading(false);
+                Toast.makeText(LoginActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     // ===========================

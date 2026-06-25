@@ -698,3 +698,123 @@ exports.refreshToken = async (req, res) => {
         });
     }
 };
+
+/**
+ * @route   POST /api/v1/auth/google-login
+ * @desc    Login/Register using Firebase Google ID Token
+ * @access  Public
+ */
+exports.googleLogin = async (req, res) => {
+    try {
+        const { idToken } = req.body;
+        if (!idToken) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide a Google idToken'
+            });
+        }
+
+        const { isFirebaseEnabled } = require('../services/firebaseAdmin.service');
+        const admin = require('firebase-admin');
+
+        let decodedToken;
+        if (isFirebaseEnabled()) {
+            try {
+                decodedToken = await admin.auth().verifyIdToken(idToken);
+            } catch (err) {
+                console.error('Firebase token verification failed:', err);
+                return res.status(401).json({
+                    success: false,
+                    message: 'Google login failed: Invalid or expired ID token'
+                });
+            }
+        } else {
+            // Graceful fallback for local dev when Firebase Admin is not configured
+            if (process.env.NODE_ENV === 'development' || idToken.startsWith('mock_')) {
+                decodedToken = {
+                    email: 'mockgoogleuser@tirtir.com',
+                    name: 'Mock Google User',
+                    uid: 'mock_google_uid_123'
+                };
+            } else {
+                return res.status(500).json({
+                    success: false,
+                    message: 'Firebase Admin is not configured, cannot verify Google ID token'
+                });
+            }
+        }
+
+        const { email, name, uid } = decodedToken;
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: 'Google token does not contain an email address'
+            });
+        }
+
+        // Find or create user
+        let user = await User.findOne({ email });
+        if (!user) {
+            // Create user for first-time google login
+            user = new User({
+                name: name || 'Google User',
+                email: email,
+                firebaseUid: uid,
+                isEmailVerified: true,
+                password: crypto.randomBytes(16).toString('hex') // Safe generated password
+            });
+            await user.save();
+            console.log(`✅ Google user registered: ${email}`);
+            logActivity(req, 'AUTH', 'GOOGLE_REGISTER', `New user registered via Google: ${email}`, { userId: user._id });
+        } else {
+            // Update firebaseUid if missing
+            if (!user.firebaseUid) {
+                user.firebaseUid = uid;
+                await user.save({ validateBeforeSave: false });
+            }
+            console.log(`✅ Google user logged in: ${email}`);
+            logActivity(req, 'AUTH', 'GOOGLE_LOGIN', `User logged in via Google: ${email}`, { userId: user._id });
+        }
+
+        // Check if blocked
+        if (user.isBlocked) {
+            return res.status(403).json({
+                success: false,
+                message: 'Your account has been blocked.'
+            });
+        }
+
+        // Generate session tokens
+        const accessToken = generateAccessToken(user._id, user.role);
+        const refreshToken = await generateAndSaveRefreshToken(user);
+
+        // Set refresh token cookie
+        const isProduction = process.env.NODE_ENV === 'production';
+        const expireDays = parseInt(process.env.JWT_REFRESH_EXPIRE_DAYS || '30', 10);
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'strict' : 'lax',
+            maxAge: expireDays * 24 * 60 * 60 * 1000
+        });
+
+        return res.status(200).json({
+            success: true,
+            token: accessToken,
+            refreshToken,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                isEmailVerified: user.isEmailVerified
+            }
+        });
+    } catch (error) {
+        console.error('❌ Google Login Error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error during Google login'
+        });
+    }
+};
