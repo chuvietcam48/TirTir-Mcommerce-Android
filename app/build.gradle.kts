@@ -73,6 +73,9 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-analytics")
 
+    // Google Sign-In
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
+
     // ksoap2 - SOAP client cho Viettel Post shipping API
     implementation("com.google.code.ksoap2-android:ksoap2-android:3.6.4")
 
