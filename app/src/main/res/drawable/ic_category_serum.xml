@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Dropper / pipette representing serum -->
+    <!-- Bulb at top -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M15,3C15,1.9 14.1,1 13,1L11,1C9.9,1 9,1.9 9,3L9,5C9,5.55 9.45,6 10,6L10,16C10,17.1 10.9,18 12,18C13.1,18 14,17.1 14,16L14,6C14.55,6 15,5.55 15,5L15,3Z" />
+    <!-- Tip -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M11.5,18L11.5,22L12.5,22L12.5,18Z" />
+    <!-- Drop -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M12,22C12,22 10.5,20 10.5,21.2C10.5,21.94 11.17,22.5 12,22.5C12.83,22.5 13.5,21.94 13.5,21.2C13.5,20 12,22 12,22Z" />
+</vector>

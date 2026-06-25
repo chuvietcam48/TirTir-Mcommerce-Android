@@ -84,10 +84,10 @@ public class HomeFragment extends Fragment {
     // Category definitions: {label, iconResId}
     private static final String[] CATEGORY_LABELS = {"Cleanser", "Serum", "Moisturizer", "Sunscreen"};
     private static final int[] CATEGORY_ICONS = {
-            R.drawable.ic_skin,   // Cleanser
-            R.drawable.ic_routine, // Serum
-            R.drawable.ic_skin,   // Moisturizer
-            R.drawable.ic_scan    // Sunscreen
+            R.drawable.ic_category_cleanser,
+            R.drawable.ic_category_serum,
+            R.drawable.ic_category_moisturizer,
+            R.drawable.ic_category_sunscreen
     };
 
     public static HomeFragment newInstance(String initialQuery) {
@@ -253,8 +253,8 @@ public class HomeFragment extends Fragment {
 
     private void setupClickListeners(View view) {
         if (btnRetry != null)          btnRetry.setOnClickListener(v -> loadProducts());
-        if (btnShopCollection != null) btnShopCollection.setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), ChatActivity.class)));
+        // "Shop Collection" banner → full Shop catalog
+        if (btnShopCollection != null) btnShopCollection.setOnClickListener(v -> navigateToShop());
 
         // Search bar tap opens HomeFragment search or navigates
         if (layoutSearch != null) layoutSearch.setOnClickListener(v -> {
@@ -272,12 +272,9 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        // "View All" best sellers
+        // "View All" → open full Shop catalog with filter/search
         View tvViewAll = view.findViewById(R.id.tvViewAllBestSellers);
-        if (tvViewAll != null) tvViewAll.setOnClickListener(v -> {
-            currentCategoryFilter = "All";
-            applyFilters();
-        });
+        if (tvViewAll != null) tvViewAll.setOnClickListener(v -> navigateToShop());
 
         // Filters button opens category filter (for now, resets to "All")
         View btnFilters = view.findViewById(R.id.btnFilters);
@@ -285,6 +282,17 @@ public class HomeFragment extends Fragment {
             currentCategoryFilter = "All";
             applyFilters();
         });
+    }
+
+    // ===========================
+    // NAVIGATION HELPERS
+    // ===========================
+
+    private void navigateToShop() {
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragmentContainer, new ShopFragment())
+                .addToBackStack(null)
+                .commit();
     }
 
     // ===========================

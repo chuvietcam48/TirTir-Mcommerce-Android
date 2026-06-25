@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Cream jar representing moisturizer -->
+    <!-- Jar lid -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M5,8L5,10L19,10L19,8C19,7.45 18.55,7 18,7L6,7C5.45,7 5,7.45 5,8Z" />
+    <!-- Jar body -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M5,10L5,19C5,19.55 5.45,20 6,20L18,20C18.55,20 19,19.55 19,19L19,10L5,10Z" />
+    <!-- Lid knob -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M9,5C9,4.45 9.45,4 10,4L14,4C14.55,4 15,4.45 15,5L15,7L9,7Z" />
+    <!-- Highlight on jar -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillAlpha="0.3"
+        android:pathData="M7,11L9,11L9,18L7,18Z" />
+</vector>
