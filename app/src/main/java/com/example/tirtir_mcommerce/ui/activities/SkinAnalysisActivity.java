@@ -663,16 +663,20 @@ public class SkinAnalysisActivity extends AppCompatActivity {
     private List<ShadeMatchResult> buildFallbackShades() {
         List<ShadeMatchResult> results = new ArrayList<>();
         String[][] shades = {
-            {"Light Beige", "#F2D5B8", "3.2"},
-            {"Warm Sand",   "#DBA87A", "6.5"},
-            {"Natural Tan", "#C4895E", "11.0"}
+            {"17C Porcelain", "#f9d9c2", "3.2", "cushion-17c"},
+            {"21N Ivory",     "#ebc5a1", "6.5", "cushion-21n"},
+            {"23N Sand",      "#ebbf98", "11.0", "cushion-23n"}
         };
         for (String[] shade : shades) {
             ShadeMatchResult r = new ShadeMatchResult();
             r.setShadeName(shade[0]);
             r.setShadeHex(shade[1]);
             r.setMatchScore(Double.parseDouble(shade[2]));
-            r.setProductName("TirTir Cushion — " + shade[0]);
+            // Match percent fallback computation
+            r.setMatchPercent((int) Math.round(100 * Math.exp(-Double.parseDouble(shade[2]) / 7.0)));
+            r.setProductName("Mask Fit Red Cushion");
+            r.setProductId(shade[3]);
+            r.setImageUrl("https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg");
             results.add(r);
         }
         return results;

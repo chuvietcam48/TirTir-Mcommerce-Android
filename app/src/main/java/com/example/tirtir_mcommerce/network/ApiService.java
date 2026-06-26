@@ -179,7 +179,7 @@ public interface ApiService {
     @POST("/analyze")
     Call<SkinAnalysisResult> analyzeSkinPython(@Part MultipartBody.Part image);
 
-    @GET("api/products/cushion-match")
+    @GET("api/v1/products/cushion-match")
     Call<ApiResponse<List<ShadeMatchResult>>> matchCushion(@Query("skin_tone_hex") String skinToneHex);
 
     @POST("api/ingredients/check")
