@@ -11,8 +11,13 @@ import com.example.tirtir_mcommerce.NetworkReceiver;
 import com.example.tirtir_mcommerce.model.CartItem;
 import com.example.tirtir_mcommerce.model.Product;
 import com.example.tirtir_mcommerce.repository.CartRepository;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
 
 /**
  * CartViewModel — MVVM layer cho giỏ hàng.
@@ -35,11 +40,14 @@ public class CartViewModel extends AndroidViewModel {
     public final MutableLiveData<String> cartMessage = new MutableLiveData<>();
     public final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
 
+    private ListenerRegistration cartListener;
+
     public CartViewModel(@NonNull Application application) {
         super(application);
         this.appContext = application.getApplicationContext();
         cartRepository = new CartRepository(appContext);
         refreshCart();
+        setupFirestoreListener();
     }
 
     // ===========================
@@ -127,5 +135,86 @@ public class CartViewModel extends AndroidViewModel {
     /** Lấy số lượng hiện tại từ SQLite (không cần network). */
     public int getCartCount() {
         return cartRepository.getCartCount();
+    }
+
+    // ===========================
+    // FIRESTORE SYNC (HYBRID)
+    // ===========================
+
+    private void setupFirestoreListener() {
+        if (cartListener != null) return;
+
+        String uid = FirebaseAuth.getInstance().getCurrentUser() != null
+                ? FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+        if (uid == null) {
+            uid = new com.example.tirtir_mcommerce.utils.SharedPrefsManager(appContext).getFirebaseUid();
+        }
+        if (uid == null || uid.isEmpty()) return;
+
+        cartListener = FirebaseFirestore.getInstance()
+                .collection("carts").document(uid)
+                .addSnapshotListener((snapshot, error) -> {
+                    if (error != null || snapshot == null || !snapshot.exists()) return;
+
+                    List<Map<String, Object>> itemsList = (List<Map<String, Object>>) snapshot.get("items");
+                    if (itemsList != null) {
+                        List<CartItem> cloudItems = new ArrayList<>();
+                        for (Map<String, Object> map : itemsList) {
+                            try {
+                                String pId = (String) map.get("productId");
+                                String name = (String) map.get("productName");
+                                String thumb = (String) map.get("thumbnail");
+                                double price = map.get("price") != null ? Double.parseDouble(map.get("price").toString()) : 0;
+                                int qty = map.get("quantity") != null ? Integer.parseInt(map.get("quantity").toString()) : 1;
+                                String shade = (String) map.get("shade");
+
+                                cloudItems.add(new CartItem(pId, name, thumb, price, qty, shade));
+                            } catch (Exception e) {
+                                android.util.Log.e("CartViewModel", "Error parsing cart item", e);
+                            }
+                        }
+                        diffAndReplaceCart(cloudItems);
+                    }
+                });
+    }
+
+    private void diffAndReplaceCart(List<CartItem> cloudItems) {
+        List<CartItem> localItems = cartRepository.getCartItems();
+        boolean isDifferent = false;
+
+        if (cloudItems.size() != localItems.size()) {
+            isDifferent = true;
+        } else {
+            for (CartItem cloud : cloudItems) {
+                boolean found = false;
+                for (CartItem local : localItems) {
+                    if (cloud.getProductId() != null && cloud.getProductId().equals(local.getProductId())) {
+                        found = true;
+                        if (cloud.getQuantity() != local.getQuantity()) {
+                            isDifferent = true;
+                        }
+                        break;
+                    }
+                }
+                if (!found || isDifferent) {
+                    isDifferent = true;
+                    break;
+                }
+            }
+        }
+
+        if (isDifferent) {
+            cartRepository.replaceCartItemsFromCloud(cloudItems);
+            refreshCart();
+        }
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        if (cartListener != null) {
+            cartListener.remove();
+            cartListener = null;
+        }
     }
 }

@@ -372,6 +372,47 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM " + TABLE_CART);
     }
 
+    /**
+     * Thay thế các item đã đồng bộ bằng danh sách mới từ Cloud.
+     * Giữ lại các item đang có thay đổi offline (synced = 0).
+     */
+    public void replaceCartItemsFromCloud(List<CartItem> cloudItems) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            // Xóa tất cả các item ĐÃ đồng bộ (synced = 1)
+            db.delete(TABLE_CART, CART_COL_SYNCED + "=1", null);
+            
+            for (CartItem item : cloudItems) {
+                // Kiểm tra xem item này có đang nằm trong pending sync không (synced = 0)
+                Cursor cursor = db.query(TABLE_CART, new String[]{CART_COL_ID},
+                        CART_COL_PRODUCT_ID + "=? AND " + CART_COL_SYNCED + "=0",
+                        new String[]{item.getProductId()}, null, null, null);
+                        
+                if (cursor != null && cursor.moveToFirst()) {
+                    // Đang pending sync -> Bỏ qua bản ghi từ mây, giữ nguyên bản ghi local
+                    cursor.close();
+                    continue;
+                }
+                if (cursor != null) cursor.close();
+
+                // Chèn mới item từ cloud (đánh dấu synced = 1)
+                ContentValues values = new ContentValues();
+                values.put(CART_COL_PRODUCT_ID, item.getProductId());
+                values.put(CART_COL_NAME, item.getProductName());
+                values.put(CART_COL_THUMBNAIL, item.getThumbnail());
+                values.put(CART_COL_PRICE, item.getPrice());
+                values.put(CART_COL_QUANTITY, item.getQuantity());
+                values.put(CART_COL_SHADE, item.getShade());
+                values.put(CART_COL_SYNCED, 1); 
+                db.insert(TABLE_CART, null, values);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
     /** Đếm số item trong giỏ. */
     public int getCartCount() {
         SQLiteDatabase db = this.getReadableDatabase();

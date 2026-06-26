@@ -14,6 +14,7 @@ import com.example.tirtir_mcommerce.MainActivity;
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.repository.AuthRepository;
 import com.example.tirtir_mcommerce.model.User;
+import com.example.tirtir_mcommerce.network.FirebaseAuthManager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -41,13 +42,15 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressBar progressLogin;
     private TextView tvGoRegister, tvForgotPassword;
 
-    private AuthRepository authRepository;
+    private FirebaseAuthManager firebaseAuthManager;
+    private com.example.tirtir_mcommerce.utils.SharedPrefsManager prefsManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        authRepository = new AuthRepository(this);
+        firebaseAuthManager = new FirebaseAuthManager(this);
+        prefsManager = new com.example.tirtir_mcommerce.utils.SharedPrefsManager(this);
         bindViews();
         setListeners();
         
@@ -162,34 +165,27 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     // ===========================
-    // REAL API LOGIN (TASK 9)
+    // FIREBASE AUTH LOGIN
     // ===========================
 
-    /**
-     * Calls POST /api/v1/auth/login via AuthRepository.
-     * On success: JWT saved to SharedPrefsManager → navigate to MainActivity.
-     * API errors are shown inline so invalid credentials are never bypassed.
-     */
     private void loginWithApi(String email, String password) {
         showLoading(true);
-
-        authRepository.login(email, password,
-                user -> {
-                    // SUCCESS: JWT saved by AuthRepository.login()
-                    showLoading(false);
-                    goToDestination(user);
-                },
-                errorMessage -> {
-                    showLoading(false);
-
-                        // Real credential error (401, 403): show to user
-                        if (tilPassword != null) {
-                            tilPassword.setError(errorMessage);
-                        } else {
-                            Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
-                        }
-                }
-        );
+        // Gọi thẳng lên Node.js Backend thông qua ViewModel (đã implement sẵn trong app của bạn)
+        // Lưu ý: Do code hiện tại đang xài Firebase, để sửa triệt để thì AuthViewModel cần có hàm login
+        // Nhưng tạm thời mình sẽ gọi AuthRepository trực tiếp để nhanh nhất
+        AuthRepository authRepository = new AuthRepository(this);
+        authRepository.login(email, password, user -> {
+            showLoading(false);
+            Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+            goToDestination(user);
+        }, error -> {
+            showLoading(false);
+            if (tilPassword != null) {
+                tilPassword.setError(error);
+            } else {
+                Toast.makeText(LoginActivity.this, error, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     // ===========================
@@ -231,5 +227,12 @@ public class LoginActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        // Thoát ứng dụng hoàn toàn nếu đang ở màn hình Đăng nhập
+        finishAffinity();
     }
 }

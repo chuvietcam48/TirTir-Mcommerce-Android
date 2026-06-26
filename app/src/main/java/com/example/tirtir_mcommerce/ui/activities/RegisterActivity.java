@@ -15,6 +15,7 @@ import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.MainActivity;
 import com.example.tirtir_mcommerce.model.User;
 import com.example.tirtir_mcommerce.viewmodel.AuthViewModel;
+import com.example.tirtir_mcommerce.network.FirebaseAuthManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -48,6 +49,8 @@ public class RegisterActivity extends AppCompatActivity {
     private TextView tvGoLogin;
 
     private AuthViewModel authViewModel;
+    private FirebaseAuthManager firebaseAuthManager;
+    private com.example.tirtir_mcommerce.utils.SharedPrefsManager prefsManager;
     private String submittedEmail = "";
     private String submittedPassword = "";
     private boolean registrationCompleted;
@@ -58,6 +61,8 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
+        firebaseAuthManager = new FirebaseAuthManager(this);
+        prefsManager = new com.example.tirtir_mcommerce.utils.SharedPrefsManager(this);
 
         bindViews();
         observeViewModel();
@@ -155,18 +160,9 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     // ===========================
-    // REAL API REGISTER
+    // FIREBASE AUTH REGISTER
     // ===========================
 
-    /**
-     * Đọc form → gọi AuthViewModel.register() → POST /api/v1/auth/register
-     *
-     * BE nhận: { firstName, lastName, email, password }
-     * Form có 1 field "Họ và tên" → tách:
-     *   - Nếu chỉ 1 từ: firstName = chuỗi đó, lastName = ""
-     *   - Nếu nhiều từ: firstName = từ cuối, lastName = phần còn lại
-     *   (phù hợp tên tiếng Việt: "Nguyễn Văn An" → lastName="Nguyễn Văn", firstName="An")
-     */
     private void registerWithApi() {
         String fullName    = getText(etFullName);
         String email       = getText(etEmail);
@@ -176,19 +172,29 @@ public class RegisterActivity extends AppCompatActivity {
         submittedPassword = password;
         registrationCompleted = false;
 
-        // Split fullName into firstName + lastName for BE
-        String firstName, lastName;
-        String[] parts = fullName.trim().split("\\s+");
-        if (parts.length == 1) {
-            firstName = parts[0];
-            lastName  = "Member";
-        } else {
-            // Last token = firstName (given name), rest = lastName (family name)
-            firstName = parts[parts.length - 1];
-            lastName  = fullName.substring(0, fullName.lastIndexOf(parts[parts.length - 1])).trim();
+        if (!password.equals(confirmPass)) {
+            tilConfirmPassword.setError("Passwords do not match");
+            return;
         }
 
-        // Delegate to AuthViewModel (which handles validation + API call)
+        if (password.length() < 6) {
+            tilPassword.setError("Password must be at least 6 characters");
+            return;
+        }
+
+        // Tách họ và tên (backend yêu cầu firstName và lastName)
+        String firstName = "";
+        String lastName = fullName;
+        int spaceIndex = fullName.lastIndexOf(" ");
+        if (spaceIndex != -1) {
+            firstName = fullName.substring(0, spaceIndex).trim();
+            lastName = fullName.substring(spaceIndex + 1).trim();
+        } else {
+            firstName = fullName;
+            lastName = fullName; // Nếu người dùng chỉ nhập 1 chữ, lấy chữ đó làm cả first và last name
+        }
+
+        // Gọi thẳng lên Node.js Backend bằng ViewModel
         authViewModel.register(firstName, lastName, email, password, confirmPass);
     }
 

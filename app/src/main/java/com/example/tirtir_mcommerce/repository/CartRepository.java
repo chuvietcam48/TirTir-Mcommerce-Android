@@ -86,6 +86,11 @@ public class CartRepository {
                 });
     }
 
+    /** Overwrite local cart with cloud data (safely keeping synced=0). */
+    public void replaceCartItemsFromCloud(List<CartItem> items) {
+        dbHelper.replaceCartItemsFromCloud(items);
+    }
+
     /** Số lượng item trong giỏ. */
     public int getCartCount() {
         return dbHelper.getCartCount();

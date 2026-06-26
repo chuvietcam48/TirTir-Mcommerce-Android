@@ -153,24 +153,22 @@ public class HomeFragment extends Fragment {
         if (tvGreeting == null) return;
         SharedPrefsManager prefs = new SharedPrefsManager(requireContext());
         User user = prefs.getCachedUser();
-        
-        String firstName = "Guest";
-        String fullName = "Guest User";
-        
         if (user != null) {
-            fullName = user.getName() != null && !user.getName().isEmpty() ? user.getName() : user.getEmail();
+            String fullName = user.getName() != null && !user.getName().isEmpty() ? user.getName() : user.getEmail();
             if (fullName != null && !fullName.isEmpty()) {
                 // Extract first name only
-                firstName = fullName.split(" ")[0];
+                String firstName = fullName.split(" ")[0];
                 // Remove email part if no display name
                 if (firstName.contains("@")) firstName = firstName.split("@")[0];
+                tvGreeting.setText(firstName); // Show first name instead of full name for better UX
             }
+        } else {
+            tvGreeting.setText("User"); // Fallback if somehow user is null
         }
         
         if (tvGreetingSub != null) {
             tvGreetingSub.setText("Hi,");
         }
-        tvGreeting.setText(fullName);
     }
 
     // ===========================

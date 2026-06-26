@@ -51,6 +51,9 @@ exports.register = async (req, res) => {
     });
   } catch (error) {
     console.error("Lỗi đồng bộ Firestore khi đăng ký:", error);
+    // Rollback: Xóa user vừa tạo trên MongoDB để tránh rác data
+    await User.findByIdAndDelete(user._id);
+    return res.status(500).json({ success: false, message: 'Lỗi đồng bộ tài khoản lên hệ thống thời gian thực. Vui lòng thử lại.' });
   }
 
   const token = signAccessToken(user._id, user.role);

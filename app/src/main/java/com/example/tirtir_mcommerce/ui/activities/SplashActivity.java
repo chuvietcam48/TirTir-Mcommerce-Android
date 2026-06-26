@@ -12,12 +12,15 @@ import com.example.tirtir_mcommerce.MainActivity;
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 /**
  * SCR-00 SplashActivity
  *
  * Startup logic:
  * - First launch → OnboardingActivity
- * - Already logged in (token saved) → MainActivity
+ * - Already logged in (Firebase non-anonymous) → MainActivity
  * - Otherwise → LoginActivity
  *
  * Sprint S0.1
@@ -36,6 +39,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void navigate() {
+        SharedPrefsManager prefsManager = new SharedPrefsManager(this);
         SharedPreferences prefs = getSharedPreferences("tirtir_prefs", MODE_PRIVATE);
         boolean firstLaunchDone = prefs.getBoolean(PREF_FIRST_LAUNCH, false);
 
@@ -45,13 +49,15 @@ public class SplashActivity extends AppCompatActivity {
             prefs.edit().putBoolean(PREF_FIRST_LAUNCH, true).apply();
             intent = new Intent(this, OnboardingActivity.class);
         } else {
-            // Check if user has a saved token
-            SharedPrefsManager prefsManager = new SharedPrefsManager(this);
-            if (prefsManager.isLoggedIn()) {
+            // Check if user has a valid JWT token
+            String token = prefsManager.getToken();
+            if (token != null && !token.isEmpty()) {
+                // Has token -> Route to Main or Admin
                 com.example.tirtir_mcommerce.model.User user = prefsManager.getCachedUser();
-                intent = new Intent(this,
-                        user != null && user.isAdmin() ? AdminActivity.class : MainActivity.class);
+                boolean isAdmin = (user != null && user.isAdmin());
+                intent = new Intent(this, isAdmin ? AdminActivity.class : MainActivity.class);
             } else {
+                // No token -> Force Login
                 intent = new Intent(this, LoginActivity.class);
             }
         }

@@ -27,6 +27,14 @@ exports.addToCart = async (req, res) => {
   }
 
   await cart.save();
+
+  try {
+    const admin = require('firebase-admin');
+    await admin.firestore().collection('carts').doc(String(req.user.id)).set({ items: cart.items });
+  } catch (err) {
+    console.error('Error syncing cart to Firestore:', err);
+  }
+
   res.status(200).end(); // CartRepository expects Call<Void> — no body required
 };
 
@@ -58,6 +66,13 @@ exports.updateCartServer = async (req, res) => {
       cart.items.splice(itemIndex, 1); // Xóa nếu quantity = 0
     }
     await cart.save();
+
+    try {
+      const admin = require('firebase-admin');
+      await admin.firestore().collection('carts').doc(String(req.user.id)).set({ items: cart.items });
+    } catch (err) {
+      console.error('Error syncing cart update to Firestore:', err);
+    }
   }
   
   res.status(200).json({ success: true, message: 'Cập nhật giỏ hàng thành công.' });
@@ -69,6 +84,13 @@ exports.clearCartServer = async (req, res) => {
   if (cart) {
     cart.items = [];
     await cart.save();
+  }
+
+  try {
+    const admin = require('firebase-admin');
+    await admin.firestore().collection('carts').doc(String(req.user.id)).set({ items: [] });
+  } catch (err) {
+    console.error('Error syncing cart clear to Firestore:', err);
   }
   res.status(200).json({ success: true, message: 'Đã xóa sạch giỏ hàng.' });
 };

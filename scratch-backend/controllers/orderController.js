@@ -102,19 +102,15 @@ exports.createOrder = async (req, res) => {
   // Sync to Firestore
   try {
     const db = admin.firestore();
-    const userSnapshot = await db.collection('users').where('backendUserId', '==', String(req.user.id)).limit(1).get();
-    if (!userSnapshot.empty) {
-      const firebaseUid = userSnapshot.docs[0].id;
-      const orderDocRef = db.collection('users').doc(firebaseUid).collection('orders').doc(String(order._id));
-      await orderDocRef.set({
-        id: String(order._id),
-        status: order.status,
-        totalPrice: order.totalPrice,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        itemsCount: orderItems.length
-      });
-    }
+    const orderDocRef = db.collection('users').doc(String(req.user.id)).collection('orders').doc(String(order._id));
+    await orderDocRef.set({
+      id: String(order._id),
+      status: order.status,
+      totalPrice: order.totalPrice,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      itemsCount: orderItems.length
+    });
   } catch (err) {
     console.error('Error syncing order to Firestore:', err);
   }
@@ -215,15 +211,11 @@ exports.updateAdminOrderStatus = async (req, res) => {
     // Sync to Firestore
     try {
       const db = admin.firestore();
-      const userSnapshot = await db.collection('users').where('backendUserId', '==', String(order.userId)).limit(1).get();
-      if (!userSnapshot.empty) {
-        const firebaseUid = userSnapshot.docs[0].id;
-        const orderDocRef = db.collection('users').doc(firebaseUid).collection('orders').doc(String(order._id));
-        await orderDocRef.set({
-          status: order.status,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-      }
+      const orderDocRef = db.collection('users').doc(String(order.userId)).collection('orders').doc(String(order._id));
+      await orderDocRef.set({
+        status: order.status,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
     } catch (err) {
       console.error('Error syncing order status update to Firestore:', err);
     }
