@@ -171,16 +171,11 @@ public class AdminActivity extends AppCompatActivity {
         }
         
         if (entries.isEmpty()) {
-            // Draw clean fallback sample chart data if empty
-            labels.add("Mon"); labels.add("Tue"); labels.add("Wed");
-            labels.add("Thu"); labels.add("Fri"); labels.add("Sat"); labels.add("Sun");
-            entries.add(new Entry(0, 1500000f));
-            entries.add(new Entry(1, 2300000f));
-            entries.add(new Entry(2, 1800000f));
-            entries.add(new Entry(3, 3100000f));
-            entries.add(new Entry(4, 2800000f));
-            entries.add(new Entry(5, 4200000f));
-            entries.add(new Entry(6, 3900000f));
+            lineChartRevenue.setNoDataText("No revenue data for this period");
+            lineChartRevenue.setNoDataTextColor(Color.parseColor("#999999"));
+            lineChartRevenue.clear();
+            lineChartRevenue.invalidate();
+            return;
         }
 
         LineDataSet set = new LineDataSet(entries, "Revenue");
@@ -228,17 +223,11 @@ public class AdminActivity extends AppCompatActivity {
         }
 
         if (entries.isEmpty()) {
-            // Draw clean fallback sample products sold if empty
-            labels.add("Cushion Red");
-            labels.add("Milk Toner");
-            labels.add("Water Serum");
-            labels.add("Ceramide Crm");
-            labels.add("Mask Fit");
-            entries.add(new BarEntry(0, 120));
-            entries.add(new BarEntry(1, 95));
-            entries.add(new BarEntry(2, 80));
-            entries.add(new BarEntry(3, 60));
-            entries.add(new BarEntry(4, 45));
+            barChartProducts.setNoDataText("No product sales data available");
+            barChartProducts.setNoDataTextColor(Color.parseColor("#999999"));
+            barChartProducts.clear();
+            barChartProducts.invalidate();
+            return;
         }
 
         BarDataSet set = new BarDataSet(entries, "Units sold");

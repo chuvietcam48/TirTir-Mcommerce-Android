@@ -10,6 +10,7 @@ import android.widget.TextView;
 import android.widget.AdapterView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tirtir_mcommerce.R;
@@ -101,6 +102,7 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Vi
             }
         }
         holder.spinnerStatus.setSelection(selectionIndex);
+        final int finalSelectionIndex = selectionIndex;
 
         holder.spinnerStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             private boolean initialized;
@@ -124,7 +126,20 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Vi
                 }
 
                 if (!beStatus.equalsIgnoreCase(order.status) && listener != null) {
-                    listener.onStatusChanged(order, beStatus);
+                    new AlertDialog.Builder(context)
+                            .setTitle("Confirm Status Change")
+                            .setMessage("Change order " + order.code + " status to \"" + selectedUiStatus + "\"?")
+                            .setPositiveButton("Confirm", (d, w) -> listener.onStatusChanged(order, beStatus))
+                            .setNegativeButton("Cancel", (d, w) -> {
+                                int pos = holder.getAdapterPosition();
+                                if (pos >= 0) {
+                                    notifyItemChanged(pos);
+                                } else {
+                                    holder.spinnerStatus.setOnItemSelectedListener(null);
+                                    holder.spinnerStatus.setSelection(finalSelectionIndex);
+                                }
+                            })
+                            .show();
                 }
             }
 
