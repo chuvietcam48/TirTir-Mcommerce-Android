@@ -672,8 +672,6 @@ public class SkinAnalysisActivity extends AppCompatActivity {
             r.setShadeName(shade[0]);
             r.setShadeHex(shade[1]);
             r.setMatchScore(Double.parseDouble(shade[2]));
-            // Match percent fallback computation
-            r.setMatchPercent((int) Math.round(100 * Math.exp(-Double.parseDouble(shade[2]) / 7.0)));
             r.setProductName("Mask Fit Red Cushion");
             r.setProductId(shade[3]);
             r.setImageUrl("https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg");

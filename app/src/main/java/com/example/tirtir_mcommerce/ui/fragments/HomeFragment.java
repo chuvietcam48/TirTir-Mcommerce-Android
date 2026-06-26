@@ -270,16 +270,29 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        // "View All" → open full Shop catalog with filter/search
+        // "View All" → scroll to Explore All and sort as Best Sellers
         View tvViewAll = view.findViewById(R.id.tvViewAllBestSellers);
-        if (tvViewAll != null) tvViewAll.setOnClickListener(v -> navigateToShop());
+        if (tvViewAll != null) {
+            tvViewAll.setOnClickListener(v -> {
+                currentCategoryFilter = "Best Sellers";
+                applyFilters();
+                View exploreSection = view.findViewById(R.id.exploreAllSection);
+                androidx.core.widget.NestedScrollView scrollView = view.findViewById(R.id.nestedScrollView);
+                if (exploreSection != null && scrollView != null) {
+                    scrollView.smoothScrollTo(0, exploreSection.getTop());
+                }
+            });
+        }
 
         // Filters button opens category filter (for now, resets to "All")
         View btnFilters = view.findViewById(R.id.btnFilters);
-        if (btnFilters != null) btnFilters.setOnClickListener(v -> {
-            currentCategoryFilter = "All";
-            applyFilters();
-        });
+        if (btnFilters != null) {
+            btnFilters.setOnClickListener(v -> {
+                currentCategoryFilter = "All";
+                applyFilters();
+                android.widget.Toast.makeText(getContext(), "Showing all products", android.widget.Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     // ===========================
@@ -371,7 +384,7 @@ public class HomeFragment extends Fragment {
             boolean matchesCategory = true;
             boolean matchesSearch = true;
 
-            if (!"All".equalsIgnoreCase(currentCategoryFilter)) {
+            if (!"All".equalsIgnoreCase(currentCategoryFilter) && !"Best Sellers".equalsIgnoreCase(currentCategoryFilter)) {
                 String cat = product.getCategory() != null ? product.getCategory() : "";
                 matchesCategory = cat.equalsIgnoreCase(currentCategoryFilter)
                         || cat.toLowerCase(Locale.ENGLISH).contains(
@@ -387,6 +400,11 @@ public class HomeFragment extends Fragment {
             if (matchesCategory && matchesSearch) {
                 filtered.add(product);
             }
+        }
+
+        // Nếu là "Best Sellers", sort theo stockQuantity (càng ít hàng càng bán chạy)
+        if ("Best Sellers".equalsIgnoreCase(currentCategoryFilter)) {
+            java.util.Collections.sort(filtered, (p1, p2) -> Integer.compare(p1.getStockQuantity(), p2.getStockQuantity()));
         }
 
         if (filtered.isEmpty()) {
