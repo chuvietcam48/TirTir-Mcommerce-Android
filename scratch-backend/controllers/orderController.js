@@ -126,11 +126,25 @@ exports.createOrder = async (req, res) => {
   });
 };
 
+// Helper to add timeline, cancel, and reorder fields
+const enhanceOrder = (order) => {
+  order.cancelable = order.status === 'Pending' || order.status === 'Processing';
+  order.reorderable = true;
+  order.timeline = [
+    { title: 'Order Placed', time: order.createdAt, completed: true },
+    { title: 'Processing', time: null, completed: order.status === 'Processing' || order.status === 'Shipped' || order.status === 'Delivered' },
+    { title: 'Shipped', time: null, completed: order.status === 'Shipped' || order.status === 'Delivered' },
+    { title: 'Delivered', time: null, completed: order.status === 'Delivered' }
+  ];
+  return order;
+};
+
 // GET /api/v1/orders/my-orders  (protected)
 // Response: ApiResponse<List<OrderResponse>> { success, data: [...] }
 exports.getMyOrders = async (req, res) => {
   const orders = await Order.find({ userId: req.user.id }).sort({ createdAt: -1 }).lean();
-  res.status(200).json({ success: true, data: orders });
+  const enhancedOrders = orders.map(enhanceOrder);
+  res.status(200).json({ success: true, data: enhancedOrders });
 };
 
 // GET /api/v1/orders/:id  (protected)
@@ -145,7 +159,7 @@ exports.getOrderById = async (req, res) => {
     return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng.' });
   }
 
-  res.status(200).json({ success: true, data: order });
+  res.status(200).json({ success: true, data: enhanceOrder(order) });
 };
 
 // GET /api/v1/orders/:id/invoice  (protected)

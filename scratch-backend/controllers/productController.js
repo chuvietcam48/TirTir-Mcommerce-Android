@@ -20,7 +20,22 @@ exports.getProducts = async (req, res) => {
   }
 
   const skip = (page - 1) * limit;
-  const products = await Product.find(filter).skip(skip).limit(limit).lean();
+  let products = await Product.find(filter).skip(skip).limit(limit).lean();
+  
+  // Fix CDN URLs
+  const cdnBase = process.env.CDN_BASE_URL || 'https://tirtir.vn/wp-content/uploads/2024/';
+  products = products.map(p => {
+    if (p.Thumbnail_Images && !p.Thumbnail_Images.startsWith('http')) {
+      p.Thumbnail_Images = cdnBase + p.Thumbnail_Images;
+    }
+    if (p.Description_Images && Array.isArray(p.Description_Images)) {
+      p.Description_Images = p.Description_Images.map(img => img.startsWith('http') ? img : cdnBase + img);
+    }
+    if (p.Gallery_Images && Array.isArray(p.Gallery_Images)) {
+      p.Gallery_Images = p.Gallery_Images.map(img => img.startsWith('http') ? img : cdnBase + img);
+    }
+    return p;
+  });
   const total = await Product.countDocuments(filter);
 
   const categoriesAgg = await Product.aggregate([
@@ -45,5 +60,17 @@ exports.getProductById = async (req, res) => {
   if (!product) {
     return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm.' });
   }
+
+  const cdnBase = process.env.CDN_BASE_URL || 'https://tirtir.vn/wp-content/uploads/2024/';
+  if (product.Thumbnail_Images && !product.Thumbnail_Images.startsWith('http')) {
+    product.Thumbnail_Images = cdnBase + product.Thumbnail_Images;
+  }
+  if (product.Description_Images && Array.isArray(product.Description_Images)) {
+    product.Description_Images = product.Description_Images.map(img => img.startsWith('http') ? img : cdnBase + img);
+  }
+  if (product.Gallery_Images && Array.isArray(product.Gallery_Images)) {
+    product.Gallery_Images = product.Gallery_Images.map(img => img.startsWith('http') ? img : cdnBase + img);
+  }
+
   res.status(200).json({ success: true, data: product });
 };

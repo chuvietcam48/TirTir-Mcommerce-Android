@@ -139,7 +139,17 @@ exports.refreshToken = async (req, res) => {
     return res.status(401).json({ success: false, message: 'Refresh token đã bị thu hồi.' });
   }
 
-  res.status(200).json({ success: true, token: signAccessToken(user._id, user.role) });
+  const newToken = signAccessToken(user._id, user.role);
+  const newRefreshToken = signRefreshToken(user._id);
+
+  user.refreshTokenHash = hashToken(newRefreshToken);
+  await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({ 
+    success: true, 
+    token: newToken,
+    refreshToken: newRefreshToken
+  });
 };
 
 // POST /api/v1/auth/forgot-password
