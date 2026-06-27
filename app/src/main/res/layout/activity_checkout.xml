@@ -280,6 +280,8 @@
                         android:textColor="@color/tirtir_text_secondary" />
 
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="@string/checkout_shipping_pending_note"
                         android:textSize="12sp"
                         android:textColor="@color/tirtir_silver_gray"

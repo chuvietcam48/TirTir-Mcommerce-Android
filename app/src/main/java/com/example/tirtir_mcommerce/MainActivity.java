@@ -166,6 +166,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        com.example.tirtir_mcommerce.utils.SharedPrefsManager prefs = new com.example.tirtir_mcommerce.utils.SharedPrefsManager(this);
+        if (!prefs.isLoggedIn()) {
+            android.widget.Toast.makeText(this, "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.", android.widget.Toast.LENGTH_LONG).show();
+            android.content.Intent intent = new android.content.Intent(this, com.example.tirtir_mcommerce.ui.activities.LoginActivity.class);
+            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            return;
+        }
         updateCartBadge();
     }
 

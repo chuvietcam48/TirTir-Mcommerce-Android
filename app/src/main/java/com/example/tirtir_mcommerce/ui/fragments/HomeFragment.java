@@ -270,6 +270,15 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        // Notifications icon
+        View btnNotifications = view.findViewById(R.id.btnNotifications);
+        if (btnNotifications != null) {
+            btnNotifications.setOnClickListener(v -> {
+                android.content.Intent intent = new android.content.Intent(getContext(), com.example.tirtir_mcommerce.ui.activities.NotificationSettingsActivity.class);
+                startActivity(intent);
+            });
+        }
+
         // "View All" → scroll to Explore All and sort as Best Sellers
         View tvViewAll = view.findViewById(R.id.tvViewAllBestSellers);
         if (tvViewAll != null) {
@@ -447,5 +456,14 @@ public class HomeFragment extends Fragment {
                 tvCartBadge.setVisibility(View.GONE);
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        com.example.tirtir_mcommerce.database.DatabaseHelper db = com.example.tirtir_mcommerce.database.DatabaseHelper.getInstance(requireContext());
+        if (db != null) {
+            updateCartBadge(db.getCartCount());
+        }
     }
 }

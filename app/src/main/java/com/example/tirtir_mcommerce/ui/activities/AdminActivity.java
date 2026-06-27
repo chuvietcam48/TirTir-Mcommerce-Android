@@ -309,7 +309,18 @@ public class AdminActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        checkTimeout();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkTimeout();
+    }
+
+    private void checkTimeout() {
         if (!new com.example.tirtir_mcommerce.utils.SharedPrefsManager(this).isLoggedIn()) {
+            Toast.makeText(this, "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(this, LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);

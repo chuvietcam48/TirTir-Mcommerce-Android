@@ -84,6 +84,16 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
             }
         });
 
+        androidx.appcompat.widget.Toolbar toolbar = view.findViewById(R.id.toolbarCart);
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
+            toolbar.setNavigationOnClickListener(v -> {
+                if (getActivity() != null) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                }
+            });
+        }
+
         return view;
     }
 
