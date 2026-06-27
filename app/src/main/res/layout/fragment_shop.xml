@@ -81,6 +81,15 @@
                     android:imeOptions="actionSearch"
                     android:inputType="text" />
 
+                <ImageView
+                    android:id="@+id/btnSearchScanShop"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_scan"
+                    app:tint="@color/tirtir_black"
+                    android:contentDescription="Scan image" />
+
             </LinearLayout>
         </LinearLayout>
 

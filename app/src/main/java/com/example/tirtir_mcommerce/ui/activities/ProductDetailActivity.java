@@ -60,6 +60,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     private MaterialButton btnChatAdvisor;
     private Button btnAddToCart;
     private MaterialButton btnBuyNow;
+    private android.widget.LinearLayout layoutDescriptionImages;
 
     private DatabaseHelper databaseHelper;
 
@@ -100,6 +101,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         btnChatAdvisor = findViewById(R.id.btnChatAdvisor);
         btnAddToCart = findViewById(R.id.btnAddToCart);
         btnBuyNow = findViewById(R.id.btnBuyNow);
+        layoutDescriptionImages = findViewById(R.id.layoutDescriptionImages);
         
         tvQuantity = findViewById(R.id.tvQuantity);
         tvTotalPrice = findViewById(R.id.tvTotalPrice);
@@ -300,6 +302,30 @@ public class ProductDetailActivity extends AppCompatActivity {
         tvSuitableSkinTypes.setText(firstNonEmpty(product.getSkinTypeTarget(), "Suitable for all skin types"));
         tvIngredientList.setText(firstNonEmpty(productIngredients, "Ingredient list is not available yet."));
         tvProductDescription.setText(firstNonEmpty(product.getDescriptionShort(), product.getFullDescription(), "Premium TirTir beauty care formula."));
+
+        // Render Description Images
+        if (layoutDescriptionImages != null) {
+            layoutDescriptionImages.removeAllViews();
+            if (product.getDescriptionImages() != null && !product.getDescriptionImages().isEmpty()) {
+                for (String imgUrl : product.getDescriptionImages()) {
+                    if (imgUrl == null || imgUrl.trim().isEmpty()) continue;
+                    android.widget.ImageView iv = new android.widget.ImageView(this);
+                    android.widget.LinearLayout.LayoutParams params = new android.widget.LinearLayout.LayoutParams(
+                            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+                    params.setMargins(0, 0, 0, 16);
+                    iv.setLayoutParams(params);
+                    iv.setAdjustViewBounds(true);
+                    iv.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
+                    
+                    Glide.with(this)
+                            .load(com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(imgUrl))
+                            .into(iv);
+                            
+                    layoutDescriptionImages.addView(iv);
+                }
+            }
+        }
 
         galleryImages = product.getGalleryImages() != null
                 ? new java.util.ArrayList<>(product.getGalleryImages())

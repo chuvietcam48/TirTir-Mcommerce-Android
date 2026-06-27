@@ -207,6 +207,14 @@
                     android:textSize="14sp"
                     android:lineSpacingExtra="4dp" />
 
+                <!-- Container for Description Images (Phase 3) -->
+                <LinearLayout
+                    android:id="@+id/layoutDescriptionImages"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical" />
+
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

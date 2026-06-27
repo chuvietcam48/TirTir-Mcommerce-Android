@@ -256,8 +256,16 @@ public class HomeFragment extends Fragment {
 
         // Search bar tap opens HomeFragment search or navigates
         if (layoutSearch != null) layoutSearch.setOnClickListener(v -> {
-            // Focus a search bar or re-use SearchView logic
+            navigateToShop();
         });
+        
+        // Search scan button
+        View btnSearchScanHome = view.findViewById(R.id.btnSearchScanHome);
+        if (btnSearchScanHome != null) {
+            btnSearchScanHome.setOnClickListener(v -> {
+                startActivity(new Intent(requireContext(), com.example.tirtir_mcommerce.ui.activities.IngredientScanActivity.class));
+            });
+        }
 
         // Cart icon
         View btnCart = view.findViewById(R.id.btnCart);

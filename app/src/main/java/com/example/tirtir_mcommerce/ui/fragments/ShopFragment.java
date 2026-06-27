@@ -98,6 +98,14 @@ public class ShopFragment extends Fragment {
                 startActivity(new Intent(requireContext(), WishlistActivity.class)));
         }
 
+        // Scan button
+        View btnSearchScanShop = view.findViewById(R.id.btnSearchScanShop);
+        if (btnSearchScanShop != null) {
+            btnSearchScanShop.setOnClickListener(v -> {
+                startActivity(new Intent(requireContext(), com.example.tirtir_mcommerce.ui.activities.IngredientScanActivity.class));
+            });
+        }
+
         // RecyclerView — tap card → Product Detail
         adapter = new ProductAdapter(getContext(), new ArrayList<>(), product -> {
             Intent intent = new Intent(requireContext(), ProductDetailActivity.class);
