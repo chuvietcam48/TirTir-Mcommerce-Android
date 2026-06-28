@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/user.model');
 const Order = require('../models/order.model');
 const firebaseAdmin = require('./firebaseAdmin.service');
@@ -7,8 +8,12 @@ const { findFirebaseUidByMongoUserId } = require('./firestoreUser.service');
  * Determine loyalty tier based on total points
  */
 function determineTier(points) {
-    if (points >= 2000) return 'Platinum';
-    if (points >= 500) return 'Gold';
+    const silverThreshold = process.env.LOYALTY_SILVER_THRESHOLD ? parseInt(process.env.LOYALTY_SILVER_THRESHOLD, 10) : 100;
+    const goldThreshold = process.env.LOYALTY_GOLD_THRESHOLD ? parseInt(process.env.LOYALTY_GOLD_THRESHOLD, 10) : 500;
+    const platinumThreshold = process.env.LOYALTY_PLATINUM_THRESHOLD ? parseInt(process.env.LOYALTY_PLATINUM_THRESHOLD, 10) : 2000;
+
+    if (points >= platinumThreshold) return 'Platinum';
+    if (points >= goldThreshold) return 'Gold';
     return 'Silver'; // Default tier
 }
 
@@ -16,25 +21,40 @@ function determineTier(points) {
  * Get next tier details
  */
 function getNextTierDetails(points) {
-    if (points < 500) {
-        return { nextTier: 'Gold', pointsToNextTier: 500 - points };
-    } else if (points < 2000) {
-        return { nextTier: 'Platinum', pointsToNextTier: 2000 - points };
+    const goldThreshold = process.env.LOYALTY_GOLD_THRESHOLD ? parseInt(process.env.LOYALTY_GOLD_THRESHOLD, 10) : 500;
+    const platinumThreshold = process.env.LOYALTY_PLATINUM_THRESHOLD ? parseInt(process.env.LOYALTY_PLATINUM_THRESHOLD, 10) : 2000;
+
+    if (points < goldThreshold) {
+        return { nextTier: 'Gold', pointsToNextTier: goldThreshold - points };
+    } else if (points < platinumThreshold) {
+        return { nextTier: 'Platinum', pointsToNextTier: platinumThreshold - points };
     }
     return { nextTier: 'Max', pointsToNextTier: 0 };
 }
 
 /**
  * Add loyalty points to a user based on order amount
+ * Supports positional (userId, orderTotal, orderId) and options object (userId, orderTotal, { orderId })
  */
-async function addPoints(userId, orderTotal, options = {}) {
-    const { orderId } = options;
-    if (!userId || !orderTotal || !orderId) {
-        console.warn('[BE2][LOYALTY] Missing parameters in addPoints. Skipping.');
+async function addPoints(userId, orderTotal, optionsOrOrderId = {}) {
+    let orderId = null;
+    if (typeof optionsOrOrderId === 'object' && optionsOrOrderId !== null) {
+        orderId = optionsOrOrderId.orderId || optionsOrOrderId._id || optionsOrOrderId.id;
+    } else if (typeof optionsOrOrderId === 'string' || optionsOrOrderId instanceof mongoose.Types.ObjectId) {
+        orderId = String(optionsOrOrderId);
+    }
+
+    if (!userId || orderTotal === undefined || orderTotal === null || !orderId) {
+        console.warn('[BE2][LOYALTY] Missing required parameters in addPoints. Skipping.');
         return { skipped: true, reason: 'Missing parameters' };
     }
 
-    console.log(`[BE2][LOYALTY] Attempting to add points for user ${userId}, order ${orderId}`);
+    const numOrderTotal = Number(orderTotal);
+    if (isNaN(numOrderTotal) || numOrderTotal <= 0) {
+        return { skipped: true, reason: 'Invalid orderTotal' };
+    }
+
+    console.log(`[BE2][LOYALTY] Attempting to add points for user ${userId}, order ${orderId}, amount ${numOrderTotal}`);
 
     // 1. Fetch Mongo User
     const user = await User.findById(userId);
@@ -43,147 +63,167 @@ async function addPoints(userId, orderTotal, options = {}) {
         return { skipped: true, reason: 'User not found' };
     }
 
-    // 2. Find Firebase UID
-    const firebaseUid = await findFirebaseUidByMongoUserId(userId);
-    if (!firebaseUid) {
-        console.warn(`[BE2][LOYALTY] No Firebase UID mapped for user ${userId}. Cannot add loyalty points.`);
-        return { skipped: true, reason: 'Firebase UID not found' };
+    // 2. Determine base points: floor(orderTotal / 1000)
+    const basePoints = Math.floor(numOrderTotal / 1000);
+    if (basePoints <= 0) {
+        return {
+            skipped: true,
+            reason: 'Order total too low for points',
+            basePoints: 0,
+            finalPoints: 0
+        };
     }
 
-    if (!firebaseAdmin.isFirebaseEnabled()) {
-        console.warn(`[BE2][LOYALTY] Firebase is disabled. Cannot update loyalty points.`);
-        return { skipped: true, reason: 'Firebase disabled' };
-    }
+    // 3. Determine Multipliers & Non-stacking highest multiplier rule
+    const pastOrdersCount = await Order.countDocuments({
+        user: userId,
+        _id: { $ne: orderId },
+        status: { $in: ['Processing', 'Shipped', 'Delivered'] }
+    });
+    const isFirstOrder = pastOrdersCount === 0 || (user.totalOrders || 0) === 0;
 
-    const db = firebaseAdmin.getFirestore();
-    if (!db) return { skipped: true, reason: 'Firestore unavailable' };
-
-    try {
-        const userRef = db.collection('users').doc(firebaseUid);
-        const historyRef = userRef.collection('loyalty_history').doc(String(orderId));
-
-        // 3. Idempotency Check: Check if this order has already processed points
-        const historyDoc = await historyRef.get();
-        if (historyDoc.exists) {
-            console.log(`[BE2][LOYALTY] Points for order ${orderId} already processed. Skipping.`);
-            return { skipped: true, reason: 'Idempotency match' };
-        }
-
-        // 4. Calculate Multipliers
-        // Condition A: First order (check past completed/confirmed orders excluding current order, or MongoDB totalOrders === 0)
-        const pastOrdersCount = await Order.countDocuments({
-            user: userId,
-            _id: { $ne: orderId },
-            status: { $in: ['Processing', 'Shipped', 'Delivered'] }
-        });
-        const isFirstOrder = pastOrdersCount === 0 || (user.totalOrders || 0) === 0;
-
-        // Condition B: Birthday Month matches current month
-        let isBirthdayMonth = false;
-        if (user.birthDate) {
-            const birthMonth = new Date(user.birthDate).getMonth();
+    let isBirthdayMonth = false;
+    if (user.birthDate || user.birthday) {
+        const bDate = user.birthDate || user.birthday;
+        try {
+            const birthMonth = new Date(bDate).getMonth();
             const currentMonth = new Date().getMonth();
             isBirthdayMonth = birthMonth === currentMonth;
-        }
+        } catch (e) {}
+    }
 
-        let multiplier = 1;
-        const reasons = [];
+    const firstOrderMult = process.env.LOYALTY_FIRST_ORDER_MULTIPLIER ? parseInt(process.env.LOYALTY_FIRST_ORDER_MULTIPLIER, 10) : 2;
+    const birthdayMult = process.env.LOYALTY_BIRTHDAY_MULTIPLIER ? parseInt(process.env.LOYALTY_BIRTHDAY_MULTIPLIER, 10) : 3;
 
-        if (isFirstOrder) {
-            multiplier *= 2;
-            reasons.push('FIRST_ORDER');
-        }
-        if (isBirthdayMonth) {
-            multiplier *= 3;
-            reasons.push('BIRTHDAY_MONTH');
-        }
+    let multiplier = 1;
+    let reason = 'STANDARD';
+    const combinedReasons = [];
 
-        const basePoints = Math.floor(orderTotal / 1000);
-        const finalPoints = basePoints * multiplier;
+    if (isFirstOrder) combinedReasons.push('FIRST_ORDER');
+    if (isBirthdayMonth) combinedReasons.push('BIRTHDAY_MONTH');
 
-        console.log(`[BE2][LOYALTY] Points calculation: Base=${basePoints}, Multiplier=${multiplier} (${reasons.join(', ') || 'NONE'}), Final=${finalPoints}`);
+    // Non-stacking rule: Highest multiplier only
+    if (isFirstOrder && isBirthdayMonth) {
+        multiplier = birthdayMult; // 3
+        reason = 'BIRTHDAY_MONTH';
+    } else if (isBirthdayMonth) {
+        multiplier = birthdayMult; // 3
+        reason = 'BIRTHDAY_MONTH';
+    } else if (isFirstOrder) {
+        multiplier = firstOrderMult; // 2
+        reason = 'FIRST_ORDER';
+    } else {
+        multiplier = 1;
+        reason = 'STANDARD';
+    }
 
-        // 5. Firestore Transaction to update user points and tier
-        const admin = require('firebase-admin');
-        let oldTier = 'Silver';
-        let newTier = 'Silver';
-        let tierChanged = false;
-        let finalPointsTotal = 0;
+    const finalPoints = basePoints * multiplier;
+    console.log(`[BE2][LOYALTY] Points calculation: Base=${basePoints}, Multiplier=${multiplier} (${reason}), Final=${finalPoints}`);
 
-        await db.runTransaction(async (transaction) => {
-            const userDoc = await transaction.get(userRef);
-            let currentPoints = 0;
-            let currentOrders = 0;
+    // 4. Update user points & tier in MongoDB & Firestore
+    let previousPoints = user.loyaltyPoints || 0;
+    let previousTier = user.loyaltyTier || determineTier(previousPoints);
+    let newPoints = previousPoints + finalPoints;
+    let newTier = determineTier(newPoints);
+    let tierChanged = newTier !== previousTier;
 
-            if (userDoc.exists) {
-                const data = userDoc.data();
-                currentPoints = data.loyaltyPoints || 0;
-                oldTier = data.loyaltyTier || determineTier(currentPoints);
-                currentOrders = data.totalOrders || 0;
+    // Firebase UID check
+    const firebaseUid = await findFirebaseUidByMongoUserId(userId);
+    const firebaseEnabled = firebaseAdmin.isFirebaseEnabled();
+    const db = firebaseEnabled ? firebaseAdmin.getFirestore() : null;
+
+    if (firebaseUid && db) {
+        try {
+            const userRef = db.collection('users').doc(firebaseUid);
+            const historyRef = userRef.collection('loyalty_history').doc(String(orderId));
+
+            // Idempotency Check
+            const historyDoc = await historyRef.get();
+            if (historyDoc.exists) {
+                console.log(`[BE2][LOYALTY] Points for order ${orderId} already processed in Firestore. Skipping.`);
+                return { skipped: true, reason: 'Idempotency match' };
             }
 
-            finalPointsTotal = currentPoints + finalPoints;
-            newTier = determineTier(finalPointsTotal);
-            tierChanged = newTier !== oldTier;
+            const admin = require('firebase-admin');
+            await db.runTransaction(async (transaction) => {
+                const userDoc = await transaction.get(userRef);
+                let currentPoints = 0;
+                let currentOrders = 0;
 
-            // Update user document
-            transaction.set(userRef, {
-                loyaltyPoints: finalPointsTotal,
-                loyaltyTier: newTier,
-                totalOrders: currentOrders + 1,
-                lastOrderAt: admin.firestore.FieldValue.serverTimestamp(),
-                updatedAt: admin.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
+                if (userDoc.exists) {
+                    const data = userDoc.data();
+                    currentPoints = data.loyaltyPoints || 0;
+                    previousTier = data.loyaltyTier || determineTier(currentPoints);
+                    currentOrders = data.totalOrders || 0;
+                }
 
-            // Create loyalty history document (using exact keys: points, basePoints, multiplier, reason, orderId, createdAt)
-            transaction.set(historyRef, {
-                points: finalPoints,
-                basePoints,
-                multiplier,
-                reason: reasons.join(', ') || 'ORDER',
-                orderId: String(orderId),
-                createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                source: "ORDER",
-                reasons,
-                finalPoints,
-                oldTier,
-                newTier
+                previousPoints = currentPoints;
+                newPoints = currentPoints + finalPoints;
+                newTier = determineTier(newPoints);
+                tierChanged = newTier !== previousTier;
+
+                transaction.set(userRef, {
+                    loyaltyPoints: newPoints,
+                    loyaltyTier: newTier,
+                    totalOrders: currentOrders + 1,
+                    lastOrderAt: admin.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                transaction.set(historyRef, {
+                    userId: String(userId),
+                    orderId: String(orderId),
+                    type: 'EARN',
+                    source: 'ORDER',
+                    basePoints,
+                    multiplier,
+                    reason,
+                    combinedReasons,
+                    finalPoints,
+                    points: finalPoints,
+                    previousPoints,
+                    newPoints,
+                    previousTier,
+                    newTier,
+                    tierChanged,
+                    createdAt: admin.firestore.FieldValue.serverTimestamp()
+                });
             });
-        });
-
-        // 6. Update MongoDB User Document fields to sync cache
-        user.loyaltyPoints = finalPointsTotal;
-        user.loyaltyTier = newTier;
-        user.totalOrders = (user.totalOrders || 0) + 1;
-        await user.save({ validateBeforeSave: false });
-
-        console.log(`[BE2][LOYALTY] Successfully added ${finalPoints} points to user ${userId}. New total: ${finalPointsTotal}. Tier: ${newTier}`);
-
-        // 7. Tier Up Push Notification
-        if (tierChanged) {
-            console.log(`[BE2][LOYALTY] Tier upgraded from ${oldTier} to ${newTier} for user ${userId}. Sending FCM push.`);
-            firebaseAdmin.sendLoyaltyTierPush(userId, newTier).catch(err => {
-                console.error('[BE2][LOYALTY] Failed to send loyalty tier push:', err.message);
-            });
+        } catch (fsErr) {
+            console.error('[BE2][LOYALTY] Firestore transaction error:', fsErr.message);
         }
-
-        return {
-            success: true,
-            userId,
-            firebaseUid,
-            basePoints,
-            multiplier,
-            reasons,
-            finalPoints,
-            oldTier,
-            newTier,
-            tierChanged
-        };
-
-    } catch (err) {
-        console.error(`[BE2][LOYALTY] Error adding loyalty points:`, err.message);
-        throw err;
     }
+
+    // Update MongoDB User document
+    user.loyaltyPoints = newPoints;
+    user.loyaltyTier = newTier;
+    user.totalOrders = (user.totalOrders || 0) + 1;
+    await user.save({ validateBeforeSave: false });
+
+    console.log(`[BE2][LOYALTY] Successfully added ${finalPoints} points to user ${userId}. New total: ${newPoints}. Tier: ${newTier}`);
+
+    // 5. Trigger Tier Up FCM Push Notification
+    if (tierChanged) {
+        console.log(`[BE2][LOYALTY] Tier upgraded from ${previousTier} to ${newTier} for user ${userId}. Triggering FCM push.`);
+        firebaseAdmin.sendLoyaltyTierPush(userId, newTier).catch(err => {
+            console.error('[BE2][LOYALTY] Failed to send loyalty tier push:', err.message);
+        });
+    }
+
+    return {
+        success: true,
+        userId: String(userId),
+        orderId: String(orderId),
+        basePoints,
+        multiplier,
+        reason,
+        finalPoints,
+        previousPoints,
+        newPoints,
+        previousTier,
+        newTier,
+        tierChanged
+    };
 }
 
 module.exports = {
@@ -191,3 +231,4 @@ module.exports = {
     getNextTierDetails,
     addPoints
 };
+

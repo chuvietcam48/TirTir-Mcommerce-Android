@@ -119,70 +119,116 @@ exports.getLoyaltyHistory = async (req, res, next) => {
  */
 exports.scanBarcode = async (req, res, next) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user ? (req.user.id || req.user._id) : req.body.userId;
         const { barcodeValue } = req.body;
 
-        if (!barcodeValue || !barcodeValue.startsWith('TIRTIR-')) {
-            return res.status(400).json({ success: false, message: 'Mã vạch không hợp lệ' });
+        if (!userId) {
+            return res.status(400).json({ success: false, message: 'userId is required' });
         }
 
+        if (!barcodeValue || typeof barcodeValue !== 'string' || !barcodeValue.trim().startsWith('TIRTIR-')) {
+            return res.status(400).json({ success: false, message: 'Mã vạch không hợp lệ. Mã phải bắt đầu bằng TIRTIR-' });
+        }
+
+        const trimmedBarcode = barcodeValue.trim();
         const now = new Date();
+        const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-        // Check if barcode has already been scanned by anyone
-        const duplicateBarcode = await ScanHistory.findOne({ barcodeValue });
+        // Check if barcode has already been scanned globally or by this user
+        const duplicateBarcode = await ScanHistory.findOne({ barcodeValue: trimmedBarcode });
         if (duplicateBarcode) {
             return res.status(409).json({ success: false, message: 'Mã vạch này đã được sử dụng.' });
         }
 
         // Check if user already scanned this month
         const existingScan = await ScanHistory.findOne({
-            userId,
-            createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+            $or: [
+                { userId: String(userId), monthKey },
+                { userId: userId, createdAt: { $gte: startOfMonth, $lte: endOfMonth } }
+            ]
         });
 
         if (existingScan) {
             return res.status(409).json({ success: false, message: 'Bạn đã quét mã trong tháng này. Hãy quay lại vào tháng sau nhé!' });
         }
 
-        // Add scan history
-        await ScanHistory.create({ userId, barcodeValue, pointsEarned: 50 });
+        // Save scan record
+        await ScanHistory.create({
+            userId: String(userId),
+            barcodeValue: trimmedBarcode,
+            monthKey,
+            pointsEarned: 50
+        });
 
-        // Add 50 points
+        // Add 50 points to user
         const user = await User.findById(userId);
-        if (user) {
-            user.loyaltyPoints = (user.loyaltyPoints || 0) + 50;
-            user.loyaltyTier = determineTier(user.loyaltyPoints);
-            await user.save({ validateBeforeSave: false });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Người dùng không tồn tại' });
+        }
 
-            // Sync with Firestore
-            const firebaseUid = await findFirebaseUidByMongoUserId(userId);
-            if (firebaseUid && firebaseAdmin.isFirebaseEnabled()) {
-                const db = firebaseAdmin.getFirestore();
-                if (db) {
-                    await db.collection('users').doc(firebaseUid).set({
-                        loyaltyPoints: user.loyaltyPoints,
-                        loyaltyTier: user.loyaltyTier
-                    }, { merge: true });
+        const previousPoints = user.loyaltyPoints || 0;
+        const previousTier = user.loyaltyTier || determineTier(previousPoints);
+        const newPoints = previousPoints + 50;
+        const newTier = determineTier(newPoints);
+        const tierChanged = newTier !== previousTier;
 
-                    // Add history record to Firestore
-                    await db.collection('users').doc(firebaseUid).collection('loyalty_history').add({
-                        source: 'SCAN_BARCODE',
-                        barcodeValue,
-                        finalPoints: 50,
-                        newTier: user.loyaltyTier,
-                        createdAt: firebaseAdmin.getFirestore().FieldValue.serverTimestamp()
-                    });
-                }
+        user.loyaltyPoints = newPoints;
+        user.loyaltyTier = newTier;
+        await user.save({ validateBeforeSave: false });
+
+        // Sync with Firestore & store audit loyalty history
+        const firebaseUid = await findFirebaseUidByMongoUserId(userId);
+        if (firebaseUid && firebaseAdmin.isFirebaseEnabled()) {
+            const db = firebaseAdmin.getFirestore();
+            if (db) {
+                const userRef = db.collection('users').doc(firebaseUid);
+                await userRef.set({
+                    loyaltyPoints: newPoints,
+                    loyaltyTier: newTier,
+                    updatedAt: firebaseAdmin.getFirestore().FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                await userRef.collection('loyalty_history').add({
+                    userId: String(userId),
+                    type: 'BARCODE_EARN',
+                    source: 'SCAN_BARCODE',
+                    barcodeValue: trimmedBarcode,
+                    basePoints: 50,
+                    multiplier: 1,
+                    reason: 'BARCODE_SCAN',
+                    finalPoints: 50,
+                    points: 50,
+                    previousPoints,
+                    newPoints,
+                    previousTier,
+                    newTier,
+                    tierChanged,
+                    createdAt: firebaseAdmin.getFirestore().FieldValue.serverTimestamp()
+                });
             }
         }
 
-        res.status(200).json({ success: true, message: 'Quét mã thành công! Bạn nhận được 50 điểm.' });
+        // Push FCM notification if tier changed
+        if (tierChanged) {
+            firebaseAdmin.sendLoyaltyTierPush(userId, newTier).catch(err => {
+                console.error('[BE2][LOYALTY] Failed to send tier push on barcode scan:', err.message);
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Quét mã thành công! Bạn nhận được 50 điểm.',
+            pointsEarned: 50,
+            totalPoints: newPoints,
+            tier: newTier
+        });
     } catch (err) {
         next(err);
     }
 };
+
 
 /**
  * @desc    Get static voucher redemption levels

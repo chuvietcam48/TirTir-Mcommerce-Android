@@ -714,50 +714,15 @@ async function _runAfterOrderStatusChanged(order, oldStatus, newStatus, performe
 
             // 3. Ingredient Conflict Alert via FCM
             try {
-                const User = require('../models/user.model');
-                const Product = require('../models/product.model');
-                const { findConflicts } = require('./ingredient.controller');
-                const firebaseAdmin = require('../services/firebaseAdmin.service');
-
-                const user = await User.findById(order.user);
-                if (user && user.fcmTokens && user.fcmTokens.length > 0) {
-                    const populatedOrder = await order.populate('items.product');
-                    const allIngredients = [];
-                    for (const item of populatedOrder.items) {
-                        if (item.product && item.product.ingredients) {
-                            if (Array.isArray(item.product.ingredients)) {
-                                allIngredients.push(...item.product.ingredients);
-                            } else if (typeof item.product.ingredients === 'string') {
-                                allIngredients.push(...item.product.ingredients.split(',').map(i => i.trim()));
-                            }
-                        }
-                    }
-
-                    const conflicts = findConflicts(allIngredients, []);
-                    const highConflicts = conflicts.filter(c => c.severity === 'High');
-
-                    if (highConflicts.length > 0) {
-                        const activeTokens = user.fcmTokens.filter(t => t.active !== false).map(t => t.token);
-                        if (activeTokens.length > 0) {
-                            await firebaseAdmin.sendPushToTokens(activeTokens, {
-                                title: "Cảnh báo an toàn thành phần",
-                                body: `Đơn hàng #${order._id.toString().slice(-6).toUpperCase()} của bạn chứa sản phẩm có thành phần xung đột (${highConflicts[0].ingredient_a} & ${highConflicts[0].ingredient_b}). Vui lòng lưu ý khi sử dụng chung!`,
-                                data: {
-                                    type: "ingredient_conflict",
-                                    screen: "order_detail",
-                                    orderId: order._id.toString()
-                                }
-                            });
-                            console.log(`[BE2][FCM] Sent ingredient conflict alert to user ${user._id} (tokens: ${activeTokens.length})`);
-                        } else {
-                            console.log(`[BE2][FCM] Skipping ingredient conflict alert for user ${user._id} (no active FCM tokens)`);
-                        }
-                    }
-                }
+                const ingredientConflictService = require('../../services/ingredientConflictService');
+                ingredientConflictService.handleOrderConfirmedIngredientAlert(order).catch(err =>
+                    console.error('[BE2][FCM] Ingredient conflict alert error:', err.message)
+                );
             } catch (err) {
-                 console.error('[BE2][FCM] Ingredient conflict alert error:', err.message);
+                console.error('[BE2][FCM] Ingredient conflict alert hook load error:', err.message);
             }
         }
+
     } catch (err) {
         console.error('[BE2][STATUS_HOOK] Error in status change hook:', err.message);
     }

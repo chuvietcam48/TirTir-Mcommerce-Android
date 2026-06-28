@@ -278,8 +278,8 @@ async function sendVoucherPush(userId, voucher) {
 
 async function sendLoyaltyTierPush(userId, tier) {
     return await sendPushToUser(userId, {
-        title: `Chúc mừng bạn đạt hạng ${tier}! 🎉`,
-        body: `Hạng thành viên của bạn đã được nâng cấp lên ${tier}. Nhận thêm nhiều đặc quyền ngay!`,
+        title: `Chúc mừng bạn đã lên hạng ${tier}!`,
+        body: `Bạn vừa đạt hạng ${tier} trong chương trình Loyalty của TirTir.`,
         data: {
             screen: "LOYALTY",
             type: "LOYALTY_TIER_UP",
@@ -287,6 +287,7 @@ async function sendLoyaltyTierPush(userId, tier) {
         }
     });
 }
+
 
 async function sendCartRecoveryPush(userId, cart) {
     const firstItemName = cart.items?.[0]?.name || "sản phẩm";

@@ -1,36 +1,7 @@
 const cron = require('node-cron');
 const admin = require('firebase-admin');
 const Product = require('../models/Product');
-const User = require('../models/User');
-
-/**
- * Helper to retrieve FCM tokens for a user ID
- */
-async function getUserDeviceTokens(userId) {
-  let tokens = [];
-  try {
-    const user = await User.findById(userId);
-    if (user && user.fcmTokens) {
-      tokens = user.fcmTokens.filter(t => t.active !== false).map(t => t.token || t);
-    }
-  } catch (err) {
-    console.error('[CART_RECOVERY] Error reading user FCM tokens from MongoDB:', err.message);
-  }
-
-  if (tokens.length > 0) return tokens;
-
-  try {
-    const db = admin.firestore();
-    const userDoc = await db.collection('users').doc(String(userId)).get();
-    if (userDoc.exists && userDoc.data().fcmTokens) {
-      tokens = userDoc.data().fcmTokens.filter(t => t.active !== false).map(t => t.token || t);
-    }
-  } catch (err) {
-    console.error('[CART_RECOVERY] Error reading user FCM tokens from Firestore:', err.message);
-  }
-
-  return tokens;
-}
+const fcmService = require('../services/fcmService');
 
 /**
  * Execute cart recovery scan
@@ -53,7 +24,7 @@ async function runCartRecoveryJob() {
       if (!data.items || data.items.length === 0) continue;
 
       const recoveryNotified = data.recoveryNotified || 0;
-      if (recoveryNotified >= 2) continue;
+      if (recoveryNotified >= 2) continue; // Max 2 pushes per cart
 
       let lastUpdatedAt = null;
       if (data.lastUpdatedAt) {
@@ -71,40 +42,29 @@ async function runCartRecoveryJob() {
             $or: [{ Product_ID: firstItem.productId }, { _id: firstItem.productId }]
           });
           if (prod) productName = prod.Name;
-        } catch (e) {
-          // ignore fallback
-        }
+        } catch (e) {}
       }
 
-      const tokens = await getUserDeviceTokens(userId);
-      if (tokens.length === 0) {
-        console.log(`[CART_RECOVERY] No device token found for user ${userId}`);
-        continue;
-      }
-
-      const messagePayload = {
+      const payload = {
         notification: {
-          title: 'Giỏ hàng của bạn',
-          body: `You still have ${productName} waiting in your cart.`
+          title: 'Bạn còn sản phẩm trong giỏ!',
+          body: `Bạn còn ${productName} đang chờ thanh toán.`
         },
         data: {
-          screen: 'cart',
-          type: 'cart_recovery'
+          screen: 'CART',
+          type: 'CART_RECOVERY'
         }
       };
 
       try {
-        const response = await admin.messaging().sendMulticast({
-          tokens,
-          ...messagePayload
-        });
-
-        console.log(`[CART_RECOVERY] Notification sent to user ${userId}. Success count: ${response.successCount}`);
-
-        await db.collection('carts').doc(doc.id).update({
-          recoveryNotified: recoveryNotified + 1,
-          lastRecoveryNotifiedAt: admin.firestore.FieldValue.serverTimestamp()
-        });
+        const pushResult = await fcmService.sendToUser(userId, payload, { type: 'CART_RECOVERY' });
+        if (pushResult && (pushResult.successCount > 0 || pushResult.success !== false)) {
+          await db.collection('carts').doc(doc.id).update({
+            recoveryNotified: recoveryNotified + 1,
+            lastRecoveryNotifiedAt: admin.firestore.FieldValue.serverTimestamp()
+          });
+          console.log(`[CART_RECOVERY] Successfully sent recovery push to user ${userId}.`);
+        }
       } catch (sendErr) {
         console.error(`[CART_RECOVERY] Failed to send push notification to user ${userId}:`, sendErr.message);
       }
@@ -121,8 +81,11 @@ const cartRecoverySchedule = cron.schedule('0 * * * *', runCartRecoveryJob, {
 
 module.exports = {
   start: () => {
-    cartRecoverySchedule.start();
-    console.log('[CART_RECOVERY] Cron job initialized (Every hour: 0 * * * *)');
+    if (process.env.CART_RECOVERY_CRON_ENABLED !== 'false') {
+      cartRecoverySchedule.start();
+      console.log('[CART_RECOVERY] Cron job initialized (Every hour: 0 * * * *)');
+    }
   },
   runCartRecoveryJob
 };
+
