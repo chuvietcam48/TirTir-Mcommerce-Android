@@ -130,6 +130,12 @@ exports.scanBarcode = async (req, res, next) => {
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
+        // Check if barcode has already been scanned by anyone
+        const duplicateBarcode = await ScanHistory.findOne({ barcodeValue });
+        if (duplicateBarcode) {
+            return res.status(409).json({ success: false, message: 'Mã vạch này đã được sử dụng.' });
+        }
+
         // Check if user already scanned this month
         const existingScan = await ScanHistory.findOne({
             userId,

@@ -12,7 +12,13 @@ admin.initializeApp({
 
 const app = express();
 
-connectDB().catch((err) => {
+connectDB().then(() => {
+  try {
+    require('./cron/cartRecoveryCron').start();
+  } catch (e) {
+    console.error('Failed to start cart recovery cron:', e.message);
+  }
+}).catch((err) => {
   console.error('MongoDB connection failed:', err.message);
   process.exit(1);
 });
@@ -27,10 +33,13 @@ app.use('/api/v1/chat', require('./routes/chatRoutes'));
 app.use('/api/v1/ai', require('./routes/aiRoutes'));
 app.use('/api/v1/cart', require('./routes/cartRoutes'));
 app.use('/api/v1/wishlist', require('./routes/wishlistRoutes'));
+app.use('/api/v1/vouchers', require('./routes/voucherRoutes'));
 app.use('/api/v1/orders', require('./routes/orderRoutes'));
 app.use('/api/v1/upload', require('./routes/uploadRoutes'));
 app.use('/api/v1/admin', require('./routes/adminRoutes'));
 app.use('/api/v1/routines', require('./routes/routineRoutes'));
+app.use('/api/v1/loyalty', require('./routes/loyaltyRoutes'));
+app.use('/api/loyalty', require('./routes/loyaltyRoutes'));
 app.use('/api/v1/payments', require('./routes/paymentRoutes'));
 app.use('/soap', require('./shipping/ShippingSoapRouter'));
 app.use('/api/shipping', require('./shipping/ShippingSoapRouter'));

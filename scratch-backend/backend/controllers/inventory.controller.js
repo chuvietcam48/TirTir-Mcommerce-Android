@@ -115,6 +115,14 @@ exports.adjustStock = async (req, res) => {
         });
 
         res.json({ message: "Stock adjusted successfully", product });
+
+        // Trigger Restock Alert for wishlist users
+        try {
+            const { checkAndSendRestockAlert } = require('../../services/restockAlertService');
+            checkAndSendRestockAlert(product._id, oldStock, newStock);
+        } catch (alertErr) {
+            console.error('Restock alert error:', alertErr.message);
+        }
         
         // ── Real-time: alert admins if stock is now low ───────────────────────
         const available = product.Stock_Quantity - (product.Stock_Reserved || 0);

@@ -30,7 +30,13 @@ exports.addToCart = async (req, res) => {
 
   try {
     const admin = require('firebase-admin');
-    await admin.firestore().collection('carts').doc(String(req.user.id)).set({ items: cart.items });
+    await admin.firestore().collection('carts').doc(String(req.user.id)).set({
+      userId: String(req.user.id),
+      items: cart.items,
+      status: 'active',
+      lastUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      recoveryNotified: 0
+    }, { merge: true });
   } catch (err) {
     console.error('Error syncing cart to Firestore:', err);
   }
@@ -69,7 +75,12 @@ exports.updateCartServer = async (req, res) => {
 
     try {
       const admin = require('firebase-admin');
-      await admin.firestore().collection('carts').doc(String(req.user.id)).set({ items: cart.items });
+      await admin.firestore().collection('carts').doc(String(req.user.id)).set({
+        userId: String(req.user.id),
+        items: cart.items,
+        status: cart.items.length > 0 ? 'active' : 'completed',
+        lastUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
     } catch (err) {
       console.error('Error syncing cart update to Firestore:', err);
     }
@@ -88,7 +99,12 @@ exports.clearCartServer = async (req, res) => {
 
   try {
     const admin = require('firebase-admin');
-    await admin.firestore().collection('carts').doc(String(req.user.id)).set({ items: [] });
+    await admin.firestore().collection('carts').doc(String(req.user.id)).set({
+      userId: String(req.user.id),
+      items: [],
+      status: 'completed',
+      lastUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
   } catch (err) {
     console.error('Error syncing cart clear to Firestore:', err);
   }

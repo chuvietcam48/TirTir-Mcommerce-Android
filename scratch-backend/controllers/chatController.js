@@ -1,30 +1,44 @@
-const express = require('express');
+const { processChatbotMessage } = require('../services/geminiService');
 
-// GET or POST /api/v1/chat/stream
+// POST or GET /api/v1/chat/stream or /api/v1/chat/message
 exports.streamChat = async (req, res) => {
-  // Set headers for Server-Sent Events (SSE)
-  res.writeHead(200, {
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
-  });
+  try {
+    const message = req.body.message || req.query.message || 'Xin chào';
+    const productId = req.body.productId || req.query.productId;
+    const userId = req.user ? req.user.id : null;
 
-  const message = "Xin chào! Mình là trợ lý ảo của TirTir. Rất vui được hỗ trợ bạn trong việc chăm sóc da và lựa chọn sản phẩm phù hợp. Bạn cần mình giúp gì nào?";
-  const words = message.split(' ');
-  let i = 0;
+    const isSSE = req.headers.accept && req.headers.accept.includes('text/event-stream');
 
-  const timer = setInterval(() => {
-    if (i < words.length) {
-      res.write(`data: ${words[i]} \n\n`);
-      i++;
-    } else {
+    const result = await processChatbotMessage({ userId, message, productId });
+    const replyText = result.reply;
+
+    if (isSSE) {
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      });
+
+      const words = replyText.split(' ');
+      for (const word of words) {
+        res.write(`data: ${word} \n\n`);
+        await new Promise(r => setTimeout(r, 30)); // Natural fluid typing effect
+      }
       res.write(`data: [DONE]\n\n`);
-      clearInterval(timer);
       res.end();
+    } else {
+      res.status(200).json({
+        success: true,
+        data: {
+          reply: replyText,
+          skinType: result.skinType
+        }
+      });
     }
-  }, 100);
-
-  req.on('close', () => {
-    clearInterval(timer);
-  });
+  } catch (err) {
+    console.error('Chatbot error:', err);
+    if (!res.headersSent) {
+      res.status(500).json({ success: false, message: err.message || 'Server error in chatbot' });
+    }
+  }
 };

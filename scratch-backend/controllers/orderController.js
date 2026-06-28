@@ -96,10 +96,7 @@ exports.createOrder = async (req, res) => {
   order.invoiceUrl = buildInvoiceUrl(req, order._id);
   await order.save();
 
-  // Clear server cart after successful order
-  await Cart.findOneAndUpdate({ userId: req.user.id }, { items: [] });
-
-  // Sync to Firestore
+  // Sync to Firestore (Order and Cart status completed)
   try {
     const db = admin.firestore();
     const orderDocRef = db.collection('users').doc(String(req.user.id)).collection('orders').doc(String(order._id));
@@ -111,8 +108,14 @@ exports.createOrder = async (req, res) => {
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       itemsCount: orderItems.length
     });
+    // Mark cart as completed so cron ignores it
+    await db.collection('carts').doc(String(req.user.id)).set({
+      status: 'completed',
+      items: [],
+      lastUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
   } catch (err) {
-    console.error('Error syncing order to Firestore:', err);
+    console.error('Error syncing order/cart to Firestore:', err);
   }
 
   res.status(201).json({
