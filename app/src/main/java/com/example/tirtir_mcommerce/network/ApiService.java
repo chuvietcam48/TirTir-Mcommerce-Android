@@ -11,6 +11,7 @@ import com.example.tirtir_mcommerce.model.LoginRequest;
 import com.example.tirtir_mcommerce.model.LoginResponse;
 import com.example.tirtir_mcommerce.model.OrderResponse;
 import com.example.tirtir_mcommerce.model.Product;
+import com.example.tirtir_mcommerce.model.ProductDetailResponse;
 import com.example.tirtir_mcommerce.model.ProductResponse;
 import com.example.tirtir_mcommerce.model.RegisterRequest;
 import com.example.tirtir_mcommerce.model.RegisterResponse;
@@ -19,8 +20,6 @@ import com.example.tirtir_mcommerce.model.RefreshTokenResponse;
 import com.example.tirtir_mcommerce.model.RoutineRecommendRequest;
 import com.example.tirtir_mcommerce.model.ShadeMatchRequest;
 import com.example.tirtir_mcommerce.model.ShadeMatchResult;
-import com.example.tirtir_mcommerce.model.SkinAnalysisResult;
-import com.example.tirtir_mcommerce.model.RoutineStep;
 import com.example.tirtir_mcommerce.model.User;
 import com.example.tirtir_mcommerce.model.FcmTokenRequest;
 import com.example.tirtir_mcommerce.model.SkinAnalysisResult;
@@ -198,8 +197,11 @@ public interface ApiService {
      * Body: { skinType, skinTone, undertone, concerns[], shadeMatchProduct }
      * Response: danh sách các bước skincare AI đề xuất
      */
-    @POST("api/ai/recommend-routine")
+    @POST("api/v1/ai/recommend-routine")
     Call<ApiResponse<Map<String, Object>>> recommendRoutine(@Body RoutineRecommendRequest request);
+
+    @GET("api/v1/ai/latest-profile")
+    Call<ApiResponse<Map<String, Object>>> getLatestSkinProfile();
 
     @GET("api/routines/{id}")
     Call<ApiResponse<List<RoutineStep>>> getCommunityRoutine(@Path("id") String id);
@@ -249,7 +251,19 @@ public interface ApiService {
      * Lấy chi tiết sản phẩm - GET /api/v1/products/{id}
      */
     @GET("api/v1/products/{id}")
-    Call<ApiResponse<Product>> getProductById(@Path("id") String productId);
+    Call<ProductDetailResponse> getProductById(@Path("id") String productId);
+
+    @GET("api/v1/shades")
+    Call<List<Map<String, Object>>> getShades(
+            @Query("productId") String productId,
+            @Query("parentId") String parentId,
+            @Query("limit") int limit);
+
+    @GET("api/v1/products/{id}/reviews")
+    Call<Map<String, Object>> getProductReviews(
+            @Path("id") String productId,
+            @Query("page") int page,
+            @Query("limit") int limit);
 
     // ===========================
     // ADMIN MODULE
@@ -356,6 +370,18 @@ public interface ApiService {
      */
     @POST("api/v1/notifications/fcm-token")
     Call<ApiResponse<Object>> registerFcmToken(@Body FcmTokenRequest request);
+
+    @GET("api/v1/notifications")
+    Call<ApiResponse<List<Map<String, Object>>>> getNotifications();
+
+    @PUT("api/v1/notifications/read-all")
+    Call<ApiResponse<Void>> markAllNotificationsRead();
+
+    @PUT("api/v1/notifications/{id}/read")
+    Call<ApiResponse<Map<String, Object>>> markNotificationRead(@Path("id") String notificationId);
+
+    @DELETE("api/v1/notifications/{id}")
+    Call<ApiResponse<Void>> deleteNotification(@Path("id") String notificationId);
 
     @POST("api/users/device-token")
     Call<ApiResponse<Object>> updateDeviceToken(@Body Map<String, String> body);

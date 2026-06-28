@@ -6,10 +6,10 @@
          ======================================== -->
 
     <!-- PRIMARY BRAND RED (TirTir signature red) -->
-    <color name="tirtir_red_primary">#C62828</color>
-    <color name="tirtir_red_dark">#8E0000</color>
-    <color name="tirtir_red_light">#EF5350</color>
-    <color name="tirtir_red_surface">#FFEBEE</color>  <!-- Very light red for chip backgrounds -->
+    <color name="tirtir_red_primary">#D32F2F</color>
+    <color name="tirtir_red_dark">#8B1116</color>
+    <color name="tirtir_red_light">#E86B6B</color>
+    <color name="tirtir_red_surface">#FFF4F3</color>  <!-- Warm brand tint used by the web storefront -->
 
     <!-- BLACK / DARK (primary text, CTA buttons) -->
     <color name="tirtir_black">#111111</color>
@@ -18,15 +18,15 @@
     <!-- WHITE / BACKGROUND -->
     <color name="tirtir_white">#FFFFFF</color>
     <color name="tirtir_milk_white">#FFFFFF</color>
-    <color name="tirtir_off_white">#F8F8F8</color>   <!-- Main page background -->
-    <color name="tirtir_bg_gray">#F8F8F8</color>
+    <color name="tirtir_off_white">#FAFAFA</color>   <!-- Main page background -->
+    <color name="tirtir_bg_gray">#F5F5F5</color>
     <color name="tirtir_auth_input_bg">#F2F2F2</color>
     <color name="tirtir_auth_btn">#5C0000</color>
     <color name="tirtir_dark_gray_btn">#292929</color>
     <color name="tirtir_divider">#E0E0E0</color>
 
     <!-- GRAY SCALE (borders, dividers, secondary text) -->
-    <color name="tirtir_border_gray">#E5E5E5</color>
+    <color name="tirtir_border_gray">#EEEEEE</color>
     <color name="tirtir_silver_gray">#BDBDBD</color>  <!-- Disabled state -->
     <color name="tirtir_text_secondary">#777777</color>
     <color name="tirtir_nav_inactive">#5F6368</color>

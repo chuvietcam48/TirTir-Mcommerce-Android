@@ -25,14 +25,26 @@ import androidx.core.content.ContextCompat;
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.database.DatabaseHelper;
 import com.example.tirtir_mcommerce.model.CartItem;
+import com.example.tirtir_mcommerce.model.Product;
+import com.example.tirtir_mcommerce.model.ProductDetailResponse;
+import com.example.tirtir_mcommerce.network.ApiService;
+import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.example.tirtir_mcommerce.ui.activities.CheckoutActivity;
 import com.example.tirtir_mcommerce.ui.adapters.CartAdapter;
 import com.example.tirtir_mcommerce.repository.CartRepository;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 
 import com.example.tirtir_mcommerce.utils.PriceUtils;
 
 import java.util.List;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CartFragment extends Fragment implements CartAdapter.CartListener {
 
@@ -115,10 +127,10 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
             rvCartItems.setVisibility(View.GONE);
             if (cardCartSummary != null) cardCartSummary.setVisibility(View.GONE);
             btnCheckout.setEnabled(false);
-            tvCartSubtotal.setText("0 đ");
-            tvShippingFee.setText("0 đ");
-            tvTaxFee.setText("0 đ");
-            tvCartTotal.setText("0 đ");
+            tvCartSubtotal.setText("$0.00");
+            tvShippingFee.setText("$0.00");
+            tvTaxFee.setText("$0.00");
+            tvCartTotal.setText("$0.00");
             currentTotal = 0;
             return;
         }
@@ -135,17 +147,17 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
 
         currentTotal = subtotal;
 
-        tvCartSubtotal.setText(PriceUtils.formatPriceVnd(subtotal));
+        tvCartSubtotal.setText(PriceUtils.formatPriceUsd(subtotal));
         tvShippingFee.setText("Calculated at checkout");
         tvTaxFee.setText("Included");
-        tvCartTotal.setText(PriceUtils.formatPriceVnd(currentTotal));
+        tvCartTotal.setText(PriceUtils.formatPriceUsd(currentTotal));
     }
 
     @Override
     public void onQuantityChanged(int position, int newQuantity) {
         CartItem item = cartItemList.get(position);
         item.setQuantity(newQuantity);
-        cartRepository.updateQuantity(item.getProductId(), newQuantity);
+        cartRepository.updateQuantity(item.getProductId(), item.getShade(), newQuantity);
         cartAdapter.notifyItemChanged(position);
         updateCartSummary();
     }
@@ -159,6 +171,81 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
         updateCartSummary();
     }
 
+    @Override
+    public void onEditVariant(int position) {
+        if (position < 0 || position >= cartItemList.size()) return;
+        CartItem item = cartItemList.get(position);
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
+        View sheet = LayoutInflater.from(requireContext()).inflate(R.layout.bottom_sheet_cart_variant, null, false);
+        dialog.setContentView(sheet);
+        ((TextView) sheet.findViewById(R.id.tvCartVariantProduct)).setText(item.getProductName());
+        ChipGroup group = sheet.findViewById(R.id.chipsCartVariants);
+        View progress = sheet.findViewById(R.id.progressCartVariants);
+        String[] selected = {item.getShade() == null || item.getShade().trim().isEmpty() ? "Standard" : item.getShade()};
+        addVariantChip(group, selected[0], true, selected);
+
+        ApiService api = RetrofitClient.getClient().create(ApiService.class);
+        api.getProductById(item.getProductId()).enqueue(new Callback<ProductDetailResponse>() {
+            @Override
+            public void onResponse(Call<ProductDetailResponse> call, Response<ProductDetailResponse> response) {
+                Product product = response.isSuccessful() && response.body() != null ? response.body().getProduct() : null;
+                String parentId = product == null ? null : product.getParentId();
+                loadVariants(api, item, parentId, group, progress, selected);
+            }
+
+            @Override
+            public void onFailure(Call<ProductDetailResponse> call, Throwable t) {
+                loadVariants(api, item, null, group, progress, selected);
+            }
+        });
+
+        sheet.findViewById(R.id.btnConfirmCartVariant).setOnClickListener(v -> {
+            item.setShade(selected[0]);
+            cartRepository.updateShade(item.getProductId(), selected[0], item.getQuantity());
+            cartAdapter.notifyItemChanged(position);
+            dialog.dismiss();
+        });
+        dialog.show();
+    }
+
+    private void loadVariants(ApiService api, CartItem item, String parentId, ChipGroup group,
+                              View progress, String[] selected) {
+        String productId = parentId == null || parentId.trim().isEmpty() ? item.getProductId() : null;
+        api.getShades(productId, parentId, 100).enqueue(new Callback<List<Map<String, Object>>>() {
+            @Override
+            public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> response) {
+                progress.setVisibility(View.GONE);
+                if (!response.isSuccessful() || response.body() == null || response.body().isEmpty()) return;
+                group.removeAllViews();
+                for (Map<String, Object> shade : response.body()) {
+                    Object nameValue = shade.get("Shade_Name");
+                    if (nameValue == null) nameValue = shade.get("Shade_Code");
+                    String name = nameValue == null ? "Shade" : String.valueOf(nameValue);
+                    addVariantChip(group, name, name.equals(selected[0]), selected);
+                }
+                if (group.getCheckedChipId() == View.NO_ID && group.getChildCount() > 0) {
+                    ((Chip) group.getChildAt(0)).setChecked(true);
+                }
+            }
+
+            @Override public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) {
+                progress.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private void addVariantChip(ChipGroup group, String name, boolean checked, String[] selected) {
+        Chip chip = new Chip(requireContext());
+        chip.setId(View.generateViewId());
+        chip.setText(name);
+        chip.setCheckable(true);
+        chip.setChecked(checked);
+        chip.setOnCheckedChangeListener((button, isChecked) -> {
+            if (isChecked) selected[0] = name;
+        });
+        group.addView(chip);
+    }
+
     private double getSubtotal() {
         double subtotal = 0;
         for (CartItem item : cartItemList) {
@@ -168,7 +255,7 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
     }
 
     private void setupSwipeToDelete() {
-        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 return false;
@@ -185,7 +272,7 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
                 if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
                     View itemView = viewHolder.itemView;
-                    ColorDrawable background = new ColorDrawable(Color.parseColor("#C62828"));
+                    ColorDrawable background = new ColorDrawable(Color.parseColor("#D32F2F"));
                     Drawable icon = ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_menu_delete);
                     int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 2;
                     int iconTop = itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2;

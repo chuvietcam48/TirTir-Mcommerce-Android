@@ -112,7 +112,7 @@ public class AdminOrdersActivity extends AppCompatActivity implements AdminOrder
         ((TextView) dialogView.findViewById(R.id.tvDetailProducts)).setText(order.products);
         ((TextView) dialogView.findViewById(R.id.tvDetailAddress)).setText(order.address);
         ((TextView) dialogView.findViewById(R.id.tvDetailShippingFee))
-                .setText(PriceUtils.formatPriceVnd(order.shippingFee));
+                .setText(PriceUtils.formatPriceUsd(order.shippingFee));
         ((TextView) dialogView.findViewById(R.id.tvDetailTime)).setText(order.orderTime);
         new AlertDialog.Builder(this).setView(dialogView).setPositiveButton("Close", null).show();
     }

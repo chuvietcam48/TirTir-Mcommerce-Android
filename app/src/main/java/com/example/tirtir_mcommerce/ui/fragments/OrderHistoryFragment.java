@@ -93,6 +93,12 @@ public class OrderHistoryFragment extends Fragment {
                 });
         rvOrderHistory.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(getContext()));
         rvOrderHistory.setAdapter(adapter);
+        adapter.setOpenListener(order -> {
+            android.content.Intent intent = new android.content.Intent(requireContext(),
+                    com.example.tirtir_mcommerce.ui.activities.OrderDetailActivity.class);
+            intent.putExtra("ORDER_ID", order.getId());
+            startActivity(intent);
+        });
 
         setupFilters(view);
         loadOrders(currentFilterStatus);

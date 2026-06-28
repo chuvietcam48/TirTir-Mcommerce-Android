@@ -74,7 +74,7 @@
                 android:id="@+id/tvOrderTotal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0 đ"
+                android:text="$0.00"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="@color/tirtir_black" />

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- A neutral TirTir product grouping for catalog records with no usable media. -->
+    <path
+        android:fillColor="#F5DEDC"
+        android:pathData="M60,5 A55,55 0,1 1,59.9 5" />
+    <path
+        android:fillColor="#B71C1C"
+        android:pathData="M43,35 L77,35 Q82,35 82,40 L82,78 Q82,86 74,86 L46,86 Q38,86 38,78 L38,40 Q38,35 43,35" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M47,45 L73,45 L73,50 L63,50 L63,72 L57,72 L57,50 L47,50 Z" />
+    <path
+        android:fillColor="#D32F2F"
+        android:pathData="M22,57 Q22,52 27,52 L37,52 L37,88 L27,88 Q22,88 22,83 Z" />
+    <path
+        android:fillColor="#F2B7B3"
+        android:pathData="M83,48 L94,48 L94,55 L98,59 L98,83 Q98,88 93,88 L84,88 Q79,88 79,83 L79,59 L83,55 Z" />
+</vector>

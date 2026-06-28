@@ -40,16 +40,33 @@
             app:layout_constraintEnd_toStartOf="@id/btnRemoveCartItem" />
 
         <TextView
+            android:id="@+id/tvCartVariant"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="2dp"
+            android:background="@drawable/bg_search_bar"
+            android:gravity="center"
+            android:minWidth="76dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="Standard  ▾"
+            android:textColor="@color/tirtir_text_secondary"
+            android:textSize="11sp"
+            app:layout_constraintStart_toEndOf="@id/ivCartProductImage"
+            app:layout_constraintTop_toBottomOf="@id/tvCartProductName" />
+
+        <TextView
             android:id="@+id/tvCartProductPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_marginTop="4dp"
-            android:text="0 đ"
+            android:text="$0.00"
             android:textColor="@color/tirtir_black"
             android:textSize="14sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/tvCartProductName"
+            app:layout_constraintTop_toBottomOf="@id/tvCartVariant"
             app:layout_constraintStart_toEndOf="@id/ivCartProductImage" />
 
         <ImageButton
@@ -77,7 +94,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_media_previous"
+                android:src="@drawable/ic_minus"
                 app:tint="@color/tirtir_black"
                 android:padding="4dp" />
 

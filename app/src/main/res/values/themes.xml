@@ -14,6 +14,8 @@
         <!-- Secondary = black (main CTA buttons) -->
         <item name="colorSecondary">@color/tirtir_black</item>
         <item name="colorOnSecondary">@color/tirtir_white</item>
+        <item name="colorSecondaryContainer">@color/tirtir_red_surface</item>
+        <item name="colorOnSecondaryContainer">@color/tirtir_red_primary</item>
 
         <!-- Surfaces: white + off-white -->
         <item name="colorSurface">@color/tirtir_white</item>

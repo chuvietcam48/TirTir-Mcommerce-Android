@@ -97,23 +97,39 @@
             android:paddingEnd="12dp"
             android:paddingBottom="108dp" />
 
-        <LinearLayout
-            android:id="@+id/layoutChatEmpty"
+            <LinearLayout
+                android:id="@+id/layoutChatEmpty"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="16dp"
             android:background="@drawable/bg_card_border"
-            android:orientation="vertical"
-            android:padding="16dp">
+                android:orientation="vertical"
+                android:padding="16dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="118dp"
+                android:layout_marginBottom="16dp"
+                android:contentDescription="@null"
+                android:scaleType="centerCrop"
+                android:src="@drawable/tirtir_chat_hero" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ask about ingredients, skin type, routines, or products you are considering."
-                android:textColor="@color/tirtir_black"
-                android:textSize="16sp"
+                android:text="Greetings from TirTir."
+                android:textColor="@color/tirtir_red_dark"
+                android:textSize="20sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Ask about ingredients, skin type, routines, shades, or products you are considering."
+                android:textColor="@color/tirtir_black"
+                android:textSize="14sp" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -221,7 +237,7 @@
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 android:padding="0dp"
-                app:backgroundTint="@color/tirtir_black"
+                app:backgroundTint="@color/tirtir_red_dark"
                 app:cornerRadius="26dp"
                 app:icon="@drawable/ic_send"
                 app:iconGravity="textStart"

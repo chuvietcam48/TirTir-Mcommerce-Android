@@ -360,6 +360,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.update(TABLE_CART, values, CART_COL_PRODUCT_ID + "=?", new String[]{productId});
     }
 
+    /** Update the selected product variant and mark the local-first item pending sync. */
+    public void updateCartShade(String productId, String shade) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(CART_COL_SHADE, shade == null ? "" : shade);
+        values.put(CART_COL_SYNCED, 0);
+        db.update(TABLE_CART, values, CART_COL_PRODUCT_ID + "=?", new String[]{productId});
+    }
+
     /** Xóa một item khỏi giỏ. */
     public void removeCartItem(String productId) {
         SQLiteDatabase db = this.getWritableDatabase();

@@ -137,6 +137,10 @@
             android:name=".ui.activities.NotificationSettingsActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.activities.NotificationCenterActivity"
+            android:exported="false" />
+
         <!-- SCR-16: CheckoutActivity -->
         <activity
             android:name=".ui.activities.CheckoutActivity"
@@ -145,6 +149,10 @@
         <!-- SCR-17: OrderSuccessActivity -->
         <activity
             android:name=".ui.activities.OrderSuccessActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.OrderDetailActivity"
             android:exported="false" />
 
         <!-- SCR-1A: AddressManagerActivity -->

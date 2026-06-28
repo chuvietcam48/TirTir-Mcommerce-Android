@@ -7,8 +7,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,10 +27,15 @@ import com.example.tirtir_mcommerce.database.DatabaseHelper;
 import com.example.tirtir_mcommerce.model.ApiResponse;
 import com.example.tirtir_mcommerce.model.CartItem;
 import com.example.tirtir_mcommerce.model.Product;
+import com.example.tirtir_mcommerce.model.ProductDetailResponse;
 import com.example.tirtir_mcommerce.network.ApiService;
 import com.example.tirtir_mcommerce.network.RetrofitClient;
+import com.example.tirtir_mcommerce.repository.CartRepository;
 import com.example.tirtir_mcommerce.utils.PriceUtils;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -56,7 +65,6 @@ public class ProductDetailActivity extends AppCompatActivity {
     private TextView tvProductDescription;
     private MaterialButton btnWishlist;
     private MaterialButton btnARTryOn;
-    private MaterialButton btnIngredientScan;
     private MaterialButton btnChatAdvisor;
     private Button btnAddToCart;
     private MaterialButton btnBuyNow;
@@ -67,12 +75,15 @@ public class ProductDetailActivity extends AppCompatActivity {
 
 
     private String productId, productName, productCategory, productImage, productIngredients;
+    private String productParentId, productVolume, productHowToUse, productFullDescription;
+    private String selectedProductId, selectedShade;
     private double productPrice;
     private double displayPriceVnd;
     private int stockQuantity;
     private int currentQuantity = 1;
     private boolean isWishlisted = false;
     private java.util.ArrayList<String> galleryImages;
+    private final java.util.List<java.util.Map<String, Object>> availableShades = new java.util.ArrayList<>();
 
     private TextView tvQuantity, tvTotalPrice;
     private ImageButton btnDecreaseQty, btnIncreaseQty;
@@ -97,7 +108,6 @@ public class ProductDetailActivity extends AppCompatActivity {
         tvProductDescription = findViewById(R.id.tvProductDescription);
         btnWishlist = findViewById(R.id.btnWishlist);
         btnARTryOn = findViewById(R.id.btnARTryOn);
-        btnIngredientScan = findViewById(R.id.btnIngredientScan);
         btnChatAdvisor = findViewById(R.id.btnChatAdvisor);
         btnAddToCart = findViewById(R.id.btnAddToCart);
         btnBuyNow = findViewById(R.id.btnBuyNow);
@@ -120,6 +130,12 @@ public class ProductDetailActivity extends AppCompatActivity {
         productPrice    = getIntent().getDoubleExtra("PRODUCT_PRICE", 0.0);
         productCategory = getIntent().getStringExtra("PRODUCT_CATEGORY");
         productImage    = getIntent().getStringExtra("PRODUCT_IMAGE");
+        productParentId = getIntent().getStringExtra("PRODUCT_PARENT_ID");
+        productVolume   = getIntent().getStringExtra("PRODUCT_VOLUME");
+        productHowToUse = getIntent().getStringExtra("PRODUCT_HOW_TO_USE");
+        productFullDescription = getIntent().getStringExtra("PRODUCT_FULL_DESCRIPTION");
+        selectedProductId = productId;
+        selectedShade = firstNonEmpty(productVolume, "Standard");
         stockQuantity   = getIntent().getIntExtra("PRODUCT_STOCK", 100);
         String skinTypes    = getIntent().getStringExtra("PRODUCT_SKIN_TYPES");
         productIngredients  = getIntent().getStringExtra("PRODUCT_INGREDIENTS");
@@ -133,16 +149,21 @@ public class ProductDetailActivity extends AppCompatActivity {
         // Populate views
         if (productName != null)     tvProductName.setText(productName);
         if (productCategory != null) tvProductCategory.setText(productCategory);
-        tvProductPrice.setText(PriceUtils.formatPriceVnd(displayPriceVnd));
+        tvProductPrice.setText(PriceUtils.formatPriceUsd(displayPriceVnd));
         tvSuitableSkinTypes.setText(skinTypes != null && !skinTypes.isEmpty() ? skinTypes : "Suitable for all skin types");
         tvIngredientList.setText(productIngredients != null && !productIngredients.isEmpty()
                 ? productIngredients
                 : "Ingredient list is not available yet.");
-        tvProductDescription.setText(description != null && !description.isEmpty() ? description : "Premium TirTir beauty care formula.");
+        tvProductDescription.setText(firstNonEmpty(productFullDescription, description, "Premium TirTir beauty care formula."));
+        TextView tvHowToUse = findViewById(R.id.tvHowToUse);
+        tvHowToUse.setText(firstNonEmpty(productHowToUse, "Application directions are not available yet."));
 
         galleryImages = getIntent().getStringArrayListExtra("PRODUCT_GALLERY");
         loadProductImage(viewPager, tabIndicator);
         fetchProductDetailIfDeepLinked(viewPager, tabIndicator);
+        fetchShades();
+        fetchReviews();
+        setupAccordions();
 
         // ===========================
         // OUT-OF-STOCK UI (S1.2 gap)
@@ -199,19 +220,11 @@ public class ProductDetailActivity extends AppCompatActivity {
             }
         });
 
-        // Add to Cart
-        btnAddToCart.setOnClickListener(v -> {
-            if (addCurrentProductToCart()) {
-                Toast.makeText(this, "Added " + currentQuantity + " item(s) to cart", Toast.LENGTH_SHORT).show();
-            }
-        });
+        btnAddToCart.setOnClickListener(v -> showProductOptions(false));
 
         if (btnBuyNow != null) {
             btnBuyNow.setOnClickListener(v -> {
-                if (!addCurrentProductToCart()) return;
-                Intent intent = new Intent(this, CheckoutActivity.class);
-                intent.putExtra("CART_SUBTOTAL", displayPriceVnd * currentQuantity);
-                startActivity(intent);
+                showProductOptions(true);
             });
         }
 
@@ -219,20 +232,12 @@ public class ProductDetailActivity extends AppCompatActivity {
         btnWishlist.setOnClickListener(v -> toggleWishlist());
 
         if (btnARTryOn != null) {
+            btnARTryOn.setVisibility(isShadeProduct() ? View.VISIBLE : View.GONE);
             btnARTryOn.setOnClickListener(v -> {
-                Intent intent = new Intent(this, ARTryOnActivity.class);
+                Intent intent = new Intent(this, SkinAnalysisActivity.class);
                 intent.putExtra("PRODUCT_ID", productId);
                 intent.putExtra("PRODUCT_NAME", productName);
                 intent.putExtra("PRODUCT_INGREDIENTS", productIngredients);
-                startActivity(intent);
-            });
-        }
-
-        if (btnIngredientScan != null) {
-            btnIngredientScan.setOnClickListener(v -> {
-                Intent intent = new Intent(this, IngredientScanActivity.class);
-                intent.putExtra("PRODUCT_ID", productId);
-                intent.putExtra("PRODUCT_NAME", productName);
                 startActivity(intent);
             });
         }
@@ -252,28 +257,31 @@ public class ProductDetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Product is not ready", Toast.LENGTH_SHORT).show();
             return false;
         }
+        String cartProductId = firstNonEmpty(selectedProductId, productId);
         String imageUrl = productImage != null ? productImage : "";
-        CartItem item = new CartItem(productId, productName, imageUrl, displayPriceVnd, currentQuantity, "");
-        databaseHelper.insertOrUpdateCartItem(item);
+        CartItem item = new CartItem(cartProductId, productName, imageUrl, displayPriceVnd,
+                currentQuantity, firstNonEmpty(selectedShade, productVolume, "Standard"));
+        CartRepository repository = new CartRepository(this);
+        repository.addToCartLocal(item);
+        repository.syncItemToServer(item, null, error -> { });
         return true;
     }
 
     private void fetchProductDetailIfDeepLinked(androidx.viewpager2.widget.ViewPager2 viewPager,
                                                 com.google.android.material.tabs.TabLayout tabIndicator) {
-        if (productName != null && !productName.trim().isEmpty()) return;
         if (productId == null || productId.trim().isEmpty()) return;
 
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
-        apiService.getProductById(productId).enqueue(new Callback<ApiResponse<Product>>() {
+        apiService.getProductById(productId).enqueue(new Callback<ProductDetailResponse>() {
             @Override
-            public void onResponse(Call<ApiResponse<Product>> call, Response<ApiResponse<Product>> response) {
-                ApiResponse<Product> body = response.body();
-                if (!response.isSuccessful() || body == null || body.getData() == null) return;
-                applyProductFromApi(body.getData(), viewPager, tabIndicator);
+            public void onResponse(Call<ProductDetailResponse> call, Response<ProductDetailResponse> response) {
+                ProductDetailResponse body = response.body();
+                if (!response.isSuccessful() || body == null) return;
+                applyProductFromApi(body.getProduct(), viewPager, tabIndicator);
             }
 
             @Override
-            public void onFailure(Call<ApiResponse<Product>> call, Throwable t) {
+            public void onFailure(Call<ProductDetailResponse> call, Throwable t) {
                 Toast.makeText(ProductDetailActivity.this,
                         "Unable to load product details. Please try again.",
                         Toast.LENGTH_SHORT).show();
@@ -291,6 +299,10 @@ public class ProductDetailActivity extends AppCompatActivity {
         productCategory = product.getCategory();
         productImage = product.getThumbnailImages();
         productIngredients = product.getKeyIngredients();
+        productParentId = product.getParentId();
+        productVolume = product.getVolumeSize();
+        productHowToUse = product.getHowToUse();
+        productFullDescription = product.getFullDescription();
         productPrice = product.getPrice();
         stockQuantity = product.getStockQuantity();
         double activePrice = product.getSalePrice() > 0 ? product.getSalePrice() : productPrice;
@@ -298,10 +310,12 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         tvProductName.setText(firstNonEmpty(productName, getString(R.string.product_name_placeholder)));
         tvProductCategory.setText(firstNonEmpty(productCategory, getString(R.string.product_category_placeholder)));
-        tvProductPrice.setText(PriceUtils.formatPriceVnd(displayPriceVnd));
+        tvProductPrice.setText(PriceUtils.formatPriceUsd(displayPriceVnd));
         tvSuitableSkinTypes.setText(firstNonEmpty(product.getSkinTypeTarget(), "Suitable for all skin types"));
         tvIngredientList.setText(firstNonEmpty(productIngredients, "Ingredient list is not available yet."));
-        tvProductDescription.setText(firstNonEmpty(product.getDescriptionShort(), product.getFullDescription(), "Premium TirTir beauty care formula."));
+        tvProductDescription.setText(firstNonEmpty(product.getFullDescription(), product.getDescriptionShort(), "Premium TirTir beauty care formula."));
+        TextView tvHowToUse = findViewById(R.id.tvHowToUse);
+        tvHowToUse.setText(firstNonEmpty(productHowToUse, "Application directions are not available yet."));
 
         // Render Description Images
         if (layoutDescriptionImages != null) {
@@ -332,6 +346,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                 : null;
         loadProductImage(viewPager, tabIndicator);
         updateTotalPrice();
+        fetchShades();
     }
 
     private String firstNonEmpty(String... values) {
@@ -345,8 +360,188 @@ public class ProductDetailActivity extends AppCompatActivity {
     private void updateTotalPrice() {
         double total = displayPriceVnd * currentQuantity;
         if (tvTotalPrice != null) {
-            tvTotalPrice.setText(PriceUtils.formatPriceVnd(total));
+            tvTotalPrice.setText(PriceUtils.formatPriceUsd(total));
         }
+    }
+
+    private void setupAccordions() {
+        bindAccordion(R.id.tvHeaderIngredients, R.id.tvIngredientList, "KEY INGREDIENTS");
+        bindAccordion(R.id.tvHeaderDescription, R.id.tvProductDescription, "DESCRIPTION");
+        bindAccordion(R.id.tvHeaderHowToUse, R.id.tvHowToUse, "HOW TO USE");
+        bindAccordion(R.id.tvHeaderReviews, R.id.tvReviewSummary, "REVIEWS");
+    }
+
+    private void bindAccordion(int headerId, int contentId, String label) {
+        TextView header = findViewById(headerId);
+        View content = findViewById(contentId);
+        if (header == null || content == null) return;
+        header.setOnClickListener(v -> {
+            boolean show = content.getVisibility() != View.VISIBLE;
+            content.setVisibility(show ? View.VISIBLE : View.GONE);
+            header.setText(label + (show ? "  −" : "  +"));
+        });
+    }
+
+    private void fetchShades() {
+        if (productId == null || productId.trim().isEmpty()) return;
+        String byProduct = (productParentId == null || productParentId.trim().isEmpty()) ? productId : null;
+        String byParent = (productParentId == null || productParentId.trim().isEmpty()) ? null : productParentId;
+        RetrofitClient.getClient().create(ApiService.class)
+                .getShades(byProduct, byParent, 100)
+                .enqueue(new Callback<java.util.List<java.util.Map<String, Object>>>() {
+                    @Override
+                    public void onResponse(Call<java.util.List<java.util.Map<String, Object>>> call,
+                                           Response<java.util.List<java.util.Map<String, Object>>> response) {
+                        availableShades.clear();
+                        if (response.isSuccessful() && response.body() != null) {
+                            availableShades.addAll(response.body());
+                        }
+                        View row = findViewById(R.id.layoutShadeSelection);
+                        if (row != null) row.setVisibility(availableShades.isEmpty() ? View.GONE : View.VISIBLE);
+                        View choose = findViewById(R.id.btnChooseShade);
+                        if (choose != null) choose.setOnClickListener(v -> showProductOptions(false));
+                    }
+
+                    @Override public void onFailure(Call<java.util.List<java.util.Map<String, Object>>> call, Throwable t) { }
+                });
+    }
+
+    private void fetchReviews() {
+        if (productId == null || productId.trim().isEmpty()) return;
+        RetrofitClient.getClient().create(ApiService.class).getProductReviews(productId, 1, 3)
+                .enqueue(new Callback<java.util.Map<String, Object>>() {
+                    @Override
+                    public void onResponse(Call<java.util.Map<String, Object>> call,
+                                           Response<java.util.Map<String, Object>> response) {
+                        if (!response.isSuccessful() || response.body() == null) return;
+                        Object raw = response.body().get("data");
+                        TextView summary = findViewById(R.id.tvReviewSummary);
+                        if (!(raw instanceof java.util.List) || ((java.util.List<?>) raw).isEmpty()) {
+                            summary.setText("No reviews yet. Be the first verified buyer to review this product.");
+                            return;
+                        }
+                        StringBuilder text = new StringBuilder();
+                        for (Object value : (java.util.List<?>) raw) {
+                            if (!(value instanceof java.util.Map)) continue;
+                            java.util.Map<?, ?> review = (java.util.Map<?, ?>) value;
+                            Object rating = review.get("rating");
+                            Object title = review.get("title");
+                            Object comment = review.get("comment");
+                            if (text.length() > 0) text.append("\n\n");
+                            text.append(rating == null ? "★" : rating + " ★");
+                            if (title != null) text.append("  ").append(title);
+                            if (comment != null) text.append("\n").append(comment);
+                        }
+                        if (text.length() > 0) summary.setText(text.toString());
+                    }
+
+                    @Override public void onFailure(Call<java.util.Map<String, Object>> call, Throwable t) { }
+                });
+    }
+
+    private void showProductOptions(boolean buyNowPreferred) {
+        if (stockQuantity <= 0) return;
+        BottomSheetDialog dialog = new BottomSheetDialog(this);
+        View sheet = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_product_options, null, false);
+        dialog.setContentView(sheet);
+
+        ((TextView) sheet.findViewById(R.id.tvOptionProductName)).setText(firstNonEmpty(productName, "TirTir product"));
+        ((TextView) sheet.findViewById(R.id.tvOptionPrice)).setText(PriceUtils.formatPriceUsd(displayPriceVnd));
+        ImageView image = sheet.findViewById(R.id.ivOptionProduct);
+        int fallback = resolveProductFallback();
+        Glide.with(this).load(buildImageUrl(productImage)).placeholder(fallback).error(fallback).fallback(fallback).into(image);
+
+        ChipGroup group = sheet.findViewById(R.id.chipGroupOptions);
+        TextView label = sheet.findViewById(R.id.tvOptionVariantLabel);
+        if (availableShades.isEmpty()) {
+            label.setText("VARIANT");
+            Chip chip = buildOptionChip(firstNonEmpty(productVolume, "Standard"));
+            chip.setChecked(true);
+            group.addView(chip);
+        } else {
+            label.setText("SELECT SHADE");
+            for (int index = 0; index < availableShades.size(); index++) {
+                java.util.Map<String, Object> shade = availableShades.get(index);
+                String shadeName = mapText(shade, "Shade_Name", "Shade_Code", "Shade");
+                Chip chip = buildOptionChip(shadeName);
+                chip.setTag(shade);
+                chip.setChecked(index == 0 && (selectedShade == null || selectedShade.equals(productVolume)));
+                if (shadeName.equals(selectedShade)) chip.setChecked(true);
+                chip.setOnCheckedChangeListener((button, checked) -> {
+                    if (!checked) return;
+                    selectedShade = shadeName;
+                    selectedProductId = mapText(shade, "Product_ID", "Shade_ID", productId);
+                });
+                group.addView(chip);
+            }
+            if (group.getCheckedChipId() == View.NO_ID && group.getChildCount() > 0) {
+                ((Chip) group.getChildAt(0)).setChecked(true);
+            }
+        }
+
+        final int[] quantity = {Math.max(1, currentQuantity)};
+        TextView quantityText = sheet.findViewById(R.id.tvOptionQuantity);
+        quantityText.setText(String.valueOf(quantity[0]));
+        sheet.findViewById(R.id.btnOptionDecrease).setOnClickListener(v -> {
+            if (quantity[0] > 1) quantity[0]--;
+            quantityText.setText(String.valueOf(quantity[0]));
+        });
+        sheet.findViewById(R.id.btnOptionIncrease).setOnClickListener(v -> {
+            if (quantity[0] < Math.max(1, stockQuantity)) quantity[0]++;
+            quantityText.setText(String.valueOf(quantity[0]));
+        });
+        sheet.findViewById(R.id.btnCloseOptions).setOnClickListener(v -> dialog.dismiss());
+        sheet.findViewById(R.id.btnOptionAddCart).setOnClickListener(v -> {
+            currentQuantity = quantity[0];
+            if (addCurrentProductToCart()) {
+                Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            }
+        });
+        sheet.findViewById(R.id.btnOptionBuyNow).setOnClickListener(v -> {
+            currentQuantity = quantity[0];
+            if (!addCurrentProductToCart()) return;
+            dialog.dismiss();
+            Intent intent = new Intent(this, CheckoutActivity.class);
+            intent.putExtra("CART_SUBTOTAL", displayPriceVnd * currentQuantity);
+            startActivity(intent);
+        });
+        if (buyNowPreferred) sheet.findViewById(R.id.btnOptionBuyNow).requestFocus();
+        dialog.show();
+    }
+
+    private Chip buildOptionChip(String text) {
+        Chip chip = new Chip(this);
+        chip.setId(View.generateViewId());
+        chip.setText(text);
+        chip.setCheckable(true);
+        chip.setChipBackgroundColorResource(R.color.chip_selector);
+        chip.setTextColor(getColor(R.color.tirtir_text_primary));
+        chip.setChipStrokeColorResource(R.color.chip_stroke_profile);
+        chip.setChipStrokeWidth(1f);
+        return chip;
+    }
+
+    private String mapText(java.util.Map<String, Object> map, String firstKey, String secondKey, String fallback) {
+        Object first = map.get(firstKey);
+        if (first != null && !String.valueOf(first).trim().isEmpty()) return String.valueOf(first);
+        Object second = map.get(secondKey);
+        if (second != null && !String.valueOf(second).trim().isEmpty()) return String.valueOf(second);
+        return fallback;
+    }
+
+    private boolean isShadeProduct() {
+        String value = ((productName == null ? "" : productName) + " "
+                + (productCategory == null ? "" : productCategory)).toLowerCase(java.util.Locale.ENGLISH);
+        return value.contains("cushion") || value.contains("foundation") || value.contains("base");
+    }
+
+    private int resolveProductFallback() {
+        String value = ((productName == null ? "" : productName) + " "
+                + (productCategory == null ? "" : productCategory)).toLowerCase(java.util.Locale.ENGLISH);
+        if (value.contains("gift card")) return R.drawable.tirtir_gift_card;
+        if (value.contains("matcha")) return R.drawable.tirtir_matcha_set;
+        return R.drawable.ic_product_placeholder;
     }
 
     @Override

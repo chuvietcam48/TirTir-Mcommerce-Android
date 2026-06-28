@@ -2,11 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="176dp"
-    android:background="@color/tirtir_red_primary"
+    android:background="@color/tirtir_white"
     android:gravity="bottom"
     android:orientation="vertical"
     android:padding="16dp"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+    android:theme="@style/ThemeOverlay.AppCompat.Light">
 
     <ImageView
         android:layout_width="64dp"
@@ -19,6 +19,7 @@
         android:layout_height="wrap_content"
         android:paddingTop="8dp"
         android:text="TirTir Admin"
+        android:textColor="@color/tirtir_red_dark"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textStyle="bold" />
 
@@ -26,6 +27,7 @@
         android:id="@+id/tvAdminEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="admin@tirtir.com" />
+        android:text="admin@tirtir.com"
+        android:textColor="@color/tirtir_text_secondary" />
 
 </LinearLayout>

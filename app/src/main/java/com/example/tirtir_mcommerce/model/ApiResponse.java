@@ -1,6 +1,7 @@
 package com.example.tirtir_mcommerce.model;
 
 import com.google.gson.annotations.SerializedName;
+import java.util.Map;
 
 /**
  * Wrapper chung cho tất cả các phản hồi từ API.
@@ -28,11 +29,15 @@ public class ApiResponse<T> {
     @SerializedName("data")
     private T data;
 
+    @SerializedName("voucher")
+    private Map<String, Object> voucher;
+
     // ===== Getters =====
     public boolean isSuccess() { return success; }
     public String getMessage() { return message; }
     public boolean isWarning() { return warning; }
     public T getData() { return data; }
+    public Map<String, Object> getVoucher() { return voucher; }
 
     // ===== Setters =====
     public void setSuccess(boolean success) { this.success = success; }

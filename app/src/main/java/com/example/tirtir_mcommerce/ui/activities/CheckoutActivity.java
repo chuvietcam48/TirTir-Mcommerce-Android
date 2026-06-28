@@ -60,7 +60,7 @@ import retrofit2.Response;
 public class CheckoutActivity extends AppCompatActivity {
     private static final String TAG = "CheckoutActivity";
 
-    private TextInputEditText etFullName, etPhone, etStreet, etNote;
+    private TextInputEditText etFullName, etPhone, etStreet, etNote, etPromoCode;
     private RadioGroup rgPaymentMethod;
     private TextView tvCheckoutSubtotal, tvCheckoutShipping, tvCheckoutTax, tvCheckoutTotal;
     private MaterialButton btnPlaceOrder;
@@ -68,6 +68,7 @@ public class CheckoutActivity extends AppCompatActivity {
 
     private TextView tvLoyaltyBalance;
     private MaterialButton btnRedeemPoints;
+    private MaterialButton btnApplyPromo, btnRemoveVoucher;
     private double discountAmount = 0;
     private int currentLoyaltyPoints = 0;
 
@@ -123,11 +124,15 @@ public class CheckoutActivity extends AppCompatActivity {
             prefillSavedAddress();
             updateTotalsUI();
             setupPlaceOrder();
+            setupPromoCode();
             checkLoyaltyMultiplier();
 
             SharedPrefsManager prefs = new SharedPrefsManager(this);
             if (prefs.getPendingVoucherCode() != null) {
                 discountAmount = prefs.getPendingVoucherDiscount();
+                if (etPromoCode != null) etPromoCode.setText(prefs.getPendingVoucherCode());
+                if (btnApplyPromo != null) btnApplyPromo.setText("Applied");
+                if (btnRemoveVoucher != null) btnRemoveVoucher.setVisibility(View.VISIBLE);
                 if (btnRedeemPoints != null) {
                     btnRedeemPoints.setEnabled(false);
                     btnRedeemPoints.setText("Applied");
@@ -179,6 +184,7 @@ public class CheckoutActivity extends AppCompatActivity {
         etPhone              = findViewById(R.id.etPhone);
         etStreet             = findViewById(R.id.etStreet);
         etNote               = findViewById(R.id.etNote);
+        etPromoCode          = findViewById(R.id.etPromoCode);
         rgPaymentMethod      = findViewById(R.id.rgPaymentMethod);
         tvCheckoutSubtotal   = findViewById(R.id.tvCheckoutSubtotal);
         tvCheckoutShipping   = findViewById(R.id.tvCheckoutShipping);
@@ -200,10 +206,35 @@ public class CheckoutActivity extends AppCompatActivity {
         }
         tvLoyaltyBalance = findViewById(R.id.tvLoyaltyBalance);
         btnRedeemPoints = findViewById(R.id.btnRedeemPoints);
+        btnApplyPromo = findViewById(R.id.btnApplyPromo);
+        btnRemoveVoucher = findViewById(R.id.btnRemoveVoucher);
         
         // Disable Place Order until Quote is valid
         btnPlaceOrder.setEnabled(false);
         loadProvinces();
+    }
+
+    private void setupPromoCode() {
+        if (btnApplyPromo != null) btnApplyPromo.setOnClickListener(v -> {
+            String code = getText(etPromoCode).toUpperCase(java.util.Locale.ENGLISH);
+            if (code.isEmpty()) {
+                etPromoCode.setError("Enter a promo code");
+                return;
+            }
+            // The backend validates the code and computes the actual discount.
+            new SharedPrefsManager(this).savePendingVoucher(code, 0);
+            btnApplyPromo.setText("Applied");
+            if (btnRemoveVoucher != null) btnRemoveVoucher.setVisibility(View.VISIBLE);
+            Toast.makeText(this, "Promo code will be verified when you place the order", Toast.LENGTH_SHORT).show();
+        });
+        if (btnRemoveVoucher != null) btnRemoveVoucher.setOnClickListener(v -> {
+            new SharedPrefsManager(this).clearPendingVoucher();
+            discountAmount = 0;
+            if (etPromoCode != null) etPromoCode.setText("");
+            if (btnApplyPromo != null) btnApplyPromo.setText("Apply");
+            btnRemoveVoucher.setVisibility(View.GONE);
+            updateTotalsUI();
+        });
     }
     
     // ===========================
@@ -358,23 +389,23 @@ public class CheckoutActivity extends AppCompatActivity {
         double total = cartSubtotal + shippingFee + tax - discountAmount;
         if (total < 0) total = 0;
 
-        tvCheckoutSubtotal.setText(PriceUtils.formatPriceVnd(cartSubtotal));
+        tvCheckoutSubtotal.setText(PriceUtils.formatPriceUsd(cartSubtotal));
         tvCheckoutShipping.setText(shippingFee > 0
-                ? PriceUtils.formatPriceVnd(shippingFee) : "Calculating...");
+                ? PriceUtils.formatPriceUsd(shippingFee) : "Calculating...");
         if (tvCheckoutTax != null) {
-            tvCheckoutTax.setText(PriceUtils.formatPriceVnd(tax));
+            tvCheckoutTax.setText(PriceUtils.formatPriceUsd(tax));
         }
-        tvCheckoutTotal.setText(PriceUtils.formatPriceVnd(total));
+        tvCheckoutTotal.setText(PriceUtils.formatPriceUsd(total));
     }
 
     /** Refresh totals UI from authoritative server response. */
     private void updateTotalsFromServer(ArbitrateOrderResponse.Totals totals, boolean isEstimated) {
-        tvCheckoutSubtotal.setText(PriceUtils.formatPriceVnd(totals.getSubtotal()));
-        String shippingLabel = PriceUtils.formatPriceVnd(totals.getShippingFee());
+        tvCheckoutSubtotal.setText(PriceUtils.formatPriceUsd(totals.getSubtotal()));
+        String shippingLabel = PriceUtils.formatPriceUsd(totals.getShippingFee());
         if (isEstimated) shippingLabel += " (estimated)";
         tvCheckoutShipping.setText(shippingLabel);
-        if (tvCheckoutTax != null) tvCheckoutTax.setText(PriceUtils.formatPriceVnd(totals.getTax()));
-        tvCheckoutTotal.setText(PriceUtils.formatPriceVnd(totals.getFinalTotal()));
+        if (tvCheckoutTax != null) tvCheckoutTax.setText(PriceUtils.formatPriceUsd(totals.getTax()));
+        tvCheckoutTotal.setText(PriceUtils.formatPriceUsd(totals.getFinalTotal()));
     }
 
     // ===========================
@@ -426,7 +457,7 @@ public class CheckoutActivity extends AppCompatActivity {
 
         new androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("Redeem Points")
-            .setMessage("Enter amount of points to redeem (1 point = 100 VND)")
+            .setMessage("Enter the number of points to redeem. The backend will confirm their value.")
             .setView(container)
             .setPositiveButton("Redeem", (dialog, which) -> {
                 String val = input.getText().toString();
@@ -446,12 +477,15 @@ public class CheckoutActivity extends AppCompatActivity {
     private void redeemPointsApi(int points) {
         com.example.tirtir_mcommerce.network.ApiService api = com.example.tirtir_mcommerce.network.RetrofitClient.getAuthClient(this).create(com.example.tirtir_mcommerce.network.ApiService.class);
         java.util.Map<String, Integer> body = new java.util.HashMap<>();
-        body.put("points", points);
+        body.put("ptsRequired", points);
         api.redeemPoints(body).enqueue(new retrofit2.Callback<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>>() {
             @Override
             public void onResponse(retrofit2.Call<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>> call, retrofit2.Response<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    discountAmount = points * 100;
+                    Object percentObj = response.body().getData().get("discountPct");
+                    double discountPercent = percentObj instanceof Number
+                            ? ((Number) percentObj).doubleValue() : 0;
+                    discountAmount = cartSubtotal * discountPercent / 100.0;
                     Object codeObj = response.body().getData().get("voucherCode");
                     String code = codeObj != null ? codeObj.toString() : "LOYALTY_VOUCHER";
                     new SharedPrefsManager(CheckoutActivity.this).savePendingVoucher(code, discountAmount);
@@ -532,7 +566,7 @@ public class CheckoutActivity extends AppCompatActivity {
                 } else {
                     runOnUiThread(() -> {
                         showLoading(false);
-                        Toast.makeText(CheckoutActivity.this, "Không thể lấy phí ship thực tế. Vui lòng kiểm tra địa chỉ hoặc thử lại.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(CheckoutActivity.this, "Unable to calculate shipping. Check the address and try again.", Toast.LENGTH_LONG).show();
                         tvCheckoutShipping.setText("N/A");
                     });
                 }
@@ -541,7 +575,7 @@ public class CheckoutActivity extends AppCompatActivity {
                 e.printStackTrace();
                 runOnUiThread(() -> {
                     showLoading(false);
-                    Toast.makeText(CheckoutActivity.this, "Lỗi kết nối SOAP Gateway.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(CheckoutActivity.this, "Shipping gateway connection failed.", Toast.LENGTH_LONG).show();
                     tvCheckoutShipping.setText("Error");
                 });
             }
@@ -605,7 +639,7 @@ public class CheckoutActivity extends AppCompatActivity {
                 }
                 updateTotalsUI();
             } else {
-                Toast.makeText(CheckoutActivity.this, "Không có dịch vụ giao hàng phù hợp.", Toast.LENGTH_LONG).show();
+                Toast.makeText(CheckoutActivity.this, "No delivery service is available for this address.", Toast.LENGTH_LONG).show();
                 tvCheckoutShipping.setText("N/A");
             }
         });
@@ -626,7 +660,7 @@ public class CheckoutActivity extends AppCompatActivity {
             }
             if (!validateForm()) return;
             if (selectedQuoteId == null || selectedServiceId == null) {
-                Toast.makeText(this, "Vui lòng chọn địa chỉ giao hàng để tính phí ship thực tế.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Select a delivery address to calculate shipping.", Toast.LENGTH_LONG).show();
                 return;
             }
             placeOrderWithApi();
@@ -795,7 +829,7 @@ public class CheckoutActivity extends AppCompatActivity {
             valid = false;
         }
         if (selectedProvinceId == null || selectedDistrictId == null || selectedWardCode == null) {
-            Toast.makeText(this, "Vui lòng chọn đầy đủ Tỉnh/Thành phố, Quận/Huyện, Phường/Xã.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Select a province/city, district, and ward.", Toast.LENGTH_SHORT).show();
             valid = false;
         }
         if (rgPaymentMethod == null || rgPaymentMethod.getCheckedRadioButtonId() == -1) {

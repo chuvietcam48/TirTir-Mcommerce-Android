@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tirtir_off_white">
+
+    <com.google.android.material.appbar.AppBarLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/tirtir_white" app:elevation="0dp">
+        <androidx.appcompat.widget.Toolbar android:id="@+id/toolbarOrderDetail" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" app:title="Order details" app:titleTextColor="@color/tirtir_red_dark" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+
+            <TextView android:id="@+id/tvOrderDetailCode" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:textColor="@color/tirtir_text_secondary" android:textSize="12sp" android:textStyle="bold" />
+            <TextView android:id="@+id/tvOrderDetailStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center" android:textColor="@color/tirtir_red_dark" android:textSize="18sp" android:textStyle="bold" />
+            <TextView android:id="@+id/tvOrderDetailDate" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center" android:textColor="@color/tirtir_text_hint" android:textSize="12sp" />
+
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" app:cardBackgroundColor="@color/tirtir_white" app:cardCornerRadius="10dp" app:cardElevation="0dp" app:strokeColor="@color/tirtir_border_gray" app:strokeWidth="1dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DELIVERY TO" android:textColor="@color/tirtir_text_secondary" android:textSize="11sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/tvOrderDetailAddress" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:lineSpacingExtra="2dp" android:textColor="@color/tirtir_black" android:textSize="14sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:gravity="center" android:orientation="horizontal">
+                <TextView android:id="@+id/tvStepPlaced" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="PLACED" android:textSize="10sp" />
+                <TextView android:id="@+id/tvStepProcessing" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="PROCESS" android:textSize="10sp" />
+                <TextView android:id="@+id/tvStepShipped" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="SHIPPED" android:textSize="10sp" />
+                <TextView android:id="@+id/tvStepDelivered" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="DELIVERY" android:textSize="10sp" />
+            </LinearLayout>
+            <ProgressBar android:id="@+id/progressOrderTimeline" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="8dp" android:max="3" android:progress="0" android:progressTint="@color/tirtir_red_dark" />
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="26dp" android:text="ITEMS ORDERED" android:textColor="@color/tirtir_text_secondary" android:textSize="11sp" android:textStyle="bold" />
+            <LinearLayout android:id="@+id/containerOrderDetailItems" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:background="@color/tirtir_white" android:orientation="vertical" android:padding="14dp" />
+
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" app:cardBackgroundColor="@color/tirtir_white" app:cardCornerRadius="10dp" app:cardElevation="0dp" app:strokeColor="@color/tirtir_border_gray" app:strokeWidth="1dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                    <TextView android:id="@+id/tvOrderDetailPayment" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/tirtir_text_secondary" android:textSize="13sp" />
+                    <TextView android:id="@+id/tvOrderDetailTotal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="end" android:textColor="@color/tirtir_red_dark" android:textSize="22sp" android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <ProgressBar android:id="@+id/progressOrderDetail" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:layout_marginTop="20dp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -125,7 +125,7 @@ public class AdminProductFormActivity extends AppCompatActivity {
     }
 
     private void setupCategorySpinner() {
-        String[] categories = {"Toner", "Serum", "Cream", "Cushion", "Mask", "Others"};
+        String[] categories = {"Skincare", "Makeup", "Cushion", "Balm", "Primer", "Setting Spray", "Tint", "Gift Card"};
         android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(adapter);

@@ -45,7 +45,7 @@ public class OrderSuccessActivity extends AppCompatActivity {
         MaterialButton btnViewOrder = findViewById(R.id.btnViewOrder);
 
         if (orderCode != null) tvOrderCode.setText(orderCode);
-        tvOrderTotal.setText(PriceUtils.formatPriceVnd(orderTotal));
+        tvOrderTotal.setText(PriceUtils.formatPriceUsd(orderTotal));
 
         btnBackHome.setOnClickListener(v -> {
             Intent intent = new Intent(this, MainActivity.class);

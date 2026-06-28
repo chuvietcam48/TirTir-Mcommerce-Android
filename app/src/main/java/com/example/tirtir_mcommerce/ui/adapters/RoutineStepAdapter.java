@@ -142,7 +142,7 @@ public class RoutineStepAdapter extends ListAdapter<RoutineStep, RoutineStepAdap
 
             double price = step.getDisplayPrice();
             tvProductPrice.setText(price > 0
-                    ? PriceUtils.formatVnd(price)
+                    ? PriceUtils.formatPriceUsd(price)
                     : "");
 
             // Product image

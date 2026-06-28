@@ -204,11 +204,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
             // Image: resolve URL
             String imageUrl = resolveImageUrl(product);
+            int fallbackImage = resolveFallbackDrawable(product);
             if (tvImageFallback != null) tvImageFallback.setVisibility(View.GONE);
             Glide.with(context)
                     .load(imageUrl.isEmpty() ? null : imageUrl)
-                    .placeholder(R.drawable.ic_product_placeholder)
-                    .error(R.drawable.ic_product_placeholder)
+                    .placeholder(fallbackImage)
+                    .error(fallbackImage)
+                    .fallback(fallbackImage)
                     .fitCenter()
                     .listener(new RequestListener<Drawable>() {
                         @Override
@@ -271,7 +273,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                             product.getThumbnailImages() != null ? product.getThumbnailImages() : "",
                             displayPrice,
                             1,
-                            ""
+                            product.getVolumeSize() != null ? product.getVolumeSize() : "Standard"
                     );
                     CartRepository cartRepository = new CartRepository(context);
                     cartRepository.addToCartLocal(item);
@@ -343,6 +345,18 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
         private String buildUrl(String path) {
             return ApiConfig.resolveMediaUrl(path);
+        }
+
+        private int resolveFallbackDrawable(Product product) {
+            String name = product.getName() == null ? "" : product.getName().toLowerCase(java.util.Locale.ENGLISH);
+            String category = product.getCategory() == null ? "" : product.getCategory().toLowerCase(java.util.Locale.ENGLISH);
+            if (name.contains("gift card") || category.contains("gift card")) {
+                return R.drawable.tirtir_gift_card;
+            }
+            if (name.contains("matcha")) {
+                return R.drawable.tirtir_matcha_set;
+            }
+            return R.drawable.ic_product_placeholder;
         }
     }
 }

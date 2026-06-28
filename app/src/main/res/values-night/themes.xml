@@ -1,7 +1,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.TirTirMCommerce" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="colorPrimary">@color/tirtir_red_primary</item>
+        <item name="colorPrimaryContainer">@color/tirtir_red_surface</item>
+        <item name="colorOnPrimary">@color/tirtir_white</item>
+        <item name="colorSecondary">@color/tirtir_black</item>
+        <item name="colorSecondaryContainer">@color/tirtir_red_surface</item>
+        <item name="colorOnSecondaryContainer">@color/tirtir_red_primary</item>
+        <item name="colorSurface">@color/tirtir_white</item>
+        <item name="colorOnSurface">@color/tirtir_black</item>
+        <item name="android:windowBackground">@color/tirtir_off_white</item>
+        <item name="android:statusBarColor">@color/tirtir_white</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>

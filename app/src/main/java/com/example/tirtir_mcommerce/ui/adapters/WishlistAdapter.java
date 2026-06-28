@@ -154,7 +154,7 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.Wishli
             tvName.setText(item.productName != null ? item.productName : "TirTir product");
 
             // Format giá tiền
-            tvPrice.setText(PriceUtils.formatPriceVnd(item.productPrice));
+            tvPrice.setText(PriceUtils.formatPriceUsd(item.productPrice));
 
             // Load ảnh bằng Glide
             if (item.productImage != null && !item.productImage.isEmpty()) {

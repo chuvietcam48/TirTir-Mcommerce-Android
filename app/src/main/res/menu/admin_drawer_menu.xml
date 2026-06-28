@@ -2,21 +2,25 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_admin_dashboard"
+            android:icon="@drawable/ic_home"
+            android:title="Dashboard" />
+        <item
             android:id="@+id/nav_admin_products"
             android:icon="@android:drawable/ic_menu_edit"
-            android:title="Sản phẩm" />
+            android:title="Products" />
         <item
             android:id="@+id/nav_admin_orders"
             android:icon="@android:drawable/ic_menu_agenda"
-            android:title="Đơn hàng" />
+            android:title="Orders" />
         <item
             android:id="@+id/nav_admin_churn"
             android:icon="@android:drawable/ic_dialog_alert"
-            android:title="Churn" />
+            android:title="Customer retention" />
         <item
             android:id="@+id/nav_admin_cart_recovery"
             android:icon="@android:drawable/ic_menu_recent_history"
-            android:title="Cart Recovery" />
+            android:title="Cart recovery" />
     </group>
     
     <item android:title="Account">

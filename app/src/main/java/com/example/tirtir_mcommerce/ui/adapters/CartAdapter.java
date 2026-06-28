@@ -24,6 +24,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     public interface CartListener {
         void onQuantityChanged(int position, int newQuantity);
         void onRemoveItem(int position);
+        void onEditVariant(int position);
     }
 
     private final Context context;
@@ -48,7 +49,10 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         CartItem cartItem = cartItems.get(position);
         
         holder.tvName.setText(cartItem.getProductName());
-        holder.tvPrice.setText(PriceUtils.formatPriceVnd(cartItem.getPrice()));
+        holder.tvPrice.setText(PriceUtils.formatPriceUsd(cartItem.getPrice()));
+        String variant = cartItem.getShade();
+        holder.tvVariant.setText((variant == null || variant.trim().isEmpty() ? "Standard" : variant) + "  ▾");
+        holder.tvVariant.setOnClickListener(v -> cartListener.onEditVariant(position));
         
         String imageUrl = ApiConfig.resolveMediaUrl(cartItem.getThumbnail());
         
@@ -97,6 +101,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         TextView tvName;
         TextView tvPrice;
         TextView tvQuantity;
+        TextView tvVariant;
         ImageButton btnDecrease;
         ImageButton btnIncrease;
         ImageButton btnRemove;
@@ -107,6 +112,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             tvName = itemView.findViewById(R.id.tvCartProductName);
             tvPrice = itemView.findViewById(R.id.tvCartProductPrice);
             tvQuantity = itemView.findViewById(R.id.tvQuantity);
+            tvVariant = itemView.findViewById(R.id.tvCartVariant);
             btnDecrease = itemView.findViewById(R.id.btnDecreaseQty);
             btnIncrease = itemView.findViewById(R.id.btnIncreaseQty);
             btnRemove = itemView.findViewById(R.id.btnRemoveCartItem);

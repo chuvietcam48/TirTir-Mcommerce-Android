@@ -85,7 +85,10 @@ public class AdminActivity extends AppCompatActivity {
     private void setupNavigation() {
         navigationView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.nav_admin_products) {
+            if (id == R.id.nav_admin_dashboard) {
+                loadDashboard(tabLayoutTime.getSelectedTabPosition() == 0 ? "7d"
+                        : tabLayoutTime.getSelectedTabPosition() == 1 ? "30d" : "90d");
+            } else if (id == R.id.nav_admin_products) {
                 startActivity(new Intent(this, AdminProductListActivity.class));
             } else if (id == R.id.nav_admin_orders) {
                 startActivity(new Intent(this, AdminOrdersActivity.class));
@@ -179,11 +182,11 @@ public class AdminActivity extends AppCompatActivity {
         }
 
         LineDataSet set = new LineDataSet(entries, "Revenue");
-        set.setColor(Color.parseColor("#C62828"));
-        set.setCircleColor(Color.parseColor("#C62828"));
+        set.setColor(Color.parseColor("#D32F2F"));
+        set.setCircleColor(Color.parseColor("#D32F2F"));
         set.setLineWidth(2.5f);
         set.setDrawFilled(true);
-        set.setFillColor(Color.parseColor("#C62828"));
+        set.setFillColor(Color.parseColor("#D32F2F"));
         set.setFillAlpha(28);
         lineChartRevenue.setData(new LineData(set));
         
@@ -263,15 +266,15 @@ public class AdminActivity extends AppCompatActivity {
         }
 
         if (entries.isEmpty()) {
-            // Draw clean fallback pie metrics if empty
-            entries.add(new PieEntry(5, "Pending"));
-            entries.add(new PieEntry(15, "Processing"));
-            entries.add(new PieEntry(8, "Shipped"));
-            entries.add(new PieEntry(22, "Delivered"));
+            pieChartCategory.setNoDataText("No order data for this period");
+            pieChartCategory.setNoDataTextColor(Color.parseColor("#999999"));
+            pieChartCategory.clear();
+            pieChartCategory.invalidate();
+            return;
         }
 
         PieDataSet set = new PieDataSet(entries, "Order status");
-        set.setColors(Color.parseColor("#C62828"), Color.parseColor("#111111"),
+        set.setColors(Color.parseColor("#D32F2F"), Color.parseColor("#111111"),
                 Color.parseColor("#777777"), Color.parseColor("#2E7D32"));
         set.setValueTextColor(Color.WHITE);
         pieChartCategory.setData(new PieData(set));
@@ -319,8 +322,12 @@ public class AdminActivity extends AppCompatActivity {
     }
 
     private void checkTimeout() {
-        if (!new com.example.tirtir_mcommerce.utils.SharedPrefsManager(this).isLoggedIn()) {
-            Toast.makeText(this, "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.", Toast.LENGTH_LONG).show();
+        com.example.tirtir_mcommerce.utils.SharedPrefsManager prefs =
+                new com.example.tirtir_mcommerce.utils.SharedPrefsManager(this);
+        com.example.tirtir_mcommerce.model.User user = prefs.getCachedUser();
+        if (!prefs.isLoggedIn() || user == null || !user.isAdmin()) {
+            prefs.clearAuthSession();
+            Toast.makeText(this, "Your admin session has expired.", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(this, LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);

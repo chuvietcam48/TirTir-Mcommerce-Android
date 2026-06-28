@@ -55,16 +55,35 @@
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/tabIndicatorImages"
                     android:layout_width="wrap_content"
-                    android:layout_height="16dp"
+                    android:layout_height="12dp"
                     android:layout_gravity="bottom|center_horizontal"
                     android:layout_marginBottom="8dp"
                     android:background="@android:color/transparent"
                     app:tabBackground="@drawable/tab_selector"
                     app:tabGravity="center"
                     app:tabIndicatorHeight="0dp"
-                    app:tabPaddingEnd="4dp"
-                    app:tabPaddingStart="4dp"
+                    app:tabPaddingEnd="2dp"
+                    app:tabPaddingStart="2dp"
                     android:visibility="gone"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnARTryOn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:layout_gravity="bottom|end"
+                    android:layout_marginEnd="14dp"
+                    android:layout_marginBottom="28dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="SCAN &amp; MATCH"
+                    android:textColor="@color/tirtir_white"
+                    android:textSize="11sp"
+                    android:visibility="gone"
+                    app:backgroundTint="@color/tirtir_black_cover"
+                    app:cornerRadius="19dp"
+                    app:icon="@drawable/ic_scan"
+                    app:iconSize="16dp"
+                    app:iconTint="@color/tirtir_white" />
 
                 <!-- Out-of-stock badge — GONE by default, VISIBLE when stock <= 0 -->
                 <TextView
@@ -145,10 +164,11 @@
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/tvHeaderIngredients"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="@string/product_ingredients_title"
+                    android:text="KEY INGREDIENTS  +"
                     android:textColor="@color/tirtir_text_primary"
                     android:textStyle="bold"
                     android:textSize="16sp" />
@@ -160,20 +180,8 @@
                     android:layout_marginTop="8dp"
                     android:text="@string/product_ingredients_placeholder"
                     android:textColor="@color/tirtir_text_secondary"
-                    android:textSize="14sp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnIngredientScan"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="12dp"
-                    android:text="Scan ingredients / check conflicts"
-                    android:textColor="@color/tirtir_red_primary"
-                    app:cornerRadius="12dp"
-                    app:icon="@drawable/ic_scan"
-                    app:iconTint="@color/tirtir_red_primary"
-                    app:strokeColor="@color/tirtir_red_primary" />
+                    android:textSize="14sp"
+                    android:visibility="gone" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnChatAdvisor"
@@ -188,11 +196,39 @@
                     app:iconTint="@color/tirtir_black"
                     app:strokeColor="@color/tirtir_border_gray" />
 
+                <LinearLayout
+                    android:id="@+id/layoutShadeSelection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="SELECT SHADE"
+                        android:textColor="@color/tirtir_text_primary"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnChooseShade"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:text="Choose shade"
+                        android:textColor="@color/tirtir_red_dark" />
+                </LinearLayout>
+
                 <TextView
+                    android:id="@+id/tvHeaderDescription"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="@string/product_description_title"
+                    android:text="DESCRIPTION  −"
                     android:textColor="@color/tirtir_text_primary"
                     android:textStyle="bold"
                     android:textSize="16sp" />
@@ -215,6 +251,46 @@
                     android:layout_marginTop="16dp"
                     android:orientation="vertical" />
 
+                <TextView
+                    android:id="@+id/tvHeaderHowToUse"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:text="HOW TO USE  +"
+                    android:textColor="@color/tirtir_text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvHowToUse"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Application directions are not available yet."
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvHeaderReviews"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical"
+                    android:text="REVIEWS  +"
+                    android:textColor="@color/tirtir_text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvReviewSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No reviews yet. Be the first verified buyer to review this product."
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -230,11 +306,13 @@
         android:padding="16dp">
 
         <LinearLayout
+            android:id="@+id/layoutInlineQuantity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="12dp"
+            android:visibility="gone">
             
             <TextView
                 android:layout_width="wrap_content"
@@ -287,7 +365,7 @@
                 android:id="@+id/tvTotalPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0 đ"
+                android:text="$0.00"
                 android:textColor="@color/tirtir_red_primary"
                 android:textSize="18sp"
                 android:textStyle="bold"/>
@@ -314,36 +392,20 @@
                 app:strokeColor="@color/tirtir_border_gray"
                 app:cornerRadius="12dp" />
 
-            <!-- Phase 2: AR Try-On Placeholder -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnARTryOn"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_marginStart="8dp"
-                android:contentDescription="AR Try-On"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:padding="0dp"
-                app:icon="@android:drawable/ic_menu_camera"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp"
-                app:iconTint="@color/tirtir_red_primary"
-                app:strokeColor="@color/tirtir_red_primary"
-                app:cornerRadius="12dp" />
-
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAddToCart"
                 android:layout_width="0dp"
                 android:layout_height="56dp"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="10dp"
                 android:layout_weight="1"
                 android:text="@string/btn_add_to_cart"
-                android:textColor="@color/tirtir_white"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                app:backgroundTint="@color/tirtir_black"
-                app:cornerRadius="12dp" />
+                android:textColor="@color/tirtir_black"
+                app:backgroundTint="@color/tirtir_white"
+                app:strokeColor="@color/tirtir_black"
+                app:strokeWidth="1dp"
+                app:cornerRadius="8dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnBuyNow"
@@ -355,8 +417,8 @@
                 android:textColor="@color/tirtir_white"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                app:backgroundTint="@color/tirtir_red_primary"
-                app:cornerRadius="12dp" />
+                app:backgroundTint="@color/tirtir_red_dark"
+                app:cornerRadius="8dp" />
         </LinearLayout>
     </LinearLayout>
 

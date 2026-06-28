@@ -53,14 +53,13 @@
 
             <!-- Shipping Address Card -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardPromoCode"
+                android:id="@+id/cardShippingAddress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="1dp"
-                app:strokeWidth="0dp"
-                android:visibility="gone">
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -123,7 +122,7 @@
                         android:id="@+id/tilProvince"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Tỉnh / Thành phố"
+                        android:hint="Province / City"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_marginBottom="10dp">
                         <AutoCompleteTextView
@@ -144,7 +143,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:hint="Quận / Huyện"
+                            android:hint="District"
                             android:layout_marginEnd="6dp"
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
                             <AutoCompleteTextView
@@ -159,7 +158,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:hint="Phường / Xã"
+                            android:hint="Ward"
                             android:layout_marginStart="6dp"
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
                             <AutoCompleteTextView
@@ -312,6 +311,7 @@
                         android:hint="Promo code"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etPromoCode"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textCapCharacters" />
@@ -324,6 +324,7 @@
                             android:layout_marginStart="12dp">
                             
                             <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnApplyPromo"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Apply"
@@ -370,10 +371,10 @@
                         android:id="@+id/btnRedeemPoints"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Dùng điểm"
+                        android:text="Use points"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:textColor="#E91E8C"
-                        app:strokeColor="#E91E8C" />
+                        android:textColor="@color/tirtir_red_primary"
+                        app:strokeColor="@color/tirtir_red_primary" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -417,7 +418,7 @@
                             android:id="@+id/tvCheckoutSubtotal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0 đ"
+                            android:text="$0.00"
                             android:textSize="14sp"
                             android:textColor="@color/tirtir_black_cover" />
                     </LinearLayout>
@@ -438,7 +439,7 @@
                             android:id="@+id/tvCheckoutShipping"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="30.000 đ"
+                            android:text="Calculating..."
                             android:textSize="14sp"
                             android:textColor="@color/tirtir_black_cover" />
                     </LinearLayout>
@@ -459,7 +460,7 @@
                             android:id="@+id/tvCheckoutTax"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0 đ"
+                            android:text="$0.00"
                             android:textSize="14sp"
                             android:textColor="@color/tirtir_black_cover" />
                     </LinearLayout>
@@ -486,7 +487,7 @@
                             android:id="@+id/tvCheckoutTotal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0 đ"
+                            android:text="$0.00"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="@color/tirtir_black_cover" />

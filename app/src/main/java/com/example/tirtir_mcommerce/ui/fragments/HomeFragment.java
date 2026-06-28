@@ -7,10 +7,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.text.Editable;
+import android.text.TextWatcher;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,8 +26,10 @@ import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.Product;
 import com.example.tirtir_mcommerce.model.User;
 import com.example.tirtir_mcommerce.repository.ProductRepository;
+import com.example.tirtir_mcommerce.repository.CartRepository;
 import com.example.tirtir_mcommerce.ui.activities.ChatActivity;
 import com.example.tirtir_mcommerce.ui.activities.IngredientScanActivity;
+import com.example.tirtir_mcommerce.ui.activities.NotificationCenterActivity;
 import com.example.tirtir_mcommerce.ui.activities.ProductDetailActivity;
 import com.example.tirtir_mcommerce.ui.activities.SkinAnalysisActivity;
 import com.example.tirtir_mcommerce.ui.adapters.ProductAdapter;
@@ -72,6 +77,7 @@ public class HomeFragment extends Fragment {
     private TextView tvCartBadge;
     private LinearLayout layoutSearch;
     private LinearLayout containerCategories;
+    private EditText etHomeSearch;
 
     // Banner CTA
     private View btnShopCollection;
@@ -111,14 +117,16 @@ public class HomeFragment extends Fragment {
         setupBestSellers();
         setupExploreAll();
         setupClickListeners(view);
-        loadProducts();
 
         if (getArguments() != null) {
             String initialQuery = getArguments().getString(ARG_INITIAL_QUERY, "");
             if (!initialQuery.trim().isEmpty()) {
                 currentSearchQuery = initialQuery.toLowerCase(Locale.ENGLISH).trim();
+                if (etHomeSearch != null) etHomeSearch.setText(initialQuery);
             }
         }
+
+        loadProducts();
 
         return view;
     }
@@ -142,6 +150,7 @@ public class HomeFragment extends Fragment {
         tvCartBadge         = view.findViewById(R.id.tvCartBadge);
         layoutSearch        = view.findViewById(R.id.layoutSearch);
         containerCategories = view.findViewById(R.id.containerCategories);
+        etHomeSearch        = view.findViewById(R.id.etHomeSearch);
         btnShopCollection   = view.findViewById(R.id.btnShopCollection);
     }
 
@@ -237,6 +246,11 @@ public class HomeFragment extends Fragment {
         intent.putExtra("PRODUCT_SKIN_TYPES",  product.getSkinTypeTarget());
         intent.putExtra("PRODUCT_INGREDIENTS", product.getKeyIngredients());
         intent.putExtra("PRODUCT_DESCRIPTION", product.getDescriptionShort());
+        intent.putExtra("PRODUCT_FULL_DESCRIPTION", product.getFullDescription());
+        intent.putExtra("PRODUCT_HOW_TO_USE", product.getHowToUse());
+        intent.putExtra("PRODUCT_VOLUME", product.getVolumeSize());
+        intent.putExtra("PRODUCT_PARENT_ID", product.getParentId());
+        intent.putExtra("PRODUCT_IS_SKINCARE", product.getIsSkincare());
         intent.putExtra("PRODUCT_STOCK",       product.getStockQuantity());
         if (product.getGalleryImages() != null) {
             intent.putStringArrayListExtra("PRODUCT_GALLERY",
@@ -254,16 +268,21 @@ public class HomeFragment extends Fragment {
         // "Shop Collection" banner → full Shop catalog
         if (btnShopCollection != null) btnShopCollection.setOnClickListener(v -> navigateToShop());
 
-        // Search bar tap opens HomeFragment search or navigates
-        if (layoutSearch != null) layoutSearch.setOnClickListener(v -> {
-            navigateToShop();
-        });
-        
-        // Search scan button
+        // Retain the upstream ingredient scanner shortcut without stealing focus from search.
         View btnSearchScanHome = view.findViewById(R.id.btnSearchScanHome);
         if (btnSearchScanHome != null) {
-            btnSearchScanHome.setOnClickListener(v -> {
-                startActivity(new Intent(requireContext(), com.example.tirtir_mcommerce.ui.activities.IngredientScanActivity.class));
+            btnSearchScanHome.setOnClickListener(v ->
+                    startActivity(new Intent(requireContext(), IngredientScanActivity.class)));
+        }
+
+        if (etHomeSearch != null) {
+            etHomeSearch.addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    currentSearchQuery = s == null ? "" : s.toString().trim().toLowerCase(Locale.ENGLISH);
+                    if (!fullProductList.isEmpty()) applyFilters();
+                }
+                @Override public void afterTextChanged(Editable s) { }
             });
         }
 
@@ -278,16 +297,13 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        // Notifications icon
         View btnNotifications = view.findViewById(R.id.btnNotifications);
         if (btnNotifications != null) {
-            btnNotifications.setOnClickListener(v -> {
-                android.content.Intent intent = new android.content.Intent(getContext(), com.example.tirtir_mcommerce.ui.activities.NotificationSettingsActivity.class);
-                startActivity(intent);
-            });
+            btnNotifications.setOnClickListener(v ->
+                    startActivity(new Intent(requireContext(), NotificationCenterActivity.class)));
         }
 
-        // "View All" → scroll to Explore All and sort as Best Sellers
+        // "View All" scrolls to the complete best-seller result set.
         View tvViewAll = view.findViewById(R.id.tvViewAllBestSellers);
         if (tvViewAll != null) {
             tvViewAll.setOnClickListener(v -> {
@@ -301,15 +317,21 @@ public class HomeFragment extends Fragment {
             });
         }
 
-        // Filters button opens category filter (for now, resets to "All")
+        // Keep the catalog filter explicit and bounded on small screens.
         View btnFilters = view.findViewById(R.id.btnFilters);
-        if (btnFilters != null) {
-            btnFilters.setOnClickListener(v -> {
-                currentCategoryFilter = "All";
-                applyFilters();
-                android.widget.Toast.makeText(getContext(), "Showing all products", android.widget.Toast.LENGTH_SHORT).show();
-            });
-        }
+        if (btnFilters != null) btnFilters.setOnClickListener(v -> {
+            String[] filters = {"All", "Cleanser", "Serum", "Moisturizer", "Sunscreen"};
+            int checked = java.util.Arrays.asList(filters).indexOf(currentCategoryFilter);
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Filter products")
+                    .setSingleChoiceItems(filters, Math.max(0, checked), (dialog, which) -> {
+                        currentCategoryFilter = filters[which];
+                        applyFilters();
+                        dialog.dismiss();
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
     }
 
     // ===========================
@@ -469,9 +491,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        com.example.tirtir_mcommerce.database.DatabaseHelper db = com.example.tirtir_mcommerce.database.DatabaseHelper.getInstance(requireContext());
-        if (db != null) {
-            updateCartBadge(db.getCartCount());
-        }
+        if (isAdded()) updateCartBadge(new CartRepository(requireContext()).getCartCount());
     }
 }

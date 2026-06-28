@@ -60,12 +60,21 @@ public class CartRepository {
 
     /** Cập nhật số lượng. */
     public void updateQuantity(String productId, int newQty) {
+        updateQuantity(productId, "", newQty);
+    }
+
+    public void updateQuantity(String productId, String shade, int newQty) {
         if (newQty <= 0) {
             dbHelper.removeCartItem(productId);
         } else {
             dbHelper.updateCartQuantity(productId, newQty);
         }
-        syncQuantity(productId, "", Math.max(newQty, 0));
+        syncQuantity(productId, shade, Math.max(newQty, 0));
+    }
+
+    public void updateShade(String productId, String shade, int quantity) {
+        dbHelper.updateCartShade(productId, shade);
+        syncQuantity(productId, shade, quantity);
     }
 
     /** Xóa item. */

@@ -27,6 +27,7 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
 
     private List<OrderResponse> orders;
     private final Listener listener;
+    private java.util.function.Consumer<OrderResponse> openListener;
     private final SimpleDateFormat displayDateFormat =
             new SimpleDateFormat("MMM d, yyyy • HH:mm", Locale.ENGLISH);
 
@@ -38,6 +39,10 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
     public void setOrders(List<OrderResponse> orders) {
         this.orders = orders;
         notifyDataSetChanged();
+    }
+
+    public void setOpenListener(java.util.function.Consumer<OrderResponse> openListener) {
+        this.openListener = openListener;
     }
 
     @NonNull
@@ -55,11 +60,14 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
         holder.tvOrderCode.setText("Order #" + shortId);
         holder.tvOrderStatus.setText(localizeStatus(order.getStatus()));
         holder.tvOrderDate.setText(formatDate(order.getCreatedAt()));
-        holder.tvOrderTotal.setText(PriceUtils.formatPriceVnd(order.getTotalPrice()));
+        holder.tvOrderTotal.setText(PriceUtils.formatPriceUsd(order.getTotalPrice()));
         boolean hasInvoice = order.getInvoiceUrl() != null && !order.getInvoiceUrl().trim().isEmpty();
         holder.btnDownloadPdf.setVisibility(hasInvoice ? View.VISIBLE : View.GONE);
         holder.btnDownloadPdf.setOnClickListener(v -> {
             if (listener != null) listener.onDownloadInvoice(order);
+        });
+        holder.itemView.setOnClickListener(v -> {
+            if (openListener != null) openListener.accept(order);
         });
     }
 
