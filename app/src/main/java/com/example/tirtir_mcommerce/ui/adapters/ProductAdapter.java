@@ -15,10 +15,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.widget.ViewPager2;
-
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -108,9 +104,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     class ProductViewHolder extends RecyclerView.ViewHolder {
 
         private final ImageView imgProduct;
-        private final ViewPager2 vpImages;
-        private final TabLayout tabDots;
-        private TabLayoutMediator mediator;
         private final TextView tvName;
         private final TextView tvPrice;
         private final TextView tvOriginalPrice;
@@ -125,8 +118,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         ProductViewHolder(@NonNull View itemView) {
             super(itemView);
             imgProduct        = itemView.findViewById(R.id.ivProductImage);
-            vpImages          = itemView.findViewById(R.id.vpProductImages);
-            tabDots           = itemView.findViewById(R.id.tabDots);
             tvName            = itemView.findViewById(R.id.tvProductName);
             tvPrice           = itemView.findViewById(R.id.tvProductPrice);
             tvOriginalPrice   = itemView.findViewById(R.id.tvOriginalPrice);
@@ -212,37 +203,16 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 btnAddToWishlist.setVisibility(soldOut ? View.VISIBLE : View.GONE);
             }
 
-            // Image carousel: build list of URLs
-            java.util.List<String> imageUrls = new java.util.ArrayList<>();
-            if (product.getGalleryImages() != null && !product.getGalleryImages().isEmpty()) {
-                for (String u : product.getGalleryImages()) {
-                    String resolved = resolveUrl(u);
-                    if (!resolved.isEmpty()) imageUrls.add(resolved);
-                }
-            }
-            if (imageUrls.isEmpty()) {
-                String thumb = resolveImageUrl(product);
-                if (!thumb.isEmpty()) imageUrls.add(thumb);
-            }
-
-            if (mediator != null) {
-                mediator.detach();
-                mediator = null;
-            }
-
-            if (vpImages != null) {
-                CardImagePagerAdapter pagerAdapter = new CardImagePagerAdapter(context, imageUrls, resolveFallbackDrawable(product));
-                vpImages.setAdapter(pagerAdapter);
-
-                if (tabDots != null) {
-                    if (imageUrls.size() > 1) {
-                        mediator = new TabLayoutMediator(tabDots, vpImages, (tab, pos) -> {});
-                        mediator.attach();
-                        tabDots.setVisibility(View.VISIBLE);
-                    } else {
-                        tabDots.setVisibility(View.GONE);
-                    }
-                }
+            // Single image — thumbnail or first gallery image
+            String imageUrl = resolveImageUrl(product);
+            if (imgProduct != null) {
+                Glide.with(context)
+                        .load(imageUrl.isEmpty() ? null : imageUrl)
+                        .placeholder(resolveFallbackDrawable(product))
+                        .error(resolveFallbackDrawable(product))
+                        .centerCrop()
+                        .transition(DrawableTransitionOptions.withCrossFade(150))
+                        .into(imgProduct);
             }
 
             // Wishlist toggle state
@@ -394,48 +364,4 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         }
     }
 
-    // ===========================
-    // CARD IMAGE CAROUSEL ADAPTER
-    // ===========================
-
-    static class CardImagePagerAdapter extends RecyclerView.Adapter<CardImagePagerAdapter.ImageVH> {
-        private final Context context;
-        private final java.util.List<String> urls;
-        private final int fallback;
-
-        CardImagePagerAdapter(Context context, java.util.List<String> urls, int fallback) {
-            this.context  = context;
-            this.urls     = urls;
-            this.fallback = fallback;
-        }
-
-        @NonNull @Override
-        public ImageVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            ImageView iv = new ImageView(context);
-            iv.setLayoutParams(new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT));
-            iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            return new ImageVH(iv);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ImageVH holder, int position) {
-            String url = urls.isEmpty() ? null : urls.get(position);
-            Glide.with(context)
-                    .load(url)
-                    .placeholder(fallback)
-                    .error(fallback)
-                    .centerCrop()
-                    .transition(DrawableTransitionOptions.withCrossFade(150))
-                    .into(holder.iv);
-        }
-
-        @Override public int getItemCount() { return Math.max(1, urls.size()); }
-
-        static class ImageVH extends RecyclerView.ViewHolder {
-            final ImageView iv;
-            ImageVH(ImageView iv) { super(iv); this.iv = iv; }
-        }
-    }
 }

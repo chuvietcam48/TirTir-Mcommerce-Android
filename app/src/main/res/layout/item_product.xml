@@ -25,34 +25,12 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintDimensionRatio="1:1">
 
-            <!-- Image fallback (shown while ViewPager2 loads) -->
+            <!-- Single product image -->
             <ImageView
                 android:id="@+id/ivProductImage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:visibility="gone" />
-
-            <!-- Carousel ViewPager2 -->
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/vpProductImages"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <!-- Dot indicators -->
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabDots"
-                android:layout_width="wrap_content"
-                android:layout_height="10dp"
-                android:layout_gravity="bottom|center_horizontal"
-                android:layout_marginBottom="8dp"
-                android:background="@android:color/transparent"
-                app:tabBackground="@drawable/tab_selector"
-                app:tabGravity="center"
-                app:tabIndicatorHeight="0dp"
-                app:tabPaddingStart="3dp"
-                app:tabPaddingEnd="3dp"
-                android:visibility="gone" />
+                android:scaleType="centerCrop" />
 
             <!-- Sale badge (top-left) -->
             <TextView
