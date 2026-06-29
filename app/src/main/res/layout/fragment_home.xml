@@ -5,6 +5,16 @@
     android:layout_height="match_parent"
     android:background="@color/tirtir_white">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/tirtir_white"
+        app:elevation="0dp">
+
+        <include layout="@layout/layout_app_header" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
@@ -17,9 +27,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingBottom="100dp">
-
-            <!-- =================== TOP BAR (shared header) =================== -->
-            <include layout="@layout/layout_app_header" />
 
             <!-- =================== SEARCH BAR =================== -->
             <LinearLayout
