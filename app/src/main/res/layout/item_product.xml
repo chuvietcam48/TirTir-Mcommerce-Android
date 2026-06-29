@@ -25,21 +25,33 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintDimensionRatio="1:1">
 
+            <!-- Image fallback (shown while ViewPager2 loads) -->
             <ImageView
                 android:id="@+id/ivProductImage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop" />
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/tvImageFallback"
+            <!-- Carousel ViewPager2 -->
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/vpProductImages"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="TIRTIR"
-                android:textColor="@color/tirtir_text_secondary"
-                android:textSize="14sp"
-                android:textStyle="bold"
+                android:layout_height="match_parent" />
+
+            <!-- Dot indicators -->
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabDots"
+                android:layout_width="wrap_content"
+                android:layout_height="10dp"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="8dp"
+                android:background="@android:color/transparent"
+                app:tabBackground="@drawable/tab_selector"
+                app:tabGravity="center"
+                app:tabIndicatorHeight="0dp"
+                app:tabPaddingStart="3dp"
+                app:tabPaddingEnd="3dp"
                 android:visibility="gone" />
 
             <!-- Sale badge (top-left) -->
@@ -158,7 +170,7 @@
 
                 </LinearLayout>
 
-                <!-- Quick add -->
+                <!-- Quick add (shown when in stock) -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnQuickAdd"
                     android:layout_width="34dp"
@@ -174,6 +186,26 @@
                     app:icon="@drawable/ic_plus"
                     app:iconTint="@color/tirtir_white"
                     android:contentDescription="Add to cart" />
+
+                <!-- Add to Wishlist (shown when sold out) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAddToWishlist"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:padding="0dp"
+                    app:iconSize="18dp"
+                    app:iconPadding="0dp"
+                    app:iconGravity="textStart"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    app:strokeColor="@color/tirtir_red_primary"
+                    app:strokeWidth="1.5dp"
+                    app:cornerRadius="17dp"
+                    app:icon="@drawable/ic_wishlist"
+                    app:iconTint="@color/tirtir_red_primary"
+                    android:contentDescription="Add to wishlist"
+                    android:visibility="gone" />
 
             </LinearLayout>
         </LinearLayout>

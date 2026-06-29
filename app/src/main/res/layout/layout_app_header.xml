@@ -23,7 +23,7 @@
         android:layout_height="36dp"
         android:layout_weight="1"
         android:layout_marginHorizontal="8dp"
-        android:src="@drawable/ic_tirtir_logo"
+        android:src="@drawable/ic_logo_black"
         android:scaleType="centerInside"
         android:contentDescription="TirTir" />
 

@@ -15,6 +15,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
+
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -104,29 +108,34 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     class ProductViewHolder extends RecyclerView.ViewHolder {
 
         private final ImageView imgProduct;
+        private final ViewPager2 vpImages;
+        private final TabLayout tabDots;
+        private TabLayoutMediator mediator;
         private final TextView tvName;
         private final TextView tvPrice;
         private final TextView tvOriginalPrice;
         private final TextView tvCategory;
         private final TextView tvOutOfStock;
         private final TextView tvDiscountBadge;
-        private final TextView tvImageFallback;
         private final ImageButton btnWishlistToggle;
         private final MaterialButton btnQuickAdd;
+        private final MaterialButton btnAddToWishlist;
         private final TextView tvRatingCount;
 
         ProductViewHolder(@NonNull View itemView) {
             super(itemView);
             imgProduct        = itemView.findViewById(R.id.ivProductImage);
+            vpImages          = itemView.findViewById(R.id.vpProductImages);
+            tabDots           = itemView.findViewById(R.id.tabDots);
             tvName            = itemView.findViewById(R.id.tvProductName);
             tvPrice           = itemView.findViewById(R.id.tvProductPrice);
             tvOriginalPrice   = itemView.findViewById(R.id.tvOriginalPrice);
             tvCategory        = itemView.findViewById(R.id.tvProductCategory);
             tvOutOfStock      = itemView.findViewById(R.id.tvOutOfStock);
             tvDiscountBadge   = itemView.findViewById(R.id.tvDiscountBadge);
-            tvImageFallback   = itemView.findViewById(R.id.tvImageFallback);
             btnWishlistToggle = itemView.findViewById(R.id.btnWishlistToggle);
             btnQuickAdd       = itemView.findViewById(R.id.btnQuickAdd);
+            btnAddToWishlist  = itemView.findViewById(R.id.btnAddToWishlist);
             tvRatingCount     = itemView.findViewById(R.id.tvRatingCount);
         }
 
@@ -191,42 +200,50 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 tvRatingCount.setVisibility(View.GONE);
             }
 
-            // Out-of-stock badge
+            // Out-of-stock badge + button swap
+            boolean soldOut = product.getStockQuantity() <= 0;
             if (tvOutOfStock != null) {
-                if (product.getStockQuantity() <= 0) {
-                    tvOutOfStock.setVisibility(View.VISIBLE);
-                    if (btnQuickAdd != null) btnQuickAdd.setEnabled(false);
-                } else {
-                    tvOutOfStock.setVisibility(View.GONE);
-                    if (btnQuickAdd != null) btnQuickAdd.setEnabled(true);
-                }
+                tvOutOfStock.setVisibility(soldOut ? View.VISIBLE : View.GONE);
+            }
+            if (btnQuickAdd != null) {
+                btnQuickAdd.setVisibility(soldOut ? View.GONE : View.VISIBLE);
+            }
+            if (btnAddToWishlist != null) {
+                btnAddToWishlist.setVisibility(soldOut ? View.VISIBLE : View.GONE);
             }
 
-            // Image: resolve URL
-            String imageUrl = resolveImageUrl(product);
-            int fallbackImage = resolveFallbackDrawable(product);
-            if (tvImageFallback != null) tvImageFallback.setVisibility(View.GONE);
-            Glide.with(context)
-                    .load(imageUrl.isEmpty() ? null : imageUrl)
-                    .placeholder(fallbackImage)
-                    .error(fallbackImage)
-                    .fallback(fallbackImage)
-                    .centerCrop()
-                    .listener(new RequestListener<Drawable>() {
-                        @Override
-                        public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                            if (tvImageFallback != null) tvImageFallback.setVisibility(View.VISIBLE);
-                            return false;
-                        }
+            // Image carousel: build list of URLs
+            java.util.List<String> imageUrls = new java.util.ArrayList<>();
+            if (product.getGalleryImages() != null && !product.getGalleryImages().isEmpty()) {
+                for (String u : product.getGalleryImages()) {
+                    String resolved = resolveUrl(u);
+                    if (!resolved.isEmpty()) imageUrls.add(resolved);
+                }
+            }
+            if (imageUrls.isEmpty()) {
+                String thumb = resolveImageUrl(product);
+                if (!thumb.isEmpty()) imageUrls.add(thumb);
+            }
 
-                        @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            if (tvImageFallback != null) tvImageFallback.setVisibility(View.GONE);
-                            return false;
-                        }
-                    })
-                    .transition(DrawableTransitionOptions.withCrossFade(200))
-                    .into(imgProduct);
+            if (mediator != null) {
+                mediator.detach();
+                mediator = null;
+            }
+
+            if (vpImages != null) {
+                CardImagePagerAdapter pagerAdapter = new CardImagePagerAdapter(context, imageUrls, resolveFallbackDrawable(product));
+                vpImages.setAdapter(pagerAdapter);
+
+                if (tabDots != null) {
+                    if (imageUrls.size() > 1) {
+                        mediator = new TabLayoutMediator(tabDots, vpImages, (tab, pos) -> {});
+                        mediator.attach();
+                        tabDots.setVisibility(View.VISIBLE);
+                    } else {
+                        tabDots.setVisibility(View.GONE);
+                    }
+                }
+            }
 
             // Wishlist toggle state
             if (btnWishlistToggle != null) {
@@ -257,6 +274,19 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                             Toast.makeText(context, "Added to wishlist", Toast.LENGTH_SHORT).show();
                         }
                     }
+                });
+            }
+
+            if (btnAddToWishlist != null && soldOut) {
+                String productId = product.getProductId() != null ? product.getProductId() : product.getId();
+                btnAddToWishlist.setOnClickListener(v -> {
+                    ContentValues values = new ContentValues();
+                    values.put(WishlistContentProvider.COL_PRODUCT_ID, productId);
+                    values.put(WishlistContentProvider.COL_PRODUCT_NAME, product.getName() != null ? product.getName() : "");
+                    values.put(WishlistContentProvider.COL_PRODUCT_IMAGE, product.getThumbnailImages() != null ? product.getThumbnailImages() : "");
+                    values.put(WishlistContentProvider.COL_PRODUCT_PRICE, displayPrice);
+                    Uri result = context.getContentResolver().insert(WishlistContentProvider.CONTENT_URI, values);
+                    Toast.makeText(context, result != null ? "Added to wishlist" : "Already in wishlist", Toast.LENGTH_SHORT).show();
                 });
             }
 
@@ -347,6 +377,10 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             return ApiConfig.resolveMediaUrl(path);
         }
 
+        private String resolveUrl(String path) {
+            return ApiConfig.resolveMediaUrl(path);
+        }
+
         private int resolveFallbackDrawable(Product product) {
             String name = product.getName() == null ? "" : product.getName().toLowerCase(java.util.Locale.ENGLISH);
             String category = product.getCategory() == null ? "" : product.getCategory().toLowerCase(java.util.Locale.ENGLISH);
@@ -357,6 +391,51 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 return R.drawable.tirtir_matcha_set;
             }
             return R.drawable.ic_product_placeholder;
+        }
+    }
+
+    // ===========================
+    // CARD IMAGE CAROUSEL ADAPTER
+    // ===========================
+
+    static class CardImagePagerAdapter extends RecyclerView.Adapter<CardImagePagerAdapter.ImageVH> {
+        private final Context context;
+        private final java.util.List<String> urls;
+        private final int fallback;
+
+        CardImagePagerAdapter(Context context, java.util.List<String> urls, int fallback) {
+            this.context  = context;
+            this.urls     = urls;
+            this.fallback = fallback;
+        }
+
+        @NonNull @Override
+        public ImageVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            ImageView iv = new ImageView(context);
+            iv.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
+            iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            return new ImageVH(iv);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ImageVH holder, int position) {
+            String url = urls.isEmpty() ? null : urls.get(position);
+            Glide.with(context)
+                    .load(url)
+                    .placeholder(fallback)
+                    .error(fallback)
+                    .centerCrop()
+                    .transition(DrawableTransitionOptions.withCrossFade(150))
+                    .into(holder.iv);
+        }
+
+        @Override public int getItemCount() { return Math.max(1, urls.size()); }
+
+        static class ImageVH extends RecyclerView.ViewHolder {
+            final ImageView iv;
+            ImageVH(ImageView iv) { super(iv); this.iv = iv; }
         }
     }
 }
