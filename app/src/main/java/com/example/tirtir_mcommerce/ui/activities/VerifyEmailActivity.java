@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.repository.AuthRepository;
@@ -35,7 +36,7 @@ public class VerifyEmailActivity extends AppCompatActivity {
             tvVerifySubtitle.setText("We've sent a 4-digit code to\n" + email);
         }
 
-        findViewById(R.id.toolbar).setOnClickListener(v -> finish());
+        ((Toolbar) findViewById(R.id.toolbar)).setNavigationOnClickListener(v -> finish());
 
         otp1 = findViewById(R.id.otp1);
         otp2 = findViewById(R.id.otp2);
