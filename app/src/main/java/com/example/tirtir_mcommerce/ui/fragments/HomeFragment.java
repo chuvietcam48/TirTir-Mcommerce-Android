@@ -33,6 +33,7 @@ import com.example.tirtir_mcommerce.ui.activities.NotificationCenterActivity;
 import com.example.tirtir_mcommerce.ui.activities.ProductDetailActivity;
 import com.example.tirtir_mcommerce.ui.activities.SkinAnalysisActivity;
 import com.example.tirtir_mcommerce.ui.adapters.ProductAdapter;
+import com.example.tirtir_mcommerce.ui.fragments.ShopFragment;
 import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
 
 import java.util.ArrayList;
@@ -201,10 +202,11 @@ public class HomeFragment extends Fragment {
             tvLabel.setText(label);
 
             final String categoryFilter = label;
-            categoryItem.setOnClickListener(v -> {
-                currentCategoryFilter = categoryFilter;
-                applyFilters();
-            });
+            categoryItem.setOnClickListener(v ->
+                requireActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentContainer, ShopFragment.newInstance(categoryFilter))
+                        .addToBackStack(null)
+                        .commit());
 
             containerCategories.addView(categoryItem);
         }
@@ -271,13 +273,6 @@ public class HomeFragment extends Fragment {
         View cardAI = view.findViewById(R.id.cardAISkinAnalysis);
         if (cardAI != null) cardAI.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), SkinAnalysisActivity.class)));
-
-        // Retain the upstream ingredient scanner shortcut without stealing focus from search.
-        View btnSearchScanHome = view.findViewById(R.id.btnSearchScanHome);
-        if (btnSearchScanHome != null) {
-            btnSearchScanHome.setOnClickListener(v ->
-                    startActivity(new Intent(requireContext(), IngredientScanActivity.class)));
-        }
 
         if (etHomeSearch != null) {
             etHomeSearch.addTextChangedListener(new TextWatcher() {

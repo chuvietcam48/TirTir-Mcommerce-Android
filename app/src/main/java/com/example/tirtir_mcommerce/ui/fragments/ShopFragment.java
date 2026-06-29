@@ -44,6 +44,16 @@ import java.util.Set;
  */
 public class ShopFragment extends Fragment {
 
+    private static final String ARG_CATEGORY = "initial_category";
+
+    public static ShopFragment newInstance(String category) {
+        ShopFragment f = new ShopFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_CATEGORY, category);
+        f.setArguments(args);
+        return f;
+    }
+
     private ProductViewModel productViewModel;
     private CartViewModel cartViewModel;
 
@@ -80,6 +90,11 @@ public class ShopFragment extends Fragment {
 
         productViewModel = new ViewModelProvider(this).get(ProductViewModel.class);
         cartViewModel    = new ViewModelProvider(requireActivity()).get(CartViewModel.class);
+
+        Bundle args = getArguments();
+        if (args != null && args.getString(ARG_CATEGORY) != null) {
+            currentCategory = args.getString(ARG_CATEGORY);
+        }
 
         // Bind views
         recyclerView      = view.findViewById(R.id.recyclerViewProducts);

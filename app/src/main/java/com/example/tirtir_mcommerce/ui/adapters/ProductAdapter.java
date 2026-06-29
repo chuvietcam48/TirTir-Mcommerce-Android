@@ -166,9 +166,10 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 if (layoutResId == R.layout.item_product_bestseller) {
                     tvDiscountBadge.setVisibility(View.VISIBLE);
                     if (salePrice > 0 && salePrice < basePrice) {
-                        tvDiscountBadge.setText("SALE");
-                        tvDiscountBadge.setBackgroundResource(R.drawable.ic_tirtir_brand_circle); // Reusing as dark background, or we could set a dark color
-                        tvDiscountBadge.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF333333)); // Dark gray
+                        int pct = (int) Math.round((1 - (salePrice / basePrice)) * 100);
+                        tvDiscountBadge.setText("-" + pct + "%");
+                        tvDiscountBadge.setBackgroundResource(R.drawable.bg_tag_primary);
+                        tvDiscountBadge.setBackgroundTintList(null);
                     } else {
                         tvDiscountBadge.setText("Bestseller");
                         tvDiscountBadge.setBackgroundResource(R.drawable.bg_badge_bestseller);
@@ -210,7 +211,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                     .placeholder(fallbackImage)
                     .error(fallbackImage)
                     .fallback(fallbackImage)
-                    .fitCenter()
+                    .centerCrop()
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {

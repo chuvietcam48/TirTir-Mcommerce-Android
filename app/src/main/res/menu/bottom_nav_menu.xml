@@ -9,10 +9,6 @@
         android:icon="@drawable/ic_routine"
         android:title="@string/nav_routine" />
     <item
-        android:id="@+id/nav_scan"
-        android:icon="@drawable/ic_scan"
-        android:title="@string/nav_scan" />
-    <item
         android:id="@+id/nav_ai"
         android:icon="@drawable/ic_chat"
         android:title="@string/nav_chat" />
