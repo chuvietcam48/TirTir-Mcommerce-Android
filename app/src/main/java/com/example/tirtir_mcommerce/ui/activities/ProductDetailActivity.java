@@ -142,9 +142,10 @@ public class ProductDetailActivity extends AppCompatActivity {
         selectedProductId = productId;
         selectedShade = firstNonEmpty(productVolume, "Standard");
         stockQuantity   = getIntent().getIntExtra("PRODUCT_STOCK", 100);
-        String skinTypes    = getIntent().getStringExtra("PRODUCT_SKIN_TYPES");
-        productIngredients  = getIntent().getStringExtra("PRODUCT_INGREDIENTS");
-        String description  = getIntent().getStringExtra("PRODUCT_DESCRIPTION");
+        String skinTypes        = getIntent().getStringExtra("PRODUCT_SKIN_TYPES");
+        String isSkincareIntent = getIntent().getStringExtra("PRODUCT_IS_SKINCARE");
+        productIngredients      = getIntent().getStringExtra("PRODUCT_INGREDIENTS");
+        String description      = getIntent().getStringExtra("PRODUCT_DESCRIPTION");
 
         // Normalize price: use PriceUtils (safe: < 1000 => USD-style => x25000, >= 1000 => already VND)
         double salePrice = getIntent().getDoubleExtra("PRODUCT_SALE_PRICE", 0.0);
@@ -157,7 +158,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         tvProductPrice.setText(PriceUtils.formatPriceUsd(displayPriceVnd));
         bindSalePriceDetail(productPrice, salePrice);
         tvSuitableSkinTypes.setText(skinTypes != null && !skinTypes.isEmpty() ? skinTypes : "Suitable for all skin types");
-        applyConditionalSections(productCategory, null);
+        applyConditionalSections(productCategory, isSkincareIntent);
         populateSkinTypeChips(skinTypes);
         tvIngredientList.setText(productIngredients != null && !productIngredients.isEmpty()
                 ? productIngredients
@@ -458,7 +459,8 @@ public class ProductDetailActivity extends AppCompatActivity {
                             availableShades.addAll(response.body());
                         }
                         View row = findViewById(R.id.layoutShadeSelection);
-                        if (row != null) row.setVisibility(availableShades.isEmpty() ? View.GONE : View.VISIBLE);
+                        boolean showShade = !availableShades.isEmpty() && isShadeProduct();
+                        if (row != null) row.setVisibility(showShade ? View.VISIBLE : View.GONE);
                         View choose = findViewById(R.id.btnChooseShade);
                         if (choose != null) choose.setOnClickListener(v -> showProductOptions(false));
                     }
@@ -594,7 +596,9 @@ public class ProductDetailActivity extends AppCompatActivity {
     private boolean isShadeProduct() {
         String value = ((productName == null ? "" : productName) + " "
                 + (productCategory == null ? "" : productCategory)).toLowerCase(java.util.Locale.ENGLISH);
-        return value.contains("cushion") || value.contains("foundation") || value.contains("base");
+        return value.contains("cushion") || value.contains("foundation") || value.contains("concealer")
+                || value.contains("tint") || value.contains("lip") || value.contains("blush")
+                || value.contains("contour") || value.contains("base");
     }
 
     private boolean isMakeupCategory(String category) {

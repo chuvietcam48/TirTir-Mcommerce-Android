@@ -109,8 +109,26 @@ public class ShopFragment extends Fragment {
         // RecyclerView — tap card → Product Detail
         adapter = new ProductAdapter(getContext(), new ArrayList<>(), product -> {
             Intent intent = new Intent(requireContext(), ProductDetailActivity.class);
-            String productId = product.getProductId() != null ? product.getProductId() : product.getId();
-            intent.putExtra("product_id", productId);
+            String pid = product.getProductId() != null ? product.getProductId() : product.getId();
+            intent.putExtra("PRODUCT_ID",               pid);
+            intent.putExtra("PRODUCT_NAME",             product.getName());
+            intent.putExtra("PRODUCT_PRICE",            product.getPrice());
+            intent.putExtra("PRODUCT_SALE_PRICE",       product.getSalePrice());
+            intent.putExtra("PRODUCT_CATEGORY",         product.getCategory());
+            intent.putExtra("PRODUCT_IMAGE",            product.getThumbnailImages());
+            intent.putExtra("PRODUCT_SKIN_TYPES",       product.getSkinTypeTarget());
+            intent.putExtra("PRODUCT_INGREDIENTS",      product.getKeyIngredients());
+            intent.putExtra("PRODUCT_DESCRIPTION",      product.getDescriptionShort());
+            intent.putExtra("PRODUCT_FULL_DESCRIPTION", product.getFullDescription());
+            intent.putExtra("PRODUCT_HOW_TO_USE",       product.getHowToUse());
+            intent.putExtra("PRODUCT_VOLUME",           product.getVolumeSize());
+            intent.putExtra("PRODUCT_PARENT_ID",        product.getParentId());
+            intent.putExtra("PRODUCT_IS_SKINCARE",      product.getIsSkincare());
+            intent.putExtra("PRODUCT_STOCK",            product.getStockQuantity());
+            if (product.getGalleryImages() != null && !product.getGalleryImages().isEmpty()) {
+                intent.putStringArrayListExtra("PRODUCT_GALLERY",
+                        new java.util.ArrayList<>(product.getGalleryImages()));
+            }
             startActivity(intent);
         });
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
