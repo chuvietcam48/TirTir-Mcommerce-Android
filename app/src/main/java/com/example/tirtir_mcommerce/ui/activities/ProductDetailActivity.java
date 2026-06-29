@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.example.tirtir_mcommerce.R;
@@ -56,7 +55,6 @@ import retrofit2.Response;
  */
 public class ProductDetailActivity extends AppCompatActivity {
 
-    private Toolbar toolbarProductDetail;
     private TextView tvProductCategory;
     private TextView tvProductName;
     private TextView tvProductPrice;
@@ -70,8 +68,8 @@ public class ProductDetailActivity extends AppCompatActivity {
     private TextView tvProductDescription;
     private MaterialButton btnWishlist;
     private MaterialButton btnARTryOn;
-    private MaterialButton btnChatAdvisor;
     private Button btnAddToCart;
+    private com.google.android.material.chip.ChipGroup chipGroupSkinTypes;
     private MaterialButton btnBuyNow;
     private android.widget.LinearLayout layoutDescriptionImages;
 
@@ -100,7 +98,10 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         databaseHelper = DatabaseHelper.getInstance(this);
 
-        toolbarProductDetail = findViewById(R.id.toolbarProductDetail);
+        // Wire back button in the header
+        View btnDetailBack = findViewById(R.id.btnDetailBack);
+        if (btnDetailBack != null) btnDetailBack.setOnClickListener(v -> onBackPressed());
+
         // Phase 1 requirement: use ViewPager2 for gallery
         androidx.viewpager2.widget.ViewPager2 viewPager = findViewById(R.id.viewPagerProductImages);
         com.google.android.material.tabs.TabLayout tabIndicator = findViewById(R.id.tabIndicatorImages);
@@ -114,11 +115,11 @@ public class ProductDetailActivity extends AppCompatActivity {
         layoutRatingRow        = findViewById(R.id.layoutRatingRow);
         layoutFeatureBadges    = findViewById(R.id.layoutFeatureBadges);
         tvSuitableSkinTypes    = findViewById(R.id.tvSuitableSkinTypes);
+        chipGroupSkinTypes     = findViewById(R.id.chipGroupSkinTypes);
         tvIngredientList = findViewById(R.id.tvIngredientList);
         tvProductDescription = findViewById(R.id.tvProductDescription);
         btnWishlist = findViewById(R.id.btnWishlist);
         btnARTryOn = findViewById(R.id.btnARTryOn);
-        btnChatAdvisor = findViewById(R.id.btnChatAdvisor);
         btnAddToCart = findViewById(R.id.btnAddToCart);
         btnBuyNow = findViewById(R.id.btnBuyNow);
         layoutDescriptionImages = findViewById(R.id.layoutDescriptionImages);
@@ -127,12 +128,6 @@ public class ProductDetailActivity extends AppCompatActivity {
         tvTotalPrice = findViewById(R.id.tvTotalPrice);
         btnDecreaseQty = findViewById(R.id.btnDecreaseQty);
         btnIncreaseQty = findViewById(R.id.btnIncreaseQty);
-
-        setSupportActionBar(toolbarProductDetail);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("");
-        }
 
         // Read from intent
         productId       = getIntent().getStringExtra("PRODUCT_ID");
@@ -162,6 +157,8 @@ public class ProductDetailActivity extends AppCompatActivity {
         tvProductPrice.setText(PriceUtils.formatPriceUsd(displayPriceVnd));
         bindSalePriceDetail(productPrice, salePrice);
         tvSuitableSkinTypes.setText(skinTypes != null && !skinTypes.isEmpty() ? skinTypes : "Suitable for all skin types");
+        applyConditionalSections(productCategory, null);
+        populateSkinTypeChips(skinTypes);
         tvIngredientList.setText(productIngredients != null && !productIngredients.isEmpty()
                 ? productIngredients
                 : "Ingredient list is not available yet.");
@@ -253,14 +250,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             });
         }
 
-        if (btnChatAdvisor != null) {
-            btnChatAdvisor.setOnClickListener(v -> {
-                Intent intent = new Intent(this, ChatActivity.class);
-                intent.putExtra("PRODUCT_ID", productId);
-                intent.putExtra("PRODUCT_NAME", productName);
-                startActivity(intent);
-            });
-        }
+        // Ask AI access → CHAT tab in bottom navigation
     }
 
     private boolean addCurrentProductToCart() {
@@ -354,6 +344,8 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         bindSalePriceDetail(productPrice, product.getSalePrice());
         bindRatingAndBadges(product);
+        applyConditionalSections(product.getCategory(), product.getIsSkincare());
+        populateSkinTypeChips(product.getSkinTypeTarget());
 
         galleryImages = product.getGalleryImages() != null
                 ? new java.util.ArrayList<>(product.getGalleryImages())
@@ -605,6 +597,57 @@ public class ProductDetailActivity extends AppCompatActivity {
         return value.contains("cushion") || value.contains("foundation") || value.contains("base");
     }
 
+    private boolean isMakeupCategory(String category) {
+        if (category == null) return false;
+        String lower = category.toLowerCase(java.util.Locale.ENGLISH);
+        return lower.contains("makeup") || lower.contains("foundation")
+                || lower.contains("cushion") || lower.contains("blush")
+                || lower.contains("lip") || lower.contains("mascara")
+                || lower.contains("eyeliner") || lower.contains("concealer")
+                || lower.contains("eyeshadow") || lower.contains("contour");
+    }
+
+    private void applyConditionalSections(String category, String isSkincare) {
+        boolean showSkinTypes;
+        if ("FALSE".equalsIgnoreCase(isSkincare)) {
+            showSkinTypes = false;
+        } else if ("TRUE".equalsIgnoreCase(isSkincare)) {
+            showSkinTypes = true;
+        } else {
+            showSkinTypes = !isMakeupCategory(category);
+        }
+        View skinSection = findViewById(R.id.layoutSkinTypesSection);
+        if (skinSection != null) {
+            skinSection.setVisibility(showSkinTypes ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private void populateSkinTypeChips(String skinTypeTarget) {
+        if (chipGroupSkinTypes == null) return;
+        chipGroupSkinTypes.removeAllViews();
+        String[] types;
+        if (skinTypeTarget != null && !skinTypeTarget.trim().isEmpty()) {
+            types = skinTypeTarget.split("[,;]+");
+        } else {
+            types = new String[]{"All skin types"};
+        }
+        float density = getResources().getDisplayMetrics().density;
+        for (String type : types) {
+            String label = type.trim();
+            if (label.isEmpty()) continue;
+            com.google.android.material.chip.Chip chip = new com.google.android.material.chip.Chip(this);
+            chip.setText(label);
+            chip.setCheckable(false);
+            chip.setClickable(false);
+            chip.setChipBackgroundColorResource(R.color.tirtir_off_white);
+            chip.setTextColor(getColor(R.color.tirtir_text_secondary));
+            chip.setChipStrokeColorResource(R.color.tirtir_rose_outline);
+            chip.setChipStrokeWidth(1.5f * density);
+            chip.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12f);
+            chipGroupSkinTypes.addView(chip);
+        }
+    }
+
     private int resolveProductFallback() {
         String value = ((productName == null ? "" : productName) + " "
                 + (productCategory == null ? "" : productCategory)).toLowerCase(java.util.Locale.ENGLISH);
@@ -649,7 +692,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         ImageGalleryAdapter adapter = new ImageGalleryAdapter(this, imagesToDisplay);
         viewPager.setAdapter(adapter);
 
-        if (imagesToDisplay.size() > 1 && tabIndicator != null) {
+        if (tabIndicator != null && imagesToDisplay.size() > 1) {
             tabIndicator.setVisibility(android.view.View.VISIBLE);
             new com.google.android.material.tabs.TabLayoutMediator(tabIndicator, viewPager,
                     (tab, position) -> {}
