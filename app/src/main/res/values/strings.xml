@@ -86,12 +86,13 @@
     <string name="back">Back</string>
 
     <!-- ===== BOTTOM NAV ===== -->
-    <string name="nav_home">Home</string>
-    <string name="nav_scan">Scan</string>
+    <string name="nav_home">HOME</string>
+    <string name="nav_scan">SCAN</string>
+    <string name="nav_chat">CHAT</string>
     <string name="nav_shop">Shop</string>
     <string name="nav_ai">Advisor</string>
-    <string name="nav_routine">Routine</string>
-    <string name="nav_profile">Account</string>
+    <string name="nav_routine">ROUTINE</string>
+    <string name="nav_profile">PROFILE</string>
     <string name="nav_cart">Cart</string>
     <string name="nav_wishlist">Wishlist</string>
 

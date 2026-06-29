@@ -61,6 +61,8 @@ public class RoutineFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        com.example.tirtir_mcommerce.utils.HeaderHelper.bind(
+                view, requireContext(), requireActivity().getSupportFragmentManager());
         ViewPager2 pager = view.findViewById(R.id.viewPagerRoutine);
         TabLayout tabs = view.findViewById(R.id.tabRoutine);
         pager.setAdapter(new RoutinePagerAdapter(this));

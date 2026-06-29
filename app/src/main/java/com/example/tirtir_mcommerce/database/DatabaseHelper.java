@@ -24,7 +24,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "tirtir_cache.db";
     // v4: thêm bảng cart_items cho Offline Cart
     // v5: thêm bảng skin_profiles cho Offline Skin Analysis (Phase 3)
-    private static final int DATABASE_VERSION = 5;
+    // v6: extend products table with rating, review_count, is_vegan_formula, is_dermatologist_tested
+    private static final int DATABASE_VERSION = 6;
 
     private static final Gson GSON = new Gson();
 
@@ -40,6 +41,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_SKIN_TYPE = "skin_type_target";
     private static final String COLUMN_MAIN_CONCERN = "main_concern";
     private static final String COLUMN_IS_SKINCARE = "is_skincare";
+    private static final String COLUMN_RATING = "rating";
+    private static final String COLUMN_REVIEW_COUNT = "review_count";
+    private static final String COLUMN_IS_VEGAN = "is_vegan_formula";
+    private static final String COLUMN_IS_DERMA = "is_dermatologist_tested";
 
     // === cart_items table ===
     public static final String TABLE_CART = "cart_items";
@@ -97,7 +102,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             COLUMN_CATEGORY + " TEXT, " +
             COLUMN_SKIN_TYPE + " TEXT, " +
             COLUMN_MAIN_CONCERN + " TEXT, " +
-            COLUMN_IS_SKINCARE + " TEXT)"
+            COLUMN_IS_SKINCARE + " TEXT, " +
+            COLUMN_RATING + " REAL DEFAULT 0, " +
+            COLUMN_REVIEW_COUNT + " INTEGER DEFAULT 0, " +
+            COLUMN_IS_VEGAN + " INTEGER DEFAULT 0, " +
+            COLUMN_IS_DERMA + " INTEGER DEFAULT 0)"
         );
 
         createIngredientConflictsTable(db);
@@ -176,6 +185,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             // Phase 3 Sprint 3.1: Thêm bảng skin_profiles cho offline skin analysis
             createSkinProfilesTable(db);
         }
+        if (oldVersion < 6) {
+            // v6: add product rating/badge columns for offline cache
+            try { db.execSQL("ALTER TABLE " + TABLE_PRODUCT + " ADD COLUMN " + COLUMN_RATING + " REAL DEFAULT 0"); } catch (Exception ignored) {}
+            try { db.execSQL("ALTER TABLE " + TABLE_PRODUCT + " ADD COLUMN " + COLUMN_REVIEW_COUNT + " INTEGER DEFAULT 0"); } catch (Exception ignored) {}
+            try { db.execSQL("ALTER TABLE " + TABLE_PRODUCT + " ADD COLUMN " + COLUMN_IS_VEGAN + " INTEGER DEFAULT 0"); } catch (Exception ignored) {}
+            try { db.execSQL("ALTER TABLE " + TABLE_PRODUCT + " ADD COLUMN " + COLUMN_IS_DERMA + " INTEGER DEFAULT 0"); } catch (Exception ignored) {}
+        }
     }
 
     // ===========================
@@ -198,6 +214,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(COLUMN_SKIN_TYPE, p.getSkinTypeTarget());
             values.put(COLUMN_MAIN_CONCERN, p.getMainConcern());
             values.put(COLUMN_IS_SKINCARE, p.getIsSkincare());
+            values.put(COLUMN_RATING, p.getRating());
+            values.put(COLUMN_REVIEW_COUNT, p.getReviewCount());
+            values.put(COLUMN_IS_VEGAN, p.isVeganFormula() ? 1 : 0);
+            values.put(COLUMN_IS_DERMA, p.isDermatologistTested() ? 1 : 0);
             db.insert(TABLE_PRODUCT, null, values);
         }
     }
@@ -220,6 +240,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 product.setSkinTypeTarget(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SKIN_TYPE)));
                 product.setMainConcern(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MAIN_CONCERN)));
                 product.setIsSkincare(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_IS_SKINCARE)));
+                int ratingIdx = cursor.getColumnIndex(COLUMN_RATING);
+                if (ratingIdx >= 0) product.setRating(cursor.getDouble(ratingIdx));
+                int reviewIdx = cursor.getColumnIndex(COLUMN_REVIEW_COUNT);
+                if (reviewIdx >= 0) product.setReviewCount(cursor.getInt(reviewIdx));
+                int veganIdx = cursor.getColumnIndex(COLUMN_IS_VEGAN);
+                if (veganIdx >= 0) product.setVeganFormula(cursor.getInt(veganIdx) == 1);
+                int dermaIdx = cursor.getColumnIndex(COLUMN_IS_DERMA);
+                if (dermaIdx >= 0) product.setDermatologistTested(cursor.getInt(dermaIdx) == 1);
                 productList.add(product);
             } while (cursor.moveToNext());
         }

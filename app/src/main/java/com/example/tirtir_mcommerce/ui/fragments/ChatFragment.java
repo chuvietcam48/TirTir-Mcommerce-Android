@@ -73,6 +73,8 @@ public class ChatFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        com.example.tirtir_mcommerce.utils.HeaderHelper.bind(
+                view, requireContext(), requireActivity().getSupportFragmentManager());
         rvChatMessages = view.findViewById(R.id.rvChatMessages);
         layoutChatEmpty = view.findViewById(R.id.layoutChatEmpty);
         layoutTyping = view.findViewById(R.id.layoutTyping);
@@ -98,8 +100,7 @@ public class ChatFragment extends Fragment {
             return false;
         });
 
-        view.findViewById(R.id.btnOpenSkinAnalysis).setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), SkinAnalysisActivity.class)));
+        // Skin scan access is now via the SCAN tab in bottom navigation
         bindPrompt(view, R.id.chipPromptSensitive);
         bindPrompt(view, R.id.chipPromptRoutine);
         bindPrompt(view, R.id.chipPromptIngredient);

@@ -166,6 +166,8 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        com.example.tirtir_mcommerce.utils.HeaderHelper.bind(
+                view, requireContext(), requireActivity().getSupportFragmentManager());
 
         profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
