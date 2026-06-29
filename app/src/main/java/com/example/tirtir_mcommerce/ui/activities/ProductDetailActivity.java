@@ -63,6 +63,8 @@ public class ProductDetailActivity extends AppCompatActivity {
     private TextView tvProductOriginalPrice;
     private TextView tvProductDiscountBadge;
     private TextView tvProductRating;
+    private LinearLayout layoutRatingRow;
+    private LinearLayout layoutFeatureBadges;
     private TextView tvSuitableSkinTypes;
     private TextView tvIngredientList;
     private TextView tvProductDescription;
@@ -109,6 +111,8 @@ public class ProductDetailActivity extends AppCompatActivity {
         tvProductOriginalPrice = findViewById(R.id.tvProductOriginalPrice);
         tvProductDiscountBadge = findViewById(R.id.tvProductDiscountBadge);
         tvProductRating        = findViewById(R.id.tvProductRating);
+        layoutRatingRow        = findViewById(R.id.layoutRatingRow);
+        layoutFeatureBadges    = findViewById(R.id.layoutFeatureBadges);
         tvSuitableSkinTypes    = findViewById(R.id.tvSuitableSkinTypes);
         tvIngredientList = findViewById(R.id.tvIngredientList);
         tvProductDescription = findViewById(R.id.tvProductDescription);
@@ -157,7 +161,6 @@ public class ProductDetailActivity extends AppCompatActivity {
         if (productCategory != null) tvProductCategory.setText(productCategory);
         tvProductPrice.setText(PriceUtils.formatPriceUsd(displayPriceVnd));
         bindSalePriceDetail(productPrice, salePrice);
-        if (tvProductRating != null) tvProductRating.setText("4.9 (124)");
         tvSuitableSkinTypes.setText(skinTypes != null && !skinTypes.isEmpty() ? skinTypes : "Suitable for all skin types");
         tvIngredientList.setText(productIngredients != null && !productIngredients.isEmpty()
                 ? productIngredients
@@ -349,12 +352,46 @@ public class ProductDetailActivity extends AppCompatActivity {
             }
         }
 
+        bindSalePriceDetail(productPrice, product.getSalePrice());
+        bindRatingAndBadges(product);
+
         galleryImages = product.getGalleryImages() != null
                 ? new java.util.ArrayList<>(product.getGalleryImages())
                 : null;
         loadProductImage(viewPager, tabIndicator);
         updateTotalPrice();
         fetchShades();
+    }
+
+    private void bindRatingAndBadges(Product product) {
+        if (layoutRatingRow != null) {
+            double rating = product.getRating();
+            if (rating > 0) {
+                if (tvProductRating != null) {
+                    int count = product.getReviewCount();
+                    String ratingText = String.format(java.util.Locale.ENGLISH, "%.1f", rating)
+                            + (count > 0 ? " (" + count + ")" : "");
+                    tvProductRating.setText(ratingText);
+                }
+                layoutRatingRow.setVisibility(View.VISIBLE);
+            } else {
+                layoutRatingRow.setVisibility(View.GONE);
+            }
+        }
+
+        if (layoutFeatureBadges != null) {
+            boolean vegan = product.isVeganFormula();
+            boolean derma = product.isDermatologistTested();
+            if (vegan || derma) {
+                layoutFeatureBadges.setVisibility(View.VISIBLE);
+                View cardVegan = findViewById(R.id.cardVeganFormula);
+                View cardDerma = findViewById(R.id.cardDermatologistTested);
+                if (cardVegan != null) cardVegan.setVisibility(vegan ? View.VISIBLE : View.GONE);
+                if (cardDerma != null) cardDerma.setVisibility(derma ? View.VISIBLE : View.GONE);
+            } else {
+                layoutFeatureBadges.setVisibility(View.GONE);
+            }
+        }
     }
 
     private void bindSalePriceDetail(double basePrice, double salePrice) {

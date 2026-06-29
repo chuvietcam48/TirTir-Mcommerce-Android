@@ -165,18 +165,18 @@ public class HomeFragment extends Fragment {
         if (user != null) {
             String fullName = user.getName() != null && !user.getName().isEmpty() ? user.getName() : user.getEmail();
             if (fullName != null && !fullName.isEmpty()) {
-                // Extract first name only
                 String firstName = fullName.split(" ")[0];
-                // Remove email part if no display name
                 if (firstName.contains("@")) firstName = firstName.split("@")[0];
-                tvGreeting.setText(firstName); // Show first name instead of full name for better UX
+                tvGreeting.setText(firstName);
+            } else {
+                tvGreeting.setText("Guest");
             }
         } else {
-            tvGreeting.setText("User"); // Fallback if somehow user is null
+            tvGreeting.setText("Guest");
         }
-        
+
         if (tvGreetingSub != null) {
-            tvGreetingSub.setText("GOOD MORNING");
+            tvGreetingSub.setText("Hello,");
         }
     }
 

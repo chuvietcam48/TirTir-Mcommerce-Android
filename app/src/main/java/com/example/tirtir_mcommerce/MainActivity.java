@@ -54,8 +54,10 @@ public class MainActivity extends AppCompatActivity {
                 selectedFragment = new RoutineFragment();
             } else if (itemId == R.id.nav_profile) {
                 selectedFragment = new ProfileFragment();
-            } else if (itemId == R.id.nav_placeholder) {
-                return false; // Ignore clicks on the placeholder
+            } else if (itemId == R.id.nav_scan) {
+                startActivity(new android.content.Intent(MainActivity.this,
+                        com.example.tirtir_mcommerce.ui.activities.SkinAnalysisActivity.class));
+                return false;
             }
 
             if (selectedFragment != null) {

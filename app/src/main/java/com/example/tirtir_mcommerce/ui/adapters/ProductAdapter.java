@@ -187,8 +187,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
             // Rating
             if (tvRatingCount != null) {
-                // Hardcoding mock rating count for now as per design
-                tvRatingCount.setText("(1.2k)");
+                tvRatingCount.setVisibility(View.GONE);
             }
 
             // Out-of-stock badge

@@ -87,6 +87,18 @@ public class Product {
     @SerializedName("Brand")
     private String brand;
 
+    @SerializedName("rating")
+    private double rating;
+
+    @SerializedName("reviewCount")
+    private int reviewCount;
+
+    @SerializedName("Is_Vegan_Formula")
+    private boolean isVeganFormula;
+
+    @SerializedName("Is_Dermatologist_Tested")
+    private boolean isDermatologistTested;
+
     public Product() {
     }
 
@@ -171,4 +183,16 @@ public class Product {
 
     public String getBrand() { return brand; }
     public void setBrand(String brand) { this.brand = brand; }
+
+    public double getRating() { return rating; }
+    public void setRating(double rating) { this.rating = rating; }
+
+    public int getReviewCount() { return reviewCount; }
+    public void setReviewCount(int reviewCount) { this.reviewCount = reviewCount; }
+
+    public boolean isVeganFormula() { return isVeganFormula; }
+    public void setVeganFormula(boolean veganFormula) { isVeganFormula = veganFormula; }
+
+    public boolean isDermatologistTested() { return isDermatologistTested; }
+    public void setDermatologistTested(boolean dermatologistTested) { isDermatologistTested = dermatologistTested; }
 }

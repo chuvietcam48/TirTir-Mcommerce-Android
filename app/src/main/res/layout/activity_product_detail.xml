@@ -131,7 +131,7 @@
                     android:lineSpacingMultiplier="1.1"
                     android:textStyle="normal" />
 
-                <!-- Rating row (stars + count) -->
+                <!-- Rating row (stars + count) — hidden until API returns rating > 0 -->
                 <LinearLayout
                     android:id="@+id/layoutRatingRow"
                     android:layout_width="wrap_content"
@@ -139,7 +139,8 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:layout_marginTop="6dp"
-                    android:layout_marginBottom="4dp">
+                    android:layout_marginBottom="4dp"
+                    android:visibility="gone">
 
                     <ImageView
                         android:layout_width="14dp"
@@ -172,7 +173,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
-                        android:text="4.9 (124)"
                         android:textColor="@color/tirtir_text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -217,16 +217,18 @@
                         android:visibility="gone" />
                 </LinearLayout>
 
-                <!-- Feature badges (Vegan Formula / Dermatology Tested) -->
+                <!-- Feature badges (Vegan Formula / Dermatology Tested) — hidden until API confirms flags -->
                 <LinearLayout
                     android:id="@+id/layoutFeatureBadges"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_marginTop="16dp"
-                    android:layout_marginBottom="4dp">
+                    android:layout_marginBottom="4dp"
+                    android:visibility="gone">
 
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardVeganFormula"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -269,6 +271,7 @@
                     </com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardDermatologistTested"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"

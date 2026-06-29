@@ -29,6 +29,17 @@
                 android:gravity="center_vertical"
                 android:baselineAligned="false">
 
+                <!-- Hamburger menu -->
+                <ImageButton
+                    android:id="@+id/btnHamburger"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_menu_hamburger"
+                    android:layout_marginEnd="8dp"
+                    app:tint="@color/tirtir_black"
+                    android:contentDescription="Menu" />
+
                 <!-- Greeting Texts -->
                 <LinearLayout
                     android:layout_width="0dp"
@@ -40,7 +51,7 @@
                         android:id="@+id/tvGreetingSub"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="GOOD MORNING"
+                        android:text="Hello,"
                         android:textColor="@color/tirtir_text_secondary"
                         android:textSize="11sp"
                         android:letterSpacing="0.08" />
@@ -49,7 +60,7 @@
                         android:id="@+id/tvGreeting"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Blair Chen"
+                        android:text="Guest"
                         android:textColor="@color/tirtir_black"
                         android:textSize="22sp"
                         android:textStyle="bold"
