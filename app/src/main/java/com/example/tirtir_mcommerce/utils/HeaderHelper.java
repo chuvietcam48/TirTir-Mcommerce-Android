@@ -9,13 +9,22 @@ import androidx.fragment.app.FragmentManager;
 
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.User;
+import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
 import com.example.tirtir_mcommerce.ui.activities.NotificationCenterActivity;
 import com.example.tirtir_mcommerce.ui.fragments.CartFragment;
 
 public class HeaderHelper {
 
     public static void bind(View root, Context context, FragmentManager fragmentManager) {
-        // tvGreeting removed from header (logo shown instead)
+        TextView tvGreeting = root.findViewById(R.id.tvGreeting);
+        if (tvGreeting != null) {
+            SharedPrefsManager prefs = new SharedPrefsManager(context);
+            User user = prefs.getCachedUser();
+            String name = (user != null && user.getName() != null && !user.getName().isEmpty())
+                    ? user.getName().split(" ")[0]
+                    : "Guest";
+            tvGreeting.setText("Hello, " + name);
+        }
 
         View btnNotifications = root.findViewById(R.id.btnNotifications);
         if (btnNotifications != null) {
