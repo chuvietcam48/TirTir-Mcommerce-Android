@@ -32,7 +32,6 @@ import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.example.tirtir_mcommerce.ui.activities.CheckoutActivity;
 import com.example.tirtir_mcommerce.ui.adapters.CartAdapter;
 import com.example.tirtir_mcommerce.repository.CartRepository;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -302,14 +301,9 @@ public class CartFragment extends Fragment implements CartAdapter.CartListener {
     }
 
     private void navigateHome() {
-        BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottomNavigationView);
-        if (bottomNav != null) {
-            bottomNav.setSelectedItemId(R.id.nav_home);
-        } else {
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragmentContainer, new HomeFragment())
-                    .commit();
-        }
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, new HomeFragment())
+                .commit();
     }
 }

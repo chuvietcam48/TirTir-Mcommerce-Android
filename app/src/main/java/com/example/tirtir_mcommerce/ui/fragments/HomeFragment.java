@@ -73,8 +73,6 @@ public class HomeFragment extends Fragment {
     private Button btnRetry;
 
     // Header
-    private TextView tvGreetingSub;
-    private TextView tvGreeting;
     private TextView tvCartBadge;
     private LinearLayout layoutSearch;
     private LinearLayout containerCategories;
@@ -146,8 +144,6 @@ public class HomeFragment extends Fragment {
         tvLoadingMessage    = view.findViewById(R.id.tvLoadingMessage);
         tvErrorMessage      = view.findViewById(R.id.tvErrorMessage);
         btnRetry            = view.findViewById(R.id.btnRetry);
-        tvGreetingSub       = view.findViewById(R.id.tvGreetingSub);
-        tvGreeting          = view.findViewById(R.id.tvGreeting);
         tvCartBadge         = view.findViewById(R.id.tvCartBadge);
         layoutSearch        = view.findViewById(R.id.layoutSearch);
         containerCategories = view.findViewById(R.id.containerCategories);
@@ -160,25 +156,7 @@ public class HomeFragment extends Fragment {
     // ===========================
 
     private void setupGreeting() {
-        if (tvGreeting == null) return;
-        SharedPrefsManager prefs = new SharedPrefsManager(requireContext());
-        User user = prefs.getCachedUser();
-        if (user != null) {
-            String fullName = user.getName() != null && !user.getName().isEmpty() ? user.getName() : user.getEmail();
-            if (fullName != null && !fullName.isEmpty()) {
-                String firstName = fullName.split(" ")[0];
-                if (firstName.contains("@")) firstName = firstName.split("@")[0];
-                tvGreeting.setText(firstName);
-            } else {
-                tvGreeting.setText("Guest");
-            }
-        } else {
-            tvGreeting.setText("Guest");
-        }
-
-        if (tvGreetingSub != null) {
-            tvGreetingSub.setText("Hello,");
-        }
+        // Greeting views removed from header; logo is shown instead
     }
 
     // ===========================
@@ -201,10 +179,9 @@ public class HomeFragment extends Fragment {
             ivIcon.setImageResource(iconRes);
             tvLabel.setText(label);
 
-            final String categoryFilter = label;
             categoryItem.setOnClickListener(v ->
                 requireActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainer, ShopFragment.newInstance(categoryFilter))
+                        .replace(R.id.fragmentContainer, new ShopFragment())
                         .addToBackStack(null)
                         .commit());
 

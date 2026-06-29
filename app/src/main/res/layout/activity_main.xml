@@ -11,44 +11,188 @@
         android:id="@+id/fragmentContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
+        app:layout_constraintBottom_toTopOf="@+id/customBottomBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigationView"
+    <!-- Custom bottom navigation bar -->
+    <LinearLayout
+        android:id="@+id/customBottomBar"
         android:layout_width="0dp"
         android:layout_height="76dp"
         android:background="@color/tirtir_white"
         android:elevation="10dp"
-        app:itemIconTint="@color/bottom_nav_color"
-        app:itemTextColor="@color/bottom_nav_color"
-        app:itemIconSize="22dp"
-        app:itemActiveIndicatorStyle="@style/Widget.Material3.BottomNavigationView.ActiveIndicator"
-        app:labelVisibilityMode="labeled"
-        app:itemRippleColor="@color/tirtir_red_surface"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
+        app:layout_constraintStart_toStartOf="parent">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabScan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_scan"
-        android:visibility="visible"
-        app:backgroundTint="@color/tirtir_red_primary"
-        app:tint="@color/tirtir_white"
-        app:borderWidth="0dp"
-        app:elevation="12dp"
-        app:maxImageSize="26dp"
-        app:fabCustomSize="56dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="-28dp"
-        android:contentDescription="Scan" />
+        <!-- HOME tab -->
+        <LinearLayout
+            android:id="@+id/navTabHome"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="?attr/selectableItemBackground"
+            android:paddingTop="8dp"
+            android:paddingBottom="6dp">
+            <ImageView
+                android:id="@+id/navIconHome"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_home"
+                app:tint="@color/tirtir_red_primary"
+                android:contentDescription="Home" />
+            <TextView
+                android:id="@+id/navLabelHome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="HOME"
+                android:textSize="8sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05"
+                android:textColor="@color/tirtir_red_primary" />
+        </LinearLayout>
+
+        <!-- ROUTINE tab -->
+        <LinearLayout
+            android:id="@+id/navTabRoutine"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="?attr/selectableItemBackground"
+            android:paddingTop="8dp"
+            android:paddingBottom="6dp">
+            <ImageView
+                android:id="@+id/navIconRoutine"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_routine"
+                app:tint="@color/tirtir_text_secondary"
+                android:contentDescription="Routine" />
+            <TextView
+                android:id="@+id/navLabelRoutine"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="ROUTINE"
+                android:textSize="8sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05"
+                android:textColor="@color/tirtir_text_secondary" />
+        </LinearLayout>
+
+        <!-- CENTER AI SCAN tab -->
+        <LinearLayout
+            android:id="@+id/navTabScan"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingBottom="6dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/fabScan"
+                android:layout_width="58dp"
+                android:layout_height="58dp"
+                android:layout_marginTop="-20dp"
+                android:clickable="false"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="10dp"
+                app:cardBackgroundColor="@color/tirtir_red_primary"
+                app:strokeWidth="0dp">
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_scan"
+                    app:tint="@color/tirtir_white"
+                    android:contentDescription="AI Skin Scan" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="AI SCAN"
+                android:textSize="8sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05"
+                android:textColor="@color/tirtir_red_primary" />
+        </LinearLayout>
+
+        <!-- CHAT tab -->
+        <LinearLayout
+            android:id="@+id/navTabChat"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="?attr/selectableItemBackground"
+            android:paddingTop="8dp"
+            android:paddingBottom="6dp">
+            <ImageView
+                android:id="@+id/navIconChat"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_chat"
+                app:tint="@color/tirtir_text_secondary"
+                android:contentDescription="Chat" />
+            <TextView
+                android:id="@+id/navLabelChat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="CHAT"
+                android:textSize="8sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05"
+                android:textColor="@color/tirtir_text_secondary" />
+        </LinearLayout>
+
+        <!-- PROFILE tab -->
+        <LinearLayout
+            android:id="@+id/navTabProfile"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="?attr/selectableItemBackground"
+            android:paddingTop="8dp"
+            android:paddingBottom="6dp">
+            <ImageView
+                android:id="@+id/navIconProfile"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_profile"
+                app:tint="@color/tirtir_text_secondary"
+                android:contentDescription="Profile" />
+            <TextView
+                android:id="@+id/navLabelProfile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="PROFILE"
+                android:textSize="8sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05"
+                android:textColor="@color/tirtir_text_secondary" />
+        </LinearLayout>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

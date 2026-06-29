@@ -3,9 +3,12 @@ package com.example.tirtir_mcommerce;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -19,11 +22,17 @@ import com.example.tirtir_mcommerce.ui.fragments.ChatFragment;
 import com.example.tirtir_mcommerce.ui.fragments.RoutineFragment;
 import com.example.tirtir_mcommerce.ui.fragments.LoyaltyFragment;
 import com.example.tirtir_mcommerce.database.DatabaseHelper;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.badge.BadgeDrawable;
 
 public class MainActivity extends AppCompatActivity {
-    private BottomNavigationView bottomNav;
+
+    private View navTabHome;
+    private View navTabRoutine;
+    private View navTabScan;
+    private View navTabChat;
+    private View navTabProfile;
+
+    // Track currently active tab id
+    private int activeTabId = R.id.navTabHome;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,62 +47,106 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // ==========================================
-        // KHỞI TẠO BOTTOM NAVIGATION
+        // KHỞI TẠO CUSTOM BOTTOM NAV
         // ==========================================
-        bottomNav = findViewById(R.id.bottomNavigationView);
+        navTabHome    = findViewById(R.id.navTabHome);
+        navTabRoutine = findViewById(R.id.navTabRoutine);
+        navTabScan    = findViewById(R.id.navTabScan);
+        navTabChat    = findViewById(R.id.navTabChat);
+        navTabProfile = findViewById(R.id.navTabProfile);
 
-        bottomNav.setOnItemSelectedListener(item -> {
-            Fragment selectedFragment = null;
-
-            int itemId = item.getItemId();
-            if (itemId == R.id.nav_home) {
-                selectedFragment = new HomeFragment();
-            } else if (itemId == R.id.nav_ai) {
-                selectedFragment = new ChatFragment();
-            } else if (itemId == R.id.nav_routine) {
-                selectedFragment = new RoutineFragment();
-            } else if (itemId == R.id.nav_profile) {
-                selectedFragment = new ProfileFragment();
-            }
-
-            if (selectedFragment != null) {
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainer, selectedFragment)
-                        .commit();
-            }
-            return true;
+        navTabHome.setOnClickListener(v -> {
+            setActiveTab(R.id.navTabHome);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, new HomeFragment())
+                    .commit();
         });
 
-        // FAB Scan Button
-        View fabScan = findViewById(R.id.fabScan);
-        if (fabScan != null) {
-            fabScan.setOnClickListener(v -> {
-                // Open Scanner (Ingredient Scan or AR Try On)
-                android.content.Intent intent = new android.content.Intent(MainActivity.this, com.example.tirtir_mcommerce.ui.activities.IngredientScanActivity.class);
-                startActivity(intent);
-            });
-        }
+        navTabRoutine.setOnClickListener(v -> {
+            setActiveTab(R.id.navTabRoutine);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, new RoutineFragment())
+                    .commit();
+        });
+
+        navTabScan.setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(MainActivity.this,
+                    com.example.tirtir_mcommerce.ui.activities.SkinAnalysisActivity.class);
+            startActivity(intent);
+        });
+
+        navTabChat.setOnClickListener(v -> {
+            setActiveTab(R.id.navTabChat);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, new ChatFragment())
+                    .commit();
+        });
+
+        navTabProfile.setOnClickListener(v -> {
+            setActiveTab(R.id.navTabProfile);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, new ProfileFragment())
+                    .commit();
+        });
 
         // Hiển thị HomeFragment lúc mới mở app
         if (savedInstanceState == null) {
             if (!handleIntent(getIntent())) {
                 if (getIntent().getBooleanExtra("OPEN_ORDER_HISTORY", false)) {
-                    bottomNav.setSelectedItemId(R.id.nav_profile);
+                    setActiveTab(R.id.navTabProfile);
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragmentContainer, new OrderHistoryFragment())
                             .addToBackStack("order_history")
                             .commit();
                 } else if (getIntent().getBooleanExtra("OPEN_CART", false)) {
-                    // Load CartFragment directly since it's removed from bottom nav
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragmentContainer, new CartFragment())
                             .commit();
                 } else if (getIntent().getBooleanExtra("OPEN_PROFILE", false)) {
-                    bottomNav.setSelectedItemId(R.id.nav_profile);
+                    setActiveTab(R.id.navTabProfile);
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer, new ProfileFragment())
+                            .commit();
                 } else {
-                    bottomNav.setSelectedItemId(R.id.nav_home);
+                    setActiveTab(R.id.navTabHome);
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer, new HomeFragment())
+                            .commit();
                 }
             }
+        }
+    }
+
+    /**
+     * Updates icon tint and label color for all tabs.
+     * Active tab → tirtir_red_primary, inactive → tirtir_text_secondary.
+     */
+    private void setActiveTab(int tabId) {
+        activeTabId = tabId;
+
+        int[][] tabData = {
+            {R.id.navTabHome,    R.id.navIconHome,    R.id.navLabelHome},
+            {R.id.navTabRoutine, R.id.navIconRoutine, R.id.navLabelRoutine},
+            {R.id.navTabChat,    R.id.navIconChat,    R.id.navLabelChat},
+            {R.id.navTabProfile, R.id.navIconProfile, R.id.navLabelProfile},
+        };
+
+        int activeColor   = ContextCompat.getColor(this, R.color.tirtir_red_primary);
+        int inactiveColor = ContextCompat.getColor(this, R.color.tirtir_text_secondary);
+
+        for (int[] row : tabData) {
+            int tabViewId   = row[0];
+            int iconViewId  = row[1];
+            int labelViewId = row[2];
+            boolean isActive = (tabViewId == tabId);
+            int color = isActive ? activeColor : inactiveColor;
+
+            View tab = findViewById(tabViewId);
+            if (tab == null) continue;
+            ImageView icon  = tab.findViewById(iconViewId);
+            TextView  label = tab.findViewById(labelViewId);
+            if (icon  != null) icon.setColorFilter(color);
+            if (label != null) label.setTextColor(color);
         }
     }
 
@@ -132,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
             return true;
         } else if ("order_history".equals(navigateTo)) {
-            if (bottomNav != null) bottomNav.setSelectedItemId(R.id.nav_profile);
+            setActiveTab(R.id.navTabProfile);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragmentContainer, new OrderHistoryFragment())
                     .addToBackStack("order_history")
@@ -144,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(voucherIntent);
             return true;
         } else if ("loyalty".equals(navigateTo) || "loyalty_milestone".equals(navigateTo)) {
-            if (bottomNav != null) bottomNav.setSelectedItemId(R.id.nav_profile);
+            setActiveTab(R.id.navTabProfile);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragmentContainer, new LoyaltyFragment())
                     .addToBackStack("loyalty")
@@ -181,9 +234,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openHomeWithSearch(String query) {
-        if (bottomNav != null) {
-            bottomNav.setSelectedItemId(R.id.nav_home);
-        }
+        setActiveTab(R.id.navTabHome);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragmentContainer, HomeFragment.newInstance(query))
                 .commit();
