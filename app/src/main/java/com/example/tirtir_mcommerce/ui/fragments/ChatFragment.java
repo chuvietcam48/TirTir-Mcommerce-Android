@@ -26,7 +26,6 @@ import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.ApiResponse;
 import com.example.tirtir_mcommerce.repository.ChatRepository;
 import com.example.tirtir_mcommerce.ui.activities.ProductDetailActivity;
-import com.example.tirtir_mcommerce.ui.activities.SkinAnalysisActivity;
 import com.example.tirtir_mcommerce.ui.adapters.ChatMessageAdapter;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
