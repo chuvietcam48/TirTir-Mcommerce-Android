@@ -20,11 +20,11 @@
     <LinearLayout
         android:id="@+id/customBottomBar"
         android:layout_width="0dp"
-        android:layout_height="76dp"
+        android:layout_height="wrap_content"
         android:background="@color/tirtir_white"
         android:elevation="10dp"
         android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:gravity="top"
         android:clipChildren="false"
         android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -35,7 +35,7 @@
         <LinearLayout
             android:id="@+id/navTabHome"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="76dp"
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
@@ -65,7 +65,7 @@
         <LinearLayout
             android:id="@+id/navTabRoutine"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="76dp"
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
@@ -95,7 +95,7 @@
         <LinearLayout
             android:id="@+id/navTabScan"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="76dp"
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
@@ -137,7 +137,7 @@
         <LinearLayout
             android:id="@+id/navTabChat"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="76dp"
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
@@ -167,7 +167,7 @@
         <LinearLayout
             android:id="@+id/navTabProfile"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="76dp"
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"

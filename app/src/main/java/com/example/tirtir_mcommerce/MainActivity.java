@@ -42,7 +42,14 @@ public class MainActivity extends AppCompatActivity {
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            // Top inset → push content below the status bar
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            // Bottom inset → applied directly to the nav bar so its content clears the gesture indicator
+            // The nav bar itself extends to the screen edge (proper EdgeToEdge pattern)
+            View navBar = v.findViewById(R.id.customBottomBar);
+            if (navBar != null) {
+                navBar.setPadding(0, 0, 0, systemBars.bottom);
+            }
             return insets;
         });
 
