@@ -75,7 +75,7 @@
                     android:layout_marginBottom="28dp"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
-                    android:text="SCAN &amp; MATCH"
+                    android:text="TRY-ON"
                     android:textColor="@color/tirtir_white"
                     android:textSize="11sp"
                     android:visibility="gone"
@@ -123,21 +123,193 @@
                     android:id="@+id/tvProductName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="6dp"
                     android:text="@string/product_name_placeholder"
                     android:textColor="@color/tirtir_text_primary"
-                    android:textSize="22sp"
-                    android:textStyle="bold" />
+                    android:textSize="26sp"
+                    android:fontFamily="serif"
+                    android:lineSpacingMultiplier="1.1"
+                    android:textStyle="normal" />
 
-                <TextView
-                    android:id="@+id/tvProductPrice"
+                <!-- Rating row (stars + count) -->
+                <LinearLayout
+                    android:id="@+id/layoutRatingRow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/product_price_placeholder"
-                    android:textColor="@color/tirtir_text_primary"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="4dp">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_star_filled"
+                        app:tint="@color/tirtir_red_primary" />
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_star_filled"
+                        app:tint="@color/tirtir_red_primary" />
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_star_filled"
+                        app:tint="@color/tirtir_red_primary" />
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_star_filled"
+                        app:tint="@color/tirtir_red_primary" />
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_star_filled"
+                        app:tint="@color/tirtir_red_primary" />
+
+                    <TextView
+                        android:id="@+id/tvProductRating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="4.9 (124)"
+                        android:textColor="@color/tirtir_text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Price row: sale price + original strikethrough -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="8dp">
+
+                    <TextView
+                        android:id="@+id/tvProductPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/product_price_placeholder"
+                        android:textColor="@color/tirtir_black"
+                        android:textSize="22sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvProductOriginalPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:textColor="@color/tirtir_text_secondary"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tvProductDiscountBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_tag_primary"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="3dp"
+                        android:textColor="@color/tirtir_white"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <!-- Feature badges (Vegan Formula / Dermatology Tested) -->
+                <LinearLayout
+                    android:id="@+id/layoutFeatureBadges"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="4dp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="@color/tirtir_off_white"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="@color/tirtir_rose_outline">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_badge_cruelty_free"
+                                app:tint="@color/tirtir_red_primary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Vegan Formula"
+                                android:textColor="@color/tirtir_black"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="100% plant-based"
+                                android:textColor="@color/tirtir_text_secondary"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="@color/tirtir_off_white"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="@color/tirtir_rose_outline">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_badge_dermatologist"
+                                app:tint="@color/tirtir_red_primary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Dermatology Tested"
+                                android:textColor="@color/tirtir_black"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Clinically proven safe"
+                                android:textColor="@color/tirtir_text_secondary"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"

@@ -60,6 +60,9 @@ public class ProductDetailActivity extends AppCompatActivity {
     private TextView tvProductCategory;
     private TextView tvProductName;
     private TextView tvProductPrice;
+    private TextView tvProductOriginalPrice;
+    private TextView tvProductDiscountBadge;
+    private TextView tvProductRating;
     private TextView tvSuitableSkinTypes;
     private TextView tvIngredientList;
     private TextView tvProductDescription;
@@ -100,10 +103,13 @@ public class ProductDetailActivity extends AppCompatActivity {
         androidx.viewpager2.widget.ViewPager2 viewPager = findViewById(R.id.viewPagerProductImages);
         com.google.android.material.tabs.TabLayout tabIndicator = findViewById(R.id.tabIndicatorImages);
 
-        tvProductCategory = findViewById(R.id.tvProductCategory);
-        tvProductName = findViewById(R.id.tvProductName);
-        tvProductPrice = findViewById(R.id.tvProductPrice);
-        tvSuitableSkinTypes = findViewById(R.id.tvSuitableSkinTypes);
+        tvProductCategory      = findViewById(R.id.tvProductCategory);
+        tvProductName          = findViewById(R.id.tvProductName);
+        tvProductPrice         = findViewById(R.id.tvProductPrice);
+        tvProductOriginalPrice = findViewById(R.id.tvProductOriginalPrice);
+        tvProductDiscountBadge = findViewById(R.id.tvProductDiscountBadge);
+        tvProductRating        = findViewById(R.id.tvProductRating);
+        tvSuitableSkinTypes    = findViewById(R.id.tvSuitableSkinTypes);
         tvIngredientList = findViewById(R.id.tvIngredientList);
         tvProductDescription = findViewById(R.id.tvProductDescription);
         btnWishlist = findViewById(R.id.btnWishlist);
@@ -150,6 +156,8 @@ public class ProductDetailActivity extends AppCompatActivity {
         if (productName != null)     tvProductName.setText(productName);
         if (productCategory != null) tvProductCategory.setText(productCategory);
         tvProductPrice.setText(PriceUtils.formatPriceUsd(displayPriceVnd));
+        bindSalePriceDetail(productPrice, salePrice);
+        if (tvProductRating != null) tvProductRating.setText("4.9 (124)");
         tvSuitableSkinTypes.setText(skinTypes != null && !skinTypes.isEmpty() ? skinTypes : "Suitable for all skin types");
         tvIngredientList.setText(productIngredients != null && !productIngredients.isEmpty()
                 ? productIngredients
@@ -347,6 +355,30 @@ public class ProductDetailActivity extends AppCompatActivity {
         loadProductImage(viewPager, tabIndicator);
         updateTotalPrice();
         fetchShades();
+    }
+
+    private void bindSalePriceDetail(double basePrice, double salePrice) {
+        boolean onSale = salePrice > 0 && salePrice < basePrice;
+        if (tvProductOriginalPrice != null) {
+            if (onSale) {
+                double normalizedBase = com.example.tirtir_mcommerce.utils.PriceUtils.normalizePrice(basePrice);
+                tvProductOriginalPrice.setText(PriceUtils.formatPriceUsd(normalizedBase));
+                tvProductOriginalPrice.setPaintFlags(
+                        tvProductOriginalPrice.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+                tvProductOriginalPrice.setVisibility(android.view.View.VISIBLE);
+            } else {
+                tvProductOriginalPrice.setVisibility(android.view.View.GONE);
+            }
+        }
+        if (tvProductDiscountBadge != null) {
+            if (onSale) {
+                int pct = (int) Math.round((1 - salePrice / basePrice) * 100);
+                tvProductDiscountBadge.setText("-" + pct + "%");
+                tvProductDiscountBadge.setVisibility(android.view.View.VISIBLE);
+            } else {
+                tvProductDiscountBadge.setVisibility(android.view.View.GONE);
+            }
+        }
     }
 
     private String firstNonEmpty(String... values) {

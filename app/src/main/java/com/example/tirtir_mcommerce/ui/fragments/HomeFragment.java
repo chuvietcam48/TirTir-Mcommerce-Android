@@ -176,7 +176,7 @@ public class HomeFragment extends Fragment {
         }
         
         if (tvGreetingSub != null) {
-            tvGreetingSub.setText("Hi,");
+            tvGreetingSub.setText("GOOD MORNING");
         }
     }
 
@@ -265,8 +265,12 @@ public class HomeFragment extends Fragment {
 
     private void setupClickListeners(View view) {
         if (btnRetry != null)          btnRetry.setOnClickListener(v -> loadProducts());
-        // "Shop Collection" banner → full Shop catalog
         if (btnShopCollection != null) btnShopCollection.setOnClickListener(v -> navigateToShop());
+
+        // AI Skin Analysis banner → SkinAnalysisActivity
+        View cardAI = view.findViewById(R.id.cardAISkinAnalysis);
+        if (cardAI != null) cardAI.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), SkinAnalysisActivity.class)));
 
         // Retain the upstream ingredient scanner shortcut without stealing focus from search.
         View btnSearchScanHome = view.findViewById(R.id.btnSearchScanHome);

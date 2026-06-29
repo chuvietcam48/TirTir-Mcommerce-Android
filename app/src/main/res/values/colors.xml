@@ -5,35 +5,39 @@
          Red / Black / White palette
          ======================================== -->
 
-    <!-- PRIMARY BRAND RED (TirTir signature red) -->
-    <color name="tirtir_red_primary">#D32F2F</color>
-    <color name="tirtir_red_dark">#8B1116</color>
+    <!-- PRIMARY BRAND RED — "Timeless Radiance" deep maroon palette (from Stitch design system) -->
+    <color name="tirtir_red_primary">#8B0000</color>   <!-- Stitch primary-container: deep maroon CTA -->
+    <color name="tirtir_red_dark">#610000</color>      <!-- Stitch primary: darkest red for auth buttons -->
+    <color name="tirtir_red_accent">#B52619</color>    <!-- Stitch surface-tint: mid-red for active chips -->
     <color name="tirtir_red_light">#E86B6B</color>
-    <color name="tirtir_red_surface">#FFF4F3</color>  <!-- Warm brand tint used by the web storefront -->
+    <color name="tirtir_red_surface">#FFF4F3</color>
 
-    <!-- BLACK / DARK (primary text, CTA buttons) -->
-    <color name="tirtir_black">#111111</color>
+    <!-- BLACK / DARK (primary text, CTA buttons) — Stitch on-surface: #1A1C1C -->
+    <color name="tirtir_black">#1A1C1C</color>
     <color name="tirtir_black_cover">#1A1A1A</color>
 
     <!-- WHITE / BACKGROUND -->
     <color name="tirtir_white">#FFFFFF</color>
     <color name="tirtir_milk_white">#FFFFFF</color>
-    <color name="tirtir_off_white">#FAFAFA</color>   <!-- Main page background -->
-    <color name="tirtir_bg_gray">#F5F5F5</color>
+    <color name="tirtir_off_white">#F9F9F9</color>   <!-- Stitch background: slightly warm off-white -->
+    <color name="tirtir_bg_gray">#EEEEEE</color>     <!-- Stitch surface-container -->
+    <!-- Stitch outline-variant: pinkish-rose border used on luxury product cards & inputs -->
+    <color name="tirtir_rose_outline">#E3BEB8</color>
     <color name="tirtir_auth_input_bg">#F2F2F2</color>
-    <color name="tirtir_auth_btn">#5C0000</color>
+    <color name="tirtir_auth_btn">#610000</color>  <!-- Matches tirtir_red_dark / Stitch primary -->
     <color name="tirtir_dark_gray_btn">#292929</color>
     <color name="tirtir_divider">#E0E0E0</color>
 
     <!-- GRAY SCALE (borders, dividers, secondary text) -->
-    <color name="tirtir_border_gray">#EEEEEE</color>
+    <color name="tirtir_border_gray">#E0E0E0</color>  <!-- Neutral divider -->
     <color name="tirtir_silver_gray">#BDBDBD</color>  <!-- Disabled state -->
-    <color name="tirtir_text_secondary">#777777</color>
+    <!-- Stitch on-surface-variant: warm brown-gray for secondary text -->
+    <color name="tirtir_text_secondary">#5A403C</color>
     <color name="tirtir_nav_inactive">#5F6368</color>
     <color name="tirtir_text_hint">#9E9E9E</color>
 
-    <!-- TEXT -->
-    <color name="tirtir_text_primary">#111111</color>
+    <!-- TEXT — Stitch on-surface: charcoal (not pure black) -->
+    <color name="tirtir_text_primary">#1A1C1C</color>
 
     <!-- STATUS COLORS -->
     <color name="tirtir_error">#D32F2F</color>        <!-- Error red -->

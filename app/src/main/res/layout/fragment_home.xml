@@ -40,18 +40,20 @@
                         android:id="@+id/tvGreetingSub"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Hi,"
+                        android:text="GOOD MORNING"
                         android:textColor="@color/tirtir_text_secondary"
-                        android:textSize="12sp" />
+                        android:textSize="11sp"
+                        android:letterSpacing="0.08" />
 
                     <TextView
                         android:id="@+id/tvGreeting"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Blair Chen"
-                        android:textColor="@color/tirtir_red_primary"
-                        android:textSize="24sp"
-                        android:textStyle="bold|italic" />
+                        android:textColor="@color/tirtir_black"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:fontFamily="serif" />
                 </LinearLayout>
 
                 <!-- Icons (Notification & Cart) -->
@@ -134,7 +136,7 @@
                         android:layout_weight="1"
                         android:layout_marginStart="12dp"
                         android:background="@android:color/transparent"
-                        android:hint="What are you looking for?"
+                        android:hint="Search rituals, serums, masks..."
                         android:imeOptions="actionSearch"
                         android:inputType="text"
                         android:maxLines="1"
@@ -151,6 +153,69 @@
                         android:src="@drawable/ic_scan"
                         app:tint="@color/tirtir_black" />
                 </LinearLayout>
+            </LinearLayout>
+
+            <!-- =================== AI SKIN ANALYSIS BANNER =================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:paddingBottom="16dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardAISkinAnalysis"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@color/tirtir_red_primary"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="16dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_skin"
+                            app:tint="@color/tirtir_white" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="AI Skin Analysis"
+                                android:textColor="@color/tirtir_white"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Personalized routine in 30 seconds"
+                                android:textColor="#CCFFFFFF"
+                                android:textSize="11sp" />
+
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/tirtir_white" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
             <!-- =================== CATEGORIES =================== -->
@@ -201,19 +266,21 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Best Sellers"
+                        android:text="Curated For You"
                         android:textColor="@color/tirtir_black"
-                        android:textSize="18sp"
+                        android:textSize="20sp"
+                        android:fontFamily="serif"
                         android:textStyle="normal" />
 
                     <TextView
                         android:id="@+id/tvViewAllBestSellers"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="VIEW ALL >"
+                        android:text="SEE ALL"
                         android:textColor="@color/tirtir_red_primary"
                         android:textSize="12sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:letterSpacing="0.05" />
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
