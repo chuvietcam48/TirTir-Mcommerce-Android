@@ -1,6 +1,7 @@
 package com.example.tirtir_mcommerce.ui.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,13 +9,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.Product;
-import com.google.android.material.button.MaterialButton;
 
 import java.text.NumberFormat;
 import java.util.List;
@@ -29,8 +28,6 @@ public class AdminProductAdapter extends RecyclerView.Adapter<AdminProductAdapte
 
     public interface OnAdminProductActionListener {
         void onEdit(Product product);
-        void onDelete(Product product);
-        void onToggleActive(Product product, boolean isActive);
     }
 
     public AdminProductAdapter(Context context, List<Product> productList, OnAdminProductActionListener listener) {
@@ -55,38 +52,44 @@ public class AdminProductAdapter extends RecyclerView.Adapter<AdminProductAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Product product = productList.get(position);
+        
         holder.tvName.setText(product.getName());
         holder.tvPrice.setText(currencyFormat.format(product.getPrice()) + " đ");
-        holder.tvStock.setText("Stock: " + product.getStockQuantity());
+        
+        String meta = (product.getCategory() != null ? product.getCategory() : "Uncategorized") + 
+                      " • SKU: " + (product.getProductId() != null ? product.getProductId() : product.getId());
+        holder.tvMeta.setText(meta);
+        
+        int stock = product.getStockQuantity();
+        holder.tvStockCount.setText(stock + " in stock");
+        
+        if (stock <= 20) {
+            holder.tvStatusBadge.setText("LOW STOCK");
+            holder.tvStatusBadge.setTextColor(Color.parseColor("#b45309")); // amber-700
+            holder.tvStatusBadge.setBackgroundColor(Color.parseColor("#fffbeb")); // amber-50
+            holder.tvStockCount.setTextColor(Color.parseColor("#b45309"));
+            holder.tvStockCount.setBackgroundColor(Color.parseColor("#fffbeb"));
+        } else {
+            holder.tvStatusBadge.setText("IN STOCK");
+            holder.tvStatusBadge.setTextColor(Color.parseColor("#15803d")); // green-700
+            holder.tvStatusBadge.setBackgroundColor(Color.parseColor("#f0fdf4")); // green-50
+            holder.tvStockCount.setTextColor(Color.parseColor("#666666"));
+            holder.tvStockCount.setBackgroundResource(R.drawable.bg_rounded_border);
+        }
 
         // Load image
-        String imageUrl = com.example.tirtir_mcommerce.network.ApiConfig
-                .resolveMediaUrl(product.getThumbnailImages());
+        String imageUrl = com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(product.getThumbnailImages());
         if (imageUrl != null && !imageUrl.isEmpty()) {
             Glide.with(context).load(imageUrl).fitCenter()
                     .placeholder(R.drawable.ic_product_placeholder)
                     .error(R.drawable.ic_product_placeholder)
-                    .into(holder.ivImage);
+                    .into(holder.ivThumb);
         } else {
-            holder.ivImage.setImageResource(android.R.drawable.ic_menu_gallery);
+            holder.ivThumb.setImageResource(R.drawable.ic_product_placeholder); // default
         }
 
-        // Active state
-        holder.switchActive.setOnCheckedChangeListener(null); // Prevent trigger during bind
-        holder.switchActive.setChecked(product.isActive());
-        holder.switchActive.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (listener != null) {
-                listener.onToggleActive(product, isChecked);
-            }
-        });
-
-        // Buttons
-        holder.btnEdit.setOnClickListener(v -> {
+        holder.itemView.setOnClickListener(v -> {
             if (listener != null) listener.onEdit(product);
-        });
-
-        holder.btnDelete.setOnClickListener(v -> {
-            if (listener != null) listener.onDelete(product);
         });
     }
 
@@ -96,20 +99,17 @@ public class AdminProductAdapter extends RecyclerView.Adapter<AdminProductAdapte
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView ivImage;
-        TextView tvName, tvPrice, tvStock;
-        SwitchCompat switchActive;
-        MaterialButton btnEdit, btnDelete;
+        ImageView ivThumb;
+        TextView tvStatusBadge, tvStockCount, tvName, tvMeta, tvPrice;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            ivImage = itemView.findViewById(R.id.ivAdminProduct);
+            ivThumb = itemView.findViewById(R.id.ivAdminProductThumb);
+            tvStatusBadge = itemView.findViewById(R.id.tvAdminProductStatusBadge);
+            tvStockCount = itemView.findViewById(R.id.tvAdminProductStockCount);
             tvName = itemView.findViewById(R.id.tvAdminProductName);
+            tvMeta = itemView.findViewById(R.id.tvAdminProductMeta);
             tvPrice = itemView.findViewById(R.id.tvAdminProductPrice);
-            tvStock = itemView.findViewById(R.id.tvAdminProductStock);
-            switchActive = itemView.findViewById(R.id.switchAdminProductActive);
-            btnEdit = itemView.findViewById(R.id.btnAdminEdit);
-            btnDelete = itemView.findViewById(R.id.btnAdminDelete);
         }
     }
 }

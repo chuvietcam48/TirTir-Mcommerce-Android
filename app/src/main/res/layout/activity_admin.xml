@@ -1,187 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawerLayoutAdmin"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:openDrawer="start">
+    android:background="@color/tirtir_bg_gray"
+    tools:context=".ui.activities.AdminActivity">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <!-- Top App Bar -->
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#F5F6F8">
+        android:layout_height="wrap_content"
+        android:background="@color/tirtir_white"
+        app:elevation="0dp">
 
-        <com.google.android.material.appbar.AppBarLayout
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbarAdmin"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbarAdmin"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="#FFFFFF"
-                app:title="Admin Dashboard"
-                app:titleTextColor="@color/tirtir_black"
-                app:navigationIcon="@android:drawable/ic_menu_sort_by_size" />
-        </com.google.android.material.appbar.AppBarLayout>
-
-        <androidx.core.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            android:layout_height="?attr/actionBarSize"
+            app:title="Catalog Management"
+            app:titleTextColor="@color/tirtir_primary"
+            app:titleTextAppearance="@style/TextAppearance.AppCompat.Title">
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:layout_gravity="end"
+                android:orientation="horizontal"
+                android:paddingEnd="16dp">
 
-                <TextView
-                    android:id="@+id/tvAdminSubtitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Performance overview"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="#333333"
-                    android:layout_marginBottom="16dp" />
+                <ImageButton
+                    android:id="@+id/btnAdminSearch"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_search"
+                    app:tint="@color/tirtir_text_secondary" />
 
-                <!-- 2x2 Grid of Cards -->
-                <GridLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:columnCount="2"
-                    android:rowCount="2"
-                    android:layout_marginBottom="24dp">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:layout_margin="8dp"
-                        app:cardElevation="0dp"
-                        app:cardCornerRadius="8dp"
-                        app:strokeColor="#E5E7EB"
-                        app:strokeWidth="1dp">
-                        <LinearLayout android:orientation="vertical" android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
-                            <TextView android:text="REVENUE" android:textSize="11sp" android:textStyle="bold" android:textColor="#6B7280" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                            <TextView android:id="@+id/tvRevenue" android:text="—" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/tirtir_red_primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:layout_margin="8dp"
-                        app:cardElevation="0dp"
-                        app:cardCornerRadius="8dp"
-                        app:strokeColor="#E5E7EB"
-                        app:strokeWidth="1dp">
-                        <LinearLayout android:orientation="vertical" android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
-                            <TextView android:text="ORDERS" android:textSize="11sp" android:textStyle="bold" android:textColor="#6B7280" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                            <TextView android:id="@+id/tvOrders" android:text="—" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/tirtir_black" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:layout_margin="8dp"
-                        app:cardElevation="0dp"
-                        app:cardCornerRadius="8dp"
-                        app:strokeColor="#E5E7EB"
-                        app:strokeWidth="1dp">
-                        <LinearLayout android:orientation="vertical" android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
-                            <TextView android:text="NEW CUSTOMERS" android:textSize="11sp" android:textStyle="bold" android:textColor="#6B7280" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                            <TextView android:id="@+id/tvUsers" android:text="—" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/tirtir_red_primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:layout_margin="8dp"
-                        app:cardElevation="0dp"
-                        app:cardCornerRadius="8dp"
-                        app:strokeColor="#E5E7EB"
-                        app:strokeWidth="1dp">
-                        <LinearLayout android:orientation="vertical" android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
-                            <TextView android:text="WEBSITE VIEWS" android:textSize="11sp" android:textStyle="bold" android:textColor="#6B7280" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                            <TextView android:id="@+id/tvVisits" android:text="—" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/tirtir_black" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                </GridLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Revenue"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/tirtir_black"
-                    android:layout_marginBottom="8dp"/>
-
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/tabLayoutTime"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    app:tabGravity="fill"
-                    app:tabMode="fixed"
-                    app:tabIndicatorColor="@color/tirtir_red_primary"
-                    app:tabSelectedTextColor="@color/tirtir_red_primary">
-                    <com.google.android.material.tabs.TabItem android:text="7 days" />
-                    <com.google.android.material.tabs.TabItem android:text="30 days" />
-                    <com.google.android.material.tabs.TabItem android:text="90 days" />
-                </com.google.android.material.tabs.TabLayout>
-
-                <com.github.mikephil.charting.charts.LineChart
-                    android:id="@+id/lineChartRevenue"
-                    android:layout_width="match_parent"
-                    android:layout_height="250dp"
-                    android:layout_marginBottom="24dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Top 5 Best Sellers"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp"/>
-                <com.github.mikephil.charting.charts.BarChart
-                    android:id="@+id/barChartProducts"
-                    android:layout_width="match_parent"
-                    android:layout_height="250dp"
-                    android:layout_marginBottom="24dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Orders by status"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp"/>
-                <com.github.mikephil.charting.charts.PieChart
-                    android:id="@+id/pieChartCategory"
-                    android:layout_width="match_parent"
-                    android:layout_height="250dp"
-                    android:layout_marginBottom="32dp"/>
-
+                <ImageButton
+                    android:id="@+id/btnAdminMore"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_more"
+                    app:tint="@color/tirtir_text_secondary" />
             </LinearLayout>
-        </androidx.core.widget.NestedScrollView>
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        </androidx.appcompat.widget.Toolbar>
 
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/navigationViewAdmin"
-        android:layout_width="wrap_content"
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/tirtir_outline_variant" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Fragment Container -->
+    <FrameLayout
+        android:id="@+id/fragmentContainerAdmin"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
-        app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/admin_drawer_menu" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_marginBottom="56dp" />
 
-</androidx.drawerlayout.widget.DrawerLayout>
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavAdmin"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom"
+        android:background="@color/tirtir_white"
+        app:itemIconTint="@color/tirtir_primary"
+        app:itemTextColor="@color/tirtir_primary"
+        app:menu="@menu/menu_admin_bottom_nav"
+        app:elevation="8dp" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

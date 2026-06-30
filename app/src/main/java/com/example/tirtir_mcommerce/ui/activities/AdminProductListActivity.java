@@ -155,7 +155,6 @@ public class AdminProductListActivity extends AppCompatActivity implements Admin
         startActivity(intent);
     }
 
-    @Override
     public void onDelete(Product product) {
         new AlertDialog.Builder(this)
                 .setTitle("Deactivate product")
@@ -188,7 +187,6 @@ public class AdminProductListActivity extends AppCompatActivity implements Admin
         });
     }
 
-    @Override
     public void onToggleActive(Product product, boolean isActive) {
         apiService.toggleProductActive(product.getId()).enqueue(new Callback<java.util.Map<String, Object>>() {
             @Override

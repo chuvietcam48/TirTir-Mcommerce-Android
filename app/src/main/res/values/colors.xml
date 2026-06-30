@@ -27,6 +27,9 @@
     <color name="tirtir_auth_btn">#610000</color>  <!-- Matches tirtir_red_dark / Stitch primary -->
     <color name="tirtir_dark_gray_btn">#292929</color>
     <color name="tirtir_divider">#E0E0E0</color>
+    <color name="tirtir_primary">#111111</color>
+    <color name="tirtir_outline_variant">#E5E5E5</color>
+    <color name="tirtir_surface_container">#F8F8F8</color>
 
     <!-- GRAY SCALE (borders, dividers, secondary text) -->
     <color name="tirtir_border_gray">#E0E0E0</color>  <!-- Neutral divider -->
