@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F9FA">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tvAdminSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Overview Dashboard"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/tirtir_black"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 2x2 Grid of Cards -->
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:rowCount="2"
+            android:layout_marginBottom="24dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                app:cardElevation="2dp"
+                app:cardCornerRadius="8dp">
+                <LinearLayout android:orientation="vertical" android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <TextView android:text="Revenue (VND)" android:textSize="12sp" android:textColor="#666666" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    <TextView android:id="@+id/tvRevenue" android:text="—" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/tirtir_primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                app:cardElevation="2dp"
+                app:cardCornerRadius="8dp">
+                <LinearLayout android:orientation="vertical" android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <TextView android:text="Orders" android:textSize="12sp" android:textColor="#666666" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    <TextView android:id="@+id/tvOrders" android:text="—" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/tirtir_black" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                app:cardElevation="2dp"
+                app:cardCornerRadius="8dp">
+                <LinearLayout android:orientation="vertical" android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <TextView android:text="New Users" android:textSize="12sp" android:textColor="#666666" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    <TextView android:id="@+id/tvUsers" android:text="—" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/tirtir_primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                app:cardElevation="2dp"
+                app:cardCornerRadius="8dp">
+                <LinearLayout android:orientation="vertical" android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <TextView android:text="Website Views" android:textSize="12sp" android:textColor="#666666" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    <TextView android:id="@+id/tvVisits" android:text="—" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/tirtir_black" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </GridLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Revenue Trend"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/tirtir_black"
+            android:layout_marginBottom="8dp"/>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayoutTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            app:tabGravity="fill"
+            app:tabMode="fixed"
+            app:tabIndicatorColor="@color/tirtir_primary"
+            app:tabSelectedTextColor="@color/tirtir_primary">
+            <com.google.android.material.tabs.TabItem android:text="7 days" />
+            <com.google.android.material.tabs.TabItem android:text="30 days" />
+            <com.google.android.material.tabs.TabItem android:text="90 days" />
+        </com.google.android.material.tabs.TabLayout>
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/lineChartRevenue"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_marginBottom="24dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Top 5 Best Sellers"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/barChartProducts"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_marginBottom="24dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Order Status Breakdown"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/pieChartCategory"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_marginBottom="32dp"/>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
