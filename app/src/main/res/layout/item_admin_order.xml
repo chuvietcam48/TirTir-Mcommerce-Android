@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="3dp">
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,83 +15,135 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Row 1: Order ID & Status -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_marginBottom="8dp">
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/tvOrderId"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:text="#TR-89021"
+                android:textColor="@color/tirtir_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvOrderCode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="#ORD-12345"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:textColor="#333333" />
-
-                <TextView
-                    android:id="@+id/tvUserName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Customer"
-                    android:textSize="14sp"
-                    android:textColor="#666666"
-                    android:layout_marginTop="4dp" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvOrderTotal"
+            <LinearLayout
+                android:id="@+id/layoutOrderStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="500.000 đ"
-                android:textColor="#E91E8C"
-                android:textStyle="bold"
-                android:textSize="16sp" />
+                android:background="@drawable/bg_rounded_border"
+                android:backgroundTint="#F0FDF4"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp">
+
+                <View
+                    android:id="@+id/viewStatusDot"
+                    android:layout_width="6dp"
+                    android:layout_height="6dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_rounded_border"
+                    android:backgroundTint="#15803D" />
+
+                <TextView
+                    android:id="@+id/tvOrderStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pending"
+                    android:textColor="#15803D"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#EEEEEE"
-            android:layout_marginVertical="12dp" />
-
+        <!-- Row 2: Customer Name & Email -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:orientation="vertical"
+            android:layout_marginBottom="12dp">
 
             <TextView
+                android:id="@+id/tvCustomerName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Status: "
-                android:textSize="14sp" />
+                android:text="Ji-soo Kim"
+                android:textColor="@color/tirtir_black"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-            <Spinner
-                android:id="@+id/spinnerOrderStatus"
+            <TextView
+                android:id="@+id/tvCustomerEmail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@android:drawable/btn_dropdown" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnOrderDetail"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Xem chi tiết"
-                android:textColor="#2196F3" />
+                android:text="jisoo.kim@example.com"
+                android:textColor="@color/tirtir_text_secondary"
+                android:textSize="12sp" />
         </LinearLayout>
+
+        <!-- Row 3: Price & Actions -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingTop="12dp">
+
+            <TextView
+                android:id="@+id/tvTotalPrice"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="$245.00"
+                android:textColor="@color/tirtir_black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/btnOrderActionShip"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_local_shipping"
+                    app:tint="@color/tirtir_text_secondary"
+                    android:tooltipText="Ship Order" />
+
+                <ImageButton
+                    android:id="@+id/btnOrderActionView"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_visibility"
+                    app:tint="@color/tirtir_text_secondary"
+                    android:tooltipText="View Details" />
+
+                <ImageButton
+                    android:id="@+id/btnOrderActionEdit"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_edit"
+                    app:tint="@color/tirtir_text_secondary"
+                    android:tooltipText="Edit Order" />
+            </LinearLayout>
+        </LinearLayout>
+
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/tirtir_outline_variant" />
+
+</LinearLayout>

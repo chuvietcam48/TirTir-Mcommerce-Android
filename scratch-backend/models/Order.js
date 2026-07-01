@@ -24,6 +24,24 @@ const shippingAddressSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const shippingDetailsSchema = new mongoose.Schema(
+  {
+    trackingNumber: { type: String, default: '' },
+    carrier: { type: String, default: '' }, // e.g., GHN, VNPost
+    estimatedDeliveryDate: { type: Date }
+  },
+  { _id: false }
+);
+
+const orderHistorySchema = new mongoose.Schema(
+  {
+    status: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now },
+    note: { type: String, default: '' },
+  },
+  { _id: false }
+);
+
 const orderSchema = new mongoose.Schema(
   {
     userId: {
@@ -50,6 +68,12 @@ const orderSchema = new mongoose.Schema(
     // Backend-generated URL: /api/v1/orders/:id/invoice
     invoiceUrl: { type: String, default: '' },
     idempotencyKey: { type: String, index: true },
+    
+    // Advanced Admin Order Management Fields
+    adminNotes: { type: String, default: '' },
+    cancellationReason: { type: String, default: '' },
+    shippingDetails: { type: shippingDetailsSchema, default: () => ({}) },
+    history: { type: [orderHistorySchema], default: [] }
   },
   { timestamps: true }
 );

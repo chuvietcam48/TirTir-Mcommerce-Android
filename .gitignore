@@ -27,3 +27,6 @@ artifacts/
 scratch-backend/config/serviceAccountKey.json
 # Firebase service account keys — NEVER commit private keys
 *firebase-adminsdk*.json
+
+scratch-backend/.venv/
+.venv/

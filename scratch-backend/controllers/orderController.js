@@ -209,6 +209,14 @@ exports.updateAdminOrderStatus = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
     order.status = status;
+    
+    if (!order.history) order.history = [];
+    order.history.push({
+      status: status,
+      timestamp: new Date(),
+      note: req.body.note || 'Status updated by admin'
+    });
+    
     await order.save();
 
     // Sync to Firestore
@@ -226,6 +234,108 @@ exports.updateAdminOrderStatus = async (req, res) => {
     res.status(200).json({ success: true, data: order });
   } catch (err) {
     console.error(err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// GET /api/v1/admin/orders/:id
+exports.getAdminOrderDetails = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id).populate('userId', 'firstName lastName email phoneNumber');
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    res.status(200).json({ success: true, data: order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// PATCH /api/v1/admin/orders/:id/notes
+exports.updateAdminNotes = async (req, res) => {
+  try {
+    const { adminNotes } = req.body;
+    const order = await Order.findByIdAndUpdate(req.params.id, { adminNotes }, { new: true });
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    res.status(200).json({ success: true, data: order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// PATCH /api/v1/admin/orders/:id/shipping
+exports.updateShippingDetails = async (req, res) => {
+  try {
+    const { trackingNumber, carrier, estimatedDeliveryDate } = req.body;
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    
+    order.shippingDetails = {
+      trackingNumber: trackingNumber || order.shippingDetails?.trackingNumber,
+      carrier: carrier || order.shippingDetails?.carrier,
+      estimatedDeliveryDate: estimatedDeliveryDate || order.shippingDetails?.estimatedDeliveryDate
+    };
+    await order.save();
+    res.status(200).json({ success: true, data: order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// POST /api/v1/admin/orders/:id/cancel
+exports.cancelOrderAdmin = async (req, res) => {
+  try {
+    const { cancellationReason } = req.body;
+    if (!cancellationReason) return res.status(400).json({ success: false, message: 'Cancellation reason is required' });
+    
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    
+    order.status = 'Cancelled';
+    order.cancellationReason = cancellationReason;
+    if (!order.history) order.history = [];
+    order.history.push({
+      status: 'Cancelled',
+      timestamp: new Date(),
+      note: `Cancelled by admin. Reason: ${cancellationReason}`
+    });
+    
+    await order.save();
+    
+    // Sync to Firestore
+    try {
+      const db = admin.firestore();
+      const orderDocRef = db.collection('users').doc(String(order.userId)).collection('orders').doc(String(order._id));
+      await orderDocRef.set({ status: 'Cancelled', updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    } catch (err) { console.error('Error syncing order status update to Firestore:', err); }
+    
+    res.status(200).json({ success: true, data: order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// GET /api/v1/admin/orders/export/csv
+exports.exportOrdersCsv = async (req, res) => {
+  try {
+    const orders = await Order.find({}).populate('userId', 'email').sort({ createdAt: -1 });
+    let csv = 'Order ID,Date,User Email,Total Price,Payment Method,Status,Tracking Number,Carrier\n';
+    
+    orders.forEach(order => {
+      const id = order._id;
+      const date = order.createdAt ? order.createdAt.toISOString() : '';
+      const email = (order.userId && order.userId.email) ? order.userId.email : 'Unknown';
+      const total = order.totalPrice;
+      const pm = order.paymentMethod;
+      const status = order.status;
+      const tracking = (order.shippingDetails && order.shippingDetails.trackingNumber) ? order.shippingDetails.trackingNumber : '';
+      const carrier = (order.shippingDetails && order.shippingDetails.carrier) ? order.shippingDetails.carrier : '';
+      
+      csv += `${id},${date},${email},${total},${pm},${status},${tracking},${carrier}\n`;
+    });
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="tirtir_orders_export.csv"');
+    res.status(200).send(csv);
+  } catch (err) {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };

@@ -518,7 +518,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         TextView label = sheet.findViewById(R.id.tvOptionVariantLabel);
         if (availableShades.isEmpty()) {
             label.setText("VARIANT");
-            Chip chip = buildOptionChip(firstNonEmpty(productVolume, "Standard"));
+            Chip chip = buildOptionChip(firstNonEmpty(productVolume, "Standard"), null);
             chip.setChecked(true);
             group.addView(chip);
         } else {
@@ -526,7 +526,8 @@ public class ProductDetailActivity extends AppCompatActivity {
             for (int index = 0; index < availableShades.size(); index++) {
                 java.util.Map<String, Object> shade = availableShades.get(index);
                 String shadeName = mapText(shade, "Shade_Name", "Shade_Code", "Shade");
-                Chip chip = buildOptionChip(shadeName);
+                String hexCode = mapText(shade, "Hex_Code", "", null);
+                Chip chip = buildOptionChip(shadeName, hexCode);
                 chip.setTag(shade);
                 chip.setChecked(index == 0 && (selectedShade == null || selectedShade.equals(productVolume)));
                 if (shadeName.equals(selectedShade)) chip.setChecked(true);
@@ -573,7 +574,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private Chip buildOptionChip(String text) {
+    private Chip buildOptionChip(String text, String hexCode) {
         Chip chip = new Chip(this);
         chip.setId(View.generateViewId());
         chip.setText(text);
@@ -582,6 +583,25 @@ public class ProductDetailActivity extends AppCompatActivity {
         chip.setTextColor(getColor(R.color.tirtir_text_primary));
         chip.setChipStrokeColorResource(R.color.chip_stroke_profile);
         chip.setChipStrokeWidth(1f);
+        
+        if (hexCode != null && !hexCode.trim().isEmpty()) {
+            if (!hexCode.startsWith("#")) hexCode = "#" + hexCode;
+            try {
+                int color = android.graphics.Color.parseColor(hexCode);
+                android.graphics.drawable.GradientDrawable drawable = new android.graphics.drawable.GradientDrawable();
+                drawable.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+                drawable.setColor(color);
+                drawable.setStroke(2, android.graphics.Color.LTGRAY);
+                drawable.setSize(48, 48); // approx 16dp
+                chip.setChipIcon(drawable);
+                chip.setChipIconVisible(true);
+                chip.setIconStartPadding(12f);
+                chip.setChipIconSize(48f);
+            } catch (Exception e) {
+                // Ignore parse errors
+            }
+        }
+        
         return chip;
     }
 

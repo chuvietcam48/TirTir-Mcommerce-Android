@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/tirtir_white">
+    android:background="#F9F9F9">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,16 +17,15 @@
             android:orientation="horizontal"
             android:padding="16dp"
             android:gravity="center_vertical"
-            android:background="@color/tirtir_white"
-            android:elevation="4dp">
+            android:background="#F9F9F9">
 
             <ImageButton
                 android:id="@+id/btnEditorClose"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_close_clear_cancel"
-                app:tint="@color/tirtir_black" />
+                android:src="@drawable/ic_close"
+                app:tint="#05273C" />
 
             <TextView
                 android:id="@+id/tvEditorTitle"
@@ -34,9 +33,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Edit Catalog Entry"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@color/tirtir_black"
+                android:textSize="22sp"
+                android:textColor="#05273C"
                 android:layout_marginStart="16dp"/>
 
             <ImageButton
@@ -44,7 +42,14 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_delete"
+                android:src="@drawable/ic_delete"
+                app:tint="@color/tirtir_text_secondary" />
+                
+            <ImageButton
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_more_vert"
                 app:tint="@color/tirtir_text_secondary" />
         </LinearLayout>
 
@@ -60,138 +65,264 @@
                 android:orientation="vertical"
                 android:padding="24dp">
 
-                <!-- Identification -->
+                <!-- Product Visuals -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="PRODUCT VISUALS"
+                        android:textStyle="bold"
+                        android:textColor="#05273C"
+                        android:textSize="12sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Edit All"
+                        android:textStyle="bold"
+                        android:textColor="#610000"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="32dp">
+                    
+                    <ImageView
+                        android:id="@+id/ivEditorThumb"
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:background="@drawable/bg_rounded_border"
+                        android:backgroundTint="#20000000"
+                        android:padding="2dp"
+                        android:scaleType="centerCrop" />
+                        
+                    <FrameLayout
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:layout_marginStart="16dp"
+                        android:background="@drawable/bg_rounded_border"
+                        android:backgroundTint="#10000000">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+"
+                            android:textSize="24sp"
+                            android:textColor="@color/tirtir_text_secondary"
+                            android:layout_gravity="center" />
+                    </FrameLayout>
+                    
+                    <View
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:layout_marginStart="16dp"
+                        android:background="@drawable/bg_rounded_border"
+                        android:backgroundTint="#08000000" />
+                        
+                    <View
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:layout_marginStart="16dp"
+                        android:background="@drawable/bg_rounded_border"
+                        android:backgroundTint="#08000000" />
+                </LinearLayout>
+
+                <!-- Product Name -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Product Name"
                     android:textStyle="bold"
-                    android:textColor="@color/tirtir_text_secondary"
+                    android:textColor="#4A4A4A"
+                    android:textSize="12sp"
                     android:layout_marginBottom="8dp"/>
                 <EditText
                     android:id="@+id/etEditorName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_search_bar"
-                    android:backgroundTint="@color/tirtir_surface_container"
+                    android:background="@drawable/bg_rounded_border"
+                    android:backgroundTint="@color/tirtir_white"
                     android:padding="16dp"
-                    android:layout_marginBottom="16dp"
-                    android:hint="Enter product title"/>
+                    android:textColor="@color/tirtir_black"
+                    android:layout_marginBottom="24dp"
+                    android:hint="Product Name"/>
 
+                <!-- Category -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Category"
                     android:textStyle="bold"
-                    android:textColor="@color/tirtir_text_secondary"
+                    android:textColor="#4A4A4A"
+                    android:textSize="12sp"
                     android:layout_marginBottom="8dp"/>
-                <EditText
-                    android:id="@+id/etEditorCategory"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_search_bar"
-                    android:backgroundTint="@color/tirtir_surface_container"
-                    android:padding="16dp"
-                    android:layout_marginBottom="16dp"
-                    android:hint="Skincare, Makeup..."/>
-
-                <!-- Pricing & Stock -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="16dp">
-                    
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginEnd="8dp">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Price (VND)"
-                            android:textStyle="bold"
-                            android:textColor="@color/tirtir_text_secondary"
-                            android:layout_marginBottom="8dp"/>
-                        <EditText
-                            android:id="@+id/etEditorPrice"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="numberDecimal"
-                            android:background="@drawable/bg_search_bar"
-                            android:backgroundTint="@color/tirtir_surface_container"
-                            android:padding="16dp"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="8dp">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Stock"
-                            android:textStyle="bold"
-                            android:textColor="@color/tirtir_text_secondary"
-                            android:layout_marginBottom="8dp"/>
-                        <EditText
-                            android:id="@+id/etEditorStock"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="number"
-                            android:background="@drawable/bg_search_bar"
-                            android:backgroundTint="@color/tirtir_surface_container"
-                            android:padding="16dp"/>
-                    </LinearLayout>
-                </LinearLayout>
-
-                <!-- AR Shade Hex -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="AR Shade Hex Color"
-                    android:textStyle="bold"
-                    android:textColor="@color/tirtir_text_secondary"
-                    android:layout_marginBottom="8dp"/>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:background="@drawable/bg_rounded_border"
-                    android:padding="12dp"
-                    android:orientation="horizontal"
+                    android:backgroundTint="@color/tirtir_white"
                     android:gravity="center_vertical"
                     android:layout_marginBottom="24dp">
-                    
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="#"
-                        android:textStyle="bold"
-                        android:textSize="18sp"/>
-                    
                     <EditText
-                        android:id="@+id/etEditorShadeHex"
+                        android:id="@+id/etEditorCategory"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@null"
-                        android:paddingStart="8dp"
-                        android:hint="610000"
-                        android:maxLength="6"
-                        android:textAllCaps="true"
-                        android:inputType="textNoSuggestions"/>
-
-                    <View
-                        android:id="@+id/viewShadePreview"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:background="@drawable/bg_rounded_border"
-                        android:backgroundTint="#610000"/>
+                        android:padding="16dp"
+                        android:textColor="@color/tirtir_black"
+                        android:hint="Category"/>
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_expand_more"
+                        app:tint="@color/tirtir_text_secondary"
+                        android:layout_marginEnd="12dp"/>
                 </LinearLayout>
+
+                <!-- SKU Identification -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SKU Identification"
+                    android:textStyle="bold"
+                    android:textColor="#4A4A4A"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/etEditorSku"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_rounded_border"
+                    android:backgroundTint="@color/tirtir_white"
+                    android:padding="16dp"
+                    android:textColor="@color/tirtir_black"
+                    android:layout_marginBottom="24dp"
+                    android:hint="e.g., SK-RG-001"/>
+
+                <!-- Dynamic Variants Section -->
+                <LinearLayout
+                    android:id="@+id/layoutVariantsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="32dp">
+                    
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="VARIANTS / OPTIONS"
+                            android:textStyle="bold"
+                            android:textColor="#9E9E9E"
+                            android:textSize="11sp"/>
+                        <Button
+                            android:id="@+id/btnAddVariant"
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:text="+ Add Variant"
+                            android:textSize="10sp"
+                            android:textColor="@color/tirtir_primary"
+                            android:backgroundTint="#F0E0E0"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                            app:cornerRadius="16dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layoutVariantList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                        
+                </LinearLayout>
+
+                <!-- Target Skin Types -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TARGET SKIN TYPES"
+                    android:textStyle="bold"
+                    android:textColor="#9E9E9E"
+                    android:textSize="11sp"
+                    android:layout_marginBottom="12dp"/>
+                
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:layout_marginBottom="24dp">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Oily"
+                            android:textColor="#610000"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="6dp"
+                            android:background="@drawable/bg_rounded_border"
+                            android:layout_marginEnd="8dp"/>
+                            
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Dry"
+                            android:textColor="@color/tirtir_text_secondary"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="6dp"
+                            android:background="@drawable/bg_rounded_border"
+                            android:layout_marginEnd="8dp"/>
+                            
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Sensitive"
+                            android:textColor="#610000"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="6dp"
+                            android:background="@drawable/bg_rounded_border"
+                            android:layout_marginEnd="8dp"/>
+                            
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Combination"
+                            android:textColor="@color/tirtir_text_secondary"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="6dp"
+                            android:background="@drawable/bg_rounded_border"
+                            android:layout_marginEnd="8dp"/>
+                            
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Normal"
+                            android:textColor="@color/tirtir_text_secondary"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="6dp"
+                            android:background="@drawable/bg_rounded_border"
+                            android:layout_marginEnd="8dp"/>
+                    </LinearLayout>
+                </HorizontalScrollView>
 
                 <!-- Description -->
                 <TextView
@@ -199,26 +330,83 @@
                     android:layout_height="wrap_content"
                     android:text="Product Story / Description"
                     android:textStyle="bold"
-                    android:textColor="@color/tirtir_text_secondary"
+                    android:textColor="#4A4A4A"
+                    android:textSize="12sp"
                     android:layout_marginBottom="8dp"/>
-                <EditText
-                    android:id="@+id/etEditorDesc"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="vertical"
                     android:background="@drawable/bg_rounded_border"
-                    android:backgroundTint="@color/tirtir_surface_container"
-                    android:padding="16dp"
-                    android:minLines="4"
-                    android:gravity="top|start"
-                    android:layout_marginBottom="32dp"
-                    android:hint="Describe the product essence..."/>
+                    android:backgroundTint="@color/tirtir_white"
+                    android:layout_marginBottom="32dp">
+                    
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="8dp"
+                        android:background="#EEEEEE">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="B" android:textStyle="bold" android:textSize="16sp" android:paddingHorizontal="12dp"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="I" android:textStyle="italic" android:textSize="16sp" android:paddingHorizontal="12dp"/>
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_list" android:paddingHorizontal="12dp"/>
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_link" android:paddingHorizontal="12dp"/>
+                    </LinearLayout>
+                    
+                    <EditText
+                        android:id="@+id/etEditorDesc"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:padding="16dp"
+                        android:minLines="4"
+                        android:textColor="@color/tirtir_black"
+                        android:gravity="top|start"
+                        android:hint="Describe the product essence and usage..."/>
+                </LinearLayout>
+                
+                <!-- Description Images -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="DESCRIPTION IMAGES"
+                        android:textStyle="bold"
+                        android:textColor="#05273C"
+                        android:textSize="12sp" />
+                    <TextView
+                        android:id="@+id/btnAddDescImage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="+ Add Image"
+                        android:textStyle="bold"
+                        android:textColor="#610000"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="4dp"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <GridLayout
+                    android:id="@+id/layoutDescImages"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="3"
+                    android:layout_marginBottom="32dp">
+                    <!-- Dynamic images go here -->
+                </GridLayout>
                 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="32dp">
+                    android:layout_marginBottom="24dp">
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -234,16 +422,71 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Make product visible on storefront"
+                            android:text="Make product visible on the storefront"
                             android:textSize="12sp"
                             android:textColor="@color/tirtir_text_secondary"/>
                     </LinearLayout>
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/switchEditorActive"
                         android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:theme="@style/Widget.AppCompat.CompoundButton.Switch"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="32dp">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Display Status (Public)"
+                            android:textStyle="bold"
+                            android:textSize="16sp"
+                            android:textColor="@color/tirtir_black"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Make product visible on the storefront"
+                            android:textSize="12sp"
+                            android:textColor="@color/tirtir_text_secondary"/>
+                    </LinearLayout>
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switchEditorPublic"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
                 
+                <!-- Hidden Fields for compatibility -->
+                <EditText
+                    android:id="@+id/etEditorPrice"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone"/>
+                <EditText
+                    android:id="@+id/etEditorStock"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone"/>
+                <!-- Legacy hex field, hidden so backend doesn't crash on Java side -->
+                <EditText
+                    android:id="@+id/etEditorShadeHex"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone"/>
+                <View
+                    android:id="@+id/viewShadePreview"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone"/>
+
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
@@ -253,28 +496,31 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="16dp"
-            android:background="@color/tirtir_white"
-            android:elevation="8dp">
+            android:background="#F9F9F9"
+            android:elevation="0dp">
 
             <Button
                 android:id="@+id/btnEditorDiscard"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:layout_weight="1"
                 android:text="Discard"
-                android:textColor="@color/tirtir_text_secondary"
-                android:backgroundTint="@color/tirtir_white"
+                android:textColor="#4A4A4A"
+                android:backgroundTint="#F9F9F9"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:strokeColor="#DDDDDD"
+                app:cornerRadius="8dp"
                 android:layout_marginEnd="8dp"/>
 
             <Button
                 android:id="@+id/btnEditorSave"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
+                android:layout_height="56dp"
+                android:layout_weight="1"
                 android:text="Save Changes"
                 android:textColor="@color/tirtir_white"
-                android:backgroundTint="@color/tirtir_primary"
+                android:backgroundTint="#8B0000"
+                app:cornerRadius="8dp"
                 android:layout_marginStart="8dp"/>
         </LinearLayout>
     </LinearLayout>

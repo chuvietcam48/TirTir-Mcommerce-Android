@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_rounded_border"
+    android:backgroundTint="@color/tirtir_white"
+    android:padding="16dp"
+    android:layout_marginBottom="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Variant Details"
+            android:textStyle="bold"
+            android:textColor="#05273C"
+            android:textSize="12sp" />
+
+        <ImageButton
+            android:id="@+id/btnRemoveVariant"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_close"
+            app:tint="@color/tirtir_text_secondary" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/etVariantName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_rounded_border"
+        android:backgroundTint="#F9F9F9"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"
+        android:textColor="@color/tirtir_black"
+        android:hint="e.g., 21N Ivory"/>
+
+    <!-- AR Shade Hex -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_rounded_border"
+        android:backgroundTint="#F9F9F9"
+        android:padding="12dp">
+        
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AR SHADE HEX COLOR"
+                android:textStyle="bold"
+                android:textColor="#05273C"
+                android:textSize="11sp"
+                android:layout_marginBottom="8dp"/>
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_rounded_border"
+                android:backgroundTint="@color/tirtir_white"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp">
+                
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="#"
+                    android:textStyle="bold"
+                    android:textColor="@color/tirtir_black"
+                    android:textSize="16sp"/>
+                    
+                <EditText
+                    android:id="@+id/etVariantHex"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:padding="8dp"
+                    android:hint="610000"
+                    android:textColor="@color/tirtir_black"
+                    android:maxLength="6"
+                    android:textAllCaps="true"
+                    android:inputType="textNoSuggestions"/>
+
+                <ImageButton
+                    android:id="@+id/btnExtractColor"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_camera"
+                    app:tint="@color/tirtir_primary"
+                    android:tooltipText="Extract from image" />
+            </LinearLayout>
+        </LinearLayout>
+        
+        <View
+            android:id="@+id/viewVariantColor"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_rounded_border"
+            android:layout_marginStart="16dp"/>
+    </LinearLayout>
+
+</LinearLayout>

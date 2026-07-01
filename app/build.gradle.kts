@@ -97,6 +97,7 @@ dependencies {
     implementation("com.google.mlkit:face-detection:16.1.7")
     implementation("androidx.camera:camera-mlkit-vision:1.4.2")
     implementation("com.google.mlkit:text-recognition:16.0.1")
+    implementation("androidx.palette:palette:1.0.0")
 
     // AR Try-On (ARCore & Sceneform)
     implementation("com.google.ar:core:1.40.0")

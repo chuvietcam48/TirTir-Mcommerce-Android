@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/tirtir_bg_gray"
+    android:fitsSystemWindows="true"
     tools:context=".ui.activities.AdminActivity">
 
     <!-- Top App Bar -->
@@ -18,33 +19,79 @@
             android:id="@+id/toolbarAdmin"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Catalog Management"
-            app:titleTextColor="@color/tirtir_primary"
-            app:titleTextAppearance="@style/TextAppearance.AppCompat.Title">
+            app:contentInsetStart="0dp"
+            app:contentInsetEnd="0dp">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:orientation="horizontal"
-                android:paddingEnd="16dp">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingHorizontal="16dp">
 
-                <ImageButton
-                    android:id="@+id/btnAdminSearch"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_search"
-                    app:tint="@color/tirtir_text_secondary" />
+                <!-- Left side: Title -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="TIRTIR ADMIN"
+                    android:textColor="@color/tirtir_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1" />
 
-                <ImageButton
-                    android:id="@+id/btnAdminMore"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_menu_more"
-                    app:tint="@color/tirtir_text_secondary" />
-            </LinearLayout>
+                <!-- Right side: Notifications & Profile -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingEnd="0dp">
+
+                    <ImageButton
+                        android:id="@+id/btnAdminSearch"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_search"
+                        app:tint="@color/tirtir_text_secondary"
+                        android:visibility="gone" />
+
+                    <ImageButton
+                        android:id="@+id/btnAdminNotifications"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_notifications"
+                        app:tint="@color/tirtir_primary" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btnAdminProfile"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="@color/tirtir_outline_variant"
+                        android:clickable="true"
+                        android:focusable="true">
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/ic_person" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Keeping btnAdminMore for logout functionality, but hiding it visually or we can attach logout to profile pic -->
+                    <ImageButton
+                        android:id="@+id/btnAdminMore"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+            </RelativeLayout>
 
         </androidx.appcompat.widget.Toolbar>
 
@@ -62,13 +109,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:layout_marginBottom="56dp" />
+        android:layout_marginBottom="?attr/actionBarSize" />
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavAdmin"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@color/tirtir_white"
         app:itemIconTint="@color/tirtir_primary"

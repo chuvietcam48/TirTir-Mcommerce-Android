@@ -1,14 +1,232 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/tirtir_bg_gray"
     android:orientation="vertical"
-    android:gravity="center"
-    android:background="@color/tirtir_bg_gray">
+    android:padding="16dp">
+
+    <!-- Search Section -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Orders Management"
-        android:textSize="18sp"
-        android:textColor="@color/tirtir_text_secondary" />
+        android:text="SEARCH ORDERS"
+        android:textColor="@color/tirtir_text_secondary"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_rounded_white_card"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_search"
+            app:tint="@color/tirtir_text_secondary" />
+
+        <EditText
+            android:id="@+id/etAdminSearchOrders"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@null"
+            android:hint="ID, Customer, or SKU..."
+            android:paddingHorizontal="12dp"
+            android:textColor="@color/tirtir_black"
+            android:textSize="14sp"
+            android:maxLines="1"
+            android:inputType="text" />
+
+        <LinearLayout
+            android:id="@+id/btnAdminExport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_rounded_border"
+            android:backgroundTint="@color/tirtir_primary"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_admin_campaign"
+                app:tint="@color/tirtir_white"
+                android:layout_marginEnd="4dp" />
+                <!-- Reusing campaign icon as a placeholder for share/export if ic_ios_share doesn't exist -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Export"
+                android:textColor="@color/tirtir_white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Filters -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- All Orders (Active) -->
+            <TextView
+                android:id="@+id/filterAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All Orders"
+                android:textColor="@color/tirtir_white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_rounded_border"
+                android:backgroundTint="@color/tirtir_primary"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <!-- Pending (Inactive) -->
+            <TextView
+                android:id="@+id/filterPending"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pending"
+                android:textColor="@color/tirtir_text_secondary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_rounded_white_card"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/filterShipped"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Shipped"
+                android:textColor="@color/tirtir_text_secondary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_rounded_white_card"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/filterDelivered"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delivered"
+                android:textColor="@color/tirtir_text_secondary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_rounded_white_card"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/filterCancelled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancelled"
+                android:textColor="@color/tirtir_text_secondary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_rounded_white_card"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="8dp" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- Orders List Container (MaterialCardView) -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:cardBackgroundColor="@color/tirtir_white"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/tirtir_outline_variant">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvAdminOrders"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:paddingBottom="16dp" />
+
+            <!-- Pagination Footer -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/tirtir_surface_container"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:elevation="4dp">
+
+                <TextView
+                    android:id="@+id/tvOrderCount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Showing 0 orders"
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:textSize="12sp" />
+
+                <ImageButton
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_chevron_left"
+                    app:tint="@color/tirtir_text_secondary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Page 1"
+                    android:textColor="@color/tirtir_black"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginHorizontal="8dp" />
+
+                <ImageButton
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/tirtir_text_secondary" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
 </LinearLayout>

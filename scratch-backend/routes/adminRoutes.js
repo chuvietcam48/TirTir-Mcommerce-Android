@@ -7,6 +7,13 @@ const {
   getMetrics,
   getAdminOrders,
 } = require('../controllers/adminController');
+const {
+  getAdminOrderDetails,
+  updateAdminNotes,
+  updateShippingDetails,
+  cancelOrderAdmin,
+  exportOrdersCsv
+} = require('../controllers/orderController');
 
 // All admin routes must be protected and restricted to 'admin'
 router.use(protect);
@@ -23,5 +30,20 @@ router.get('/metrics', getMetrics);
 
 // GET /api/v1/admin/orders
 router.get('/orders', getAdminOrders);
+
+// GET /api/v1/admin/orders/export/csv
+router.get('/orders/export/csv', exportOrdersCsv);
+
+// GET /api/v1/admin/orders/:id
+router.get('/orders/:id', getAdminOrderDetails);
+
+// PATCH /api/v1/admin/orders/:id/notes
+router.patch('/orders/:id/notes', updateAdminNotes);
+
+// PATCH /api/v1/admin/orders/:id/shipping
+router.patch('/orders/:id/shipping', updateShippingDetails);
+
+// POST /api/v1/admin/orders/:id/cancel
+router.post('/orders/:id/cancel', cancelOrderAdmin);
 
 module.exports = router;

@@ -118,6 +118,31 @@ exports.getOverview = async (req, res) => {
         // Low Stock
         const lowStockCount = await Product.countDocuments({ Stock_Quantity: { $lt: 10 } });
 
+        // Trends and Target (Mocked for now as per HTML design)
+        const targetProgress = 82;
+        const conversionRate = 82; // 82%
+        const trends = {
+            visitorsTrend: 4.8,
+            ordersTrend: 2.5,
+            viewsTrend: -1.8,
+            conversionTrend: 2.0
+        };
+
+        const criticalAlerts = [];
+        // Add a mock complaint
+        criticalAlerts.push({
+            type: 'error',
+            title: 'New Complaint',
+            message: 'Order #TR-9928 has a quality dispute.'
+        });
+        if (lowStockCount > 0) {
+            criticalAlerts.push({
+                type: 'warning',
+                title: 'Low Stock Alert',
+                message: `${lowStockCount} products are below 10 units.`
+            });
+        }
+
         res.json({
             range: { from, to },
             summary: {
@@ -127,8 +152,12 @@ exports.getOverview = async (req, res) => {
                 newCustomers,
                 averageOrderValue,
                 lowStockCount,
-                websiteViews: Math.floor(Math.random() * 500) + 100 // Mock since we don't have DailyStats
+                websiteViews: Math.floor(Math.random() * 500) + 100, // Mock since we don't have DailyStats
+                conversionRate
             },
+            trends,
+            targetProgress,
+            criticalAlerts,
             orderStatusBreakdown,
             revenueSeries,
             topProducts

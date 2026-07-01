@@ -24,7 +24,7 @@ public class AdminProductAdapter extends RecyclerView.Adapter<AdminProductAdapte
     private final Context context;
     private final List<Product> productList;
     private final OnAdminProductActionListener listener;
-    private final NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+    private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.US);
 
     public interface OnAdminProductActionListener {
         void onEdit(Product product);
@@ -54,7 +54,7 @@ public class AdminProductAdapter extends RecyclerView.Adapter<AdminProductAdapte
         Product product = productList.get(position);
         
         holder.tvName.setText(product.getName());
-        holder.tvPrice.setText(currencyFormat.format(product.getPrice()) + " đ");
+        holder.tvPrice.setText(currencyFormat.format(product.getPrice()));
         
         String meta = (product.getCategory() != null ? product.getCategory() : "Uncategorized") + 
                       " • SKU: " + (product.getProductId() != null ? product.getProductId() : product.getId());
