@@ -51,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_rounded_border"
-            android:backgroundTint="@color/tirtir_primary"
+            android:backgroundTint="@color/tirtir_red_primary"
             android:paddingHorizontal="12dp"
             android:paddingVertical="6dp"
             android:clickable="true"
@@ -99,7 +99,7 @@
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:background="@drawable/bg_rounded_border"
-                android:backgroundTint="@color/tirtir_primary"
+                android:backgroundTint="@color/tirtir_red_primary"
                 android:paddingHorizontal="20dp"
                 android:paddingVertical="8dp"
                 android:layout_marginEnd="8dp" />
@@ -174,13 +174,34 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvAdminOrders"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"
-                android:clipToPadding="false"
-                android:paddingBottom="16dp" />
+                android:layout_weight="1">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvAdminOrders"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:paddingBottom="16dp" />
+
+                <ProgressBar
+                    android:id="@+id/progressAdminOrders"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvAdminOrdersEmpty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="No orders found"
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:visibility="gone" />
+            </FrameLayout>
 
             <!-- Pagination Footer -->
             <LinearLayout
