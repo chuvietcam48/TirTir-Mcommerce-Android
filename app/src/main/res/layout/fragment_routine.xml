@@ -113,6 +113,7 @@
                     </com.google.android.material.chip.ChipGroup>
                 </LinearLayout>
 
+
                 <LinearLayout
                     android:id="@+id/layoutRoutineQuestionType"
                     android:layout_width="match_parent"
@@ -200,6 +201,7 @@
                         app:backgroundTint="@color/tirtir_red_dark"
                         app:cornerRadius="26dp" />
                 </LinearLayout>
+
             </LinearLayout>
         </ScrollView>
 

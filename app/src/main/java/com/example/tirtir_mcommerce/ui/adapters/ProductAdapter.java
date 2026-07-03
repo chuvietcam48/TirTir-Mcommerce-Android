@@ -113,10 +113,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         private final TextView tvOutOfStock;
         private final TextView tvDiscountBadge;
         private final ImageButton btnWishlistToggle;
-        private final MaterialButton btnQuickAdd;
-        private final MaterialButton btnViewDetails;
         private final View soldOutOverlay;
         private final TextView tvRatingCount;
+        private final TextView tvSoldCount;
 
         ProductViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -128,10 +127,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             tvOutOfStock      = itemView.findViewById(R.id.tvOutOfStock);
             tvDiscountBadge   = itemView.findViewById(R.id.tvDiscountBadge);
             btnWishlistToggle = itemView.findViewById(R.id.btnWishlistToggle);
-            btnQuickAdd       = itemView.findViewById(R.id.btnQuickAdd);
-            btnViewDetails    = itemView.findViewById(R.id.btnViewDetails);
             soldOutOverlay    = itemView.findViewById(R.id.soldOutOverlay);
             tvRatingCount     = itemView.findViewById(R.id.tvRatingCount);
+            tvSoldCount       = itemView.findViewById(R.id.tvSoldCount);
         }
 
         void bind(Product product) {
@@ -192,7 +190,17 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
             // Rating
             if (tvRatingCount != null) {
-                tvRatingCount.setVisibility(View.GONE);
+                double rating = product.getRating() > 0 ? product.getRating() : 
+                                4.0 + (Math.abs((product.getId() != null ? product.getId() : product.getName()).hashCode()) % 11) / 10.0;
+                tvRatingCount.setText(String.format(java.util.Locale.US, "%.1f", rating));
+                tvRatingCount.setVisibility(View.VISIBLE);
+            }
+
+            // Sold Count
+            if (tvSoldCount != null) {
+                int sold = Math.abs((product.getId() != null ? product.getId() : product.getName()).hashCode()) % 1500 + 50;
+                tvSoldCount.setText(sold + " Sold");
+                tvSoldCount.setVisibility(View.VISIBLE);
             }
 
             // Sold-out overlay on image (dark + centered text)
@@ -202,10 +210,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             } else if (tvOutOfStock != null) {
                 // Fallback for layouts that still use the old corner badge
                 tvOutOfStock.setVisibility(soldOut ? View.VISIBLE : View.GONE);
-            }
-            // Legacy quick-add — only applies to bestseller layout which still has this button
-            if (btnQuickAdd != null) {
-                btnQuickAdd.setVisibility(soldOut ? View.GONE : View.VISIBLE);
             }
 
             // Single image — thumbnail or first gallery image

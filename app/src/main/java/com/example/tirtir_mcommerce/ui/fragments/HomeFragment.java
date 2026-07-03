@@ -91,12 +91,19 @@ public class HomeFragment extends Fragment {
     private String currentCategoryFilter = "All";
 
     // Category definitions: {label, iconResId}
-    private static final String[] CATEGORY_LABELS = {"Cleanser", "Serum", "Moisturizer", "Sunscreen"};
+    private static final String[] CATEGORY_LABELS = {
+            "Cleanser", "Serum", "Cream", "Toner",
+            "Mask", "Sunscreen", "Cushion", "Makeup"
+    };
     private static final int[] CATEGORY_ICONS = {
             R.drawable.ic_category_cleanser,
             R.drawable.ic_category_serum,
             R.drawable.ic_category_moisturizer,
-            R.drawable.ic_category_sunscreen
+            R.drawable.ic_category_sunscreen,
+            R.drawable.ic_skin,
+            R.drawable.ic_category_sunscreen,
+            R.drawable.ic_beauty,
+            R.drawable.ic_beauty
     };
 
     public static HomeFragment newInstance(String initialQuery) {
@@ -181,11 +188,13 @@ public class HomeFragment extends Fragment {
             tvLabel.setText(label);
 
             categoryItem.setContentDescription("Filter by " + label);
-            categoryItem.setOnClickListener(v ->
+            categoryItem.setOnClickListener(v -> {
+                ShopFragment shopFragment = ShopFragment.newInstance(label);
                 requireActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainer, ShopFragment.newInstance(label))
+                        .replace(R.id.fragmentContainer, shopFragment)
                         .addToBackStack(null)
-                        .commit());
+                        .commit();
+            });
 
             containerCategories.addView(categoryItem);
         }

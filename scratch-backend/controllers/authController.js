@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
+const DailyStats = require('../backend/models/daily.stats.model');
 
 const signAccessToken = (userId, role) => {
   const expiresIn =
@@ -101,6 +102,18 @@ exports.login = async (req, res) => {
   user.refreshTokenHash = hashToken(refreshToken);
   await user.save({ validateBeforeSave: false });
 
+  // Log session
+  try {
+    const todayStr = new Date().toISOString().split('T')[0];
+    await DailyStats.findOneAndUpdate(
+      { date: todayStr },
+      { $inc: { views: 1 } },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+  } catch (err) {
+    console.error('Lỗi track session (login):', err);
+  }
+
   res.status(200).json({ success: true, token, refreshToken, user: user.toClientJSON() });
 };
 
@@ -118,6 +131,19 @@ exports.getMe = async (req, res) => {
   if (!user) {
     return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản.' });
   }
+
+  // Log session
+  try {
+    const todayStr = new Date().toISOString().split('T')[0];
+    await DailyStats.findOneAndUpdate(
+      { date: todayStr },
+      { $inc: { views: 1 } },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+  } catch (err) {
+    console.error('Lỗi track session (getMe):', err);
+  }
+
   res.status(200).json({ success: true, data: user.toClientJSON() });
 };
 

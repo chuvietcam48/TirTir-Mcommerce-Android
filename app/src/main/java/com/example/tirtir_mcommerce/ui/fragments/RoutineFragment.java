@@ -50,6 +50,8 @@ import java.util.Map;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import android.app.AlertDialog;
+import java.util.HashMap;
 
 public class RoutineFragment extends Fragment {
     private static final String RESULT_RECOMMENDATION = "routine_recommendation";
@@ -346,6 +348,7 @@ public class RoutineFragment extends Fragment {
         @Override
         public int getItemCount() { return 3; }
     }
+
 
     public static class RoutineStepsPageFragment extends Fragment {
         private static final String ARG_MORNING = "morning";
@@ -1020,6 +1023,10 @@ public class RoutineFragment extends Fragment {
             items.clear();
             if (products != null) items.addAll(products);
             notifyDataSetChanged();
+        }
+
+        public List<RoutineStep> getSteps() {
+            return this.steps;
         }
 
         @NonNull

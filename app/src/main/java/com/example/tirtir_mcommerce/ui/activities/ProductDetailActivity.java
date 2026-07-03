@@ -267,16 +267,6 @@ public class ProductDetailActivity extends AppCompatActivity {
         // Wishlist toggle via ContentProvider
         btnWishlist.setOnClickListener(v -> toggleWishlist());
 
-        if (btnARTryOn != null) {
-            btnARTryOn.setVisibility(isShadeProduct() ? View.VISIBLE : View.GONE);
-            btnARTryOn.setOnClickListener(v -> {
-                Intent intent = new Intent(this, ARTryOnActivity.class);
-                intent.putExtra("PRODUCT_ID", productId);
-                intent.putExtra("PRODUCT_NAME", productName);
-                startActivity(intent);
-            });
-        }
-
         // Ask AI access → CHAT tab in bottom navigation
     }
 
@@ -500,6 +490,19 @@ public class ProductDetailActivity extends AppCompatActivity {
         boolean showShade = !availableShades.isEmpty() && isShadeProduct();
         View row = findViewById(R.id.layoutShadeSelection);
         if (row != null) row.setVisibility(showShade ? View.VISIBLE : View.GONE);
+        
+        if (btnARTryOn != null) {
+            btnARTryOn.setVisibility(!availableShades.isEmpty() ? View.VISIBLE : View.GONE);
+            if (!availableShades.isEmpty()) {
+                btnARTryOn.setOnClickListener(v -> {
+                    Intent intent = new Intent(this, ARTryOnActivity.class);
+                    intent.putExtra("PRODUCT_ID", productId);
+                    intent.putExtra("PRODUCT_NAME", productName);
+                    startActivity(intent);
+                });
+            }
+        }
+
         if (!showShade) return;
         
         float density = getResources().getDisplayMetrics().density;

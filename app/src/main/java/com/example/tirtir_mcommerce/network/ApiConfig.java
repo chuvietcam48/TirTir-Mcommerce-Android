@@ -30,6 +30,20 @@ public final class ApiConfig {
     public static String resolveMediaUrl(String path) {
         if (path == null || path.trim().isEmpty()) return "";
         String trimmed = path.trim();
+        
+        // Clean up stringified JSON arrays/strings (e.g., '["url"]' or '"url"')
+        if (trimmed.length() >= 4 && trimmed.startsWith("[\"") && trimmed.endsWith("\"]")) {
+            trimmed = trimmed.substring(2, trimmed.length() - 2);
+            // If it contains multiple URLs, take the first one
+            if (trimmed.contains("\",\"")) {
+                trimmed = trimmed.split("\",\"")[0];
+            } else if (trimmed.contains("\", \"")) {
+                trimmed = trimmed.split("\", \"")[0];
+            }
+        } else if (trimmed.length() >= 2 && trimmed.startsWith("\"") && trimmed.endsWith("\"")) {
+            trimmed = trimmed.substring(1, trimmed.length() - 1);
+        }
+        
         for (String prefix : LOCAL_BACKEND_PREFIXES) {
             if (trimmed.startsWith(prefix)) {
                 return BASE_URL + trimmed.substring(prefix.length());

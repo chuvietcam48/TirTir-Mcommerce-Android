@@ -100,7 +100,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Total Views -->
+            <!-- App Sessions -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -121,7 +121,7 @@
                         <ImageView android:id="@+id/ivViewsTrendIcon" android:layout_width="12dp" android:layout_height="12dp" android:src="@drawable/ic_trending_down" app:tint="#EF4444" android:layout_marginStart="2dp"/>
                     </LinearLayout>
                     <TextView android:id="@+id/tvViews" android:text="—" android:textSize="20sp" android:textStyle="bold" android:textColor="@color/tirtir_black" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                    <TextView android:text="TOTAL VIEWS" android:textSize="11sp" android:textStyle="bold" android:textColor="@color/tirtir_text_secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp"/>
+                    <TextView android:text="APP SESSIONS" android:textSize="11sp" android:textStyle="bold" android:textColor="@color/tirtir_text_secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

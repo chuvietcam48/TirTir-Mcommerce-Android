@@ -95,20 +95,34 @@ exports.matchCushion = async (req, res) => {
   // Parse target hex
   const target = hexToRgb(skin_tone_hex);
 
-  // Full TirTir Cushion Shade Dataset
-  const shadeDataset = [
-    { code: "17C", name: "17C Porcelain", hex: "#f9d9c2" },
-    { code: "21N", name: "21N Ivory", hex: "#ebc5a1" },
-    { code: "23N", name: "23N Sand", hex: "#ebbf98" },
-    { code: "24N", name: "24N Latte", hex: "#e4b58e" },
-    { code: "27N", name: "27N Camel", hex: "#e5b98b" },
-    { code: "33N", name: "33N Macchiato", hex: "#d3a177" },
-    { code: "43N", name: "43N Deep Cocoa", hex: "#a36a42" }
-  ];
+  // Import Shade model dynamically in case it is defined in the backend/models directory
+  let Shade;
+  try {
+    Shade = require('../backend/models/shade.model');
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Shade model not found' });
+  }
+
+  // Fetch all shades from MongoDB
+  const allShades = await Shade.find({ Hex_Code: { $exists: true, $ne: null } }).lean();
+
+  if (!allShades || allShades.length === 0) {
+    return res.status(404).json({ success: false, message: 'No shades found in database' });
+  }
 
   // Calculate Euclidean distance and map to match score (100 = exact match)
-  const results = shadeDataset.map(shade => {
-    const c = hexToRgb(shade.hex);
+  const results = allShades.map(shade => {
+    let hex = shade.Hex_Code;
+    if (!hex.startsWith('#')) hex = '#' + hex;
+    const c = hexToRgb(hex);
+    
+    // Fallback if r, g, b are predefined in db
+    if (shade.R !== undefined && shade.G !== undefined && shade.B !== undefined) {
+      c.r = shade.R;
+      c.g = shade.G;
+      c.b = shade.B;
+    }
+    
     const distance = Math.sqrt(Math.pow(target.r - c.r, 2) + Math.pow(target.g - c.g, 2) + Math.pow(target.b - c.b, 2));
     
     // Max distance in RGB space is ~441.6. Use an exponential or linear scale.
@@ -119,13 +133,13 @@ exports.matchCushion = async (req, res) => {
     const matchPercent = Math.round(100 * Math.exp(-matchScore / 7.0));
 
     return {
-      productId: `cushion-${shade.code.toLowerCase()}`,
-      productName: `Mask Fit Red Cushion`,
-      shadeName: shade.name,
-      shadeHex: shade.hex,
+      productId: shade.Product_ID || `cushion-${shade.Shade_Code ? shade.Shade_Code.toLowerCase() : ''}`,
+      productName: shade.Shade_Category_Name || `Mask Fit Red Cushion`,
+      shadeName: shade.Shade_Name,
+      shadeHex: hex,
       matchScore: matchScore,
       matchPercent: matchPercent,
-      imageUrl: "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg"
+      imageUrl: shade.Shade_Image || "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg"
     };
   });
 
