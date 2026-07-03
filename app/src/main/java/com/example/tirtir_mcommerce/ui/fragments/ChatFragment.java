@@ -54,6 +54,8 @@ public class ChatFragment extends Fragment {
     private ChatMessageAdapter adapter;
     private ChatRepository chatRepository;
     private View offlineBanner;
+    private boolean welcomeShown;
+    private boolean productContextShown;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
 
     private final BroadcastReceiver networkReceiver = new BroadcastReceiver() {
@@ -134,6 +136,7 @@ public class ChatFragment extends Fragment {
         }
 
         layoutChatEmpty.setVisibility(View.GONE);
+        productContextShown = true;
         String displayName = productName != null && !productName.isEmpty() ? productName : "this product";
         adapter.addMessage(new ChatMessageAdapter.ChatMessage(
                 false,
@@ -244,8 +247,12 @@ public class ChatFragment extends Fragment {
             @Override
             public void onResponse(Call<ApiResponse<List<Map<String, Object>>>> call,
                                    Response<ApiResponse<List<Map<String, Object>>>> response) {
-                if (!isAdded() || !response.isSuccessful() || response.body() == null
-                        || response.body().getData() == null || response.body().getData().isEmpty()) return;
+                if (!isAdded()) return;
+                if (!response.isSuccessful() || response.body() == null
+                        || response.body().getData() == null || response.body().getData().isEmpty()) {
+                    ensureWelcomeGreeting();
+                    return;
+                }
                 List<ChatMessageAdapter.ChatMessage> history = new ArrayList<>();
                 for (Map<String, Object> item : response.body().getData()) {
                     String sender = value(item.get("sender"));
@@ -255,7 +262,10 @@ public class ChatFragment extends Fragment {
                             "user".equalsIgnoreCase(sender), text, "", extractRecommendations(item)));
                 }
                 requireActivity().runOnUiThread(() -> {
-                    if (history.isEmpty()) return;
+                    if (history.isEmpty()) {
+                        ensureWelcomeGreeting();
+                        return;
+                    }
                     layoutChatEmpty.setVisibility(View.GONE);
                     adapter.submitMessages(history);
                     rvChatMessages.scrollToPosition(history.size() - 1);
@@ -264,9 +274,29 @@ public class ChatFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ApiResponse<List<Map<String, Object>>>> call, Throwable t) {
-                // Local empty state remains useful while offline.
+                if (isAdded()) requireActivity().runOnUiThread(() -> ensureWelcomeGreeting());
             }
         });
+    }
+
+    private void ensureWelcomeGreeting() {
+        if (welcomeShown || productContextShown || adapter == null || !isAdded()) return;
+        welcomeShown = true;
+        layoutChatEmpty.setVisibility(View.GONE);
+        com.example.tirtir_mcommerce.model.User user =
+                new com.example.tirtir_mcommerce.utils.SharedPrefsManager(requireContext()).getCachedUser();
+        String firstName = "there";
+        if (user != null && user.getName() != null && !user.getName().trim().isEmpty()) {
+            firstName = user.getName().trim().split("\\s+")[0];
+        }
+        int hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY);
+        String greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+        adapter.addMessage(new ChatMessageAdapter.ChatMessage(
+                false,
+                greeting + ", " + firstName + " 👋\n\nI’m your TirTir Beauty Advisor. I can build a routine, check ingredient compatibility, or help you choose a product. What would you like to explore?",
+                timeFormat.format(new Date()),
+                new ArrayList<>()));
+        rvChatMessages.scrollToPosition(Math.max(0, adapter.getItemCount() - 1));
     }
 
     @SuppressWarnings("unchecked")

@@ -31,4 +31,9 @@ public class RoutineRecommendRequest {
         this.concerns = concerns;
         this.shadeMatchProduct = new ShadeProduct(productId, shadeName);
     }
+
+    public String getSkinType() { return skinType; }
+    public String getSkinTone() { return skinTone; }
+    public String getUndertone() { return undertone; }
+    public List<String> getConcerns() { return concerns; }
 }

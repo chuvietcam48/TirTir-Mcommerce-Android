@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.view.inputmethod.EditorInfo;
 import android.text.Editable;
 import android.text.TextWatcher;
 
@@ -23,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tirtir_mcommerce.R;
+import com.bumptech.glide.Glide;
 import com.example.tirtir_mcommerce.model.Product;
 import com.example.tirtir_mcommerce.model.User;
 import com.example.tirtir_mcommerce.repository.ProductRepository;
@@ -77,6 +79,8 @@ public class HomeFragment extends Fragment {
     private LinearLayout layoutSearch;
     private LinearLayout containerCategories;
     private EditText etHomeSearch;
+    private View cardSearchSuggestions;
+    private LinearLayout containerSearchSuggestions;
 
     // Banner CTA
     private View btnShopCollection;
@@ -111,7 +115,8 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
         bindViews(view);
-        setupGreeting();
+        com.example.tirtir_mcommerce.utils.HeaderHelper.bind(
+                view, requireContext(), requireActivity().getSupportFragmentManager());
         setupCategoryRow();
         setupBestSellers();
         setupExploreAll();
@@ -148,15 +153,9 @@ public class HomeFragment extends Fragment {
         layoutSearch        = view.findViewById(R.id.layoutSearch);
         containerCategories = view.findViewById(R.id.containerCategories);
         etHomeSearch        = view.findViewById(R.id.etHomeSearch);
+        cardSearchSuggestions = view.findViewById(R.id.cardSearchSuggestions);
+        containerSearchSuggestions = view.findViewById(R.id.containerSearchSuggestions);
         btnShopCollection   = view.findViewById(R.id.btnShopCollection);
-    }
-
-    // ===========================
-    // GREETING
-    // ===========================
-
-    private void setupGreeting() {
-        // Greeting views removed from header; logo is shown instead
     }
 
     // ===========================
@@ -173,15 +172,18 @@ public class HomeFragment extends Fragment {
             int iconRes = CATEGORY_ICONS[i];
 
             View categoryItem = inflater.inflate(R.layout.item_category, containerCategories, false);
+            categoryItem.setLayoutParams(new LinearLayout.LayoutParams(
+                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             ImageView ivIcon = categoryItem.findViewById(R.id.ivCategoryIcon);
             TextView tvLabel = categoryItem.findViewById(R.id.tvCategoryName);
 
             ivIcon.setImageResource(iconRes);
             tvLabel.setText(label);
 
+            categoryItem.setContentDescription("Filter by " + label);
             categoryItem.setOnClickListener(v ->
                 requireActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainer, new ShopFragment())
+                        .replace(R.id.fragmentContainer, ShopFragment.newInstance(label))
                         .addToBackStack(null)
                         .commit());
 
@@ -256,9 +258,21 @@ public class HomeFragment extends Fragment {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
                 @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                     currentSearchQuery = s == null ? "" : s.toString().trim().toLowerCase(Locale.ENGLISH);
-                    if (!fullProductList.isEmpty()) applyFilters();
+                    updateSearchSuggestions();
                 }
                 @Override public void afterTextChanged(Editable s) { }
+            });
+            etHomeSearch.setOnEditorActionListener((v, actionId, event) -> {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH && !currentSearchQuery.isEmpty()) {
+                    hideSearchSuggestions();
+                    requireActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer,
+                                    ShopFragment.newInstance("All", currentSearchQuery))
+                            .addToBackStack(null)
+                            .commit();
+                    return true;
+                }
+                return false;
             });
         }
 
@@ -279,18 +293,10 @@ public class HomeFragment extends Fragment {
                     startActivity(new Intent(requireContext(), NotificationCenterActivity.class)));
         }
 
-        // "View All" scrolls to the complete best-seller result set.
+        // "SEE ALL" opens the complete Shop catalog.
         View tvViewAll = view.findViewById(R.id.tvViewAllBestSellers);
         if (tvViewAll != null) {
-            tvViewAll.setOnClickListener(v -> {
-                currentCategoryFilter = "Best Sellers";
-                applyFilters();
-                View exploreSection = view.findViewById(R.id.exploreAllSection);
-                androidx.core.widget.NestedScrollView scrollView = view.findViewById(R.id.nestedScrollView);
-                if (exploreSection != null && scrollView != null) {
-                    scrollView.smoothScrollTo(0, exploreSection.getTop());
-                }
-            });
+            tvViewAll.setOnClickListener(v -> navigateToShop());
         }
 
         // Keep the catalog filter explicit and bounded on small screens.
@@ -316,7 +322,7 @@ public class HomeFragment extends Fragment {
 
     private void navigateToShop() {
         requireActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragmentContainer, new ShopFragment())
+                .replace(R.id.fragmentContainer, ShopFragment.newInstance("All"))
                 .addToBackStack(null)
                 .commit();
     }
@@ -336,6 +342,7 @@ public class HomeFragment extends Fragment {
                 if (products != null && !products.isEmpty()) {
                     fullProductList = new ArrayList<>(products);
                     applyFilters();
+                    updateSearchSuggestions();
                     rvProducts.setVisibility(View.VISIBLE);
                 } else {
                     showEmptyState();
@@ -397,7 +404,6 @@ public class HomeFragment extends Fragment {
         List<Product> filtered = new ArrayList<>();
         for (Product product : fullProductList) {
             boolean matchesCategory = true;
-            boolean matchesSearch = true;
 
             if (!"All".equalsIgnoreCase(currentCategoryFilter) && !"Best Sellers".equalsIgnoreCase(currentCategoryFilter)) {
                 String cat = product.getCategory() != null ? product.getCategory() : "";
@@ -406,13 +412,7 @@ public class HomeFragment extends Fragment {
                                 currentCategoryFilter.toLowerCase(Locale.ENGLISH));
             }
 
-            if (!currentSearchQuery.isEmpty()) {
-                String name = product.getName() != null ? product.getName().toLowerCase(Locale.ENGLISH) : "";
-                String cat  = product.getCategory() != null ? product.getCategory().toLowerCase(Locale.ENGLISH) : "";
-                matchesSearch = name.contains(currentSearchQuery) || cat.contains(currentSearchQuery);
-            }
-
-            if (matchesCategory && matchesSearch) {
+            if (matchesCategory) {
                 filtered.add(product);
             }
         }
@@ -445,6 +445,77 @@ public class HomeFragment extends Fragment {
         }
 
         hideAllStates();
+    }
+
+    private void updateSearchSuggestions() {
+        if (cardSearchSuggestions == null || containerSearchSuggestions == null) return;
+        containerSearchSuggestions.removeAllViews();
+        if (currentSearchQuery.isEmpty() || fullProductList.isEmpty()) {
+            hideSearchSuggestions();
+            return;
+        }
+
+        int shown = 0;
+        LayoutInflater inflater = LayoutInflater.from(requireContext());
+        for (Product product : fullProductList) {
+            if (!matchesSearch(product, currentSearchQuery)) continue;
+
+            View row = inflater.inflate(R.layout.item_search_suggestion,
+                    containerSearchSuggestions, false);
+            ImageView image = row.findViewById(R.id.ivSuggestionImage);
+            TextView name = row.findViewById(R.id.tvSuggestionName);
+            TextView meta = row.findViewById(R.id.tvSuggestionMeta);
+
+            name.setText(product.getName() == null ? "TirTir product" : product.getName());
+            double price = product.getSalePrice() > 0 ? product.getSalePrice() : product.getPrice();
+            meta.setText((product.getCategory() == null ? "Beauty" : product.getCategory())
+                    + "  •  " + com.example.tirtir_mcommerce.utils.PriceUtils.formatPriceUsd(
+                    com.example.tirtir_mcommerce.utils.PriceUtils.normalizePrice(price)));
+            String suggestionPath = product.getGalleryImages() != null
+                    && !product.getGalleryImages().isEmpty()
+                    ? product.getGalleryImages().get(0) : product.getThumbnailImages();
+            if ((product.getGalleryImages() == null || product.getGalleryImages().isEmpty())
+                    && suggestionPath != null && suggestionPath.endsWith("/thumb.webp")
+                    && !suggestionPath.contains("/Main-Images/")) {
+                suggestionPath = suggestionPath.substring(
+                        0, suggestionPath.length() - "/thumb.webp".length())
+                        + "/Main-Images/1.webp";
+            }
+            Glide.with(this)
+                    .load(com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(suggestionPath))
+                    .placeholder(R.drawable.ic_product_placeholder)
+                    .error(R.drawable.ic_product_placeholder)
+                    .into(image);
+            row.setOnClickListener(v -> {
+                hideSearchSuggestions();
+                openProductDetail(product);
+            });
+            containerSearchSuggestions.addView(row);
+            shown++;
+            if (shown == 5) break;
+        }
+
+        if (shown == 0) {
+            TextView empty = new TextView(requireContext());
+            empty.setText("No products match ‘" + currentSearchQuery + "’");
+            empty.setTextColor(requireContext().getColor(R.color.tirtir_text_secondary));
+            empty.setTextSize(13f);
+            int padding = (int) (16 * getResources().getDisplayMetrics().density);
+            empty.setPadding(padding, padding, padding, padding);
+            containerSearchSuggestions.addView(empty);
+        }
+        cardSearchSuggestions.setVisibility(View.VISIBLE);
+    }
+
+    private boolean matchesSearch(Product product, String query) {
+        String name = product.getName() == null ? "" : product.getName().toLowerCase(Locale.ENGLISH);
+        String category = product.getCategory() == null ? "" : product.getCategory().toLowerCase(Locale.ENGLISH);
+        String concern = product.getMainConcern() == null ? "" : product.getMainConcern().toLowerCase(Locale.ENGLISH);
+        return name.contains(query) || category.contains(query) || concern.contains(query);
+    }
+
+    private void hideSearchSuggestions() {
+        if (cardSearchSuggestions != null) cardSearchSuggestions.setVisibility(View.GONE);
     }
 
     // ===========================

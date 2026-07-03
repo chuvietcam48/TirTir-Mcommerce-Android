@@ -6,6 +6,89 @@
     android:background="@color/tirtir_off_white"
     android:orientation="vertical">
 
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
+        app:cardBackgroundColor="@color/tirtir_red_primary"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="14dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="RECOMMENDED FOR YOU" android:textColor="#CCFFFFFF"
+                android:textSize="10sp" android:textStyle="bold" />
+            <TextView
+                android:id="@+id/tvRoutinePersonaTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Your Personalized Skin Ritual"
+                android:textColor="@color/tirtir_white"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="12dp"
+        app:cardBackgroundColor="@color/tirtir_white"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+        app:strokeColor="@color/tirtir_rose_outline"
+        app:strokeWidth="1dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="14dp">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="SMART RITUAL COMBO" android:textColor="@color/tirtir_red_primary"
+                    android:textSize="11sp" android:textStyle="bold" />
+                <TextView android:id="@+id/tvRoutineBundlePrice" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:layout_marginTop="3dp"
+                    android:text="$0.00" android:textColor="@color/tirtir_text_primary"
+                    android:textSize="20sp" android:textStyle="bold" />
+            </LinearLayout>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:background="@drawable/bg_tag_primary" android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp" android:text="Save 15%\nwith routine"
+                android:textColor="@color/tirtir_white" android:textSize="11sp"
+                android:textStyle="bold" android:gravity="center" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="14dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="6dp">
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:fontFamily="serif"
+            android:text="Scientific Sequence" android:textColor="@color/tirtir_text_primary"
+            android:textSize="22sp" />
+        <TextView android:id="@+id/tvRoutineStepCount" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="0 PRODUCTS"
+            android:textColor="@color/tirtir_text_secondary" android:textSize="10sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvRoutineSteps"
         android:layout_width="match_parent"
@@ -13,7 +96,7 @@
         android:layout_weight="1"
         android:clipToPadding="false"
         android:paddingStart="12dp"
-        android:paddingTop="12dp"
+        android:paddingTop="4dp"
         android:paddingEnd="12dp"
         android:paddingBottom="20dp" />
 
@@ -70,17 +153,20 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddRoutineStep"
-            android:layout_width="52dp"
+            android:layout_width="0dp"
             android:layout_height="52dp"
+            android:layout_weight="1"
             android:contentDescription="Add product"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:padding="0dp"
-            android:text="+"
-            android:textColor="@color/tirtir_white"
-            android:textSize="24sp"
-            app:backgroundTint="@color/tirtir_red_primary"
-            app:cornerRadius="26dp" />
+            android:text="+  Expand routine"
+            android:textColor="@color/tirtir_red_primary"
+            android:textSize="13sp"
+            app:backgroundTint="@color/tirtir_white"
+            app:strokeColor="@color/tirtir_rose_outline"
+            app:strokeWidth="1dp"
+            app:cornerRadius="10dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSaveShareRoutine"

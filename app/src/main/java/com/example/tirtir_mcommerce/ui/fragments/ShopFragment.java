@@ -45,11 +45,17 @@ import java.util.Set;
 public class ShopFragment extends Fragment {
 
     private static final String ARG_CATEGORY = "initial_category";
+    private static final String ARG_QUERY = "initial_query";
 
     public static ShopFragment newInstance(String category) {
+        return newInstance(category, "");
+    }
+
+    public static ShopFragment newInstance(String category, String query) {
         ShopFragment f = new ShopFragment();
         Bundle args = new Bundle();
         args.putString(ARG_CATEGORY, category);
+        args.putString(ARG_QUERY, query);
         f.setArguments(args);
         return f;
     }
@@ -95,6 +101,7 @@ public class ShopFragment extends Fragment {
         Bundle args = getArguments();
         if (args != null && args.getString(ARG_CATEGORY) != null) {
             currentCategory = args.getString(ARG_CATEGORY);
+            currentSearch = args.getString(ARG_QUERY, "");
         }
 
         // Bind views
@@ -106,6 +113,7 @@ public class ShopFragment extends Fragment {
         layoutEmptyShop   = view.findViewById(R.id.layoutEmptyShop);
         layoutErrorShop   = view.findViewById(R.id.layoutErrorShop);
         tvOfflineBanner   = view.findViewById(R.id.tvOfflineBanner);
+        if (etSearch != null && !currentSearch.isEmpty()) etSearch.setText(currentSearch);
 
         // Wishlist shortcut
         View btnWishlist = view.findViewById(R.id.btnShopWishlist);
@@ -243,6 +251,7 @@ public class ShopFragment extends Fragment {
         // Collect unique categories from live data, "All" always first
         Set<String> categories = new LinkedHashSet<>();
         categories.add("All");
+        if (!"All".equalsIgnoreCase(currentCategory)) categories.add(currentCategory);
         for (Product p : products) {
             if (p.getCategory() != null && !p.getCategory().trim().isEmpty()) {
                 categories.add(p.getCategory().trim());
@@ -287,7 +296,7 @@ public class ShopFragment extends Fragment {
             Iterator<Product> it = result.iterator();
             while (it.hasNext()) {
                 Product p = it.next();
-                if (!currentCategory.equalsIgnoreCase(p.getCategory())) it.remove();
+                if (!matchesCategoryFilter(p, currentCategory)) it.remove();
             }
         }
 
@@ -316,6 +325,27 @@ public class ShopFragment extends Fragment {
         adapter.updateData(result);
         if (tvProductCount != null) tvProductCount.setText(result.size() + " Products");
         showState(result.isEmpty() ? STATE_EMPTY : STATE_CONTENT);
+    }
+
+    private boolean matchesCategoryFilter(Product product, String filter) {
+        String needle = filter == null ? "" : filter.toLowerCase(java.util.Locale.ENGLISH).trim();
+        if (needle.isEmpty() || "all".equals(needle)) return true;
+        String searchable = ((product.getCategory() == null ? "" : product.getCategory()) + " "
+                + (product.getCategorySlug() == null ? "" : product.getCategorySlug()) + " "
+                + (product.getName() == null ? "" : product.getName()) + " "
+                + (product.getProductSlug() == null ? "" : product.getProductSlug()) + " "
+                + (product.getMainConcern() == null ? "" : product.getMainConcern()))
+                .toLowerCase(java.util.Locale.ENGLISH);
+
+        if (searchable.contains(needle)) return true;
+        if ("moisturizer".equals(needle)) {
+            return searchable.contains("cream") || searchable.contains("lotion")
+                    || searchable.contains("moisture");
+        }
+        if ("sunscreen".equals(needle)) {
+            return searchable.contains("sun") || searchable.contains("spf");
+        }
+        return false;
     }
 
     // ===========================

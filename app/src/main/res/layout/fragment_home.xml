@@ -26,6 +26,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:paddingHorizontal="16dp"
                 android:paddingBottom="16dp">
 
@@ -62,6 +63,27 @@
                         android:textSize="14sp" />
                         
                 </LinearLayout>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSearchSuggestions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="@color/tirtir_white"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="6dp"
+                    app:strokeColor="@color/tirtir_border_gray"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:id="@+id/containerSearchSuggestions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingVertical="4dp" />
+
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
             <!-- =================== AI SKIN ANALYSIS BANNER =================== -->
@@ -144,11 +166,12 @@
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:fillViewport="true"
                     android:scrollbars="none">
                     
                     <LinearLayout
                         android:id="@+id/containerCategories"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal" />
                 </HorizontalScrollView>

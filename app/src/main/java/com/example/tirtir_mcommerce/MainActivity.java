@@ -12,6 +12,8 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.tirtir_mcommerce.ui.fragments.HomeFragment;
@@ -21,7 +23,12 @@ import com.example.tirtir_mcommerce.ui.fragments.CartFragment;
 import com.example.tirtir_mcommerce.ui.fragments.ChatFragment;
 import com.example.tirtir_mcommerce.ui.fragments.RoutineFragment;
 import com.example.tirtir_mcommerce.ui.fragments.LoyaltyFragment;
+import com.example.tirtir_mcommerce.ui.fragments.ShopFragment;
 import com.example.tirtir_mcommerce.database.DatabaseHelper;
+import com.example.tirtir_mcommerce.model.User;
+import com.example.tirtir_mcommerce.repository.AuthRepository;
+import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
+import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     private View navTabScan;
     private View navTabChat;
     private View navTabProfile;
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
 
     // Track currently active tab id
     private int activeTabId = R.id.navTabHome;
@@ -61,6 +70,10 @@ public class MainActivity extends AppCompatActivity {
         navTabScan    = findViewById(R.id.navTabScan);
         navTabChat    = findViewById(R.id.navTabChat);
         navTabProfile = findViewById(R.id.navTabProfile);
+        drawerLayout  = findViewById(R.id.drawerLayoutMain);
+        navigationView = findViewById(R.id.navigationViewMain);
+
+        setupDrawerNavigation();
 
         navTabHome.setOnClickListener(v -> {
             setActiveTab(R.id.navTabHome);
@@ -122,6 +135,91 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    private void setupDrawerNavigation() {
+        if (navigationView == null) return;
+
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_drawer_home) {
+                showDrawerFragment(new HomeFragment(), R.id.navTabHome, false);
+            } else if (id == R.id.nav_drawer_shop) {
+                showDrawerFragment(ShopFragment.newInstance("All"), R.id.navTabHome, true);
+            } else if (id == R.id.nav_drawer_cart) {
+                showDrawerFragment(new CartFragment(), R.id.navTabHome, true);
+            } else if (id == R.id.nav_drawer_wishlist) {
+                startActivity(new android.content.Intent(this,
+                        com.example.tirtir_mcommerce.ui.activities.WishlistActivity.class));
+            } else if (id == R.id.nav_drawer_orders) {
+                showDrawerFragment(new OrderHistoryFragment(), R.id.navTabProfile, true);
+            } else if (id == R.id.nav_drawer_loyalty) {
+                showDrawerFragment(new LoyaltyFragment(), R.id.navTabProfile, true);
+            } else if (id == R.id.nav_drawer_vouchers) {
+                startActivity(new android.content.Intent(this,
+                        com.example.tirtir_mcommerce.ui.activities.VoucherWalletActivity.class));
+            } else if (id == R.id.nav_drawer_notifications) {
+                startActivity(new android.content.Intent(this,
+                        com.example.tirtir_mcommerce.ui.activities.NotificationCenterActivity.class));
+            } else if (id == R.id.nav_drawer_settings) {
+                startActivity(new android.content.Intent(this,
+                        com.example.tirtir_mcommerce.ui.activities.NotificationSettingsActivity.class));
+            } else if (id == R.id.nav_drawer_logout) {
+                confirmDrawerLogout();
+            }
+            if (drawerLayout != null) drawerLayout.closeDrawer(GravityCompat.START);
+            return true;
+        });
+
+        updateDrawerHeader();
+    }
+
+    private void showDrawerFragment(Fragment fragment, int tabId, boolean addToBackStack) {
+        setActiveTab(tabId);
+        androidx.fragment.app.FragmentTransaction transaction = getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, fragment);
+        if (addToBackStack) transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    private void confirmDrawerLogout() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Sign out")
+                .setMessage("Sign out of your TirTir account?")
+                .setPositiveButton("Sign out", (dialog, which) ->
+                        new AuthRepository(this).logout(this, ignored -> {
+                            android.content.Intent intent = new android.content.Intent(this,
+                                    com.example.tirtir_mcommerce.ui.activities.LoginActivity.class);
+                            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                                    | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            finish();
+                        }, error -> android.widget.Toast.makeText(this, error,
+                                android.widget.Toast.LENGTH_SHORT).show()))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void updateDrawerHeader() {
+        if (navigationView == null || navigationView.getHeaderCount() == 0) return;
+        View header = navigationView.getHeaderView(0);
+        TextView nameView = header.findViewById(R.id.tvDrawerUserName);
+        TextView emailView = header.findViewById(R.id.tvDrawerUserEmail);
+        User user = new SharedPrefsManager(this).getCachedUser();
+        if (nameView != null) {
+            nameView.setText(user != null && user.getName() != null && !user.getName().trim().isEmpty()
+                    ? user.getName() : "TirTir Member");
+        }
+        if (emailView != null) {
+            emailView.setText(user != null && user.getEmail() != null
+                    ? user.getEmail() : "Welcome to TirTir");
+        }
+    }
+
+    public void openDrawer() {
+        updateDrawerHeader();
+        if (drawerLayout != null) drawerLayout.openDrawer(GravityCompat.START);
     }
 
     /**
@@ -232,7 +330,17 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             return;
         }
+        updateDrawerHeader();
         updateCartBadge();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return;
+        }
+        super.onBackPressed();
     }
 
     public void updateCartBadge() {

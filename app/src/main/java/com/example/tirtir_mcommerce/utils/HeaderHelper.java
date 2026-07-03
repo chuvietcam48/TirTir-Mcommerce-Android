@@ -26,6 +26,15 @@ public class HeaderHelper {
             tvGreeting.setText("Hello, " + name);
         }
 
+        View btnHamburger = root.findViewById(R.id.btnHamburger);
+        if (btnHamburger != null) {
+            btnHamburger.setOnClickListener(v -> {
+                if (context instanceof com.example.tirtir_mcommerce.MainActivity) {
+                    ((com.example.tirtir_mcommerce.MainActivity) context).openDrawer();
+                }
+            });
+        }
+
         View btnNotifications = root.findViewById(R.id.btnNotifications);
         if (btnNotifications != null) {
             btnNotifications.setOnClickListener(v ->

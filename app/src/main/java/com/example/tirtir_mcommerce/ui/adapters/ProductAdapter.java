@@ -342,30 +342,23 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         }
 
         private String resolveImageUrl(Product product) {
-            // Gallery images are the most reliable deployed assets. Some catalog thumbnail
-            // records still point at legacy paths that return 404 (for example Hydro UV).
+            // Thumbnail (thumb.webp) is always the clean product-on-white shot.
+            String thumbnail = buildUrl(product.getThumbnailImages());
+            if (!thumbnail.isEmpty()) return thumbnail;
+            // Fall back to first gallery image when no thumbnail path is set.
             if (product.getGalleryImages() != null && !product.getGalleryImages().isEmpty()) {
                 String resolved = buildUrl(product.getGalleryImages().get(0));
                 if (!resolved.isEmpty()) return resolved;
-            }
-            String repairedLegacyPath = deriveLegacyGalleryPath(product.getThumbnailImages());
-            if (!repairedLegacyPath.isEmpty()) return buildUrl(repairedLegacyPath);
-            return buildUrl(product.getThumbnailImages());
-        }
-
-        private String deriveLegacyGalleryPath(String thumbnail) {
-            if (thumbnail == null) return "";
-            String clean = thumbnail.trim();
-            if (clean.endsWith("/thumb.webp") && !clean.contains("/Main-Images/")) {
-                return clean.substring(0, clean.length() - "/thumb.webp".length())
-                        + "/Main-Images/1.webp";
             }
             return "";
         }
 
         private String resolveSecondaryImageUrl(Product product, String primaryUrl) {
-            String thumbnail = buildUrl(product.getThumbnailImages());
-            return !thumbnail.isEmpty() && !thumbnail.equals(primaryUrl) ? thumbnail : "";
+            if (product.getGalleryImages() != null && !product.getGalleryImages().isEmpty()) {
+                String gallery0 = buildUrl(product.getGalleryImages().get(0));
+                if (!gallery0.isEmpty() && !gallery0.equals(primaryUrl)) return gallery0;
+            }
+            return "";
         }
 
         private String buildUrl(String path) {
