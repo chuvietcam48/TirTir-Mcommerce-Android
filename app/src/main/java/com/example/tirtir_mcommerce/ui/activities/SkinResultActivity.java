@@ -5,6 +5,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -142,6 +145,9 @@ public class SkinResultActivity extends AppCompatActivity {
             shadeFinderFragment.updateData(shadeResults, skinHex);
             skinReportFragment.updateData(analysisResult, -1, -1, -1,
                     analysisResult != null ? analysisResult.computeItaAngle() : Double.NaN);
+
+            // Preload shade match images for faster display
+            preloadShadeImages(shadeResults);
 
             callRecommendRoutineApi();
         } else {
@@ -291,6 +297,28 @@ public class SkinResultActivity extends AppCompatActivity {
     }
 
     // ===========================
+    // IMAGE PRELOADING
+    // ===========================
+
+    /**
+     * Preload shade match product images vào Glide cache.
+     * Khi user chuyển sang Shade Finder tab, ảnh đã sẵn trong cache → hiển thị ngay.
+     */
+    private void preloadShadeImages(List<ShadeMatchResult> matches) {
+        if (matches == null || isFinishing()) return;
+        for (ShadeMatchResult match : matches) {
+            String url = match.getImageUrl();
+            if (url != null && !url.isEmpty()) {
+                String resolved = com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(url);
+                Glide.with(getApplicationContext())
+                        .load(resolved)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .preload();
+            }
+        }
+    }
+
+    // ===========================
     // PARSING HELPERS
     // ===========================
 
@@ -332,19 +360,48 @@ public class SkinResultActivity extends AppCompatActivity {
 
             RoutineStep step = new RoutineStep();
             step.setStep(stepIndex++);
-            step.setStepName(stringVal(itemMap.get("stepName")));
-            step.setProductId(stringVal(itemMap.get("productId")));
-            step.setProductName(stringVal(itemMap.get("productName")));
-            step.setImageUrl(stringVal(itemMap.get("imageUrl")));
+            
+            // The API returns step name as 'step' (e.g. "Cleanser")
+            step.setStepName(stringVal(itemMap.get("step")));
+            if (step.getStepName().isEmpty()) {
+                step.setStepName(stringVal(itemMap.get("stepName")));
+            }
+            
+            step.setProductName(stringVal(itemMap.get("product_name")));
+            if (step.getProductName().isEmpty()) {
+                step.setProductName(stringVal(itemMap.get("productName")));
+            }
 
-            Object price = itemMap.get("price");
-            if (price instanceof Number) step.setPrice(((Number) price).doubleValue());
+            step.setDescription(stringVal(itemMap.get("reason")));
+
+            Object productObj = itemMap.get("product");
+            if (productObj instanceof Map) {
+                Map<String, Object> productMap = (Map<String, Object>) productObj;
+                step.setProductId(stringVal(productMap.get("Product_ID")));
+                
+                Object price = productMap.get("Price");
+                if (price instanceof Number) step.setPrice(((Number) price).doubleValue());
+                
+                String imgUrl = stringVal(productMap.get("Thumbnail_Images"));
+                // Prepend base URL if it's a relative path
+                if (!imgUrl.isEmpty() && !imgUrl.startsWith("http")) {
+                    imgUrl = "https://tirtir-project.onrender.com/" + imgUrl;
+                }
+                step.setImageUrl(imgUrl);
+            } else {
+                step.setProductId(stringVal(itemMap.get("productId")));
+                step.setImageUrl(stringVal(itemMap.get("imageUrl")));
+                Object price = itemMap.get("price");
+                if (price instanceof Number) step.setPrice(((Number) price).doubleValue());
+            }
 
             Object hBoost = itemMap.get("hydrationBoost");
             if (hBoost instanceof Number) step.setHydrationBoost(((Number) hBoost).intValue());
+            else step.setHydrationBoost(3);
 
             Object tBoost = itemMap.get("textureBoost");
             if (tBoost instanceof Number) step.setTextureBoost(((Number) tBoost).intValue());
+            else step.setTextureBoost(2);
 
             steps.add(step);
         }
@@ -361,18 +418,28 @@ public class SkinResultActivity extends AppCompatActivity {
      */
     private List<ShadeMatchResult> buildClientSideShadeMatches() {
         List<ShadeMatchResult> results = new ArrayList<>();
-        // 3 shades mẫu (gần, vừa, xa)
+        // {shadeName, hex, matchScore, productName, price, imageUrl, productId}
         String[][] shades = {
-            {"Light Beige", "#F2D5B8", "3.2"},
-            {"Warm Sand",   "#DBA87A", "6.5"},
-            {"Natural Tan", "#C4895E", "11.0"}
+            {"21N Ivory", "#ebc5a1", "3.2", "Mask Fit Red Cushion", "35.00",
+                    "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg", "cushion-21n"},
+            {"23N Sand", "#ebbf98", "6.5", "Mask Fit Red Cushion", "35.00",
+                    "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg", "cushion-23n"},
+            {"24N Latte", "#e4b58e", "8.0", "Mask Fit Aura Cushion", "38.00",
+                    "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Aura-Cushion.jpg", "cushion-24n"},
+            {"27N Camel", "#e5b98b", "11.0", "Mask Fit Red Cushion", "35.00",
+                    "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg", "cushion-27n"},
+            {"33N Macchiato", "#d3a177", "15.0", "Mask Fit All-Cover Cushion", "36.00",
+                    "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-All-Cover-Cushion.jpg", "cushion-33n"}
         };
         for (String[] shade : shades) {
             ShadeMatchResult r = new ShadeMatchResult();
             r.setShadeName(shade[0]);
             r.setShadeHex(shade[1]);
             r.setMatchScore(Double.parseDouble(shade[2]));
-            r.setProductName("TirTir Cushion — " + shade[0]);
+            r.setProductName(shade[3]);
+            r.setPrice(Double.parseDouble(shade[4]));
+            r.setImageUrl(shade[5]);
+            r.setProductId(shade[6]);
             results.add(r);
         }
         return results;
@@ -394,20 +461,40 @@ public class SkinResultActivity extends AppCompatActivity {
 
     private List<RoutineStep> buildDemoRoutineSteps(String skinType) {
         List<RoutineStep> steps = new ArrayList<>();
+        // {step, stepName, productName, description, hydration, texture, price, imageUrl}
         String[][] routineData = {
-            {"1", "Cleanser",     "Gentle foam cleanser for " + skinType + " skin",  "3", "2"},
-            {"2", "Toner",        "Balancing toner with niacinamide",                 "5", "3"},
-            {"3", "Moisturizer",  "Lightweight hydrating cream",                      "8", "4"},
-            {"4", "SPF",          "Broad spectrum SPF 50+ sunscreen",                 "4", "2"}
+            {"1", "Cleanser", "Hydro Boost Enzyme Cleansing Balm",
+                    "Gentle cleansing is essential for " + skinType + " skin to remove impurities without over-stripping.",
+                    "3", "2", "25.00",
+                    "https://tirtir.vn/wp-content/uploads/2024/05/Hydro-Boost-Enzyme-Cleansing-Balm.jpg"},
+            {"2", "Toner", "Matcha Skin Toner",
+                    "Rebalances skin pH and prepares " + skinType + " skin for better absorption of subsequent products.",
+                    "5", "3", "22.00",
+                    "https://tirtir.vn/wp-content/uploads/2024/05/Matcha-Skin-Toner.jpg"},
+            {"3", "Serum", "Matcha Calming Duo Set",
+                    "Targets concerns with concentrated active ingredients.",
+                    "7", "4", "45.00",
+                    "https://tirtir.vn/wp-content/uploads/2024/05/Matcha-Calming-Duo-Set.jpg"},
+            {"4", "Cream", "Matcha Calming Cream",
+                    "Locks in moisture and creates a protective barrier suited for " + skinType + " skin.",
+                    "8", "3", "28.00",
+                    "https://tirtir.vn/wp-content/uploads/2024/05/Matcha-Calming-Cream.jpg"},
+            {"5", "Cushion", "Tirtir Mask Fit Red Cushion",
+                    "Provides coverage and sun protection while giving a natural, dewy finish.",
+                    "4", "2", "35.00",
+                    "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg"}
         };
         for (String[] data : routineData) {
             RoutineStep step = new RoutineStep();
             step.setStep(Integer.parseInt(data[0]));
             step.setStepName(data[1]);
-            step.setDescription(data[2]);
-            step.setHydrationBoost(Integer.parseInt(data[3]));
-            step.setTextureBoost(Integer.parseInt(data[4]));
-            step.setProductName("TirTir " + data[1]);
+            step.setProductName(data[2]);
+            step.setDescription(data[3]);
+            step.setHydrationBoost(Integer.parseInt(data[4]));
+            step.setTextureBoost(Integer.parseInt(data[5]));
+            step.setPrice(Double.parseDouble(data[6]));
+            step.setImageUrl(data[7]);
+            step.setProductId("tirtir-" + data[1].toLowerCase());
             steps.add(step);
         }
         return steps;

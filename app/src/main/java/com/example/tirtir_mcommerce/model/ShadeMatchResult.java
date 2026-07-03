@@ -1,5 +1,7 @@
 package com.example.tirtir_mcommerce.model;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Một kết quả từ API POST /api/v1/shades/match
  * matchScore là khoảng cách màu (Delta-E) — càng nhỏ càng phù hợp.
@@ -11,20 +13,37 @@ public class ShadeMatchResult {
     private String Product_ID;
     private String Shade_Name;
     private double matchScore;
+    
+    @SerializedName(value="productName", alternate={"Product_Name"})
     private String productName;
+    
+    @SerializedName(value="imageUrl", alternate={"Image_URL"})
     private String imageUrl;
+    
+    @SerializedName(value="price", alternate={"Price"})
     private double price;
+    
     private double salePrice;
+    
+    @SerializedName(value="shadeHex", alternate={"Hex_Code"})
     private String shadeHex;
 
-    // ---- Computed helper ----
-
     /**
-     * Chuyển đổi matchScore sang phần trăm độ phù hợp (0–100).
-     * Công thức: 100 * exp(-matchScore / 7)
+     * Chuyển đổi matchScore (Delta-E CIELAB) sang phần trăm độ phù hợp (0–100).
+     * Delta-E < 2: Perfect match (95-100%)
+     * Delta-E 2-5: Very good (85-94%)
+     * Delta-E 5-10: Good (70-84%)
+     * Delta-E 10-20: Acceptable (50-69%)
+     * Delta-E > 20: Poor match (< 50%)
      */
     public int getMatchPercent() {
-        return (int) Math.round(100.0 * Math.exp(-matchScore / 7.0));
+        if (matchScore <= 0) return 100;
+        if (matchScore <= 2) return (int) Math.round(100 - matchScore * 2.5);
+        if (matchScore <= 5) return (int) Math.round(95 - (matchScore - 2) * 3.33);
+        if (matchScore <= 10) return (int) Math.round(85 - (matchScore - 5) * 3.0);
+        if (matchScore <= 20) return (int) Math.round(70 - (matchScore - 10) * 2.0);
+        if (matchScore <= 40) return (int) Math.round(50 - (matchScore - 20) * 1.25);
+        return Math.max(5, (int) Math.round(25 - (matchScore - 40) * 0.5));
     }
 
     /**

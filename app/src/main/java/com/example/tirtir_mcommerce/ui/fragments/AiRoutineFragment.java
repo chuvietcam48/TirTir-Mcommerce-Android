@@ -32,6 +32,8 @@ import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.database.DatabaseHelper;
 import com.example.tirtir_mcommerce.model.CartItem;
 import com.example.tirtir_mcommerce.model.RoutineStep;
+import com.example.tirtir_mcommerce.network.ApiConfig;
+import com.example.tirtir_mcommerce.repository.CartRepository;
 import com.example.tirtir_mcommerce.ui.adapters.RoutineStepAdapter;
 
 import java.util.ArrayList;
@@ -194,13 +196,17 @@ public class AiRoutineFragment extends Fragment {
             return;
         }
 
+        String imgUrl = step.getImageUrl() != null ? ApiConfig.resolveMediaUrl(step.getImageUrl()) : "";
         CartItem item = new CartItem(
                 step.getProductId(),
                 step.getProductName(),
-                step.getImageUrl(),
+                imgUrl,
                 step.getDisplayPrice(), 1, null
         );
-        DatabaseHelper.getInstance(requireContext()).insertOrUpdateCartItem(item);
+        // Fix: Use CartRepository to both save locally AND sync to server/Firebase
+        CartRepository repository = new CartRepository(requireContext());
+        repository.addToCartLocal(item);
+        repository.syncItemToServer(item, null, error -> {});
         Toast.makeText(requireContext(), step.getStepName() + " product added to cart!",
                 Toast.LENGTH_SHORT).show();
     }

@@ -91,10 +91,19 @@ public class IngredientScanActivity extends AppCompatActivity {
                         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                         .build();
                 provider.unbindAll();
-                CameraSelector selector = provider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)
-                        ? CameraSelector.DEFAULT_BACK_CAMERA
-                        : CameraSelector.DEFAULT_FRONT_CAMERA;
-                provider.bindToLifecycle(this, selector, preview, imageCapture);
+                CameraSelector selector = CameraSelector.DEFAULT_BACK_CAMERA;
+                if (!provider.hasCamera(selector) && provider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
+                    selector = CameraSelector.DEFAULT_FRONT_CAMERA;
+                }
+                
+                try {
+                    provider.bindToLifecycle(IngredientScanActivity.this, selector, preview, imageCapture);
+                } catch (Exception e) {
+                    Log.e(TAG, "Unable to bind primary camera, trying fallback", e);
+                    provider.unbindAll();
+                    provider.bindToLifecycle(IngredientScanActivity.this, CameraSelector.DEFAULT_FRONT_CAMERA, preview, imageCapture);
+                }
+                
                 cameraStarting = false;
                 captureButton.setEnabled(true);
             } catch (Exception error) {
@@ -102,7 +111,7 @@ public class IngredientScanActivity extends AppCompatActivity {
                 Log.e(TAG, "Unable to bind CameraX", error);
                 imageCapture = null;
                 captureButton.setEnabled(false);
-                showCameraUnavailableDialog();
+                runOnUiThread(() -> showCameraUnavailableDialog());
             }
         }, ContextCompat.getMainExecutor(this));
     }

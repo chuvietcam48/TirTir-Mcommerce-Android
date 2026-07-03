@@ -81,9 +81,25 @@ public class BarcodeScanActivity extends AppCompatActivity {
                 imageAnalysis.setAnalyzer(cameraExecutor, this::processImageProxy);
 
                 cameraProvider.unbindAll();
-                cameraProvider.bindToLifecycle(this, CameraSelector.DEFAULT_BACK_CAMERA, preview, imageAnalysis);
-            } catch (Exception e) {
-                Log.e("BarcodeScanActivity", "Use case binding failed", e);
+                CameraSelector selector = CameraSelector.DEFAULT_BACK_CAMERA;
+                if (!cameraProvider.hasCamera(selector) && cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
+                    selector = CameraSelector.DEFAULT_FRONT_CAMERA;
+                }
+                
+                try {
+                    cameraProvider.bindToLifecycle(this, selector, preview, imageAnalysis);
+                } catch (Exception e) {
+                    Log.e("BarcodeScanActivity", "Use case binding failed, trying front", e);
+                    cameraProvider.unbindAll();
+                    try {
+                        cameraProvider.bindToLifecycle(this, CameraSelector.DEFAULT_FRONT_CAMERA, preview, imageAnalysis);
+                    } catch (Exception e2) {
+                        Log.e("BarcodeScanActivity", "Fallback failed", e2);
+                        runOnUiThread(() -> Toast.makeText(this, "Camera not available", Toast.LENGTH_SHORT).show());
+                    }
+                }
+            } catch (Exception mainException) {
+                Log.e("BarcodeScanActivity", "Camera initialization failed", mainException);
             }
         }, ContextCompat.getMainExecutor(this));
     }

@@ -127,23 +127,29 @@ exports.findBestMatch = async (req, res) => {
 
         // H1 FIX: Batch query all products at once instead of N+1
         const productIds = [...new Set(topMatches.map(m => m.Product_ID))];
-        const products = await Product.find({ Product_ID: { $in: productIds } }).select('Product_ID Thumbnail_Images Name');
+        const products = await Product.find({ Product_ID: { $in: productIds } }).select('Product_ID Thumbnail_Images Name Price Sale_Price');
         const productMap = new Map(products.map(p => [p.Product_ID, p]));
 
         const finalResults = topMatches.map((match) => {
             const product = productMap.get(match.Product_ID);
             let imageUrl = match.Shade_Image;
             let productName = "";
+            let price = 0;
+            let salePrice = 0;
 
             if (product) {
                 if (!imageUrl) imageUrl = product.Thumbnail_Images;
                 productName = product.Name;
+                price = product.Price || 0;
+                salePrice = product.Sale_Price || 0;
             }
 
             return {
                 ...match,
                 Image_URL: imageUrl,
-                Product_Name: productName
+                Product_Name: productName,
+                Price: price,
+                Sale_Price: salePrice
             };
         });
 

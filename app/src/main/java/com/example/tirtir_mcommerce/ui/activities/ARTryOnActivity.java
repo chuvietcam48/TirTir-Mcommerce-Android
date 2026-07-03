@@ -53,34 +53,35 @@ public class ARTryOnActivity extends AppCompatActivity {
     private LinearLayout layoutColors;
     private TextView tvLoading;
     private int selectedIndex = 0;
-    private String productId;
 
-    private androidx.activity.result.ActivityResultLauncher<String> cameraPermissionLauncher;
+        java.util.ArrayList<String> namesExtra = getIntent().getStringArrayListExtra("SHADE_NAMES");
+        java.util.ArrayList<String> hexesExtra = getIntent().getStringArrayListExtra("SHADE_HEXES");
 
-    private ArFrontFacingFragment arFragment;
-    private Texture lipsTexture;
-    private final HashMap<AugmentedFace, AugmentedFaceNode> faceNodeMap = new HashMap<>();
-    
-    // Dynamic shades from API
-    private final List<Map<String, Object>> availableShades = new ArrayList<>();
-    private final List<Integer> parsedColors = new ArrayList<>();
+        if (namesExtra != null && hexesExtra != null && !hexesExtra.isEmpty()) {
+            activeShadeColors = new int[hexesExtra.size()];
+            activeShadeNames = new String[hexesExtra.size()];
+            for (int i = 0; i < hexesExtra.size(); i++) {
+                String hex = hexesExtra.get(i);
+                activeShadeNames[i] = i < namesExtra.size() ? namesExtra.get(i) : ("Shade " + (i + 1));
+                try {
+                    if (!hex.startsWith("#")) {
+                        hex = "#" + hex;
+                    }
+                    activeShadeColors[i] = Color.parseColor(hex);
+                } catch (Exception e) {
+                    activeShadeColors[i] = SHADE_COLORS[i % SHADE_COLORS.length];
+                }
+            }
+        } else {
+            activeShadeColors = SHADE_COLORS;
+            activeShadeNames = new String[SHADE_COLORS.length];
+            for (int i = 0; i < SHADE_COLORS.length; i++) {
+                activeShadeNames[i] = "Shade " + (i + 1);
+            }
+        }
 
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ar_try_on);
+        buildColorPicker();
 
-        productId = getIntent().getStringExtra("PRODUCT_ID");
-
-        layoutColors = findViewById(R.id.layoutArColorPicker);
-        tvLoading = findViewById(R.id.tvArLoading);
-        ImageButton btnClose = findViewById(R.id.btnCloseAr);
-        FloatingActionButton btnCapture = findViewById(R.id.fabArCapture);
-
-        btnClose.setOnClickListener(v -> finish());
-        btnCapture.setOnClickListener(v -> takeArScreenshot());
-
-        fetchShadesFromApi();
 
         cameraPermissionLauncher = registerForActivityResult(
                 new androidx.activity.result.contract.ActivityResultContracts.RequestPermission(),
@@ -255,16 +256,12 @@ public class ARTryOnActivity extends AppCompatActivity {
     }
 
     private void updateMaterialColor() {
-        if (parsedColors.isEmpty()) return;
-        int color = parsedColors.get(selectedIndex);
 
-        // Fallback: Use MaterialFactory to color the entire mesh with low alpha (as per user request)
-        // Extract RGB and apply custom alpha
+        int color = activeShadeColors[selectedIndex];
         int r = Color.red(color);
         int g = Color.green(color);
         int b = Color.blue(color);
         int alphaColor = Color.argb(100, r, g, b); // ~0.4 alpha
-
         com.google.ar.sceneform.rendering.MaterialFactory.makeTransparentWithColor(this, new com.google.ar.sceneform.rendering.Color(alphaColor))
                 .thenAccept(material -> {
                     for (AugmentedFaceNode node : faceNodeMap.values()) {
@@ -309,13 +306,17 @@ public class ARTryOnActivity extends AppCompatActivity {
 
     private void buildColorPicker() {
         layoutColors.removeAllViews();
-        for (int i = 0; i < parsedColors.size(); i++) {
+
+        for (int i = 0; i < activeShadeColors.length; i++) {
+
             ImageButton button = new ImageButton(this);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(44), dp(44));
             params.setMargins(dp(6), 0, dp(6), 0);
             button.setLayoutParams(params);
-            button.setBackground(createShadeBackground(parsedColors.get(i), i == selectedIndex));
-            button.setContentDescription("Choose shade " + (i + 1));
+
+            button.setBackground(createShadeBackground(activeShadeColors[i], i == selectedIndex));
+            button.setContentDescription("Choose " + activeShadeNames[i]);
+
             button.setScaleType(ImageView.ScaleType.CENTER);
             button.setPadding(0, 0, 0, 0);
             final int index = i;
@@ -323,6 +324,7 @@ public class ARTryOnActivity extends AppCompatActivity {
                 selectedIndex = index;
                 updateMaterialColor();
                 buildColorPicker();
+                Toast.makeText(this, "Selected: " + activeShadeNames[index], Toast.LENGTH_SHORT).show();
             });
             layoutColors.addView(button);
         }
@@ -350,3 +352,4 @@ public class ARTryOnActivity extends AppCompatActivity {
         }
     }
 }
+

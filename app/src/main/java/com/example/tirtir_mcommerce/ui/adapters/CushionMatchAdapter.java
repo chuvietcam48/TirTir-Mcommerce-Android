@@ -30,14 +30,18 @@ public class CushionMatchAdapter extends RecyclerView.Adapter<CushionMatchAdapte
         public final String shadeHex;
         public final String quality;
         public final double price;
+        public final String shadeName;
+        public final int matchPercent;
 
-        public CushionMatch(String productId, String name, String imageUrl, String shadeHex, String quality, double price) {
+        public CushionMatch(String productId, String name, String imageUrl, String shadeHex, String quality, double price, String shadeName, int matchPercent) {
             this.productId = productId;
             this.name = name;
             this.imageUrl = imageUrl;
             this.shadeHex = shadeHex;
             this.quality = quality;
             this.price = price;
+            this.shadeName = shadeName;
+            this.matchPercent = matchPercent;
         }
     }
 
@@ -74,6 +78,8 @@ public class CushionMatchAdapter extends RecyclerView.Adapter<CushionMatchAdapte
     class CushionViewHolder extends RecyclerView.ViewHolder {
         private final ImageView image;
         private final TextView name;
+        private final TextView shade;
+        private final TextView price;
         private final View swatch;
         private final Chip quality;
 
@@ -81,6 +87,8 @@ public class CushionMatchAdapter extends RecyclerView.Adapter<CushionMatchAdapte
             super(itemView);
             image = itemView.findViewById(R.id.ivCushionThumb);
             name = itemView.findViewById(R.id.tvCushionName);
+            shade = itemView.findViewById(R.id.tvCushionShade);
+            price = itemView.findViewById(R.id.tvCushionPrice);
             swatch = itemView.findViewById(R.id.viewShadeSwatch);
             quality = itemView.findViewById(R.id.chipMatchQuality);
             itemView.findViewById(R.id.btnAddCushionToCart).setOnClickListener(v -> {
@@ -92,7 +100,9 @@ public class CushionMatchAdapter extends RecyclerView.Adapter<CushionMatchAdapte
 
         void bind(CushionMatch item) {
             name.setText(item.name);
-            quality.setText(item.quality);
+            shade.setText("Shade: " + (item.shadeName != null ? item.shadeName : "—"));
+            price.setText(String.format("$%.2f", item.price));
+            quality.setText(item.matchPercent + "% — " + item.quality);
             try {
                 swatch.setBackgroundColor(Color.parseColor(item.shadeHex));
             } catch (Exception ignored) {

@@ -16,10 +16,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.tirtir_mcommerce.R;
-import com.example.tirtir_mcommerce.database.DatabaseHelper;
 import com.example.tirtir_mcommerce.model.CartItem;
 import com.example.tirtir_mcommerce.model.ShadeMatchResult;
+import com.example.tirtir_mcommerce.network.ApiConfig;
+import com.example.tirtir_mcommerce.repository.CartRepository;
 import com.example.tirtir_mcommerce.ui.adapters.CushionMatchAdapter;
 import com.example.tirtir_mcommerce.utils.PriceUtils;
 import com.google.android.material.button.MaterialButton;
@@ -42,7 +44,7 @@ public class ShadeFinderFragment extends Fragment {
 
     // UI
     private ImageView imgTopMatchProduct;
-    private TextView tvTopMatchName, tvTopMatchShade, tvTopMatchPercent;
+    private TextView tvTopMatchName, tvTopMatchShade, tvTopMatchPrice, tvTopMatchPercent;
     private View viewTopMatchSwatch;
     private MaterialButton btnTopMatchAddToCart;
     private TextView tvOtherMatchesHeader;
@@ -82,6 +84,7 @@ public class ShadeFinderFragment extends Fragment {
         imgTopMatchProduct   = view.findViewById(R.id.imgTopMatchProduct);
         tvTopMatchName       = view.findViewById(R.id.tvTopMatchName);
         tvTopMatchShade      = view.findViewById(R.id.tvTopMatchShade);
+        tvTopMatchPrice      = view.findViewById(R.id.tvTopMatchPrice);
         tvTopMatchPercent    = view.findViewById(R.id.tvTopMatchPercent);
         viewTopMatchSwatch   = view.findViewById(R.id.viewTopMatchSwatch);
         btnTopMatchAddToCart = view.findViewById(R.id.btnTopMatchAddToCart);
@@ -105,6 +108,10 @@ public class ShadeFinderFragment extends Fragment {
         tvTopMatchShade.setText("Shade: " + (top.getShadeName() != null ? top.getShadeName() : "—"));
         tvTopMatchPercent.setText(top.getMatchPercent() + "% Match");
 
+        // Price
+        double displayPrice = top.getDisplayPrice();
+        tvTopMatchPrice.setText(displayPrice > 0 ? String.format("$%.2f", displayPrice) : "");
+
         // Shade swatch color
         String hex = top.getShadeHex() != null ? top.getShadeHex() : skinHex;
         if (hex != null && !hex.isEmpty()) {
@@ -115,7 +122,9 @@ public class ShadeFinderFragment extends Fragment {
 
         // Product image
         if (top.getImageUrl() != null && !top.getImageUrl().isEmpty()) {
-            Glide.with(requireContext()).load(top.getImageUrl())
+            String topImgUrl = ApiConfig.resolveMediaUrl(top.getImageUrl());
+            Glide.with(requireContext()).load(topImgUrl)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.ic_skin).into(imgTopMatchProduct);
         }
 
@@ -129,13 +138,18 @@ public class ShadeFinderFragment extends Fragment {
             String id = item.getProductId() != null ? item.getProductId() : "";
             double price = item.getDisplayPrice();
             String shadeHex = item.getShadeHex() != null ? item.getShadeHex() : (skinHex != null ? skinHex : "#E9B5A5");
+            
+            String imgUrl = item.getImageUrl() != null ? ApiConfig.resolveMediaUrl(item.getImageUrl()) : null;
+
             others.add(new CushionMatchAdapter.CushionMatch(
                     id,
                     item.getProductName(),
-                    item.getImageUrl(),
+                    imgUrl,
                     shadeHex,
                     item.getQualityLabel(),
-                    price
+                    price,
+                    item.getShadeName(),
+                    item.getMatchPercent()
             ));
         }
 
@@ -156,14 +170,18 @@ public class ShadeFinderFragment extends Fragment {
                     "This product is temporarily unavailable.", Toast.LENGTH_SHORT).show();
             return;
         }
+        String imgUrl = result.getImageUrl() != null ? ApiConfig.resolveMediaUrl(result.getImageUrl()) : "";
         CartItem item = new CartItem(
                 result.getProductId(),
                 result.getProductName(),
-                result.getImageUrl(),
+                imgUrl,
                 result.getDisplayPrice(), 1,
                 result.getShadeName()
         );
-        DatabaseHelper.getInstance(requireContext()).insertOrUpdateCartItem(item);
+        // Fix: Use CartRepository to both save locally AND sync to server/Firebase
+        CartRepository repository = new CartRepository(requireContext());
+        repository.addToCartLocal(item);
+        repository.syncItemToServer(item, null, error -> {});
         Toast.makeText(requireContext(), "Added to cart!", Toast.LENGTH_SHORT).show();
     }
 
@@ -173,8 +191,12 @@ public class ShadeFinderFragment extends Fragment {
                     "This recommendation is temporarily unavailable.", Toast.LENGTH_SHORT).show();
             return;
         }
-        DatabaseHelper.getInstance(requireContext()).insertOrUpdateCartItem(
-                new CartItem(match.productId, match.name, match.imageUrl, match.price, 1, match.shadeHex));
+        String imgUrl = match.imageUrl != null ? ApiConfig.resolveMediaUrl(match.imageUrl) : "";
+        CartItem item = new CartItem(match.productId, match.name, imgUrl, match.price, 1, match.shadeHex);
+        // Fix: Use CartRepository to both save locally AND sync to server/Firebase
+        CartRepository repository = new CartRepository(requireContext());
+        repository.addToCartLocal(item);
+        repository.syncItemToServer(item, null, error -> {});
         Toast.makeText(requireContext(), "Added to cart!", Toast.LENGTH_SHORT).show();
     }
 }

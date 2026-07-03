@@ -277,6 +277,30 @@ public class ProductDetailActivity extends AppCompatActivity {
         // Wishlist toggle via ContentProvider
         btnWishlist.setOnClickListener(v -> toggleWishlist());
 
+        if (btnARTryOn != null) {
+            btnARTryOn.setVisibility(isShadeProduct() ? View.VISIBLE : View.GONE);
+            btnARTryOn.setOnClickListener(v -> {
+                Intent intent = new Intent(this, ARTryOnActivity.class);
+                intent.putExtra("PRODUCT_ID", productId);
+                intent.putExtra("PRODUCT_NAME", productName);
+                if (availableShades != null && !availableShades.isEmpty()) {
+                    java.util.ArrayList<String> shadeNames = new java.util.ArrayList<>();
+                    java.util.ArrayList<String> shadeHexes = new java.util.ArrayList<>();
+                    for (java.util.Map<String, Object> shade : availableShades) {
+                        String name = String.valueOf(shade.get("Shade_Name") != null ? shade.get("Shade_Name") : (shade.get("Shade") != null ? shade.get("Shade") : ""));
+                        String hex = String.valueOf(shade.get("shade_color_hex") != null ? shade.get("shade_color_hex") : (shade.get("Shade_Color_Hex") != null ? shade.get("Shade_Color_Hex") : ""));
+                        if (!name.trim().isEmpty() && !hex.trim().isEmpty()) {
+                            shadeNames.add(name);
+                            shadeHexes.add(hex);
+                        }
+                    }
+                    intent.putStringArrayListExtra("SHADE_NAMES", shadeNames);
+                    intent.putStringArrayListExtra("SHADE_HEXES", shadeHexes);
+                }
+                startActivity(intent);
+            });
+        }
+
         // Ask AI access → CHAT tab in bottom navigation
     }
 

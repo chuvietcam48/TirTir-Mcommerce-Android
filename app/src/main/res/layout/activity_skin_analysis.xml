@@ -40,6 +40,29 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/tirtir_white" />
 
+    <!-- Lighting Warning Panel (ẩn mặc định) -->
+    <TextView
+        android:id="@+id/tvLightingWarning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
+        android:background="@drawable/bg_camera_panel"
+        android:backgroundTint="#E6FFA000"
+        android:gravity="center"
+        android:paddingStart="20dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="10dp"
+        android:text=""
+        android:textColor="#FFFFFF"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:elevation="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- Dynamic Status Guide (thay thế text tĩnh cũ) -->
     <TextView
         android:id="@+id/tvStatusGuide"
