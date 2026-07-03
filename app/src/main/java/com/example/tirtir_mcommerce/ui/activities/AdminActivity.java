@@ -48,6 +48,9 @@ public class AdminActivity extends AppCompatActivity {
                 selectedFragment = new AdminOrdersFragment();
             } else if (itemId == R.id.nav_admin_marketing) {
                 selectedFragment = new AdminMarketingFragment();
+            } else if (itemId == R.id.nav_admin_logout) {
+                confirmLogout();
+                return false;
             }
 
             if (selectedFragment != null) {

@@ -16,4 +16,8 @@
         android:id="@+id/nav_admin_marketing"
         android:icon="@drawable/ic_admin_campaign"
         android:title="Marketing" />
+    <item
+        android:id="@+id/nav_admin_logout"
+        android:icon="@android:drawable/ic_lock_power_off"
+        android:title="Sign Out" />
 </menu>
