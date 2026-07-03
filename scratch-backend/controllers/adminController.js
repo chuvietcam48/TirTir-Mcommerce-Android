@@ -218,11 +218,68 @@ exports.getAdminOrders = async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 10;
         const orders = await Order.find({})
-            .populate('user', 'firstName lastName email')
+            .populate('userId', 'firstName lastName email')
             .sort({ createdAt: -1 })
             .limit(limit);
         res.json(orders);
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi lấy danh sách đơn hàng' });
+    }
+};
+
+exports.getMarketingOverview = async (req, res) => {
+    try {
+        const Campaign = require('../models/Campaign');
+        const MarketingActivity = require('../models/MarketingActivity');
+        const Order = require('../models/Order');
+        const User = require('../models/User');
+
+        // 1. Performance Insights
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        const atRiskUsersCount = await User.countDocuments({
+            role: 'user',
+            createdAt: { $lt: thirtyDaysAgo }
+        });
+
+        // Vouchers Used & Revenue Recovered
+        const orders = await Order.find({ status: 'Delivered' });
+        let vouchersUsed = 0;
+        let revenueRecovered = 0; 
+
+        for (const order of orders) {
+            if (order.discount && order.discount > 0) {
+                vouchersUsed++;
+                revenueRecovered += order.totalPrice;
+            }
+        }
+
+        // Conversion Rate: Delivered Orders / Total Users
+        const totalUsers = await User.countDocuments({ role: 'user' });
+        const conversionRate = totalUsers > 0 ? (orders.length / totalUsers) * 100 : 0;
+
+        // 2. Active Campaigns
+        const campaigns = await Campaign.find({ status: 'LIVE' }).sort({ endDate: 1 });
+
+        // 3. Marketing Activity
+        const activities = await MarketingActivity.find().sort({ createdAt: -1 }).limit(10);
+
+        res.json({
+            success: true,
+            data: {
+                insights: {
+                    revenueRecovered: revenueRecovered,
+                    atRiskUsers: atRiskUsersCount,
+                    vouchersUsed: vouchersUsed,
+                    conversionRate: parseFloat(conversionRate.toFixed(2))
+                },
+                campaigns,
+                activities
+            }
+        });
+    } catch (error) {
+        console.error('Marketing Overview Error:', error);
+        res.status(500).json({ success: false, message: 'Failed to load marketing overview' });
     }
 };

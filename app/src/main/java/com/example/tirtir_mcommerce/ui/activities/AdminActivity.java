@@ -66,11 +66,26 @@ public class AdminActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
         
-        android.widget.ImageButton btnMore = findViewById(R.id.btnAdminMore);
-        if (btnMore != null) {
-            btnMore.setOnClickListener(v -> confirmLogout());
+        android.view.View btnProfile = findViewById(R.id.btnAdminProfile);
+        if (btnProfile != null) {
+            btnProfile.setOnClickListener(v -> showAdminProfile());
         }
 
+    }
+
+    private void showAdminProfile() {
+        com.example.tirtir_mcommerce.utils.SharedPrefsManager prefs =
+                new com.example.tirtir_mcommerce.utils.SharedPrefsManager(this);
+        com.example.tirtir_mcommerce.model.User user = prefs.getCachedUser();
+        String name = user != null ? user.getName() : "Admin";
+        String email = user != null ? user.getEmail() : "";
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Admin Profile")
+                .setMessage("Name: " + name + "\nEmail: " + email)
+                .setPositiveButton("Logout", (dialog, which) -> confirmLogout())
+                .setNegativeButton("Close", null)
+                .show();
     }
 
     private void confirmLogout() {

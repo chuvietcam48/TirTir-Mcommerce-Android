@@ -98,8 +98,8 @@ public class AdminOrdersFragment extends Fragment implements AdminOrderAdapter.O
     @SuppressWarnings("unchecked")
     private AdminOrderAdapter.AdminOrder mapOrder(Map<String, Object> row) {
         String id = text(row.get("_id"));
-        Map<String, Object> user = row.get("user") instanceof Map
-                ? (Map<String, Object>) row.get("user") : new HashMap<>();
+        Map<String, Object> user = row.get("userId") instanceof Map
+                ? (Map<String, Object>) row.get("userId") : new HashMap<>();
         Map<String, Object> address = row.get("shippingAddress") instanceof Map
                 ? (Map<String, Object>) row.get("shippingAddress") : new HashMap<>();
         String addressText = join(text(address.get("address")), text(address.get("ward")),
@@ -114,8 +114,13 @@ public class AdminOrdersFragment extends Fragment implements AdminOrderAdapter.O
             }
         }
         String code = "#" + (id.length() > 8 ? id.substring(id.length() - 8).toUpperCase() : id);
-        return new AdminOrderAdapter.AdminOrder(id, code,
-                text(user.get("name")).isEmpty() ? "Guest" : text(user.get("name")),
+        
+        String userName = text(user.get("firstName")) + " " + text(user.get("lastName"));
+        if (userName.trim().isEmpty()) {
+            userName = text(user.get("email")).isEmpty() ? "Guest" : text(user.get("email"));
+        }
+        
+        return new AdminOrderAdapter.AdminOrder(id, code, userName.trim(),
                 number(row.get("totalAmount")), text(row.get("status")), addressText,
                 number(row.get("shippingCost")), text(row.get("createdAt")),
                 products.toString().trim());
@@ -123,13 +128,9 @@ public class AdminOrdersFragment extends Fragment implements AdminOrderAdapter.O
 
     @Override
     public void onShowDetail(AdminOrderAdapter.AdminOrder order) {
-        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_admin_order_detail, null);
-        ((TextView) dialogView.findViewById(R.id.tvDetailProducts)).setText(order.products);
-        ((TextView) dialogView.findViewById(R.id.tvDetailAddress)).setText(order.address);
-        ((TextView) dialogView.findViewById(R.id.tvDetailShippingFee))
-                .setText(PriceUtils.formatPriceUsd(order.shippingFee));
-        ((TextView) dialogView.findViewById(R.id.tvDetailTime)).setText(order.orderTime);
-        new AlertDialog.Builder(requireContext()).setView(dialogView).setPositiveButton("Close", null).show();
+        android.content.Intent intent = new android.content.Intent(requireContext(), com.example.tirtir_mcommerce.ui.activities.AdminOrderDetailActivity.class);
+        intent.putExtra(com.example.tirtir_mcommerce.ui.activities.AdminOrderDetailActivity.EXTRA_ORDER_ID, order.id);
+        startActivity(intent);
     }
 
     @Override

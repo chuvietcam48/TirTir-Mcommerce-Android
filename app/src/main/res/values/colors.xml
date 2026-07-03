@@ -17,6 +17,8 @@
     <color name="tirtir_black_cover">#1A1A1A</color>
 
     <!-- WHITE / BACKGROUND -->
+    <color name="white">#FFFFFF</color>
+    <color name="transparent">#00000000</color>
     <color name="tirtir_white">#FFFFFF</color>
     <color name="tirtir_milk_white">#FFFFFF</color>
     <color name="tirtir_off_white">#F9F9F9</color>   <!-- Stitch background: slightly warm off-white -->
@@ -30,6 +32,8 @@
     <color name="tirtir_primary">#111111</color>
     <color name="tirtir_outline_variant">#E5E5E5</color>
     <color name="tirtir_surface_container">#F8F8F8</color>
+    <color name="tirtir_surface_variant">#F2F2F2</color>
+    <color name="tirtir_red">#8B0000</color>
 
     <!-- GRAY SCALE (borders, dividers, secondary text) -->
     <color name="tirtir_border_gray">#E0E0E0</color>  <!-- Neutral divider -->

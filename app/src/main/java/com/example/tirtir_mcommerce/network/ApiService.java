@@ -10,6 +10,7 @@ import com.example.tirtir_mcommerce.model.CreateOrderResponse;
 import com.example.tirtir_mcommerce.model.LoginRequest;
 import com.example.tirtir_mcommerce.model.LoginResponse;
 import com.example.tirtir_mcommerce.model.OrderResponse;
+import com.example.tirtir_mcommerce.model.MarketingOverviewResponse;
 import com.example.tirtir_mcommerce.model.Product;
 import com.example.tirtir_mcommerce.model.ProductDetailResponse;
 import com.example.tirtir_mcommerce.model.ProductResponse;
@@ -308,8 +309,23 @@ public interface ApiService {
             @Path("id") String orderId,
             @Body Map<String, String> body);
 
+    @GET("api/v1/admin/orders/{id}")
+    Call<ApiResponse<Map<String, Object>>> getAdminOrderDetails(@Path("id") String orderId);
+
+    @PATCH("api/v1/admin/orders/{id}/shipping")
+    Call<ApiResponse<Map<String, Object>>> updateAdminOrderShipping(@Path("id") String orderId, @Body Map<String, Object> body);
+
+    @PATCH("api/v1/admin/orders/{id}/notes")
+    Call<ApiResponse<Map<String, Object>>> updateAdminOrderNotes(@Path("id") String orderId, @Body Map<String, Object> body);
+
+    @POST("api/v1/admin/orders/{id}/cancel")
+    Call<ApiResponse<Map<String, Object>>> cancelAdminOrder(@Path("id") String orderId, @Body Map<String, Object> body);
+
     @GET("api/v1/admin/stats/cart-recovery")
     Call<Map<String, Object>> getCartRecoveryStats();
+
+    @GET("api/v1/admin/marketing/overview")
+    Call<ApiResponse<MarketingOverviewResponse>> getMarketingOverview();
 
     // ===========================
     // CART MODULE
@@ -355,7 +371,7 @@ public interface ApiService {
      * Dùng cho SCR-18 OrderHistoryFragment
      */
     @GET("api/v1/orders/my-orders")
-    Call<List<OrderResponse>> getMyOrders();
+    Call<ApiResponse<List<OrderResponse>>> getMyOrders();
 
     /**
      * Xem chi tiết đơn hàng - GET /api/v1/orders/{id}

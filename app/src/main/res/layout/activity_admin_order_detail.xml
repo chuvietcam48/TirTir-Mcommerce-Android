@@ -1,0 +1,498 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tirtir_off_white"
+    android:fitsSystemWindows="true">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:elevation="4dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbarAdminOrder"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:title="TIRTIR ADMIN"
+            app:titleTextColor="@color/tirtir_red"
+            app:titleTextAppearance="@style/TextAppearance.AppCompat.Title" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:clipToPadding="false"
+            android:clipChildren="false">
+
+            <!-- Section 1: Order Summary -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="8dp"
+                app:cardBackgroundColor="@color/white"
+                app:strokeWidth="0dp">
+
+                <View
+                    android:layout_width="4dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/tirtir_red" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:layout_marginStart="4dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="12dp">
+                        
+                        <TextView
+                            android:id="@+id/tvLabelOrderId"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="ORDER ID"
+                            android:textColor="@color/tirtir_red"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+                            
+                        <TextView
+                            android:id="@+id/tvOrderId"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/tvLabelOrderId"
+                            android:text="#TIR-00000"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/tirtir_text_primary" />
+                            
+                        <TextView
+                            android:id="@+id/tvOrderStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_toEndOf="@id/tvOrderId"
+                            android:layout_below="@id/tvLabelOrderId"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/bg_rounded_border"
+                            android:backgroundTint="#FFDAD4"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="2dp"
+                            android:text="Processing"
+                            android:textColor="#410000"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                            
+                        <TextView
+                            android:id="@+id/tvOrderDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:text="Oct 24, 2023"
+                            android:textSize="12sp"
+                            android:textColor="@color/tirtir_text_secondary" />
+                            
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_below="@id/tvOrderId"
+                            android:layout_marginTop="12dp"
+                            android:background="#E2E2E2" />
+                    </RelativeLayout>
+
+                    <!-- Customer Profile -->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp">
+                        
+                        <TextView
+                            android:id="@+id/tvCustomerLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Customer Profile"
+                            android:textColor="@color/tirtir_red"
+                            android:textStyle="bold"
+                            android:textSize="14sp" />
+                            
+                        <TextView
+                            android:id="@+id/tvLoyaltyBadge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:text="PLATINUM LOYALTY"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white"
+                            android:background="@color/tirtir_red"
+                            android:paddingHorizontal="6dp"
+                            android:paddingVertical="2dp" />
+                    </RelativeLayout>
+                    
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+                        
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_admin_inventory"
+                            android:background="@drawable/bg_rounded_border"
+                            android:backgroundTint="#EEEEEE"
+                            android:padding="8dp"
+                            app:tint="@color/tirtir_red" />
+                            
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp">
+                            <TextView
+                                android:id="@+id/tvCustomerName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Customer Name"
+                                android:textStyle="bold"
+                                android:textSize="16sp"
+                                android:textColor="@color/tirtir_text_primary" />
+                            <TextView
+                                android:id="@+id/tvCustomerEmail"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="email@example.com"
+                                android:textSize="12sp"
+                                android:textColor="@color/tirtir_text_secondary" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SHIPPING ADDRESS"
+                        android:textSize="10sp"
+                        android:textColor="@color/tirtir_text_secondary"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/tvShippingAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="12-45 Gangnam-daero, Seoul"
+                        android:textSize="16sp"
+                        android:textColor="@color/tirtir_text_primary"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Order Value -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_rounded_border"
+                        android:backgroundTint="#F9F9F9"
+                        android:padding="16dp">
+                        
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="ORDER VALUE"
+                            android:textColor="@color/tirtir_red"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="8dp" />
+                            
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Subtotal"
+                                android:textColor="@color/tirtir_text_secondary" />
+                            <TextView
+                                android:id="@+id/tvDetailSubtotal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:text="$0.00"
+                                android:textColor="@color/tirtir_text_secondary" />
+                        </RelativeLayout>
+                        
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Shipping"
+                                android:textColor="@color/tirtir_text_secondary" />
+                            <TextView
+                                android:id="@+id/tvDetailShippingFee"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:text="$0.00"
+                                android:textColor="@color/tirtir_text_secondary" />
+                        </RelativeLayout>
+                        
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="#E2E2E2"
+                            android:layout_marginVertical="8dp" />
+                            
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Total"
+                                android:textStyle="bold"
+                                android:textSize="18sp"
+                                android:textColor="@color/tirtir_red" />
+                            <TextView
+                                android:id="@+id/tvDetailTotal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:text="$0.00"
+                                android:textStyle="bold"
+                                android:textSize="18sp"
+                                android:textColor="@color/tirtir_red" />
+                        </RelativeLayout>
+                    </LinearLayout>
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="PRODUCTS"
+                        android:textColor="@color/tirtir_red"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="8dp" />
+                    <TextView
+                        android:id="@+id/tvDetailProducts"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="- Product 1 x1"
+                        android:textColor="@color/tirtir_text_primary"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Section 2: Shipping Management -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="8dp"
+                app:cardBackgroundColor="@color/white"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:text="LOGISTICS &amp; FULFILLMENT"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:textColor="@color/tirtir_text_primary" />
+                        
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnUpdateLogistics"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:text="Update"
+                            android:textSize="12sp"
+                            app:cornerRadius="4dp"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="4dp"
+                            android:minHeight="36dp" />
+                    </RelativeLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Carrier (e.g. GHN)"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_marginBottom="8dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etCarrier"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Tracking Number"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_marginBottom="8dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etTracking"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                    
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Order Status"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+                        <AutoCompleteTextView
+                            android:id="@+id/etStatusDropdown"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Section 3: Internal Notes -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="8dp"
+                app:cardBackgroundColor="@color/white"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:text="INTERNAL NOTES"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:textColor="@color/tirtir_text_primary" />
+                        
+                        <TextView
+                            android:id="@+id/btnSaveNotes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:text="Save"
+                            android:textStyle="bold"
+                            android:textColor="@color/tirtir_red"
+                            android:background="?attr/selectableItemBackground"
+                            android:padding="4dp" />
+                    </RelativeLayout>
+
+                    <EditText
+                        android:id="@+id/etInternalNotes"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:background="@drawable/bg_rounded_border"
+                        android:gravity="top|start"
+                        android:hint="Admin comments..."
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textColor="@color/tirtir_text_primary" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Danger Zone -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_rounded_border"
+                android:backgroundTint="#FFF0F0"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="DANGER ZONE"
+                    android:textColor="#BA1A1A"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="4dp" />
+                    
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cancellation restocks inventory and notifies customer."
+                    android:textSize="12sp"
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:layout_marginBottom="12dp" />
+
+                <EditText
+                    android:id="@+id/etCancelReason"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_rounded_border"
+                    android:backgroundTint="@color/white"
+                    android:hint="Reason..."
+                    android:paddingHorizontal="12dp"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="12dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCancelOrder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="CANCEL ORDER"
+                    app:strokeColor="#BA1A1A"
+                    app:strokeWidth="1dp"
+                    android:textColor="#BA1A1A"
+                    app:backgroundTint="@color/transparent" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+    
+    <ProgressBar
+        android:id="@+id/progressAdminOrderDetail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

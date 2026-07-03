@@ -21,12 +21,13 @@ const productSchema = new mongoose.Schema(
     How_To_Use: { type: String },
     Full_Description: { type: String },
     Status: { type: String, default: 'active' },
-    Stock_Quantity: { type: Number, default: 0 },
+    Stock_Quantity: { type: Number, default: 100 },
     Stock_Reserved: { type: Number, default: 0 },
     Thumbnail_Images: { type: String },
     Description_Images: [{ type: String }],
     Gallery_Images: [{ type: String }],
     slug: { type: String },
+    shade_color_hex: { type: String },
   },
   { timestamps: true }
 );

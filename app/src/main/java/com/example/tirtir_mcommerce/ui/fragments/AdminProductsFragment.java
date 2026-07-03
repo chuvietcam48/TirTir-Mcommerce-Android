@@ -41,6 +41,11 @@ public class AdminProductsFragment extends Fragment implements AdminProductAdapt
     private EditText etSearch;
     private ChipGroup cgCategory;
     private FloatingActionButton fabAddProduct;
+    private TextView btnFilter;
+    private TextView btnSort;
+
+    private String currentSort = "newest"; // newest, price_asc, price_desc
+    private String currentFilter = "all"; // all, in_stock, low_stock
 
     private AdminProductAdapter adapter;
     private ApiService apiService;
@@ -64,6 +69,8 @@ public class AdminProductsFragment extends Fragment implements AdminProductAdapt
         etSearch = view.findViewById(R.id.etAdminSearchProduct);
         cgCategory = view.findViewById(R.id.cgAdminCategory);
         fabAddProduct = view.findViewById(R.id.fabAddProduct);
+        btnFilter = view.findViewById(R.id.btnAdminProductFilter);
+        btnSort = view.findViewById(R.id.btnAdminProductSort);
 
         rvProducts.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new AdminProductAdapter(requireContext(), new ArrayList<>(), this);
@@ -83,6 +90,30 @@ public class AdminProductsFragment extends Fragment implements AdminProductAdapt
         });
 
         cgCategory.setOnCheckedChangeListener((group, checkedId) -> filterProducts());
+
+        btnSort.setOnClickListener(v -> {
+            String[] options = {"Newest", "Price: Low to High", "Price: High to Low"};
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Sort Products")
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) currentSort = "newest";
+                    else if (which == 1) currentSort = "price_asc";
+                    else if (which == 2) currentSort = "price_desc";
+                    filterProducts();
+                }).show();
+        });
+
+        btnFilter.setOnClickListener(v -> {
+            String[] options = {"All", "In Stock (> 0)", "Low Stock (<= 10)"};
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Filter Products")
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) currentFilter = "all";
+                    else if (which == 1) currentFilter = "in_stock";
+                    else if (which == 2) currentFilter = "low_stock";
+                    filterProducts();
+                }).show();
+        });
 
         fabAddProduct.setOnClickListener(v -> {
             // Open editor dialog for new product
@@ -148,8 +179,17 @@ public class AdminProductsFragment extends Fragment implements AdminProductAdapt
             }
 
             if (matchesSearch && matchesCat) {
+                int stock = product.getStockQuantity();
+                if (currentFilter.equals("in_stock") && stock <= 0) continue;
+                if (currentFilter.equals("low_stock") && stock > 10) continue;
                 filtered.add(product);
             }
+        }
+
+        if (currentSort.equals("price_asc")) {
+            java.util.Collections.sort(filtered, (p1, p2) -> Double.compare(p1.getPrice(), p2.getPrice()));
+        } else if (currentSort.equals("price_desc")) {
+            java.util.Collections.sort(filtered, (p1, p2) -> Double.compare(p2.getPrice(), p1.getPrice()));
         }
 
         tvProductCount.setText(category.toUpperCase() + " (" + filtered.size() + ")");

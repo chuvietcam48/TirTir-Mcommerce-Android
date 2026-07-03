@@ -183,6 +183,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.activities.AdminOrderDetailActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.activities.AdminChurnActivity"
             android:exported="false" />
 

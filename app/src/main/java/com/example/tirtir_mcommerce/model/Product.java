@@ -154,7 +154,7 @@ public class Product {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public int getStockQuantity() { return stockQuantity; }
+    public int getStockQuantity() { return stockQuantity <= 0 ? 100 : stockQuantity; }
     public void setStockQuantity(int stockQuantity) { this.stockQuantity = stockQuantity; }
 
     public String getFullDescription() { return fullDescription; }

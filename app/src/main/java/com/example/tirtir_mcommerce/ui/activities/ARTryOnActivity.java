@@ -1,8 +1,17 @@
 package com.example.tirtir_mcommerce.ui.activities;
 
+import android.graphics.Bitmap;
+import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.PixelCopy;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -11,50 +20,57 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
-import android.graphics.Bitmap;
-import android.os.Handler;
-import android.os.Looper;
-import android.view.PixelCopy;
-import java.io.File;
-import java.io.FileOutputStream;
 import com.example.tirtir_mcommerce.R;
+import com.example.tirtir_mcommerce.network.ApiService;
+import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.AugmentedFace;
 import com.google.ar.core.TrackingState;
 import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.rendering.Material;
-import com.google.ar.sceneform.rendering.MaterialFactory;
+import com.google.ar.sceneform.rendering.Texture;
 import com.google.ar.sceneform.ux.ArFrontFacingFragment;
 import com.google.ar.sceneform.ux.AugmentedFaceNode;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class ARTryOnActivity extends AppCompatActivity {
-    private static final int[] SHADE_COLORS = {
-            0xFFE9B5A5, 0xFFD99A88, 0xFFC9786D, 0xFFB55E5A,
-            0xFFA9474A, 0xFF8F343E, 0xFF74303A, 0xFF57252F
-    };
 
     private LinearLayout layoutColors;
     private TextView tvLoading;
     private int selectedIndex = 0;
+    private String productId;
 
     private androidx.activity.result.ActivityResultLauncher<String> cameraPermissionLauncher;
 
     private ArFrontFacingFragment arFragment;
-    private Material faceMaterial;
+    private Texture lipsTexture;
     private final HashMap<AugmentedFace, AugmentedFaceNode> faceNodeMap = new HashMap<>();
+    
+    // Dynamic shades from API
+    private final List<Map<String, Object>> availableShades = new ArrayList<>();
+    private final List<Integer> parsedColors = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ar_try_on);
+
+        productId = getIntent().getStringExtra("PRODUCT_ID");
 
         layoutColors = findViewById(R.id.layoutArColorPicker);
         tvLoading = findViewById(R.id.tvArLoading);
@@ -64,7 +80,7 @@ public class ARTryOnActivity extends AppCompatActivity {
         btnClose.setOnClickListener(v -> finish());
         btnCapture.setOnClickListener(v -> takeArScreenshot());
 
-        buildColorPicker();
+        fetchShadesFromApi();
 
         cameraPermissionLauncher = registerForActivityResult(
                 new androidx.activity.result.contract.ActivityResultContracts.RequestPermission(),
@@ -87,25 +103,110 @@ public class ARTryOnActivity extends AppCompatActivity {
         }
     }
 
+    private void fetchShadesFromApi() {
+        if (productId == null || productId.trim().isEmpty()) {
+            Toast.makeText(this, "Product ID is missing", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        tvLoading.setVisibility(View.VISIBLE);
+        tvLoading.setText("Loading shades...");
+
+        ApiService api = RetrofitClient.getClient().create(ApiService.class);
+        api.getShades(productId, null, 100).enqueue(new Callback<List<Map<String, Object>>>() {
+            @Override
+            public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> response) {
+                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                    availableShades.clear();
+                    parsedColors.clear();
+                    availableShades.addAll(response.body());
+
+                    for (Map<String, Object> shade : availableShades) {
+                        String hex = "";
+                        if (shade.get("Hex_Code") != null) {
+                            hex = shade.get("Hex_Code").toString().trim();
+                        } else if (shade.get("shade_color_hex") != null) {
+                            hex = shade.get("shade_color_hex").toString().trim();
+                        }
+                        
+                        if (!hex.startsWith("#") && !hex.isEmpty()) hex = "#" + hex;
+                        int color = Color.parseColor("#E9B5A5"); // Fallback
+                        try {
+                            if (!hex.isEmpty()) color = Color.parseColor(hex);
+                        } catch (Exception ignored) {}
+                        parsedColors.add(color);
+                    }
+                    buildColorPicker();
+                    updateMaterialColor();
+                } else {
+                    Toast.makeText(ARTryOnActivity.this, "No shades available for AR", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) {
+                Toast.makeText(ARTryOnActivity.this, "Failed to load shades", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private boolean checkArCoreSupport() {
         ArCoreApk.Availability availability = ArCoreApk.getInstance().checkAvailability(this);
-        if (availability.isTransient()) {
-            // Re-check later
-            tvLoading.postDelayed(() -> checkArCoreSupport(), 200);
-            return false;
+        android.util.Log.d("ARTryOnActivity", "ARCore availability: " + availability.name());
+
+        switch (availability) {
+            case SUPPORTED_INSTALLED:
+                // ARCore is ready — proceed
+                return true;
+
+            case SUPPORTED_NOT_INSTALLED:
+            case SUPPORTED_APK_TOO_OLD:
+                // Can install/update — prompt user
+                showInstallArCoreDialog();
+                return false;
+
+            case UNKNOWN_CHECKING:
+            case UNKNOWN_TIMED_OUT:
+                // Still checking — retry shortly
+                tvLoading.postDelayed(this::checkArCoreSupport, 500);
+                return false;
+
+            case UNSUPPORTED_DEVICE_NOT_CAPABLE:
+            default:
+                showArNotSupportedDialog();
+                return false;
         }
-        if (!availability.isSupported()) {
-            showArNotSupportedDialog();
-            return false;
-        }
-        return true;
+    }
+
+    private void showInstallArCoreDialog() {
+        tvLoading.setVisibility(View.GONE);
+        new AlertDialog.Builder(this)
+                .setTitle("AR Services Required")
+                .setMessage("This feature requires Google Play Services for AR. Would you like to install it?")
+                .setPositiveButton("Install", (dialog, which) -> {
+                    try {
+                        // Request install via ARCore SDK
+                        ArCoreApk.getInstance().requestInstall(this, true);
+                    } catch (Exception e) {
+                        // Fallback: open Play Store directly
+                        try {
+                            startActivity(new Intent(Intent.ACTION_VIEW,
+                                android.net.Uri.parse("market://details?id=com.google.ar.core")));
+                        } catch (Exception ex) {
+                            startActivity(new Intent(Intent.ACTION_VIEW,
+                                android.net.Uri.parse("https://play.google.com/store/apps/details?id=com.google.ar.core")));
+                        }
+                    }
+                })
+                .setNegativeButton("Not Now", (dialog, which) -> finish())
+                .setCancelable(false)
+                .show();
     }
 
     private void showArNotSupportedDialog() {
         tvLoading.setVisibility(View.GONE);
         new AlertDialog.Builder(this)
                 .setTitle("AR Not Supported")
-                .setMessage("Your device does not support ARCore. Try-on is not available.")
+                .setMessage("Your device does not support AR Try-On. If you're on an emulator, please test on a real device.")
                 .setPositiveButton("OK", (dialog, which) -> finish())
                 .setCancelable(false)
                 .show();
@@ -117,9 +218,7 @@ public class ARTryOnActivity extends AppCompatActivity {
                 .replace(R.id.arFragmentContainer, arFragment)
                 .commit();
 
-        updateMaterialColor();
-
-        // Delay to allow fragment to attach
+        tvLoading.setText("Detecting face...");
         tvLoading.postDelayed(() -> {
             ArSceneView sceneView = arFragment.getArSceneView();
             if (sceneView != null) {
@@ -127,7 +226,6 @@ public class ARTryOnActivity extends AppCompatActivity {
                     if (sceneView.getSession() == null) return;
                     Collection<AugmentedFace> faceList = sceneView.getSession().getAllTrackables(AugmentedFace.class);
 
-                    // Xóa trackables cũ
                     for (Map.Entry<AugmentedFace, AugmentedFaceNode> entry : new HashMap<>(faceNodeMap).entrySet()) {
                         AugmentedFace face = entry.getKey();
                         if (face.getTrackingState() == TrackingState.STOPPED) {
@@ -137,33 +235,46 @@ public class ARTryOnActivity extends AppCompatActivity {
                         }
                     }
 
-                    // Thêm trackables mới
                     for (AugmentedFace face : faceList) {
                         if (!faceNodeMap.containsKey(face)) {
                             AugmentedFaceNode faceNode = new AugmentedFaceNode(face);
                             faceNode.setParent(sceneView.getScene());
-                            if (faceMaterial != null) {
-                                setFaceMeshMaterial(faceNode, faceMaterial);
+                            if (lipsTexture != null) {
+                                faceNode.setFaceMeshTexture(lipsTexture);
+                                setFaceMeshMaterial(faceNode, null);
                             }
                             faceNodeMap.put(face, faceNode);
                         }
                     }
-                    tvLoading.setVisibility(View.GONE);
+                    if (!faceList.isEmpty()) {
+                        tvLoading.setVisibility(View.GONE);
+                    }
                 });
             }
         }, 1000);
     }
 
     private void updateMaterialColor() {
-        int color = SHADE_COLORS[selectedIndex];
-        // Create an opaque or semi-transparent material with the selected color
-        MaterialFactory.makeTransparentWithColor(this, new com.google.ar.sceneform.rendering.Color(color))
+        if (parsedColors.isEmpty()) return;
+        int color = parsedColors.get(selectedIndex);
+
+        // Fallback: Use MaterialFactory to color the entire mesh with low alpha (as per user request)
+        // Extract RGB and apply custom alpha
+        int r = Color.red(color);
+        int g = Color.green(color);
+        int b = Color.blue(color);
+        int alphaColor = Color.argb(100, r, g, b); // ~0.4 alpha
+
+        com.google.ar.sceneform.rendering.MaterialFactory.makeTransparentWithColor(this, new com.google.ar.sceneform.rendering.Color(alphaColor))
                 .thenAccept(material -> {
-                    faceMaterial = material;
-                    // Apply to existing face nodes
                     for (AugmentedFaceNode node : faceNodeMap.values()) {
-                        setFaceMeshMaterial(node, faceMaterial);
+                        node.setFaceMeshTexture(null);
+                        setFaceMeshMaterial(node, material);
                     }
+                })
+                .exceptionally(throwable -> {
+                    Toast.makeText(this, "Failed to create material", Toast.LENGTH_SHORT).show();
+                    return null;
                 });
     }
 
@@ -198,12 +309,12 @@ public class ARTryOnActivity extends AppCompatActivity {
 
     private void buildColorPicker() {
         layoutColors.removeAllViews();
-        for (int i = 0; i < SHADE_COLORS.length; i++) {
+        for (int i = 0; i < parsedColors.size(); i++) {
             ImageButton button = new ImageButton(this);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(44), dp(44));
             params.setMargins(dp(6), 0, dp(6), 0);
             button.setLayoutParams(params);
-            button.setBackground(createShadeBackground(SHADE_COLORS[i], i == selectedIndex));
+            button.setBackground(createShadeBackground(parsedColors.get(i), i == selectedIndex));
             button.setContentDescription("Choose shade " + (i + 1));
             button.setScaleType(ImageView.ScaleType.CENTER);
             button.setPadding(0, 0, 0, 0);

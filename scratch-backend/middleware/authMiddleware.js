@@ -26,4 +26,18 @@ const restrictTo = (...roles) => (req, res, next) => {
   next();
 };
 
-module.exports = { protect, restrictTo };
+const optionalProtect = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return next();
+  }
+  const token = authHeader.slice(7);
+  try {
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (err) {
+    // Ignore invalid token
+  }
+  next();
+};
+
+module.exports = { protect, restrictTo, optionalProtect };

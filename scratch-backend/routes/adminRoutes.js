@@ -6,6 +6,7 @@ const {
   getTopProducts,
   getMetrics,
   getAdminOrders,
+  getMarketingOverview
 } = require('../controllers/adminController');
 const {
   getAdminOrderDetails,
@@ -45,5 +46,8 @@ router.patch('/orders/:id/shipping', updateShippingDetails);
 
 // POST /api/v1/admin/orders/:id/cancel
 router.post('/orders/:id/cancel', cancelOrderAdmin);
+
+// GET /api/v1/admin/marketing/overview
+router.get('/marketing/overview', getMarketingOverview);
 
 module.exports = router;

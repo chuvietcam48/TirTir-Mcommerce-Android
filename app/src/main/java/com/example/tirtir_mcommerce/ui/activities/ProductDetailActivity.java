@@ -243,10 +243,9 @@ public class ProductDetailActivity extends AppCompatActivity {
         if (btnARTryOn != null) {
             btnARTryOn.setVisibility(isShadeProduct() ? View.VISIBLE : View.GONE);
             btnARTryOn.setOnClickListener(v -> {
-                Intent intent = new Intent(this, SkinAnalysisActivity.class);
+                Intent intent = new Intent(this, ARTryOnActivity.class);
                 intent.putExtra("PRODUCT_ID", productId);
                 intent.putExtra("PRODUCT_NAME", productName);
-                intent.putExtra("PRODUCT_INGREDIENTS", productIngredients);
                 startActivity(intent);
             });
         }
@@ -458,15 +457,86 @@ public class ProductDetailActivity extends AppCompatActivity {
                         if (response.isSuccessful() && response.body() != null) {
                             availableShades.addAll(response.body());
                         }
-                        View row = findViewById(R.id.layoutShadeSelection);
-                        boolean showShade = !availableShades.isEmpty() && isShadeProduct();
-                        if (row != null) row.setVisibility(showShade ? View.VISIBLE : View.GONE);
-                        View choose = findViewById(R.id.btnChooseShade);
-                        if (choose != null) choose.setOnClickListener(v -> showProductOptions(false));
+                        renderInlineShades();
                     }
 
                     @Override public void onFailure(Call<java.util.List<java.util.Map<String, Object>>> call, Throwable t) { }
                 });
+    }
+
+    private void renderInlineShades() {
+        LinearLayout container = findViewById(R.id.layoutShadesContainer);
+        TextView tvSelectedName = findViewById(R.id.tvSelectedShadeName);
+        if (container == null || tvSelectedName == null) return;
+        
+        container.removeAllViews();
+        boolean showShade = !availableShades.isEmpty() && isShadeProduct();
+        View row = findViewById(R.id.layoutShadeSelection);
+        if (row != null) row.setVisibility(showShade ? View.VISIBLE : View.GONE);
+        if (!showShade) return;
+        
+        float density = getResources().getDisplayMetrics().density;
+        
+        for (int i = 0; i < availableShades.size(); i++) {
+            java.util.Map<String, Object> shade = availableShades.get(i);
+            String shadeName = mapText(shade, "Shade_Name", "Shade_Code", "Shade " + (i+1));
+            String hexCode = mapText(shade, "Hex_Code", "shade_color_hex", null);
+            
+            android.widget.FrameLayout frame = new android.widget.FrameLayout(this);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                (int) (44 * density), (int) (44 * density));
+            lp.setMarginEnd((int) (8 * density));
+            frame.setLayoutParams(lp);
+            
+            ImageView colorCircle = new ImageView(this);
+            android.widget.FrameLayout.LayoutParams ivLp = new android.widget.FrameLayout.LayoutParams(
+                (int) (36 * density), (int) (36 * density));
+            ivLp.gravity = android.view.Gravity.CENTER;
+            colorCircle.setLayoutParams(ivLp);
+            
+            int color = android.graphics.Color.LTGRAY;
+            if (hexCode != null && !hexCode.trim().isEmpty()) {
+                if (!hexCode.startsWith("#")) hexCode = "#" + hexCode;
+                try { color = android.graphics.Color.parseColor(hexCode); } catch (Exception ignored) {}
+            }
+            
+            android.graphics.drawable.GradientDrawable drawable = new android.graphics.drawable.GradientDrawable();
+            drawable.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+            drawable.setColor(color);
+            drawable.setStroke((int)(1 * density), android.graphics.Color.LTGRAY);
+            colorCircle.setImageDrawable(drawable);
+            frame.addView(colorCircle);
+            
+            ImageView ring = new ImageView(this);
+            ring.setLayoutParams(new android.widget.FrameLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT, 
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT));
+            android.graphics.drawable.GradientDrawable ringDrawable = new android.graphics.drawable.GradientDrawable();
+            ringDrawable.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+            ringDrawable.setColor(android.graphics.Color.TRANSPARENT);
+            
+            boolean isSelected = shadeName.equals(selectedShade);
+            if (isSelected || (selectedShade == null && i == 0)) {
+                if (selectedShade == null) {
+                    selectedShade = shadeName;
+                    selectedProductId = mapText(shade, "Product_ID", "Shade_ID", productId);
+                }
+                ringDrawable.setStroke((int) (2 * density), android.graphics.Color.parseColor("#A12E2B")); // Primary red
+                tvSelectedName.setText(shadeName);
+            } else {
+                ringDrawable.setStroke(0, android.graphics.Color.TRANSPARENT);
+            }
+            ring.setImageDrawable(ringDrawable);
+            frame.addView(ring);
+            
+            frame.setOnClickListener(v -> {
+                selectedShade = shadeName;
+                selectedProductId = mapText(shade, "Product_ID", "Shade_ID", productId);
+                renderInlineShades(); // Re-render to update selection ring
+            });
+            
+            container.addView(frame);
+        }
     }
 
     private void fetchReviews() {

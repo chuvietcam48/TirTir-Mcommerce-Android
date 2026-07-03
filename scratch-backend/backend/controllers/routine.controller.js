@@ -249,16 +249,29 @@ exports.suggestRoutine = async (req, res) => {
         // Clean query to avoid regex vulnerabilities
         const cleanStep = String(missingStep).replace(/[^a-zA-Z0-9\s-]/g, '').trim();
 
-        // Query products with matching category strings (e.g. Cleanser, Toner, Serum, Sunscreen, Cushion, Balm, SPF)
         let queryCategory = cleanStep;
         if (cleanStep.toLowerCase() === 'spf') {
             queryCategory = 'Sunscreen';
         }
 
-        let products = await Product.find({
-            Category: { $regex: new RegExp(queryCategory, 'i') },
-            Stock_Quantity: { $gt: 0 }
-        }).limit(5).select('Name Category Price Thumbnail_Images slug Product_ID');
+        const isMakeupStep = /cushion|foundation|concealer|makeup|bb|cc|powder|lip|eye/i.test(queryCategory);
+
+        const filterQuery = {
+            Stock_Quantity: { $gt: 0 },
+            $or: [
+                { Category: { $regex: new RegExp(queryCategory, 'i') } },
+                { Name: { $regex: new RegExp(queryCategory, 'i') } }
+            ]
+        };
+
+        if (!isMakeupStep) {
+            filterQuery.$and = [
+                { Category: { $not: /makeup|cushion/i } },
+                { Name: { $not: /cushion|foundation|concealer|bb cream|cc cream/i } }
+            ];
+        }
+
+        let products = await Product.find(filterQuery).limit(5).select('Name Category Price Thumbnail_Images slug Product_ID');
 
         // Fallback: if no products found, fetch any from Skincare category
         if (products.length === 0) {

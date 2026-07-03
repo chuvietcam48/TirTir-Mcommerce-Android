@@ -373,17 +373,43 @@ exports.getRecommendation = async (req, res) => {
       // Ignore order query error
     }
 
-    // Fetch candidate products matching missingStep and skinType
-    const candidateProducts = await Product.find({
-      Status: { $ne: 'inactive' },
-      Stock_Quantity: { $gt: 0 },
+    // Determine if step is makeup
+    const isMakeupStep = /cushion|foundation|concealer|makeup|bb|cc|powder|lip|eye/i.test(missingStep);
+    
+    // Build query to match the step keyword accurately
+    const stepQuery = {
       $or: [
         { Category: { $regex: new RegExp(missingStep, 'i') } },
         { Name: { $regex: new RegExp(missingStep, 'i') } },
-        { Category_Slug: { $regex: new RegExp(missingStep, 'i') } },
-        { Skin_Type_Target: { $regex: new RegExp(skinType, 'i') } }
+        { Category_Slug: { $regex: new RegExp(missingStep, 'i') } }
       ]
-    }).limit(20).lean();
+    };
+
+    const filterQuery = {
+      Status: { $ne: 'inactive' },
+      Stock_Quantity: { $gt: 0 },
+      ...stepQuery
+    };
+
+    if (!isMakeupStep) {
+       // Exclude makeup products for skincare steps
+       filterQuery.$and = [
+         { Category: { $not: /makeup|cushion/i } },
+         { Name: { $not: /cushion|foundation|concealer|bb cream|cc cream/i } }
+       ];
+    }
+
+    // Fetch candidate products matching missingStep
+    let candidateProducts = await Product.find(filterQuery).limit(30).lean();
+    
+    // Optionally sort/filter by skinType in memory to ensure we prioritize skinType matches
+    candidateProducts.sort((a, b) => {
+      const aMatches = a.Skin_Type_Target && new RegExp(skinType, 'i').test(a.Skin_Type_Target) ? 1 : 0;
+      const bMatches = b.Skin_Type_Target && new RegExp(skinType, 'i').test(b.Skin_Type_Target) ? 1 : 0;
+      return bMatches - aMatches; // Matches first
+    });
+    
+    candidateProducts = candidateProducts.slice(0, 20);
 
     // Separate unowned vs owned products to prefer unowned items
     const unownedProducts = [];

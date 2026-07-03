@@ -70,6 +70,7 @@ public class ShopFragment extends Fragment {
     private List<Product> allProducts = new ArrayList<>();
     private String currentSearch = "";
     private String currentCategory = "All";
+    private String currentSkinType = "All Skin Types";
 
     private static final int STATE_LOADING = 0;
     private static final int STATE_CONTENT = 1;
@@ -155,6 +156,19 @@ public class ShopFragment extends Fragment {
                     applyFilter();
                 }
                 @Override public void afterTextChanged(Editable s) {}
+            });
+        }
+
+        View btnFilters = view.findViewById(R.id.btnSort);
+        if (btnFilters != null) {
+            btnFilters.setOnClickListener(v -> {
+                String[] skinTypes = {"All Skin Types", "Dry", "Oily", "Combination", "Sensitive", "Acne-prone"};
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Filter by Skin Type")
+                    .setItems(skinTypes, (dialog, which) -> {
+                        currentSkinType = skinTypes[which];
+                        applyFilter();
+                    }).show();
             });
         }
 
@@ -274,6 +288,16 @@ public class ShopFragment extends Fragment {
             while (it.hasNext()) {
                 Product p = it.next();
                 if (!currentCategory.equalsIgnoreCase(p.getCategory())) it.remove();
+            }
+        }
+
+        // Skin Type filter
+        if (!"All Skin Types".equals(currentSkinType)) {
+            Iterator<Product> it = result.iterator();
+            while (it.hasNext()) {
+                Product p = it.next();
+                String target = p.getSkinTypeTarget() != null ? p.getSkinTypeTarget() : "";
+                if (!target.toLowerCase().contains(currentSkinType.toLowerCase())) it.remove();
             }
         }
 

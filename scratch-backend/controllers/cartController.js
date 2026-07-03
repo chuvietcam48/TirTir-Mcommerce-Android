@@ -110,3 +110,36 @@ exports.clearCartServer = async (req, res) => {
   }
   res.status(200).json({ success: true, message: 'Đã xóa sạch giỏ hàng.' });
 };
+
+// POST /api/v1/cart/sync (Đồng bộ giỏ hàng)
+// Body: { items: [{ productId, quantity, shade }] }
+// Strategy: Client-wins (overwrite server state with local SQLite state)
+exports.syncCart = async (req, res) => {
+  const { items } = req.body;
+  if (!Array.isArray(items)) {
+    return res.status(400).json({ success: false, message: 'Danh sách sản phẩm không hợp lệ' });
+  }
+
+  let cart = await Cart.findOne({ userId: req.user.id });
+  if (!cart) {
+    cart = new Cart({ userId: req.user.id, items: [] });
+  }
+
+  // Overwrite existing items with local items (Client-wins)
+  cart.items = items;
+  await cart.save();
+
+  try {
+    const admin = require('firebase-admin');
+    await admin.firestore().collection('carts').doc(String(req.user.id)).set({
+      userId: String(req.user.id),
+      items: cart.items,
+      status: cart.items.length > 0 ? 'active' : 'completed',
+      lastUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch (err) {
+    console.error('Error syncing cart sync to Firestore:', err);
+  }
+
+  res.status(200).json({ success: true, data: cart.items });
+};

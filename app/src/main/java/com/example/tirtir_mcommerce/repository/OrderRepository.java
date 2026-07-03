@@ -115,19 +115,19 @@ public class OrderRepository {
     public void getMyOrders(Consumer<List<OrderResponse>> onSuccess, Consumer<String> onError) {
         ApiService apiService = RetrofitClient.getAuthClient(context).create(ApiService.class);
 
-        apiService.getMyOrders().enqueue(new Callback<List<OrderResponse>>() {
+        apiService.getMyOrders().enqueue(new Callback<ApiResponse<List<OrderResponse>>>() {
             @Override
-            public void onResponse(Call<List<OrderResponse>> call,
-                                   Response<List<OrderResponse>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    onSuccess.accept(response.body());
+            public void onResponse(Call<ApiResponse<List<OrderResponse>>> call,
+                                   Response<ApiResponse<List<OrderResponse>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    onSuccess.accept(response.body().getData());
                 } else {
                     onError.accept("Unable to load order history.");
                 }
             }
 
             @Override
-            public void onFailure(Call<List<OrderResponse>> call, Throwable t) {
+            public void onFailure(Call<ApiResponse<List<OrderResponse>>> call, Throwable t) {
                 onError.accept("Connection error. Please try again.");
             }
         });

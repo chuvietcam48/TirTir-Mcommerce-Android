@@ -10,7 +10,7 @@ exports.getProducts = async (req, res) => {
   const rawPage = parseInt(req.query.page, 10);
   const page = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
   
-  const { category } = req.query;
+  const { category, skin_type } = req.query;
   const filter = {};
   if (category) {
     filter.$or = [
@@ -18,9 +18,19 @@ exports.getProducts = async (req, res) => {
       { Category_Slug: { $regex: category, $options: 'i' } },
     ];
   }
+  if (skin_type) {
+    filter.Skin_Type_Target = { $regex: skin_type, $options: 'i' };
+  }
 
   const skip = (page - 1) * limit;
-  let products = await Product.find(filter).skip(skip).limit(limit).lean();
+  let sortQuery = { Created_At: -1 }; // default newest
+  if (req.query.sort) {
+    if (req.query.sort === 'price_asc') sortQuery = { Price: 1 };
+    else if (req.query.sort === 'price_desc') sortQuery = { Price: -1 };
+    else if (req.query.sort === 'newest') sortQuery = { Created_At: -1 };
+  }
+
+  let products = await Product.find(filter).sort(sortQuery).skip(skip).limit(limit).lean();
   
   // Fix CDN URLs
   const cdnBase = process.env.CDN_BASE_URL || 'https://tirtir.vn/wp-content/uploads/2024/';
@@ -136,4 +146,39 @@ function hexToRgb(hex) {
     b: parseInt(result[3], 16)
   } : { r: 255, g: 255, b: 255 };
 }
+
+// POST /api/v1/products
+exports.createProduct = async (req, res) => {
+  try {
+    const product = await Product.create(req.body);
+    res.status(201).json({ success: true, data: product });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// PUT /api/v1/products/:id
+exports.updateProduct = async (req, res) => {
+  try {
+    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+    });
+    if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
+    res.status(200).json({ success: true, data: product });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// DELETE /api/v1/products/:id
+exports.deleteProduct = async (req, res) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+    if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
+    res.status(200).json({ success: true, message: 'Product deleted' });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
 

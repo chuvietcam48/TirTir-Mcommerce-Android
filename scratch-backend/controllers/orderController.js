@@ -339,3 +339,64 @@ exports.exportOrdersCsv = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
+// GET /api/v1/admin/orders/:id
+exports.getAdminOrderDetails = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate('userId', 'email firstName lastName')
+      .populate('items.product', 'Name Category');
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    res.status(200).json({ success: true, data: order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// PATCH /api/v1/admin/orders/:id/notes
+exports.updateAdminNotes = async (req, res) => {
+  try {
+    const { adminNotes } = req.body;
+    const order = await Order.findByIdAndUpdate(req.params.id, { adminNotes }, { new: true });
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    res.status(200).json({ success: true, data: order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// PATCH /api/v1/admin/orders/:id/shipping
+exports.updateShippingDetails = async (req, res) => {
+  try {
+    const { carrier, trackingNumber, estimatedDeliveryDate, status } = req.body;
+    const update = {};
+    if (carrier !== undefined) update['shippingDetails.carrier'] = carrier;
+    if (trackingNumber !== undefined) update['shippingDetails.trackingNumber'] = trackingNumber;
+    if (estimatedDeliveryDate !== undefined) update['shippingDetails.estimatedDeliveryDate'] = estimatedDeliveryDate;
+    if (status !== undefined) update.status = status;
+    
+    const order = await Order.findByIdAndUpdate(req.params.id, { $set: update }, { new: true });
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    res.status(200).json({ success: true, data: order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// POST /api/v1/admin/orders/:id/cancel
+exports.cancelOrderAdmin = async (req, res) => {
+  try {
+    const { cancellationReason } = req.body;
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    
+    order.status = 'Cancelled';
+    order.cancellationReason = cancellationReason || 'No reason provided';
+    order.adminNotes = (order.adminNotes || '') + '\n[Cancelled by Admin]';
+    await order.save();
+    
+    res.status(200).json({ success: true, data: order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};

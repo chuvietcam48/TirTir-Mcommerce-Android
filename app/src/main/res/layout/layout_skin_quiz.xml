@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layoutSkinQuiz"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tirtir_off_white"
+    android:visibility="gone">
+
+    <!-- Header -->
+    <LinearLayout
+        android:id="@+id/quizHeader"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/btnQuizBack"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_arrow_back"
+            android:padding="4dp"
+            app:tint="@color/tirtir_red_primary"
+            android:visibility="invisible" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="You Plan"
+            android:textAlignment="center"
+            android:textColor="@color/tirtir_red_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@android:drawable/ic_menu_my_calendar"
+            android:padding="4dp"
+            app:tint="@color/tirtir_red_primary" />
+    </LinearLayout>
+
+    <!-- Progress Indicator -->
+    <LinearLayout
+        android:id="@+id/progressContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintTop_toBottomOf="@id/quizHeader"
+        android:layout_marginTop="8dp">
+
+        <ProgressBar
+            android:id="@+id/quizProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:max="3"
+            android:progress="1"
+            android:progressTint="@color/tirtir_red_primary"
+            android:progressBackgroundTint="@color/tirtir_surface_variant" />
+
+        <TextView
+            android:id="@+id/tvStepIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="STEP 1 OF 3"
+            android:textColor="@color/tirtir_text_secondary"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+
+    <!-- Quiz Content Container -->
+    <ViewFlipper
+        android:id="@+id/quizViewFlipper"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/progressContainer"
+        app:layout_constraintBottom_toTopOf="@id/quizFooter"
+        android:inAnimation="@android:anim/fade_in"
+        android:outAnimation="@android:anim/fade_out">
+
+        <!-- Step 1: Goal -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:gravity="center_horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Build Your Glow"
+                    android:textColor="@color/tirtir_red_primary"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="To curate your bespoke routine, we need to understand your unique canvas. What is your primary skin goal?"
+                    android:textAlignment="center"
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="32dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:paddingBottom="16dp">
+
+                    <include layout="@layout/item_quiz_option" android:id="@+id/optHydration" />
+                    <include layout="@layout/item_quiz_option" android:id="@+id/optBrightening" />
+                    <include layout="@layout/item_quiz_option" android:id="@+id/optAntiAging" />
+                    <include layout="@layout/item_quiz_option" android:id="@+id/optAcneControl" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- Step 2: Skin Type -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:gravity="center_horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Describe Your Surface"
+                    android:textColor="@color/tirtir_red_primary"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:textAlignment="center"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Knowing your skin type allows us to select the perfect molecular textures for your routine."
+                    android:textAlignment="center"
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="32dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:paddingBottom="16dp">
+
+                    <include layout="@layout/item_quiz_option" android:id="@+id/optOily" />
+                    <include layout="@layout/item_quiz_option" android:id="@+id/optDry" />
+                    <include layout="@layout/item_quiz_option" android:id="@+id/optCombination" />
+                    <include layout="@layout/item_quiz_option" android:id="@+id/optSensitive" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- Step 3: Loading / Curating -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="24dp">
+
+            <ProgressBar
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:indeterminate="true"
+                android:layout_marginBottom="24dp"
+                android:indeterminateTint="@color/tirtir_red_primary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Curating Your Ritual..."
+                android:textColor="@color/tirtir_red_primary"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Our algorithm is cross-referencing your goals with our database of active botanical extracts."
+                android:textAlignment="center"
+                android:textColor="@color/tirtir_text_secondary"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+    </ViewFlipper>
+
+    <!-- Footer / Next Button -->
+    <LinearLayout
+        android:id="@+id/quizFooter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="24dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnQuizNext"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:text="NEXT"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            app:backgroundTint="@color/tirtir_red_primary"
+            app:cornerRadius="28dp"
+            android:paddingHorizontal="48dp"
+            android:enabled="false" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 const GhnCarrierClient = require('./GhnCarrierClient');
+const ViettelPostCarrierClient = require('./ViettelPostCarrierClient');
 const ShippingQuoteRepository = require('./ShippingQuoteRepository');
 
 class ShippingQuoteService {
@@ -9,50 +10,59 @@ class ShippingQuoteService {
         const fromWardCode = process.env.GHN_FROM_WARD_CODE || '20109'; // Default to a standard ward if not set
 
         // 1. Get Available Services
-        const services = await GhnCarrierClient.getAvailableServices(fromDistrict, toDistrictId);
-        if (!services || services.length === 0) {
+        const [ghnServices, vtpServices] = await Promise.all([
+            GhnCarrierClient.getAvailableServices(fromDistrict, toDistrictId).catch(() => []),
+            ViettelPostCarrierClient.getAvailableServices(fromDistrict, toDistrictId).catch(() => [])
+        ]);
+        
+        if (ghnServices.length === 0 && vtpServices.length === 0) {
             throw new Error("No shipping services available for this route.");
         }
 
         const quotesList = [];
 
         // 2. For each service, get Fee and Lead Time
-        for (const service of services) {
+        // GHN Services
+        for (const service of ghnServices) {
             try {
-                // Get Fee
                 const feeData = await GhnCarrierClient.calculateFee(
-                    service.service_id, 
-                    fromDistrict, 
-                    toDistrictId, 
-                    toWardCode, 
-                    weightGrams, 
-                    lengthCm, 
-                    widthCm, 
-                    heightCm, 
-                    orderValue
+                    service.service_id, fromDistrict, toDistrictId, toWardCode, 
+                    weightGrams, lengthCm, widthCm, heightCm, orderValue
                 );
-
-                // Get Lead Time
                 const leadTimeData = await GhnCarrierClient.getLeadTime(
-                    fromDistrict, 
-                    fromWardCode, 
-                    toDistrictId, 
-                    toWardCode, 
-                    service.service_id
+                    fromDistrict, fromWardCode, toDistrictId, toWardCode, service.service_id
                 );
-
-                // Convert lead time timestamp to ISO date string
                 const estimatedDate = new Date(leadTimeData.leadtime * 1000).toISOString();
-
                 quotesList.push({
-                    serviceId: service.service_id,
-                    serviceName: service.short_name || 'Standard Delivery',
+                    serviceId: `GHN_${service.service_id}`,
+                    serviceName: service.short_name || 'GHN Standard Delivery',
                     fee: feeData.total,
                     estimatedDeliveryTime: estimatedDate
                 });
             } catch (err) {
-                console.warn(`Could not get fee/lead time for service ${service.service_id}:`, err.message);
-                // Continue with other services if one fails
+                console.warn(`Could not get fee/lead time for GHN service ${service.service_id}:`, err.message);
+            }
+        }
+
+        // Viettel Post Services
+        for (const service of vtpServices) {
+            try {
+                const feeData = await ViettelPostCarrierClient.calculateFee(
+                    service.service_id, fromDistrict, toDistrictId, toWardCode, 
+                    weightGrams, lengthCm, widthCm, heightCm, orderValue
+                );
+                const leadTimeData = await ViettelPostCarrierClient.getLeadTime(
+                    fromDistrict, fromWardCode, toDistrictId, toWardCode, service.service_id
+                );
+                const estimatedDate = new Date(leadTimeData.leadtime * 1000).toISOString();
+                quotesList.push({
+                    serviceId: `VTP_${service.service_id}`,
+                    serviceName: service.short_name || 'VTP Standard Delivery',
+                    fee: feeData.total,
+                    estimatedDeliveryTime: estimatedDate
+                });
+            } catch (err) {
+                console.warn(`Could not get fee/lead time for VTP service ${service.service_id}:`, err.message);
             }
         }
 

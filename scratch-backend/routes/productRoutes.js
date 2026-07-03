@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { getProducts, getProductById, matchCushion } = require('../controllers/productController');
+const { getProducts, getProductById, matchCushion, createProduct, updateProduct, deleteProduct } = require('../controllers/productController');
+const { protect, restrictTo } = require('../middleware/authMiddleware');
 
 // GET /api/v1/products/cushion-match?skin_tone_hex=#D8A087
 router.get('/cushion-match', matchCushion);
@@ -10,5 +11,14 @@ router.get('/', getProducts);
 
 // GET /api/v1/products/:id
 router.get('/:id', getProductById);
+
+// POST /api/v1/products (Admin only)
+router.post('/', protect, restrictTo('admin'), createProduct);
+
+// PUT /api/v1/products/:id (Admin only)
+router.put('/:id', protect, restrictTo('admin'), updateProduct);
+
+// DELETE /api/v1/products/:id (Admin only)
+router.delete('/:id', protect, restrictTo('admin'), deleteProduct);
 
 module.exports = router;
