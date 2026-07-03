@@ -50,8 +50,6 @@ import java.util.Map;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import android.app.AlertDialog;
-import java.util.HashMap;
 
 public class RoutineFragment extends Fragment {
     private static final String RESULT_RECOMMENDATION = "routine_recommendation";
@@ -1025,9 +1023,6 @@ public class RoutineFragment extends Fragment {
             notifyDataSetChanged();
         }
 
-        public List<RoutineStep> getSteps() {
-            return this.steps;
-        }
 
         @NonNull
         @Override

@@ -66,7 +66,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     private TextView tvSuitableSkinTypes;
     private TextView tvIngredientList;
     private TextView tvProductDescription;
-    private MaterialButton btnWishlist;
+    private android.widget.ImageView btnWishlist;
     private MaterialButton btnARTryOn;
     private Button btnAddToCart;
     private com.google.android.material.chip.ChipGroup chipGroupSkinTypes;
@@ -99,10 +99,6 @@ public class ProductDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_product_detail);
 
         databaseHelper = DatabaseHelper.getInstance(this);
-
-        // Wire back button in the header
-        View btnDetailBack = findViewById(R.id.btnDetailBack);
-        if (btnDetailBack != null) btnDetailBack.setOnClickListener(v -> onBackPressed());
 
         // Phase 1 requirement: use ViewPager2 for gallery
         androidx.viewpager2.widget.ViewPager2 viewPager = findViewById(R.id.viewPagerProductImages);
@@ -205,7 +201,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         // OUT-OF-STOCK UI (S1.2 gap)
         // ===========================
         // Find optional out-of-stock badge (may be null if not in XML)
-        android.widget.TextView tvOutOfStockBadge = findViewById(R.id.tvProductOutOfStockBadge);
+        android.view.View tvOutOfStockBadge = findViewById(R.id.tvProductOutOfStockBadge);
         android.view.ViewGroup layoutStepper = (android.view.ViewGroup) btnDecreaseQty.getParent();
         if (stockQuantity <= 0) {
             // Disable Add to Cart button
@@ -257,6 +253,20 @@ public class ProductDetailActivity extends AppCompatActivity {
         });
 
         btnAddToCart.setOnClickListener(v -> showProductOptions(false));
+
+        View btnBack = findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> onBackPressed());
+        }
+
+        View btnCartTopNav = findViewById(R.id.btnCartTopNav);
+        if (btnCartTopNav != null) {
+            btnCartTopNav.setOnClickListener(v -> {
+                Intent intent = new Intent(this, com.example.tirtir_mcommerce.MainActivity.class);
+                intent.putExtra("NAVIGATE_TO", "cart");
+                startActivity(intent);
+            });
+        }
 
         if (btnBuyNow != null) {
             btnBuyNow.setOnClickListener(v -> {
@@ -961,12 +971,13 @@ public class ProductDetailActivity extends AppCompatActivity {
     }
 
     private void updateWishlistIcon(boolean wishlisted) {
+        if (btnWishlist == null) return;
         if (wishlisted) {
-            btnWishlist.setIconResource(R.drawable.ic_wishlist);
-            btnWishlist.setIconTint(ColorStateList.valueOf(getColor(R.color.tirtir_red_primary)));
+            btnWishlist.setImageResource(R.drawable.ic_wishlist);
+            btnWishlist.setColorFilter(getColor(R.color.tirtir_red_primary));
         } else {
-            btnWishlist.setIconResource(R.drawable.ic_wishlist);
-            btnWishlist.setIconTint(ColorStateList.valueOf(getColor(R.color.tirtir_text_secondary)));
+            btnWishlist.setImageResource(R.drawable.ic_wishlist);
+            btnWishlist.setColorFilter(getColor(R.color.tirtir_text_secondary));
         }
     }
 }

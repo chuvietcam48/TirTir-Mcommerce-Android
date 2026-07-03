@@ -4,17 +4,7 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-    <!-- Dropper / pipette representing serum -->
-    <!-- Bulb at top -->
     <path
-        android:fillColor="#FF000000"
-        android:pathData="M15,3C15,1.9 14.1,1 13,1L11,1C9.9,1 9,1.9 9,3L9,5C9,5.55 9.45,6 10,6L10,16C10,17.1 10.9,18 12,18C13.1,18 14,17.1 14,16L14,6C14.55,6 15,5.55 15,5L15,3Z" />
-    <!-- Tip -->
-    <path
-        android:fillColor="#FF000000"
-        android:pathData="M11.5,18L11.5,22L12.5,22L12.5,18Z" />
-    <!-- Drop -->
-    <path
-        android:fillColor="#FF000000"
-        android:pathData="M12,22C12,22 10.5,20 10.5,21.2C10.5,21.94 11.17,22.5 12,22.5C12.83,22.5 13.5,21.94 13.5,21.2C13.5,20 12,22 12,22Z" />
+        android:fillColor="@color/tirtir_red_primary"
+        android:pathData="M7 14C5.9 14 5 14.9 5 16C5 17.1 5.9 18 7 18C8.1 18 9 17.1 9 16C9 14.9 8.1 14 7 14ZM19 14C17.9 14 17 14.9 17 16C17 17.1 17.9 18 19 18C20.1 18 21 17.1 21 16C21 14.9 20.1 14 19 14ZM12 2C10.9 2 10 2.9 10 4V10L4.53 17.75C4.18 18.25 4 18.86 4 19.5C4 20.88 5.12 22 6.5 22H17.5C18.88 22 20 20.88 20 19.5C20 18.86 19.82 18.25 19.47 17.75L14 10V4C14 2.9 13.1 2 12 2ZM12 4H14V9.6L19 16.66V19.5H5V16.66L10 9.6V4H12ZM13 14C11.9 14 11 14.9 11 16C11 17.1 11.9 18 13 18C14.1 18 15 17.1 15 16C15 14.9 14.1 14 13 14Z"/>
 </vector>

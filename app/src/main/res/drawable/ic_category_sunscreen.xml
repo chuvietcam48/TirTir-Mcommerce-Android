@@ -4,56 +4,7 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-    <!-- Sun circle -->
     <path
-        android:fillColor="#FF000000"
-        android:pathData="M12,8C9.79,8 8,9.79 8,12C8,14.21 9.79,16 12,16C14.21,16 16,14.21 16,12C16,9.79 14.21,8 12,8Z" />
-    <!-- Top ray -->
-    <path
-        android:fillColor="#FF000000"
-        android:pathData="M12,2L12,5Z"
-        android:strokeWidth="2"
-        android:strokeColor="#FF000000" />
-    <!-- Bottom ray -->
-    <path
-        android:fillColor="#FF000000"
-        android:pathData="M12,19L12,22Z"
-        android:strokeWidth="2"
-        android:strokeColor="#FF000000" />
-    <!-- Left ray -->
-    <path
-        android:fillColor="#FF000000"
-        android:pathData="M2,12L5,12Z"
-        android:strokeWidth="2"
-        android:strokeColor="#FF000000" />
-    <!-- Right ray -->
-    <path
-        android:fillColor="#FF000000"
-        android:pathData="M19,12L22,12Z"
-        android:strokeWidth="2"
-        android:strokeColor="#FF000000" />
-    <!-- Top-left diagonal ray -->
-    <path
-        android:fillColor="#FF000000"
-        android:pathData="M4.93,4.93L6.34,6.34Z"
-        android:strokeWidth="2"
-        android:strokeColor="#FF000000" />
-    <!-- Top-right diagonal ray -->
-    <path
-        android:fillColor="#FF000000"
-        android:pathData="M17.66,6.34L19.07,4.93Z"
-        android:strokeWidth="2"
-        android:strokeColor="#FF000000" />
-    <!-- Bottom-left diagonal ray -->
-    <path
-        android:fillColor="#FF000000"
-        android:pathData="M6.34,17.66L4.93,19.07Z"
-        android:strokeWidth="2"
-        android:strokeColor="#FF000000" />
-    <!-- Bottom-right diagonal ray -->
-    <path
-        android:fillColor="#FF000000"
-        android:pathData="M17.66,17.66L19.07,19.07Z"
-        android:strokeWidth="2"
-        android:strokeColor="#FF000000" />
+        android:fillColor="@color/tirtir_red_primary"
+        android:pathData="M12 7C9.24 7 7 9.24 7 12C7 14.76 9.24 17 12 17C14.76 17 17 14.76 17 12C17 9.24 14.76 7 12 7ZM12 15C10.34 15 9 13.66 9 12C9 10.34 10.34 9 12 9C13.66 9 15 10.34 15 12C15 13.66 13.66 15 12 15ZM11 2V5H13V2H11ZM11 19V22H13V19H11ZM3 11V13H6V11H3ZM18 11V13H21V11H18ZM5.64 4.22L4.22 5.64L6.34 7.76L7.76 6.34L5.64 4.22ZM17.66 16.24L16.24 17.66L18.36 19.78L19.78 18.36L17.66 16.24ZM19.78 5.64L18.36 4.22L16.24 6.34L17.66 7.76L19.78 5.64ZM7.76 17.66L6.34 16.24L4.22 18.36L5.64 19.78L7.76 17.66Z"/>
 </vector>

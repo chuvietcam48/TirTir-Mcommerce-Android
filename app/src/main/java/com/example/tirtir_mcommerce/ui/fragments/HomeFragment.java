@@ -102,8 +102,8 @@ public class HomeFragment extends Fragment {
             R.drawable.ic_category_sunscreen,
             R.drawable.ic_skin,
             R.drawable.ic_category_sunscreen,
-            R.drawable.ic_beauty,
-            R.drawable.ic_beauty
+            R.drawable.ic_skin,
+            R.drawable.ic_skin
     };
 
     public static HomeFragment newInstance(String initialQuery) {
@@ -180,7 +180,7 @@ public class HomeFragment extends Fragment {
 
             View categoryItem = inflater.inflate(R.layout.item_category, containerCategories, false);
             categoryItem.setLayoutParams(new LinearLayout.LayoutParams(
-                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             ImageView ivIcon = categoryItem.findViewById(R.id.ivCategoryIcon);
             TextView tvLabel = categoryItem.findViewById(R.id.tvCategoryName);
 
@@ -232,20 +232,7 @@ public class HomeFragment extends Fragment {
         intent.putExtra("PRODUCT_PRICE",       product.getPrice());
         intent.putExtra("PRODUCT_SALE_PRICE",  product.getSalePrice());
         intent.putExtra("PRODUCT_CATEGORY",    product.getCategory());
-        intent.putExtra("PRODUCT_IMAGE",       product.getThumbnailImages());
-        intent.putExtra("PRODUCT_SKIN_TYPES",  product.getSkinTypeTarget());
-        intent.putExtra("PRODUCT_INGREDIENTS", product.getKeyIngredients());
-        intent.putExtra("PRODUCT_DESCRIPTION", product.getDescriptionShort());
-        intent.putExtra("PRODUCT_FULL_DESCRIPTION", product.getFullDescription());
-        intent.putExtra("PRODUCT_HOW_TO_USE", product.getHowToUse());
-        intent.putExtra("PRODUCT_VOLUME", product.getVolumeSize());
-        intent.putExtra("PRODUCT_PARENT_ID", product.getParentId());
-        intent.putExtra("PRODUCT_IS_SKINCARE", product.getIsSkincare());
         intent.putExtra("PRODUCT_STOCK",       product.getStockQuantity());
-        if (product.getGalleryImages() != null) {
-            intent.putStringArrayListExtra("PRODUCT_GALLERY",
-                    new ArrayList<>(product.getGalleryImages()));
-        }
         startActivity(intent);
     }
 

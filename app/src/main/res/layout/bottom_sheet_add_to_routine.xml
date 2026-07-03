@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
+<<<<<<< Updated upstream
     android:layout_height="match_parent"
     android:background="@color/tirtir_white"
     android:orientation="vertical"
@@ -35,15 +36,53 @@
             android:contentDescription="Close" android:src="@drawable/ic_close"
             app:tint="@color/tirtir_text_secondary" />
     </LinearLayout>
+=======
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/bg_bottom_sheet">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/tvRoutinePickerTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="Add to Routine"
+            android:textColor="@color/tirtir_black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/btnCloseRoutinePicker"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_close"
+            app:tint="@color/tirtir_text_secondary"
+            android:contentDescription="Close" />
+    </RelativeLayout>
+>>>>>>> Stashed changes
 
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+<<<<<<< Updated upstream
         android:scrollbars="none">
+=======
+        android:scrollbars="none"
+        android:layout_marginBottom="12dp">
+>>>>>>> Stashed changes
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipsRoutinePicker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+<<<<<<< Updated upstream
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             app:selectionRequired="true"
@@ -69,6 +108,16 @@
         android:clipToPadding="false"
         android:padding="10dp"
         android:paddingBottom="28dp"
+=======
+            app:singleSelection="true"
+            app:selectionRequired="true" />
+    </HorizontalScrollView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvRoutinePickerProducts"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+>>>>>>> Stashed changes
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:spanCount="2" />
 

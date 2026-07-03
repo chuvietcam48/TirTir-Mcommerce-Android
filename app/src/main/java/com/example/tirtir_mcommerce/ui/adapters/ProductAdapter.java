@@ -116,6 +116,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         private final View soldOutOverlay;
         private final TextView tvRatingCount;
         private final TextView tvSoldCount;
+        private final View btnQuickAdd;
+        private final View btnViewDetails;
 
         ProductViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -130,6 +132,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             soldOutOverlay    = itemView.findViewById(R.id.soldOutOverlay);
             tvRatingCount     = itemView.findViewById(R.id.tvRatingCount);
             tvSoldCount       = itemView.findViewById(R.id.tvSoldCount);
+            btnQuickAdd       = itemView.findViewById(R.id.btnQuickAdd);
+            btnViewDetails    = itemView.findViewById(R.id.btnViewDetails);
         }
 
         void bind(Product product) {
@@ -198,7 +202,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
             // Sold Count
             if (tvSoldCount != null) {
-                int sold = Math.abs((product.getId() != null ? product.getId() : product.getName()).hashCode()) % 1500 + 50;
+                String fallbackId = product.getId() != null ? product.getId() : (product.getName() != null ? product.getName() : "default");
+                int sold = Math.abs(fallbackId.hashCode()) % 1500 + 50;
                 tvSoldCount.setText(sold + " Sold");
                 tvSoldCount.setVisibility(View.VISIBLE);
             }

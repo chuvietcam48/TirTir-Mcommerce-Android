@@ -1,144 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/tirtir_off_white">
+    android:background="@color/tirtir_white">
 
-    <!-- ── Header bar (pinned, no title — product name lives in the content card) ── -->
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/tirtir_off_white"
-        app:elevation="0dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="4dp">
-
-            <ImageButton
-                android:id="@+id/btnDetailBack"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_arrow_back"
-                android:contentDescription="@string/back"
-                app:tint="@color/tirtir_black" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-        </LinearLayout>
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <!-- ── Scrollable content ── -->
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/productDetailScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="88dp"
-        android:clipToPadding="false"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:fillViewport="true"
+        android:paddingBottom="100dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:clipChildren="false"
-            android:clipToPadding="false">
+            android:orientation="vertical">
 
-            <!-- ── Hero image section ── -->
+            <!-- Hero Section -->
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="360dp"
-                android:background="@color/tirtir_off_white">
+                android:layout_height="400dp">
 
-                <!-- Static fallback ImageView (hidden once ViewPager2 loads) -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#F3F3F4" />
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/viewPagerProductImages"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
                 <ImageView
                     android:id="@+id/ivProductDetailImage"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="fitCenter"
-                    android:padding="16dp"
-                    android:background="@color/tirtir_off_white"
-                    android:contentDescription="@string/product_name_placeholder" />
-
-                <!-- Gallery ViewPager2 (activated by Java when images available) -->
-                <androidx.viewpager2.widget.ViewPager2
-                    android:id="@+id/viewPagerProductImages"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
                     android:visibility="gone" />
 
                 <ImageButton
                     android:id="@+id/btnImagePrevious"
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:layout_gravity="center_vertical|start"
-                    android:layout_marginStart="12dp"
-                    android:background="@drawable/bg_gallery_arrow"
-                    android:contentDescription="Previous product image"
-                    android:padding="9dp"
-                    android:rotation="180"
-                    android:src="@drawable/ic_chevron_right"
+                    android:layout_marginStart="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_arrow_back"
                     android:visibility="gone"
-                    app:tint="@color/tirtir_black" />
+                    app:tint="@color/tirtir_text_secondary" />
 
                 <ImageButton
                     android:id="@+id/btnImageNext"
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:layout_gravity="center_vertical|end"
-                    android:layout_marginEnd="12dp"
-                    android:background="@drawable/bg_gallery_arrow"
-                    android:contentDescription="Next product image"
-                    android:padding="9dp"
-                    android:src="@drawable/ic_chevron_right"
+                    android:layout_marginEnd="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_arrow_back"
+                    android:rotation="180"
                     android:visibility="gone"
-                    app:tint="@color/tirtir_black" />
+                    app:tint="@color/tirtir_text_secondary" />
 
-                <!-- Dot indicators -->
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/tabIndicatorImages"
                     android:layout_width="wrap_content"
-                    android:layout_height="12dp"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="bottom|center_horizontal"
-                    android:layout_marginBottom="20dp"
+                    android:layout_marginBottom="24dp"
                     android:background="@android:color/transparent"
                     app:tabBackground="@drawable/tab_selector"
                     app:tabGravity="center"
                     app:tabIndicatorHeight="0dp"
-                    app:tabPaddingStart="4dp"
+                    app:tabMaxWidth="12dp"
+                    app:tabMinWidth="12dp"
                     app:tabPaddingEnd="4dp"
-                    android:visibility="gone" />
+                    app:tabPaddingStart="4dp" />
 
-                <!-- AR Try-On pill (only for shade/foundation products) -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnARTryOn"
                     android:layout_width="wrap_content"
-                    android:layout_height="36dp"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="bottom|end"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="60dp"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
+                    android:layout_marginBottom="40dp"
+                    android:layout_marginEnd="24dp"
+                    android:backgroundTint="#2B2D2D"
                     android:text="AR TRY-ON"
                     android:textColor="@color/tirtir_white"
-                    android:textSize="11sp"
-                    android:letterSpacing="0.05"
-                    android:visibility="gone"
-                    app:backgroundTint="@color/tirtir_black"
-                    app:cornerRadius="18dp"
+                    android:textSize="12sp"
+                    app:cornerRadius="24dp"
                     app:icon="@drawable/ic_scan"
-                    app:iconSize="14dp"
                     app:iconTint="@color/tirtir_white" />
 
-                <!-- Sold-out full-image dark overlay -->
+                <!-- Out of Stock Overlay -->
                 <FrameLayout
                     android:id="@+id/tvProductOutOfStockBadge"
                     android:layout_width="match_parent"
@@ -149,517 +104,405 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:background="#4DFFFFFF"
+                        android:paddingHorizontal="24dp"
+                        android:paddingVertical="10dp"
                         android:text="Sold Out"
                         android:textColor="@color/tirtir_white"
                         android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.05"
-                        android:paddingHorizontal="24dp"
-                        android:paddingVertical="10dp"
-                        android:background="#4DFFFFFF" />
+                        android:textStyle="bold" />
                 </FrameLayout>
-
             </FrameLayout>
 
-            <!-- ── Content card (overlaps image by 40dp, rounded top corners) ── -->
+            <!-- Content Card (Overlapping) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:layout_marginTop="-40dp"
-                android:background="@drawable/bg_product_content_card"
-                android:elevation="4dp"
-                android:paddingHorizontal="20dp"
-                android:paddingTop="28dp"
-                android:paddingBottom="24dp">
+                android:background="@drawable/bg_bottom_sheet"
+                android:elevation="8dp"
+                android:orientation="vertical"
+                android:paddingHorizontal="24dp"
+                android:paddingTop="32dp">
 
-                <!-- Category label + share icon row -->
-                <LinearLayout
+                <!-- Category & Badges -->
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="8dp">
+                    android:layout_marginBottom="16dp">
 
                     <TextView
                         android:id="@+id/tvProductCategory"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/product_category_placeholder"
-                        android:textColor="@color/tirtir_red_primary"
-                        android:textSize="12sp"
-                        android:textAllCaps="true"
+                        android:layout_alignParentStart="true"
+                        android:fontFamily="sans-serif-medium"
                         android:letterSpacing="0.1"
-                        android:fontFamily="sans-serif-medium" />
+                        android:text="SKINCARE"
+                        android:textAllCaps="true"
+                        android:textColor="@color/tirtir_red_primary"
+                        android:textSize="14sp" />
 
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:orientation="horizontal">
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginEnd="16dp"
+                            android:src="@drawable/ic_link"
+                            app:tint="#5F5E5E" />
+                        <ImageView
+                            android:id="@+id/btnWishlist"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_wishlist"
+                            app:tint="#5F5E5E" />
+                    </LinearLayout>
+                </RelativeLayout>
 
-                </LinearLayout>
-
-                <!-- Product name — EB Garamond style (serif) -->
+                <!-- Title -->
                 <TextView
                     android:id="@+id/tvProductName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/product_name_placeholder"
-                    android:textColor="@color/tirtir_text_primary"
-                    android:textSize="26sp"
+                    android:layout_marginBottom="8dp"
                     android:fontFamily="serif"
-                    android:lineSpacingMultiplier="1.15"
-                    android:layout_marginBottom="10dp" />
+                    android:text="Product Name"
+                    android:textColor="#1A1C1C"
+                    android:textSize="28sp" />
 
-                <!-- Rating row (GONE until API returns rating > 0) -->
+                <!-- Price & Stars -->
                 <LinearLayout
-                    android:id="@+id/layoutRatingRow"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
+                    android:layout_marginBottom="24dp"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="10dp"
-                    android:visibility="gone">
-
-                    <ImageView android:layout_width="13dp" android:layout_height="13dp"
-                        android:src="@drawable/ic_star_filled" app:tint="@color/tirtir_red_primary" />
-                    <ImageView android:layout_width="13dp" android:layout_height="13dp"
-                        android:src="@drawable/ic_star_filled" app:tint="@color/tirtir_red_primary" />
-                    <ImageView android:layout_width="13dp" android:layout_height="13dp"
-                        android:src="@drawable/ic_star_filled" app:tint="@color/tirtir_red_primary" />
-                    <ImageView android:layout_width="13dp" android:layout_height="13dp"
-                        android:src="@drawable/ic_star_filled" app:tint="@color/tirtir_red_primary" />
-                    <ImageView android:layout_width="13dp" android:layout_height="13dp"
-                        android:src="@drawable/ic_star_filled" app:tint="@color/tirtir_red_primary" />
-
-                    <TextView
-                        android:id="@+id/tvProductRating"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:textColor="@color/tirtir_text_secondary"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
-                <!-- Price row -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="16dp">
+                    android:orientation="horizontal">
 
                     <TextView
                         android:id="@+id/tvProductPrice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/product_price_placeholder"
+                        android:layout_marginEnd="16dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="1.000.000 đ"
                         android:textColor="@color/tirtir_red_primary"
                         android:textSize="24sp"
-                        android:fontFamily="sans-serif-medium"
                         android:textStyle="bold" />
 
+                    <!-- Optional Original Price & Discount -->
                     <TextView
                         android:id="@+id/tvProductOriginalPrice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:textColor="@color/tirtir_text_secondary"
+                        android:layout_marginEnd="8dp"
+                        android:textColor="#636262"
                         android:textSize="14sp"
                         android:visibility="gone" />
-
                     <TextView
                         android:id="@+id/tvProductDiscountBadge"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="16dp"
                         android:background="@drawable/bg_tag_primary"
-                        android:paddingHorizontal="8dp"
-                        android:paddingVertical="3dp"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="2dp"
                         android:textColor="@color/tirtir_white"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
+                        android:textSize="12sp"
                         android:visibility="gone" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutRatingRow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_star_filled"
+                            app:tint="@color/tirtir_red_primary" />
+                        <TextView
+                            android:id="@+id/tvProductRating"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:text="4.9"
+                            android:textColor="#5A403C"
+                            android:textSize="12sp" />
+                    </LinearLayout>
                 </LinearLayout>
 
-                <!-- Feature badges: Vegan / Dermatologist Tested (GONE until API confirms) -->
-                <LinearLayout
-                    android:id="@+id/layoutFeatureBadges"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="16dp"
-                    android:visibility="gone">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardVeganFormula"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="8dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp"
-                        app:cardBackgroundColor="@color/tirtir_off_white"
-                        app:strokeWidth="1dp"
-                        app:strokeColor="@color/tirtir_rose_outline">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="12dp">
-                            <ImageView android:layout_width="20dp" android:layout_height="20dp"
-                                android:src="@drawable/ic_badge_cruelty_free" app:tint="@color/tirtir_red_primary" />
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:layout_marginTop="6dp" android:text="Vegan Formula"
-                                android:textColor="@color/tirtir_black" android:textSize="11sp" android:textStyle="bold" />
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp" android:text="100% plant-based"
-                                android:textColor="@color/tirtir_text_secondary" android:textSize="10sp" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardDermatologistTested"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp"
-                        app:cardBackgroundColor="@color/tirtir_off_white"
-                        app:strokeWidth="1dp"
-                        app:strokeColor="@color/tirtir_rose_outline">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="12dp">
-                            <ImageView android:layout_width="20dp" android:layout_height="20dp"
-                                android:src="@drawable/ic_badge_dermatologist" app:tint="@color/tirtir_red_primary" />
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:layout_marginTop="6dp" android:text="Dermatology Tested"
-                                android:textColor="@color/tirtir_black" android:textSize="11sp" android:textStyle="bold" />
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp" android:text="Clinically proven safe"
-                                android:textColor="@color/tirtir_text_secondary" android:textSize="10sp" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                </LinearLayout>
-
-                <!-- Divider -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginBottom="20dp"
-                    android:background="@color/tirtir_border_gray" />
+                    android:layout_marginBottom="24dp"
+                    android:background="#E2E2E2" />
 
-                <!-- ── Suitable Skin Types (hidden for makeup / non-skincare products) ── -->
+                <!-- Grid Details (Skin Types, Ingredients) -->
                 <LinearLayout
-                    android:id="@+id/layoutSkinTypesSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="20dp">
+                    android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="SUITABLE SKIN TYPES"
-                        android:textColor="@color/tirtir_text_primary"
-                        android:textSize="12sp"
-                        android:textAllCaps="true"
-                        android:letterSpacing="0.08"
-                        android:fontFamily="sans-serif-medium"
-                        android:layout_marginBottom="10dp" />
-
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chipGroupSkinTypes"
+                    <!-- Skin Types Section -->
+                    <LinearLayout
+                        android:id="@+id/layoutSkinTypesSection"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:chipSpacingHorizontal="6dp"
-                        app:chipSpacingVertical="4dp"
-                        app:singleLine="false" />
-
-                    <!-- Hidden fallback TextView (keeps existing Java setText calls safe) -->
-                    <TextView
-                        android:id="@+id/tvSuitableSkinTypes"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/product_skin_types_placeholder"
-                        android:textColor="@color/tirtir_text_secondary"
-                        android:textSize="14sp"
-                        android:visibility="gone" />
-
-                </LinearLayout>
-
-                <!-- ── Key Ingredients (expandable accordion) ── -->
-                <TextView
-                    android:id="@+id/tvHeaderIngredients"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:gravity="center_vertical"
-                    android:text="KEY INGREDIENTS  +"
-                    android:textColor="@color/tirtir_text_primary"
-                    android:textSize="12sp"
-                    android:textAllCaps="true"
-                    android:letterSpacing="0.08"
-                    android:fontFamily="sans-serif-medium" />
-
-                <TextView
-                    android:id="@+id/tvIngredientList"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:text="@string/product_ingredients_placeholder"
-                    android:textColor="@color/tirtir_text_secondary"
-                    android:textSize="14sp"
-                    android:lineSpacingExtra="3dp"
-                    android:visibility="gone" />
-
-                <!-- ── Shade selection (GONE until fetchShades() finds shades) ── -->
-                <LinearLayout
-                    android:id="@+id/layoutShadeSelection"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="20dp"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="SELECT SHADE"
-                        android:textColor="@color/tirtir_text_primary"
-                        android:textSize="12sp"
-                        android:textAllCaps="true"
-                        android:letterSpacing="0.08"
-                        android:fontFamily="sans-serif-medium"
-                        android:layout_marginBottom="4dp" />
-
-                    <TextView
-                        android:id="@+id/tvSelectedShadeName"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Select a shade"
-                        android:textColor="@color/tirtir_text_secondary"
-                        android:textSize="12sp"
-                        android:layout_marginBottom="8dp" />
-
-                    <HorizontalScrollView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:scrollbars="none">
-                        <LinearLayout
-                            android:id="@+id/layoutShadesContainer"
+                        android:layout_marginBottom="24dp"
+                        android:orientation="vertical">
+                        <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingVertical="4dp"
-                            android:clipToPadding="false" />
-                    </HorizontalScrollView>
+                            android:layout_marginBottom="12dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:letterSpacing="0.05"
+                            android:text="SUITABLE SKIN TYPES"
+                            android:textAllCaps="true"
+                            android:textColor="#1A1C1C"
+                            android:textSize="14sp" />
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chipGroupSkinTypes"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:chipSpacingHorizontal="8dp"
+                            app:chipSpacingVertical="8dp" />
+                        <TextView
+                            android:id="@+id/tvSuitableSkinTypes"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:visibility="gone" />
+                    </LinearLayout>
+
+                    <!-- Shade Selection Section -->
+                    <LinearLayout
+                        android:id="@+id/layoutShadeSelection"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:letterSpacing="0.05"
+                            android:text="SELECT SHADE"
+                            android:textAllCaps="true"
+                            android:textColor="#1A1C1C"
+                            android:textSize="14sp" />
+                        <TextView
+                            android:id="@+id/tvSelectedShadeName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:text="Select a shade"
+                            android:textColor="#5F5E5E"
+                            android:textSize="12sp" />
+                        <HorizontalScrollView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:scrollbars="none">
+                            <LinearLayout
+                                android:id="@+id/layoutShadesContainer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal" />
+                        </HorizontalScrollView>
+                    </LinearLayout>
+
+                    <!-- Key Ingredients -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/tvHeaderIngredients"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:letterSpacing="0.05"
+                            android:text="KEY INGREDIENTS"
+                            android:textAllCaps="true"
+                            android:textColor="#1A1C1C"
+                            android:textSize="14sp" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+                            <ImageView
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_marginEnd="12dp"
+                                android:background="@drawable/bg_circle_white"
+                                android:padding="6dp"
+                                android:src="@drawable/ic_routine"
+                                app:tint="#2E7D32" />
+                            <TextView
+                                android:id="@+id/tvIngredientList"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Ingredient list"
+                                android:textColor="#5F5E5E"
+                                android:textSize="14sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
                 </LinearLayout>
 
-                <!-- ── Description (expandable accordion, visible by default) ── -->
+                <!-- Ask AI Button (Mapped to btnAskAIBeforeBuying if exists, else we just use a generic ID) -->
+                <!-- Assuming the user meant this to open Chat, I'll give it an ID. In ProductDetailActivity it uses bottom nav Chat. 
+                     I will leave the ID so they can bind it later if needed. -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAskAIBeforeBuying"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="24dp"
+                    android:text="ASK AI BEFORE BUYING"
+                    android:textColor="@color/tirtir_red_primary"
+                    android:textSize="14sp"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_scan"
+                    app:iconTint="@color/tirtir_red_primary"
+                    app:strokeColor="@color/tirtir_red_primary"
+                    app:strokeWidth="1.5dp" />
+
+                <!-- Description -->
                 <TextView
                     android:id="@+id/tvHeaderDescription"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:gravity="center_vertical"
-                    android:text="DESCRIPTION  −"
-                    android:textColor="@color/tirtir_text_primary"
-                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.05"
+                    android:text="PRODUCT RITUAL"
                     android:textAllCaps="true"
-                    android:letterSpacing="0.08"
-                    android:fontFamily="sans-serif-medium" />
+                    android:textColor="#1A1C1C"
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tvProductDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:text="@string/product_description_placeholder"
-                    android:textColor="@color/tirtir_text_secondary"
-                    android:textSize="14sp"
-                    android:lineSpacingExtra="4dp" />
-
-                <!-- Description images (banner-style from API) -->
+                    android:lineSpacingExtra="6dp"
+                    android:text="Description goes here."
+                    android:textColor="#5F5E5E"
+                    android:textSize="16sp" />
+                    
                 <LinearLayout
                     android:id="@+id/layoutDescriptionImages"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
                     android:orientation="vertical" />
 
-                <!-- ── How To Use (expandable accordion) ── -->
-                <TextView
-                    android:id="@+id/tvHeaderHowToUse"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:gravity="center_vertical"
-                    android:text="HOW TO USE  +"
-                    android:textColor="@color/tirtir_text_primary"
-                    android:textSize="12sp"
-                    android:textAllCaps="true"
-                    android:letterSpacing="0.08"
-                    android:fontFamily="sans-serif-medium" />
-
-                <TextView
-                    android:id="@+id/tvHowToUse"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:text="Application directions are not available yet."
-                    android:textColor="@color/tirtir_text_secondary"
-                    android:textSize="14sp"
-                    android:visibility="gone" />
-
-                <!-- ── Reviews (expandable accordion) ── -->
-                <TextView
-                    android:id="@+id/tvHeaderReviews"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:gravity="center_vertical"
-                    android:text="REVIEWS  +"
-                    android:textColor="@color/tirtir_text_primary"
-                    android:textSize="12sp"
-                    android:textAllCaps="true"
-                    android:letterSpacing="0.08"
-                    android:fontFamily="sans-serif-medium" />
-
-                <TextView
-                    android:id="@+id/tvReviewSummary"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="No reviews yet. Be the first verified buyer to review this product."
-                    android:textColor="@color/tirtir_text_secondary"
-                    android:textSize="14sp"
-                    android:visibility="gone" />
-
-                <!-- Inline quantity stepper (kept GONE — quantity managed via bottom sheet) -->
+                <!-- Retain hidden views to satisfy ProductDetailActivity.java findViewById -->
                 <LinearLayout
-                    android:id="@+id/layoutInlineQuantity"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Quantity:"
-                        android:textColor="@color/tirtir_text_secondary"
-                        android:textSize="14sp"
-                        android:layout_marginEnd="16dp" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="48dp"
-                        android:orientation="horizontal"
-                        android:background="@drawable/bg_stepper"
-                        android:gravity="center_vertical">
-
-                        <ImageButton
-                            android:id="@+id/btnDecreaseQty"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:background="?attr/selectableItemBackground"
-                            android:src="@drawable/ic_minus"
-                            app:tint="@color/tirtir_black" />
-
-                        <TextView
-                            android:id="@+id/tvQuantity"
-                            android:layout_width="40dp"
-                            android:layout_height="wrap_content"
-                            android:text="1"
-                            android:gravity="center"
-                            android:textColor="@color/tirtir_black"
-                            android:textStyle="bold"
-                            android:textSize="16sp" />
-
-                        <ImageButton
-                            android:id="@+id/btnIncreaseQty"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:background="?attr/selectableItemBackground"
-                            android:src="@drawable/ic_plus"
-                            app:tint="@color/tirtir_black" />
+                    android:visibility="gone"
+                    android:orientation="vertical">
+                    <TextView android:id="@+id/tvHeaderHowToUse" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <TextView android:id="@+id/tvHowToUse" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <TextView android:id="@+id/tvHeaderReviews" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <TextView android:id="@+id/tvReviewSummary" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <LinearLayout android:id="@+id/layoutFeatureBadges" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                        <View android:id="@+id/cardVeganFormula" android:layout_width="1dp" android:layout_height="1dp" />
+                        <View android:id="@+id/cardDermatologistTested" android:layout_width="1dp" android:layout_height="1dp" />
                     </LinearLayout>
-
-                    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
-
-                    <TextView
-                        android:id="@+id/tvTotalPrice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="$0.00"
-                        android:textColor="@color/tirtir_red_primary"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                    <LinearLayout android:id="@+id/layoutInlineQuantity" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                        <ImageButton android:id="@+id/btnDecreaseQty" android:layout_width="1dp" android:layout_height="1dp" />
+                        <TextView android:id="@+id/tvQuantity" android:layout_width="1dp" android:layout_height="1dp" />
+                        <ImageButton android:id="@+id/btnIncreaseQty" android:layout_width="1dp" android:layout_height="1dp" />
+                        <TextView android:id="@+id/tvTotalPrice" android:layout_width="1dp" android:layout_height="1dp" />
+                    </LinearLayout>
                 </LinearLayout>
-
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- ── Bottom action bar ── -->
+    <!-- Top Navigation Bar -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#99FFFFFF"
+        android:elevation="4dp"
+        android:paddingHorizontal="16dp">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/tirtir_red_primary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:fontFamily="serif"
+            android:text="TirTir"
+            android:textColor="@color/tirtir_red_primary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btnCartTopNav"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_cart"
+            app:tint="@color/tirtir_red_primary" />
+    </RelativeLayout>
+
+    <!-- Bottom Navigation Bar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/tirtir_white"
-        android:elevation="8dp"
+        android:background="@drawable/bg_bottom_sheet"
+        android:elevation="16dp"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="14dp">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnWishlist"
-            android:layout_width="44dp"
-            android:layout_height="56dp"
-            android:layout_marginEnd="8dp"
-            android:contentDescription="@string/content_desc_wishlist"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:minWidth="0dp"
-            android:padding="0dp"
-            app:backgroundTint="@android:color/transparent"
-            app:icon="@drawable/ic_wishlist"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            app:iconTint="@color/tirtir_text_secondary"
-            app:strokeColor="@android:color/transparent"
-            app:strokeWidth="0dp" />
+        android:paddingVertical="16dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddToCart"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="56dp"
-            android:layout_weight="1.2"
-            android:layout_marginEnd="10dp"
-            android:text="@string/btn_add_to_cart"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:textColor="@color/tirtir_black"
-            app:backgroundTint="@color/tirtir_white"
+            android:layout_marginEnd="12dp"
+            android:layout_weight="1"
+            android:text="Add to Cart"
+            android:textColor="#2B2D2D"
+            android:textSize="14sp"
+            app:cornerRadius="12dp"
             app:icon="@drawable/ic_cart"
-            app:iconGravity="textStart"
-            app:iconSize="18dp"
-            app:iconTint="@color/tirtir_black"
-            app:strokeColor="@color/tirtir_black"
-            app:strokeWidth="1.5dp"
-            app:cornerRadius="12dp" />
+            app:iconTint="#2B2D2D"
+            app:strokeColor="#2B2D2D" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnBuyNow"
             android:layout_width="0dp"
             android:layout_height="56dp"
-            android:layout_weight="1.2"
+            android:layout_weight="1.5"
+            android:backgroundTint="@color/tirtir_red_primary"
             android:text="Buy Now"
             android:textColor="@color/tirtir_white"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            app:backgroundTint="@color/tirtir_red_dark"
+            android:textSize="14sp"
             app:cornerRadius="12dp" />
     </LinearLayout>
 

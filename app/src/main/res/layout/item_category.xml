@@ -5,21 +5,22 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="center"
-    android:layout_marginEnd="20dp">
+    android:layout_marginEnd="24dp">
 
     <com.google.android.material.card.MaterialCardView
-        android:layout_width="58dp"
-        android:layout_height="58dp"
-        app:cardCornerRadius="20dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        app:cardCornerRadius="32dp"
         app:cardElevation="0dp"
-        app:cardBackgroundColor="@color/tirtir_red_surface"
-        app:strokeWidth="0dp"
+        app:cardBackgroundColor="@color/tirtir_white"
+        app:strokeWidth="1dp"
+        app:strokeColor="#E2E2E2"
         android:layout_marginBottom="8dp">
 
         <ImageView
             android:id="@+id/ivCategoryIcon"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_gravity="center"
             android:src="@drawable/ic_skin"
             app:tint="@color/tirtir_red_primary" />
@@ -31,7 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Cleanser"
-        android:textSize="11sp"
+        android:textSize="12sp"
         android:textStyle="bold"
         android:textColor="@color/tirtir_black"
         android:gravity="center" />
