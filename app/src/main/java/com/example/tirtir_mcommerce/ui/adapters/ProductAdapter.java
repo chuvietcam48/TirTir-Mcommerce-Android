@@ -17,9 +17,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.tirtir_mcommerce.MainActivity;
@@ -112,7 +114,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         private final TextView tvDiscountBadge;
         private final ImageButton btnWishlistToggle;
         private final MaterialButton btnQuickAdd;
-        private final MaterialButton btnAddToWishlist;
+        private final MaterialButton btnViewDetails;
+        private final View soldOutOverlay;
         private final TextView tvRatingCount;
 
         ProductViewHolder(@NonNull View itemView) {
@@ -126,7 +129,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             tvDiscountBadge   = itemView.findViewById(R.id.tvDiscountBadge);
             btnWishlistToggle = itemView.findViewById(R.id.btnWishlistToggle);
             btnQuickAdd       = itemView.findViewById(R.id.btnQuickAdd);
-            btnAddToWishlist  = itemView.findViewById(R.id.btnAddToWishlist);
+            btnViewDetails    = itemView.findViewById(R.id.btnViewDetails);
+            soldOutOverlay    = itemView.findViewById(R.id.soldOutOverlay);
             tvRatingCount     = itemView.findViewById(R.id.tvRatingCount);
         }
 
@@ -191,28 +195,41 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 tvRatingCount.setVisibility(View.GONE);
             }
 
-            // Out-of-stock badge + button swap
+            // Sold-out overlay on image (dark + centered text)
             boolean soldOut = product.getStockQuantity() <= 0;
-            if (tvOutOfStock != null) {
+            if (soldOutOverlay != null) {
+                soldOutOverlay.setVisibility(soldOut ? View.VISIBLE : View.GONE);
+            } else if (tvOutOfStock != null) {
+                // Fallback for layouts that still use the old corner badge
                 tvOutOfStock.setVisibility(soldOut ? View.VISIBLE : View.GONE);
             }
+            // Legacy quick-add — only applies to bestseller layout which still has this button
             if (btnQuickAdd != null) {
                 btnQuickAdd.setVisibility(soldOut ? View.GONE : View.VISIBLE);
-            }
-            if (btnAddToWishlist != null) {
-                btnAddToWishlist.setVisibility(soldOut ? View.VISIBLE : View.GONE);
             }
 
             // Single image — thumbnail or first gallery image
             String imageUrl = resolveImageUrl(product);
             if (imgProduct != null) {
-                Glide.with(context)
+                int fallbackDrawable = resolveFallbackDrawable(product);
+                RequestBuilder<Drawable> request = Glide.with(imgProduct)
                         .load(imageUrl.isEmpty() ? null : imageUrl)
-                        .placeholder(resolveFallbackDrawable(product))
-                        .error(resolveFallbackDrawable(product))
+                        .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                        .placeholder(fallbackDrawable)
                         .centerCrop()
-                        .transition(DrawableTransitionOptions.withCrossFade(150))
-                        .into(imgProduct);
+                        .transition(DrawableTransitionOptions.withCrossFade(120));
+
+                String secondaryUrl = resolveSecondaryImageUrl(product, imageUrl);
+                if (!secondaryUrl.isEmpty()) {
+                    request.error(Glide.with(imgProduct)
+                            .load(secondaryUrl)
+                            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                            .centerCrop()
+                            .error(fallbackDrawable));
+                } else {
+                    request.error(fallbackDrawable);
+                }
+                request.into(imgProduct);
             }
 
             // Wishlist toggle state
@@ -247,19 +264,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 });
             }
 
-            if (btnAddToWishlist != null && soldOut) {
-                String productId = product.getProductId() != null ? product.getProductId() : product.getId();
-                btnAddToWishlist.setOnClickListener(v -> {
-                    ContentValues values = new ContentValues();
-                    values.put(WishlistContentProvider.COL_PRODUCT_ID, productId);
-                    values.put(WishlistContentProvider.COL_PRODUCT_NAME, product.getName() != null ? product.getName() : "");
-                    values.put(WishlistContentProvider.COL_PRODUCT_IMAGE, product.getThumbnailImages() != null ? product.getThumbnailImages() : "");
-                    values.put(WishlistContentProvider.COL_PRODUCT_PRICE, displayPrice);
-                    Uri result = context.getContentResolver().insert(WishlistContentProvider.CONTENT_URI, values);
-                    Toast.makeText(context, result != null ? "Added to wishlist" : "Already in wishlist", Toast.LENGTH_SHORT).show();
-                });
-            }
-
             if (btnQuickAdd != null) {
                 btnQuickAdd.setOnClickListener(v -> {
                     String productId = product.getProductId() != null ? product.getProductId() : product.getId();
@@ -284,6 +288,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                         ((MainActivity) context).updateCartBadge();
                     }
                     Toast.makeText(context, "Added to cart", Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            // View Details button (in shop grid) → opens product detail
+            if (btnViewDetails != null) {
+                btnViewDetails.setOnClickListener(v -> {
+                    if (clickListener != null) clickListener.onProductClick(product);
                 });
             }
 
@@ -331,16 +342,30 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         }
 
         private String resolveImageUrl(Product product) {
-            String thumb = product.getThumbnailImages();
-            String resolved = buildUrl(thumb);
-            if (!resolved.isEmpty()) return resolved;
-
+            // Gallery images are the most reliable deployed assets. Some catalog thumbnail
+            // records still point at legacy paths that return 404 (for example Hydro UV).
             if (product.getGalleryImages() != null && !product.getGalleryImages().isEmpty()) {
-                resolved = buildUrl(product.getGalleryImages().get(0));
+                String resolved = buildUrl(product.getGalleryImages().get(0));
                 if (!resolved.isEmpty()) return resolved;
             }
+            String repairedLegacyPath = deriveLegacyGalleryPath(product.getThumbnailImages());
+            if (!repairedLegacyPath.isEmpty()) return buildUrl(repairedLegacyPath);
+            return buildUrl(product.getThumbnailImages());
+        }
 
+        private String deriveLegacyGalleryPath(String thumbnail) {
+            if (thumbnail == null) return "";
+            String clean = thumbnail.trim();
+            if (clean.endsWith("/thumb.webp") && !clean.contains("/Main-Images/")) {
+                return clean.substring(0, clean.length() - "/thumb.webp".length())
+                        + "/Main-Images/1.webp";
+            }
             return "";
+        }
+
+        private String resolveSecondaryImageUrl(Product product, String primaryUrl) {
+            String thumbnail = buildUrl(product.getThumbnailImages());
+            return !thumbnail.isEmpty() && !thumbnail.equals(primaryUrl) ? thumbnail : "";
         }
 
         private String buildUrl(String path) {
