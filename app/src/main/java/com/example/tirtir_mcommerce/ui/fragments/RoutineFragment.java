@@ -1023,7 +1023,6 @@ public class RoutineFragment extends Fragment {
             notifyDataSetChanged();
         }
 
-
         @NonNull
         @Override
         public PickerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

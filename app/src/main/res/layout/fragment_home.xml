@@ -156,9 +156,10 @@
                 android:layout_height="wrap_content"
                 android:background="@color/tirtir_white"
                 android:orientation="horizontal"
-                android:paddingTop="18dp"
-                android:paddingBottom="20dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="24dp"
                 android:paddingHorizontal="16dp"
+                android:layout_marginTop="8dp"
                 android:gravity="center_horizontal"
                 android:weightSum="4">
                 

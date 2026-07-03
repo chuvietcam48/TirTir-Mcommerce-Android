@@ -102,8 +102,8 @@ public class HomeFragment extends Fragment {
             R.drawable.ic_category_sunscreen,
             R.drawable.ic_skin,
             R.drawable.ic_category_sunscreen,
-            R.drawable.ic_skin,
-            R.drawable.ic_skin
+            R.drawable.ic_category_cushion,
+            R.drawable.ic_category_makeup
     };
 
     public static HomeFragment newInstance(String initialQuery) {

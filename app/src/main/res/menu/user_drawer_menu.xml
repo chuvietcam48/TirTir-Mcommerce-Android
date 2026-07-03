@@ -1,76 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-<<<<<<< Updated upstream
-    <group android:checkableBehavior="single">
-        <item android:id="@+id/nav_drawer_home" android:icon="@drawable/ic_home" android:title="Home" />
-        <item android:id="@+id/nav_drawer_shop" android:icon="@drawable/ic_category_moisturizer" android:title="Shop all products" />
-        <item android:id="@+id/nav_drawer_cart" android:icon="@drawable/ic_cart" android:title="My cart" />
-        <item android:id="@+id/nav_drawer_wishlist" android:icon="@drawable/ic_wishlist" android:title="Wishlist" />
-        <item android:id="@+id/nav_drawer_orders" android:icon="@android:drawable/ic_menu_agenda" android:title="Order history" />
-        <item android:id="@+id/nav_drawer_loyalty" android:icon="@android:drawable/ic_menu_myplaces" android:title="Rewards &amp; loyalty" />
-        <item android:id="@+id/nav_drawer_vouchers" android:icon="@android:drawable/ic_menu_save" android:title="Voucher wallet" />
-=======
 
     <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_drawer_home"
-            android:icon="@drawable/ic_home"
-            android:title="Home" />
-        <item
-            android:id="@+id/nav_drawer_shop"
-            android:icon="@drawable/ic_search"
-            android:title="Shop All" />
-        <item
-            android:id="@+id/nav_drawer_cart"
-            android:icon="@drawable/ic_cart"
-            android:title="My Cart" />
-        <item
-            android:id="@+id/nav_drawer_wishlist"
-            android:icon="@drawable/ic_wishlist"
-            android:title="Wishlist" />
->>>>>>> Stashed changes
+        <item android:id="@+id/nav_drawer_home"       android:icon="@drawable/ic_home"           android:title="Home" />
+        <item android:id="@+id/nav_drawer_shop"       android:icon="@drawable/ic_search"         android:title="Shop All" />
+        <item android:id="@+id/nav_drawer_cart"       android:icon="@drawable/ic_cart"           android:title="My Cart" />
+        <item android:id="@+id/nav_drawer_wishlist"   android:icon="@drawable/ic_wishlist"       android:title="Wishlist" />
     </group>
 
     <item android:title="Account">
         <menu>
-<<<<<<< Updated upstream
-            <item android:id="@+id/nav_drawer_notifications" android:icon="@drawable/ic_notifications" android:title="Notifications" />
-            <item android:id="@+id/nav_drawer_settings" android:icon="@android:drawable/ic_menu_preferences" android:title="Notification settings" />
-            <item android:id="@+id/nav_drawer_logout" android:icon="@android:drawable/ic_lock_power_off" android:title="Sign out" />
-        </menu>
-    </item>
-=======
-            <item
-                android:id="@+id/nav_drawer_orders"
-                android:icon="@drawable/ic_list"
-                android:title="Orders" />
-            <item
-                android:id="@+id/nav_drawer_loyalty"
-                android:icon="@drawable/ic_badge_premium"
-                android:title="Loyalty Points" />
-            <item
-                android:id="@+id/nav_drawer_vouchers"
-                android:icon="@drawable/ic_link"
-                android:title="Vouchers" />
+            <item android:id="@+id/nav_drawer_orders"        android:icon="@drawable/ic_list"          android:title="Order History" />
+            <item android:id="@+id/nav_drawer_loyalty"       android:icon="@drawable/ic_badge_premium" android:title="Loyalty &amp; Rewards" />
+            <item android:id="@+id/nav_drawer_vouchers"      android:icon="@drawable/ic_star_filled"   android:title="Voucher Wallet" />
         </menu>
     </item>
 
     <item android:title="Settings">
         <menu>
-            <item
-                android:id="@+id/nav_drawer_notifications"
-                android:icon="@drawable/ic_notifications"
-                android:title="Notifications" />
-            <item
-                android:id="@+id/nav_drawer_settings"
-                android:icon="@drawable/ic_edit"
-                android:title="Settings" />
-            <item
-                android:id="@+id/nav_drawer_logout"
-                android:icon="@drawable/ic_error"
-                android:title="Logout" />
+            <item android:id="@+id/nav_drawer_notifications" android:icon="@drawable/ic_notifications" android:title="Notifications" />
+            <item android:id="@+id/nav_drawer_settings"      android:icon="@drawable/ic_edit"          android:title="Settings" />
+            <item android:id="@+id/nav_drawer_logout"        android:icon="@drawable/ic_error"         android:title="Sign Out" />
         </menu>
     </item>
 
->>>>>>> Stashed changes
 </menu>

@@ -24,21 +24,22 @@
             android:layout_marginBottom="16dp" />
 
         <!-- Brand Header -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TirTir"
-            android:textColor="@color/tirtir_red_primary"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
+        <ImageView
+            android:layout_width="140dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_logo_black"
+            android:scaleType="fitCenter"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/register_subtitle"
             android:textColor="@color/tirtir_text_secondary"
             android:textSize="15sp"
+            android:gravity="center"
             android:layout_marginBottom="28dp" />
 
         <!-- Register Card -->

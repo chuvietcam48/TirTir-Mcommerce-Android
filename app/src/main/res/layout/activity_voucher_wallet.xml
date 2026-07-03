@@ -6,34 +6,39 @@
     android:orientation="vertical"
     android:background="@color/tirtir_bg_gray">
 
-    <!-- TOOLBAR -->
-    <RelativeLayout
+    <!-- TOOLBAR — matches other screens -->
+    <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:background="@color/tirtir_white"
-        android:elevation="2dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp">
+        android:elevation="2dp">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_centerVertical="true"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_revert"
-            android:contentDescription="Back"
-            app:tint="@color/tirtir_black" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="Ví Voucher &amp; Đổi Quà"
-            android:textColor="@color/tirtir_black"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-    </RelativeLayout>
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentStart="true"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_chevron_left"
+                android:contentDescription="Back"
+                app:tint="@color/tirtir_black" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Voucher Wallet"
+                android:textColor="@color/tirtir_black"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.01" />
+        </RelativeLayout>
+    </androidx.appcompat.widget.Toolbar>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -46,21 +51,21 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- USER POINTS SUMMARY -->
+            <!-- LOYALTY POINTS CARD -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
+                app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/tirtir_white"
-                android:layout_marginBottom="16dp">
+                app:cardBackgroundColor="@color/tirtir_red_primary"
+                android:layout_marginBottom="20dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -71,26 +76,36 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Điểm tích lũy hiện tại"
-                            android:textColor="@color/tirtir_text_secondary"
-                            android:textSize="12sp" />
+                            android:text="Loyalty Points"
+                            android:textColor="#CCFFFFFF"
+                            android:textSize="12sp"
+                            android:letterSpacing="0.05" />
 
                         <TextView
                             android:id="@+id/tvUserPoints"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0 điểm"
-                            android:textColor="@color/tirtir_red_primary"
-                            android:textSize="22sp"
+                            android:text="0 pts"
+                            android:textColor="@color/tirtir_white"
+                            android:textSize="28sp"
                             android:textStyle="bold"
+                            android:layout_marginTop="4dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Earn points with every purchase"
+                            android:textColor="#AAFFFFFF"
+                            android:textSize="11sp"
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
 
                     <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         android:src="@android:drawable/btn_star_big_on"
-                        app:tint="@color/tirtir_red_primary" />
+                        app:tint="#FFFFFFFF"
+                        android:alpha="0.8" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -98,12 +113,12 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="ĐỔI ĐIỂM NHẬN VOUCHER"
-                android:textSize="12sp"
+                android:text="REDEEM POINTS"
+                android:textSize="11sp"
                 android:textStyle="bold"
                 android:textColor="@color/tirtir_text_secondary"
-                android:letterSpacing="0.08"
-                android:layout_marginBottom="8dp" />
+                android:letterSpacing="0.1"
+                android:layout_marginBottom="10dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvRedeemLevels"
@@ -112,16 +127,16 @@
                 android:nestedScrollingEnabled="false"
                 android:layout_marginBottom="24dp" />
 
-            <!-- VOUCHERS WALLET SECTION -->
+            <!-- MY VOUCHERS SECTION -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="VOUCHER CỦA BẠN"
-                android:textSize="12sp"
+                android:text="MY VOUCHERS"
+                android:textSize="11sp"
                 android:textStyle="bold"
                 android:textColor="@color/tirtir_text_secondary"
-                android:letterSpacing="0.08"
-                android:layout_marginBottom="8dp" />
+                android:letterSpacing="0.1"
+                android:layout_marginBottom="10dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvVouchers"
@@ -133,7 +148,7 @@
                 android:id="@+id/tvNoVouchers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Bạn chưa có voucher nào."
+                android:text="No vouchers yet. Redeem your points above!"
                 android:textColor="@color/tirtir_text_secondary"
                 android:textSize="14sp"
                 android:gravity="center"

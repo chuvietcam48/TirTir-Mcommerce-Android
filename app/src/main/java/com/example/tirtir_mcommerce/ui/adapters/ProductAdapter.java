@@ -113,11 +113,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         private final TextView tvOutOfStock;
         private final TextView tvDiscountBadge;
         private final ImageButton btnWishlistToggle;
+        private final MaterialButton btnQuickAdd;
+        private final MaterialButton btnViewDetails;
         private final View soldOutOverlay;
         private final TextView tvRatingCount;
         private final TextView tvSoldCount;
-        private final View btnQuickAdd;
-        private final View btnViewDetails;
 
         ProductViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -129,11 +129,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             tvOutOfStock      = itemView.findViewById(R.id.tvOutOfStock);
             tvDiscountBadge   = itemView.findViewById(R.id.tvDiscountBadge);
             btnWishlistToggle = itemView.findViewById(R.id.btnWishlistToggle);
+            btnQuickAdd       = itemView.findViewById(R.id.btnQuickAdd);
+            btnViewDetails    = itemView.findViewById(R.id.btnViewDetails);
             soldOutOverlay    = itemView.findViewById(R.id.soldOutOverlay);
             tvRatingCount     = itemView.findViewById(R.id.tvRatingCount);
             tvSoldCount       = itemView.findViewById(R.id.tvSoldCount);
-            btnQuickAdd       = itemView.findViewById(R.id.btnQuickAdd);
-            btnViewDetails    = itemView.findViewById(R.id.btnViewDetails);
         }
 
         void bind(Product product) {
@@ -223,10 +223,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 int fallbackDrawable = resolveFallbackDrawable(product);
                 RequestBuilder<Drawable> request = Glide.with(imgProduct)
                         .load(imageUrl.isEmpty() ? null : imageUrl)
-                        .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .signature(new com.bumptech.glide.signature.ObjectKey(imageUrl))
+                        .priority(com.bumptech.glide.Priority.HIGH)
                         .placeholder(fallbackDrawable)
                         .centerCrop()
-                        .transition(DrawableTransitionOptions.withCrossFade(120));
+                        .transition(DrawableTransitionOptions.withCrossFade(80));
 
                 String secondaryUrl = resolveSecondaryImageUrl(product, imageUrl);
                 if (!secondaryUrl.isEmpty()) {

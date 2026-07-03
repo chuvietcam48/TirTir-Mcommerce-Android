@@ -114,7 +114,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Điểm tích lũy"
+                        android:text="Loyalty Points"
                         android:textColor="@color/tirtir_white"
                         android:textSize="12sp"
                         android:alpha="0.8"
@@ -137,7 +137,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Còn 100 điểm lên Silver"
+                        android:text="100 pts to Silver"
                         android:textColor="@color/tirtir_white"
                         android:textStyle="bold"
                         android:textSize="13sp" />
@@ -158,7 +158,7 @@
                     android:layout_height="54dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
-                    android:text="Đổi Voucher"
+                    android:text="Redeem Voucher"
                     android:textColor="@color/tirtir_white"
                     android:textStyle="bold"
                     app:backgroundTint="@color/tirtir_black"

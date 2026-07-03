@@ -36,7 +36,7 @@
                 android:id="@+id/tvRedeemPointsRequired"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Yêu cầu: 200 điểm"
+                android:text="Requires: 200 pts"
                 android:textColor="@color/tirtir_text_secondary"
                 android:textSize="12sp"
                 android:layout_marginTop="2dp" />
@@ -47,7 +47,7 @@
             style="@style/Widget.MaterialComponents.Button"
             android:layout_width="72dp"
             android:layout_height="38dp"
-            android:text="Đổi"
+            android:text="Redeem"
             android:textSize="12sp"
             android:textStyle="bold"
             android:padding="0dp"
