@@ -47,26 +47,26 @@
             android:name="com.google.ar.core"
             android:value="required" />
 
-        <!-- SCR-00: SplashActivity — LAUNCHER (entry point) -->
+        <!-- SCR-00: SplashActivity (kept but no longer launcher) -->
         <activity
             android:name=".ui.activities.SplashActivity"
-            android:exported="true"
-            android:theme="@style/Theme.TirTirMCommerce">
+            android:exported="false"
+            android:theme="@style/Theme.TirTirMCommerce" />
+
+        <!-- SCR-01: OnboardingActivity (kept but skipped) -->
+        <activity
+            android:name=".ui.activities.OnboardingActivity"
+            android:exported="false" />
+
+        <!-- SCR-10: LoginActivity — LAUNCHER (entry point) -->
+        <activity
+            android:name=".ui.activities.LoginActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- SCR-01: OnboardingActivity — shown only on first launch -->
-        <activity
-            android:name=".ui.activities.OnboardingActivity"
-            android:exported="false" />
-
-        <!-- SCR-10: LoginActivity -->
-        <activity
-            android:name=".ui.activities.LoginActivity"
-            android:exported="false" />
 
         <activity
             android:name=".ui.activities.ForgotPasswordActivity"

@@ -48,12 +48,25 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        prefsManager = new com.example.tirtir_mcommerce.utils.SharedPrefsManager(this);
+
+        // If already logged in, skip login screen
+        String token = prefsManager.getToken();
+        if (token != null && !token.isEmpty()) {
+            com.example.tirtir_mcommerce.model.User cached = prefsManager.getCachedUser();
+            boolean isAdmin = (cached != null && cached.isAdmin());
+            Intent intent = new Intent(this, isAdmin ? AdminActivity.class : MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_login);
         firebaseAuthManager = new FirebaseAuthManager(this);
-        prefsManager = new com.example.tirtir_mcommerce.utils.SharedPrefsManager(this);
         bindViews();
         setListeners();
-        
+
         String registeredEmail = getIntent().getStringExtra("REGISTERED_EMAIL");
         if (registeredEmail != null && !registeredEmail.isEmpty()) {
             etEmail.setText(registeredEmail);
