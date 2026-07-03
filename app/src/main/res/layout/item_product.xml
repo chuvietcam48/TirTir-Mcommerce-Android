@@ -48,20 +48,27 @@
                 android:text="-10%"
                 android:visibility="gone" />
 
-            <!-- Out-of-stock overlay -->
-            <TextView
-                android:id="@+id/tvOutOfStock"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
-                android:text="Sold Out"
-                android:textColor="@color/tirtir_white"
-                android:textSize="9sp"
-                android:textStyle="bold"
-                android:background="#CC111111"
-                android:visibility="gone" />
+            <!-- Sold-out full-image dark overlay -->
+            <FrameLayout
+                android:id="@+id/soldOutOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#99000000"
+                android:visibility="gone">
+                <TextView
+                    android:id="@+id/tvOutOfStock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Sold Out"
+                    android:textColor="@color/tirtir_white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="6dp"
+                    android:background="#4DFFFFFF" />
+            </FrameLayout>
 
             <!-- Wishlist heart (top-right) -->
             <ImageButton
@@ -90,6 +97,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
+            <!-- Always 2 lines so price/button row aligns across all cards -->
             <TextView
                 android:id="@+id/tvProductName"
                 android:layout_width="match_parent"
@@ -98,6 +106,7 @@
                 android:textColor="@color/tirtir_black"
                 android:textSize="13sp"
                 android:textStyle="bold"
+                android:minLines="2"
                 android:maxLines="2"
                 android:ellipsize="end"
                 android:lineSpacingMultiplier="1.1" />
@@ -117,75 +126,47 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
+                android:orientation="vertical"
                 android:layout_marginTop="10dp">
 
-                <!-- Price column -->
-                <LinearLayout
-                    android:layout_width="0dp"
+                <TextView
+                    android:id="@+id/tvOriginalPrice"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvOriginalPrice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="$35.00"
-                        android:textColor="@color/tirtir_text_secondary"
-                        android:textSize="10sp"
-                        android:visibility="gone" />
-
-                    <TextView
-                        android:id="@+id/tvProductPrice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="$28.00"
-                        android:textColor="@color/tirtir_red_primary"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-                <!-- Quick add (shown when in stock) -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnQuickAdd"
-                    android:layout_width="34dp"
-                    android:layout_height="34dp"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:padding="0dp"
-                    app:iconSize="18dp"
-                    app:iconPadding="0dp"
-                    app:iconGravity="textStart"
-                    app:backgroundTint="@color/tirtir_red_primary"
-                    app:cornerRadius="17dp"
-                    app:icon="@drawable/ic_plus"
-                    app:iconTint="@color/tirtir_white"
-                    android:contentDescription="Add to cart" />
-
-                <!-- Add to Wishlist (shown when sold out) -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAddToWishlist"
-                    android:layout_width="34dp"
-                    android:layout_height="34dp"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:padding="0dp"
-                    app:iconSize="18dp"
-                    app:iconPadding="0dp"
-                    app:iconGravity="textStart"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    app:strokeColor="@color/tirtir_red_primary"
-                    app:strokeWidth="1.5dp"
-                    app:cornerRadius="17dp"
-                    app:icon="@drawable/ic_wishlist"
-                    app:iconTint="@color/tirtir_red_primary"
-                    android:contentDescription="Add to wishlist"
+                    android:text="$35.00"
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:textSize="10sp"
                     android:visibility="gone" />
 
+                <TextView
+                    android:id="@+id/tvProductPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$28.00"
+                    android:textColor="@color/tirtir_red_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
             </LinearLayout>
+
+            <!-- View Details button — replaces the "+" quick-add button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnViewDetails"
+                android:layout_width="match_parent"
+                android:layout_height="34dp"
+                android:layout_marginTop="10dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text="View Details"
+                android:textSize="11sp"
+                android:textAllCaps="false"
+                android:textColor="@color/tirtir_red_primary"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:strokeColor="@color/tirtir_red_primary"
+                app:strokeWidth="1dp"
+                app:cornerRadius="8dp"
+                android:contentDescription="View product details" />
+
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

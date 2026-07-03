@@ -90,6 +90,8 @@ public class ProductDetailActivity extends AppCompatActivity {
 
     private TextView tvQuantity, tvTotalPrice;
     private ImageButton btnDecreaseQty, btnIncreaseQty;
+    private ImageButton btnImagePrevious, btnImageNext;
+    private int galleryPageCount = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -105,6 +107,8 @@ public class ProductDetailActivity extends AppCompatActivity {
         // Phase 1 requirement: use ViewPager2 for gallery
         androidx.viewpager2.widget.ViewPager2 viewPager = findViewById(R.id.viewPagerProductImages);
         com.google.android.material.tabs.TabLayout tabIndicator = findViewById(R.id.tabIndicatorImages);
+        btnImagePrevious = findViewById(R.id.btnImagePrevious);
+        btnImageNext = findViewById(R.id.btnImageNext);
 
         tvProductCategory      = findViewById(R.id.tvProductCategory);
         tvProductName          = findViewById(R.id.tvProductName);
@@ -128,6 +132,29 @@ public class ProductDetailActivity extends AppCompatActivity {
         tvTotalPrice = findViewById(R.id.tvTotalPrice);
         btnDecreaseQty = findViewById(R.id.btnDecreaseQty);
         btnIncreaseQty = findViewById(R.id.btnIncreaseQty);
+
+        if (btnImagePrevious != null) {
+            btnImagePrevious.setOnClickListener(v -> {
+                if (viewPager != null && viewPager.getCurrentItem() > 0) {
+                    viewPager.setCurrentItem(viewPager.getCurrentItem() - 1, true);
+                }
+            });
+        }
+        if (btnImageNext != null) {
+            btnImageNext.setOnClickListener(v -> {
+                if (viewPager != null && viewPager.getCurrentItem() < galleryPageCount - 1) {
+                    viewPager.setCurrentItem(viewPager.getCurrentItem() + 1, true);
+                }
+            });
+        }
+        if (viewPager != null) {
+            viewPager.registerOnPageChangeCallback(new androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+                @Override
+                public void onPageSelected(int position) {
+                    updateGalleryControls(position);
+                }
+            });
+        }
 
         // Read from intent
         productId       = getIntent().getStringExtra("PRODUCT_ID");
@@ -702,19 +729,35 @@ public class ProductDetailActivity extends AppCompatActivity {
         if (ivStatic != null) ivStatic.setVisibility(android.view.View.GONE);
 
         java.util.List<String> imagesToDisplay = new java.util.ArrayList<>();
-        if (galleryImages != null && !galleryImages.isEmpty()) {
-            imagesToDisplay.addAll(galleryImages);
-        } else if (productImage != null && !productImage.isEmpty()) {
-            imagesToDisplay.add(productImage); // fallback to thumbnail
+        // Thumbnail (main product image) always first so the customer recognises it immediately
+        if (productImage != null && !productImage.isEmpty()) {
+            imagesToDisplay.add(productImage);
+        }
+        // Append gallery images that aren't already the thumbnail
+        if (galleryImages != null) {
+            for (String img : galleryImages) {
+                if (img != null && !img.isEmpty() && !img.equals(productImage)) {
+                    imagesToDisplay.add(img);
+                }
+            }
         }
 
         if (imagesToDisplay.isEmpty()) {
-            // no image
+            galleryPageCount = 0;
+            updateGalleryControls(0);
+            viewPager.setVisibility(android.view.View.GONE);
+            if (ivStatic != null) {
+                ivStatic.setVisibility(android.view.View.VISIBLE);
+                ivStatic.setImageResource(resolveProductFallback());
+            }
             return;
         }
 
         ImageGalleryAdapter adapter = new ImageGalleryAdapter(this, imagesToDisplay);
         viewPager.setAdapter(adapter);
+        galleryPageCount = imagesToDisplay.size();
+        viewPager.setCurrentItem(0, false);
+        updateGalleryControls(0);
 
         if (tabIndicator != null && imagesToDisplay.size() > 1) {
             tabIndicator.setVisibility(android.view.View.VISIBLE);
@@ -723,6 +766,21 @@ public class ProductDetailActivity extends AppCompatActivity {
             ).attach();
         } else if (tabIndicator != null) {
             tabIndicator.setVisibility(android.view.View.GONE);
+        }
+    }
+
+    private void updateGalleryControls(int position) {
+        boolean hasMultiple = galleryPageCount > 1;
+        if (btnImagePrevious != null) {
+            btnImagePrevious.setVisibility(hasMultiple ? View.VISIBLE : View.GONE);
+            btnImagePrevious.setEnabled(position > 0);
+            btnImagePrevious.setAlpha(position > 0 ? 1f : 0.35f);
+        }
+        if (btnImageNext != null) {
+            btnImageNext.setVisibility(hasMultiple ? View.VISIBLE : View.GONE);
+            boolean canMoveNext = position < galleryPageCount - 1;
+            btnImageNext.setEnabled(canMoveNext);
+            btnImageNext.setAlpha(canMoveNext ? 1f : 0.35f);
         }
     }
 
