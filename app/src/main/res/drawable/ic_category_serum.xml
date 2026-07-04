@@ -1,10 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
+    android:width="64dp"
+    android:height="64dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
     <path
-        android:fillColor="@color/tirtir_red_primary"
-        android:pathData="M7 14C5.9 14 5 14.9 5 16C5 17.1 5.9 18 7 18C8.1 18 9 17.1 9 16C9 14.9 8.1 14 7 14ZM19 14C17.9 14 17 14.9 17 16C17 17.1 17.9 18 19 18C20.1 18 21 17.1 21 16C21 14.9 20.1 14 19 14ZM12 2C10.9 2 10 2.9 10 4V10L4.53 17.75C4.18 18.25 4 18.86 4 19.5C4 20.88 5.12 22 6.5 22H17.5C18.88 22 20 20.88 20 19.5C20 18.86 19.82 18.25 19.47 17.75L14 10V4C14 2.9 13.1 2 12 2ZM12 4H14V9.6L19 16.66V19.5H5V16.66L10 9.6V4H12ZM13 14C11.9 14 11 14.9 11 16C11 17.1 11.9 18 13 18C14.1 18 15 17.1 15 16C15 14.9 14.1 14 13 14Z"/>
+        android:fillColor="#e74c3c"
+        android:pathData="M12 2a3 3 0 0 0-3 3v3h6V5a3 3 0 0 0-3-3z" />
+    <path
+        android:fillColor="#bdc3c7"
+        android:pathData="M9 8h6v2H9V8z" />
+    <path
+        android:strokeColor="#2c3e50"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M12 10v6" />
+    <path
+        android:fillColor="#333498db"
+        android:strokeColor="#2c3e50"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M8 16h8l1 6H7l1-6z" />
+    <path
+        android:fillColor="#3498db"
+        android:pathData="M8.5 18h7l0.5 4H8l0.5-4z" />
 </vector>

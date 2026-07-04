@@ -71,10 +71,10 @@ exports.getChatbotMessage = async (req, res) => {
 
         if (apiKey && apiKey !== 'your_gemini_api_key_here' && !apiKey.includes('your_')) {
             try {
+                // FORCE API version v1 to avoid v1beta 404 errors
                 const genAI = new GoogleGenerativeAI(apiKey);
                 model = genAI.getGenerativeModel({
-                    model: 'gemini-1.5-flash',
-                    generationConfig: { responseMimeType: 'application/json' }
+                    model: 'gemini-1.5-flash'
                 });
                 useGemini = true;
             } catch (err) {
@@ -109,28 +109,58 @@ ${productsListText}
                 setTimeout(() => reject(new Error('Timeout')), 10000);
             });
 
-            const geminiPromise = (async () => {
-                const prompt = `Tin nhắn của khách hàng: "${message}"`;
-                const result = await model.generateContent([
-                    { text: systemPrompt },
-                    { text: prompt }
-                ]);
-                const responseText = result.response.text();
-                return JSON.parse(responseText.trim());
-            })();
+            let rawResponseText = "";
+            const callGeminiWithRetry = async (retries = 1, timeoutMs = 5000) => {
+                for (let attempt = 0; attempt <= retries; attempt++) {
+                    try {
+                        const timeoutPromise = new Promise((_, reject) => {
+                            setTimeout(() => reject(new Error('Timeout')), timeoutMs);
+                        });
+
+                        const prompt = `Tin nhắn của khách hàng: "${message}"\nTUYỆT ĐỐI KHÔNG sử dụng thẻ markdown \`\`\`json. Chỉ trả về chuỗi JSON thuần tuý hợp lệ.`;
+                        const geminiCall = (async () => {
+                            const result = await model.generateContent([
+                                { text: systemPrompt },
+                                { text: prompt }
+                            ]);
+                            return result.response.text();
+                        })();
+
+                        rawResponseText = await Promise.race([geminiCall, timeoutPromise]);
+                        return rawResponseText;
+                    } catch (err) {
+                        console.error(`[BE2][CHATBOT] Gemini attempt ${attempt + 1} failed:`, err.message);
+                        if (attempt === retries || err.status === 400 || err.status === 401 || err.status === 403) {
+                            throw err; // Stop retrying for permanent errors or out of retries
+                        }
+                        console.warn(`[BE2][CHATBOT] Retrying Gemini call...`);
+                    }
+                }
+            };
 
             try {
-                chatbotReply = await Promise.race([geminiPromise, timeoutPromise]);
+                rawResponseText = await callGeminiWithRetry(1, 5000);
+                
+                // Strip markdown wrappers safely
+                let cleanJsonString = rawResponseText.trim();
+                if (cleanJsonString.startsWith('```json')) {
+                    cleanJsonString = cleanJsonString.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+                } else if (cleanJsonString.startsWith('```')) {
+                    cleanJsonString = cleanJsonString.replace(/^```\s*/, '').replace(/\s*```$/, '');
+                }
+
+                chatbotReply = JSON.parse(cleanJsonString.trim());
             } catch (err) {
+                console.error('[BE2][CHATBOT] Failed to get/parse Gemini response.', err);
+                console.error('[BE2][CHATBOT] Raw Response before crash:', rawResponseText);
+                
                 if (err.message === 'Timeout') {
-                    console.warn('[BE2][CHATBOT] Gemini request timed out after 10s. Using fallback.');
                     chatbotReply = {
-                        reply: "Xin lỗi, hệ thống đang bận phản hồi chậm. Bạn có thể hỏi lại hoặc sử dụng các sản phẩm khuyên dùng phù hợp cho da của bạn.",
+                        reply: "Xin lỗi, hệ thống AI đang quá tải. Bạn có thể hỏi lại hoặc sử dụng các sản phẩm khuyên dùng.",
                         detectedSkinType: skinType,
                         recommendedProductIds: []
                     };
                 } else {
-                    console.error('[BE2][CHATBOT] Gemini execution error:', err.message);
                     chatbotReply = {
                         reply: "Hiện tại tôi đang gặp khó khăn khi kết nối với máy chủ AI. Xin bạn vui lòng thử lại sau.",
                         detectedSkinType: skinType,

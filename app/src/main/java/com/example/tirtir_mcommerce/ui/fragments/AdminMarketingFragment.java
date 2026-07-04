@@ -28,6 +28,7 @@ import com.example.tirtir_mcommerce.network.ApiService;
 import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.example.tirtir_mcommerce.ui.activities.AdminCartRecoveryActivity;
 import com.example.tirtir_mcommerce.ui.activities.AdminChurnActivity;
+import com.example.tirtir_mcommerce.ui.activities.AdminFlashSaleActivity;
 import com.example.tirtir_mcommerce.ui.activities.VoucherWalletActivity;
 
 import java.text.NumberFormat;
@@ -60,6 +61,9 @@ public class AdminMarketingFragment extends Fragment {
         rvMarketingFeeds.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 
         // Tools Setup
+        view.findViewById(R.id.btnToolFlashSale).setOnClickListener(v -> 
+            startActivity(new Intent(getContext(), AdminFlashSaleActivity.class)));
+
         view.findViewById(R.id.btnToolRecovery).setOnClickListener(v -> 
             startActivity(new Intent(getContext(), AdminCartRecoveryActivity.class)));
         
@@ -77,7 +81,7 @@ public class AdminMarketingFragment extends Fragment {
     }
 
     private void loadMarketingData() {
-        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        ApiService apiService = RetrofitClient.getAuthClient(getContext()).create(ApiService.class);
         apiService.getMarketingOverview().enqueue(new Callback<ApiResponse<MarketingOverviewResponse>>() {
             @Override
             public void onResponse(Call<ApiResponse<MarketingOverviewResponse>> call, Response<ApiResponse<MarketingOverviewResponse>> response) {

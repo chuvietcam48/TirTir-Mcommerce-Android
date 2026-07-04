@@ -327,6 +327,12 @@ public interface ApiService {
     @GET("api/v1/admin/marketing/overview")
     Call<ApiResponse<MarketingOverviewResponse>> getMarketingOverview();
 
+    @POST("api/v1/admin/marketing/campaigns")
+    Call<ApiResponse<Map<String, Object>>> sendFlashSale(@Body Map<String, String> body);
+
+    @POST("api/v1/marketing/abandoned-cart-recovery")
+    Call<ApiResponse<Map<String, Object>>> triggerCartRecovery();
+
     // ===========================
     // CART MODULE
     // ===========================

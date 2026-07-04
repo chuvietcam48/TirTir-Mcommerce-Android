@@ -130,4 +130,14 @@
         android:textColor="@color/tirtir_text_secondary"
         android:textSize="13sp" />
 
+    <Button
+        android:id="@+id/btnTriggerRecovery"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/tirtir_primary"
+        android:text="Trigger Recovery Scan"
+        android:textColor="@android:color/white"
+        android:textStyle="bold" />
+
 </LinearLayout>

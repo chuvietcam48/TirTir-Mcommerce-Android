@@ -6,7 +6,8 @@ const {
   getTopProducts,
   getMetrics,
   getAdminOrders,
-  getMarketingOverview
+  getMarketingOverview,
+  createCampaign
 } = require('../controllers/adminController');
 const {
   getAdminOrderDetails,
@@ -15,6 +16,9 @@ const {
   cancelOrderAdmin,
   exportOrdersCsv
 } = require('../controllers/orderController');
+
+// POST /api/v1/admin/marketing/seed
+router.post('/marketing/seed', require('../controllers/adminController').seedMarketingData);
 
 // All admin routes must be protected and restricted to 'admin'
 router.use(protect);
@@ -49,5 +53,8 @@ router.post('/orders/:id/cancel', cancelOrderAdmin);
 
 // GET /api/v1/admin/marketing/overview
 router.get('/marketing/overview', getMarketingOverview);
+
+// POST /api/v1/admin/marketing/campaigns
+router.post('/marketing/campaigns', createCampaign);
 
 module.exports = router;

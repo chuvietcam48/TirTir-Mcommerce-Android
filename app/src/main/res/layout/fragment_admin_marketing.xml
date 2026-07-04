@@ -226,6 +226,28 @@
                 android:orientation="horizontal">
 
                 <LinearLayout
+                    android:id="@+id/btnToolFlashSale"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/bg_tool_button"
+                    android:layout_marginEnd="12dp">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_send"
+                        app:tint="@color/tirtir_primary"
+                        android:layout_marginBottom="4dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Flash Sale"
+                        android:textSize="12sp"
+                        android:textColor="@color/tirtir_text_secondary" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:id="@+id/btnToolRecovery"
                     android:layout_width="80dp"
                     android:layout_height="80dp"

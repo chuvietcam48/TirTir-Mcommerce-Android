@@ -96,6 +96,18 @@ exports.createOrder = async (req, res) => {
   order.invoiceUrl = buildInvoiceUrl(req, order._id);
   await order.save();
 
+  // Track Flash Sale revenue
+  try {
+    const Campaign = require('../models/Campaign');
+    const activeCampaigns = await Campaign.find({ status: 'LIVE' });
+    for (const campaign of activeCampaigns) {
+      campaign.currentRevenue = (campaign.currentRevenue || 0) + totalPrice;
+      await campaign.save();
+    }
+  } catch (err) {
+    console.error('Error tracking campaign revenue:', err);
+  }
+
   // Sync to Firestore (Order and Cart status completed)
   try {
     const db = admin.firestore();

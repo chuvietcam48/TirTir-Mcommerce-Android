@@ -43,14 +43,11 @@ class ChatbotEngine:
         if api_key:
             genai.configure(api_key=api_key)
             try:
-                self.model = genai.GenerativeModel("gemini-2.0-flash")
-                logger.info("✅ Gemini-2.0-Flash model configured for natural-language phrasing.")
-            except Exception:
-                try:
-                    self.model = genai.GenerativeModel("gemini-pro")
-                    logger.info("✅ Gemini-Pro model configured (fallback).")
-                except Exception:
-                    logger.warning("⚠️ Could not initialize Gemini model. Will use template responses.")
+                # Use gemini-1.5-flash as the primary reliable model
+                self.model = genai.GenerativeModel("gemini-1.5-flash")
+                logger.info("✅ Gemini-1.5-Flash model configured.")
+            except Exception as e:
+                logger.warning(f"⚠️ Could not initialize Gemini model: {str(e)}. Will use template responses.")
         else:
             logger.warning("⚠️ GEMINI_API_KEY not set. Falling back to template responses.")
 

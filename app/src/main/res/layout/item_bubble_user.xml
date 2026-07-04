@@ -11,9 +11,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="72dp"
-        android:background="@drawable/bg_chat_user"
+        android:background="@drawable/bg_chat_bubble_user"
         android:maxWidth="280dp"
-        android:textColor="@color/tirtir_white"
+        android:padding="16dp"
+        android:textColor="#ffffff"
         android:textSize="14sp" />
 
     <TextView

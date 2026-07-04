@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/tirtir_off_white">
+    android:background="#f9f9f9">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/tirtir_white"
+        android:background="#f9f9f9"
         app:elevation="0dp">
 
         <include layout="@layout/layout_app_header" />
@@ -37,10 +37,11 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:paddingStart="12dp"
-            android:paddingTop="54dp"
+            android:paddingTop="24dp"
             android:paddingEnd="12dp"
             android:paddingBottom="166dp" />
 
+<<<<<<< Updated upstream
             <LinearLayout
                 android:id="@+id/layoutChatEmpty"
             android:layout_width="match_parent"
@@ -91,41 +92,62 @@
 
         </LinearLayout>
 
+=======
+>>>>>>> Stashed changes
         <HorizontalScrollView
             android:id="@+id/layoutChatQuickPrompts"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:layout_marginBottom="78dp"
-            android:background="@color/tirtir_white"
-            android:paddingHorizontal="10dp"
+            android:layout_marginBottom="82dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:clipToPadding="false"
             android:scrollbars="none">
+            
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroupPrompts"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                app:chipSpacingHorizontal="8dp"
+                app:chipSpacingHorizontal="12dp"
                 app:singleLine="true">
+                
                 <com.google.android.material.chip.Chip
-                    android:id="@+id/chipPromptSensitive"
+                    android:id="@+id/chipPromptSkin"
                     style="@style/Widget.MaterialComponents.Chip.Action"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Sensitive skin picks" android:textColor="@color/tirtir_red_primary"
-                    app:chipBackgroundColor="@color/tirtir_red_surface"
-                    app:chipStrokeColor="@color/tirtir_rose_outline" app:chipStrokeWidth="1dp" />
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipPromptRoutine"
-                    style="@style/Widget.MaterialComponents.Chip.Action"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Build my AM routine" android:textColor="@color/tirtir_red_primary"
-                    app:chipBackgroundColor="@color/tirtir_red_surface" />
+                    android:text="Analyze my skin type" android:textColor="@color/tirtir_red_dark"
+                    app:chipBackgroundColor="#E6FFFFFF"
+                    app:chipStrokeColor="#4DE3BEB8" app:chipStrokeWidth="1dp" 
+                    app:chipIcon="@drawable/ic_search" />
+                    
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipPromptIngredient"
                     style="@style/Widget.MaterialComponents.Chip.Action"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Check ingredients" android:textColor="@color/tirtir_red_primary"
-                    app:chipBackgroundColor="@color/tirtir_red_surface" />
+                    android:text="Check ingredient safety" android:textColor="@color/tirtir_red_dark"
+                    app:chipBackgroundColor="#E6FFFFFF"
+                    app:chipStrokeColor="#4DE3BEB8" app:chipStrokeWidth="1dp" 
+                    app:chipIcon="@drawable/ic_badge_dermatologist" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipPromptRoutine"
+                    style="@style/Widget.MaterialComponents.Chip.Action"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Morning routine help" android:textColor="@color/tirtir_red_dark"
+                    app:chipBackgroundColor="#E6FFFFFF"
+                    app:chipStrokeColor="#4DE3BEB8" app:chipStrokeWidth="1dp" 
+                    app:chipIcon="@drawable/ic_routine" />
+                    
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipPromptOrder"
+                    style="@style/Widget.MaterialComponents.Chip.Action"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Order status" android:textColor="@color/tirtir_red_dark"
+                    app:chipBackgroundColor="#E6FFFFFF"
+                    app:chipStrokeColor="#4DE3BEB8" app:chipStrokeWidth="1dp" 
+                    app:chipIcon="@drawable/ic_local_shipping" />
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
 
@@ -135,9 +157,9 @@
             android:layout_height="44dp"
             android:layout_gravity="bottom|start"
             android:layout_marginStart="16dp"
-            android:layout_marginBottom="132dp"
-            android:background="@drawable/bg_chat_bot"
-            android:elevation="2dp"
+            android:layout_marginBottom="142dp"
+            android:background="@drawable/bg_chat_bubble_bot"
+            android:elevation="0dp"
             android:gravity="center"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
@@ -152,49 +174,57 @@
                 app:lottie_rawRes="@raw/typing_dots" />
         </LinearLayout>
 
+        <!-- New Sleek Input Field -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:background="@color/tirtir_white"
-            android:elevation="8dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingStart="12dp"
-            android:paddingTop="10dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="14dp">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="0dp"
+            android:paddingHorizontal="12dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="24dp">
+            
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Type your question"
-                style="@style/Widget.TirTir.TextInputLayout">
-
-                <com.google.android.material.textfield.TextInputEditText
+                android:background="@drawable/bg_chat_input"
+                android:elevation="4dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="6dp">
+                
+                <ImageButton
+                    android:id="@+id/btnAddAttachment"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_plus"
+                    app:tint="#5f5e5e" />
+                    
+                <EditText
                     android:id="@+id/etChatInput"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:imeOptions="actionSend"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="Message Advisor..."
                     android:inputType="textCapSentences|textMultiLine"
-                    android:maxLines="4" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSendMessage"
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:layout_marginStart="8dp"
-                android:contentDescription="Send message"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:padding="0dp"
-                app:backgroundTint="@color/tirtir_red_dark"
-                app:cornerRadius="26dp"
-                app:icon="@drawable/ic_send"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp" />
+                    android:maxLines="4"
+                    android:minHeight="40dp"
+                    android:paddingHorizontal="8dp"
+                    android:textColor="#1a1c1c"
+                    android:textColorHint="#665f5e5e"
+                    android:textSize="16sp" />
+                    
+                <ImageButton
+                    android:id="@+id/btnSendMessage"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_chat_btn_send"
+                    android:src="@drawable/ic_send"
+                    android:padding="8dp"
+                    android:scaleType="centerInside"
+                    app:tint="#ffffff" />
+            </LinearLayout>
         </LinearLayout>
     </FrameLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -98,10 +98,15 @@ public class HomeFragment extends Fragment {
     private static final int[] CATEGORY_ICONS = {
             R.drawable.ic_category_cleanser,
             R.drawable.ic_category_serum,
-            R.drawable.ic_category_moisturizer,
+            R.drawable.ic_category_cream,
+            R.drawable.ic_category_toner,
+            R.drawable.ic_category_mask,
             R.drawable.ic_category_sunscreen,
+<<<<<<< Updated upstream
             R.drawable.ic_skin,
             R.drawable.ic_category_sunscreen,
+=======
+>>>>>>> Stashed changes
             R.drawable.ic_category_cushion,
             R.drawable.ic_category_makeup
     };
@@ -179,8 +184,7 @@ public class HomeFragment extends Fragment {
             int iconRes = CATEGORY_ICONS[i];
 
             View categoryItem = inflater.inflate(R.layout.item_category, containerCategories, false);
-            categoryItem.setLayoutParams(new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
             ImageView ivIcon = categoryItem.findViewById(R.id.ivCategoryIcon);
             TextView tvLabel = categoryItem.findViewById(R.id.tvCategoryName);
 

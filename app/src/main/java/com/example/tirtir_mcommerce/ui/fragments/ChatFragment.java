@@ -13,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -27,9 +29,7 @@ import com.example.tirtir_mcommerce.model.ApiResponse;
 import com.example.tirtir_mcommerce.repository.ChatRepository;
 import com.example.tirtir_mcommerce.ui.activities.ProductDetailActivity;
 import com.example.tirtir_mcommerce.ui.adapters.ChatMessageAdapter;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
-import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,10 +47,10 @@ import retrofit2.Response;
 public class ChatFragment extends Fragment {
 
     private RecyclerView rvChatMessages;
-    private LinearLayout layoutChatEmpty;
+    private LinearLayout layoutChatEmpty; // kept as nullable – removed from layout but referenced safely
     private View layoutTyping;
-    private TextInputEditText etChatInput;
-    private MaterialButton btnSendMessage;
+    private EditText etChatInput;
+    private ImageButton btnSendMessage;
     private ChatMessageAdapter adapter;
     private ChatRepository chatRepository;
     private View offlineBanner;
@@ -77,7 +77,7 @@ public class ChatFragment extends Fragment {
         com.example.tirtir_mcommerce.utils.HeaderHelper.bind(
                 view, requireContext(), requireActivity().getSupportFragmentManager());
         rvChatMessages = view.findViewById(R.id.rvChatMessages);
-        layoutChatEmpty = view.findViewById(R.id.layoutChatEmpty);
+        layoutChatEmpty = view.findViewById(R.id.layoutChatEmpty); // may be null in new layout
         layoutTyping = view.findViewById(R.id.layoutTyping);
         etChatInput = view.findViewById(R.id.etChatInput);
         btnSendMessage = view.findViewById(R.id.btnSendMessage);
@@ -101,10 +101,10 @@ public class ChatFragment extends Fragment {
             return false;
         });
 
-        // Skin scan access is now via the SCAN tab in bottom navigation
-        bindPrompt(view, R.id.chipPromptSensitive);
+        bindPrompt(view, R.id.chipPromptSkin);
         bindPrompt(view, R.id.chipPromptRoutine);
         bindPrompt(view, R.id.chipPromptIngredient);
+        bindPrompt(view, R.id.chipPromptOrder);
         bindProductContextIfAvailable();
         loadHistory();
     }
@@ -135,7 +135,7 @@ public class ChatFragment extends Fragment {
             return;
         }
 
-        layoutChatEmpty.setVisibility(View.GONE);
+        if (layoutChatEmpty != null) layoutChatEmpty.setVisibility(View.GONE);
         productContextShown = true;
         String displayName = productName != null && !productName.isEmpty() ? productName : "this product";
         adapter.addMessage(new ChatMessageAdapter.ChatMessage(
@@ -160,7 +160,7 @@ public class ChatFragment extends Fragment {
         String text = etChatInput.getText() == null ? "" : etChatInput.getText().toString().trim();
         if (TextUtils.isEmpty(text)) return;
 
-        layoutChatEmpty.setVisibility(View.GONE);
+        if (layoutChatEmpty != null) layoutChatEmpty.setVisibility(View.GONE);
         adapter.addMessage(new ChatMessageAdapter.ChatMessage(true, text, timeFormat.format(new Date()), new ArrayList<>()));
         rvChatMessages.scrollToPosition(adapter.getItemCount() - 1);
         etChatInput.setText("");
@@ -266,7 +266,7 @@ public class ChatFragment extends Fragment {
                         ensureWelcomeGreeting();
                         return;
                     }
-                    layoutChatEmpty.setVisibility(View.GONE);
+                    if (layoutChatEmpty != null) layoutChatEmpty.setVisibility(View.GONE);
                     adapter.submitMessages(history);
                     rvChatMessages.scrollToPosition(history.size() - 1);
                 });
@@ -282,7 +282,7 @@ public class ChatFragment extends Fragment {
     private void ensureWelcomeGreeting() {
         if (welcomeShown || productContextShown || adapter == null || !isAdded()) return;
         welcomeShown = true;
-        layoutChatEmpty.setVisibility(View.GONE);
+        if (layoutChatEmpty != null) layoutChatEmpty.setVisibility(View.GONE);
         com.example.tirtir_mcommerce.model.User user =
                 new com.example.tirtir_mcommerce.utils.SharedPrefsManager(requireContext()).getCachedUser();
         String firstName = "there";

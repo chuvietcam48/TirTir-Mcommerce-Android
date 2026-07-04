@@ -195,6 +195,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.activities.AdminFlashSaleActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.activities.BarcodeScanActivity"
             android:exported="false" />
 

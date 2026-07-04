@@ -97,15 +97,22 @@ Hãy trả lời lịch sự, thân thiện, khoa học bằng tiếng Việt. N
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
   let replyText = '';
 
-  if (!apiKey || apiKey.includes('your_')) {
+  if (!apiKey || apiKey.includes('your_') || apiKey.trim() === '') {
     replyText = `Dựa trên loại da ${skinType} của bạn, TirTir khuyên bạn sử dụng các sản phẩm dịu nhẹ, cấp ẩm vừa đủ và bảo vệ da hàng ngày.`;
   } else {
     try {
       const ai = new GoogleGenAI({ apiKey });
+      // contents must be an array of { role, parts } objects
+      const contents = [
+        {
+          role: 'user',
+          parts: [{ text: message }]
+        }
+      ];
       const response = await callGeminiWithRetry(
         ai,
-        'gemini-2.5-flash',
-        message,
+        'gemini-1.5-flash',
+        contents,
         { systemInstruction }
       );
 
@@ -144,6 +151,22 @@ Hãy trả lời lịch sự, thân thiện, khoa học bằng tiếng Việt. N
   };
 }
 
+/**
+ * Simplified Gemini response for chatbotController
+ */
+async function generateGeminiResponse(systemInstruction, userMessage) {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  if (!apiKey || apiKey.includes('your_') || apiKey.trim() === '') {
+    return 'Tư vấn viên AI đang tạm thời không khả dụng. Vui lòng thử lại sau.';
+  }
+  const ai = new GoogleGenAI({ apiKey });
+  const contents = [{ role: 'user', parts: [{ text: userMessage }] }];
+  const response = await callGeminiWithRetry(ai, 'gemini-1.5-flash', contents, { systemInstruction });
+  return response.text || 'Rất tiếc, mình chưa thể đưa ra phản hồi phù hợp lúc này.';
+}
+
 module.exports = {
-  processChatbotMessage
+  processChatbotMessage,
+  generateGeminiResponse,
 };
+

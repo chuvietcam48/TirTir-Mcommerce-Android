@@ -2,6 +2,7 @@ package com.example.tirtir_mcommerce.ui.activities;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tirtir_mcommerce.R;
+import com.example.tirtir_mcommerce.model.ApiResponse;
 import com.example.tirtir_mcommerce.network.ApiService;
 import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.example.tirtir_mcommerce.ui.adapters.CartRecoveryAdapter;
@@ -28,6 +30,7 @@ public class AdminCartRecoveryActivity extends AppCompatActivity {
     private TextView recovered;
     private TextView rate;
     private TextView tvEmpty;
+    private Button btnTriggerRecovery;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,6 +43,11 @@ public class AdminCartRecoveryActivity extends AppCompatActivity {
         recovered = findViewById(R.id.tvStatRecovered);
         rate = findViewById(R.id.tvStatRate);
         tvEmpty = findViewById(R.id.tvCartRecoveryEmpty);
+        btnTriggerRecovery = findViewById(R.id.btnTriggerRecovery);
+        
+        if (btnTriggerRecovery != null) {
+            btnTriggerRecovery.setOnClickListener(v -> triggerRecoveryScan());
+        }
         
         RecyclerView list = findViewById(R.id.rvCartRecovery);
         list.setLayoutManager(new LinearLayoutManager(this));
@@ -75,6 +83,40 @@ public class AdminCartRecoveryActivity extends AppCompatActivity {
                         showError();
                     }
                 });
+    }
+
+    private void triggerRecoveryScan() {
+        if (btnTriggerRecovery != null) {
+            btnTriggerRecovery.setEnabled(false);
+            btnTriggerRecovery.setText("Scanning...");
+        }
+
+        RetrofitClient.getAuthClient(this).create(ApiService.class)
+                .triggerCartRecovery().enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
+                if (btnTriggerRecovery != null) {
+                    btnTriggerRecovery.setEnabled(true);
+                    btnTriggerRecovery.setText("Trigger Recovery Scan");
+                }
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    Toast.makeText(AdminCartRecoveryActivity.this, response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    loadStats(); // Reload stats to show newly recovered or abandoned changes
+                } else {
+                    Toast.makeText(AdminCartRecoveryActivity.this, "Failed to run recovery scan", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
+                if (btnTriggerRecovery != null) {
+                    btnTriggerRecovery.setEnabled(true);
+                    btnTriggerRecovery.setText("Trigger Recovery Scan");
+                }
+                Toast.makeText(AdminCartRecoveryActivity.this, "Network Error", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private int asInt(Object value) {

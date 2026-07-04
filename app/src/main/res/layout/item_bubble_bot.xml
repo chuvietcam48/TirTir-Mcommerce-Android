@@ -12,8 +12,8 @@
         android:layout_width="34dp"
         android:layout_height="34dp"
         android:src="@drawable/ic_tirtir_brand_circle"
-        app:civ_border_color="@color/tirtir_red_surface"
-        app:civ_border_width="1dp" />
+        app:civ_circle_background_color="#8B0000"
+        app:civ_border_width="0dp" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -26,10 +26,11 @@
             android:id="@+id/tvBotMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_chat_bot"
-            android:elevation="1dp"
+            android:background="@drawable/bg_chat_bubble_bot"
+            android:elevation="0dp"
             android:maxWidth="286dp"
-            android:textColor="@color/tirtir_black"
+            android:padding="16dp"
+            android:textColor="#5a403c"
             android:textSize="14sp" />
 
         <com.google.android.flexbox.FlexboxLayout

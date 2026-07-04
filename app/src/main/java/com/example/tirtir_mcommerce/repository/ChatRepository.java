@@ -81,7 +81,7 @@ public class ChatRepository {
         payload.addProperty("message", message);
         Request.Builder request = new Request.Builder()
                 .url(ApiConfig.CHAT_URL)
-                .header("Accept", "text/event-stream")
+                .header("Accept", "application/json")
                 .post(RequestBody.create(JSON, payload.toString()));
         String token = prefs.getToken();
         if (token != null && !token.isEmpty()) {
@@ -100,28 +100,99 @@ public class ChatRepository {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful() || response.body() == null) {
-                    Log.e(TAG, "Chat API failed with HTTP " + response.code());
-                    listener.onError("The advisor is temporarily unavailable. Please try again shortly.");
-                    response.close();
+                    String errorBody = response.body() != null ? response.body().string() : "null";
+                    Log.e(TAG, "Chat API failed with HTTP " + response.code() + " " + errorBody);
+                    listener.onError("Debug Error: HTTP " + response.code() + " " + errorBody);
+                    if (response.body() != null) response.close();
                     return;
                 }
 
-                String event = "";
-                StringBuilder data = new StringBuilder();
                 try {
-                    String line;
-                    while ((line = response.body().source().readUtf8Line()) != null) {
+                    String rawBody = response.body().string();
+                    String[] lines = rawBody.split("\n");
+                    
+                    boolean isJsonHandled = false;
+                    StringBuilder legacyTextAccumulator = new StringBuilder();
+                    String event = "";
+
+                    for (String lineRaw : lines) {
+                        String line = lineRaw.trim();
+                        if (line.isEmpty()) continue;
+
+                        // Case 1: Standard JSON Object
+                        if (line.startsWith("{") && line.endsWith("}")) {
+                            try {
+                                JsonObject json = new JsonParser().parse(line).getAsJsonObject();
+                                if (json.has("success") && !json.get("success").getAsBoolean() && json.has("message")) {
+                                    listener.onError(json.get("message").getAsString());
+                                    isJsonHandled = true;
+                                    break;
+                                }
+                                
+                                String reply = "";
+                                if (json.has("reply") && !json.get("reply").isJsonNull()) {
+                                    reply = json.get("reply").getAsString();
+                                } else if (json.has("message") && !json.get("message").isJsonNull()) {
+                                    reply = json.get("message").getAsString();
+                                }
+
+                                String[] words = reply.split(" ");
+                                for (String word : words) {
+                                    listener.onChunk(word + " ");
+                                    try { Thread.sleep(30); } catch (InterruptedException ignored) {}
+                                }
+
+                                List<Suggestion> suggestions = new ArrayList<>();
+                                if (json.has("recommendedProductIds") && json.get("recommendedProductIds").isJsonArray()) {
+                                    for (JsonElement idElem : json.getAsJsonArray("recommendedProductIds")) {
+                                        suggestions.add(new Suggestion(idElem.getAsString(), "Suggested Product"));
+                                    }
+                                }
+                                listener.onDone(new ChatResult(reply, suggestions));
+                                isJsonHandled = true;
+                                break;
+                            } catch (Exception ignored) {}
+                        }
+
+                        // Case 2: SSE Stream Format
                         if (line.startsWith("event:")) {
                             event = line.substring(6).trim();
                         } else if (line.startsWith("data:")) {
-                            data.append(line.substring(5).trim());
-                        } else if (line.isEmpty() && data.length() > 0) {
-                            handleEvent(event, data.toString(), listener);
-                            event = "";
-                            data.setLength(0);
+                            String dataStr = line.substring(5).trim();
+                            if ("[DONE]".equals(dataStr)) {
+                                listener.onDone(new ChatResult(legacyTextAccumulator.toString(), new ArrayList<>()));
+                            } else if (dataStr.startsWith("{") && dataStr.endsWith("}")) {
+                                try {
+                                    JsonObject chunkJson = new JsonParser().parse(dataStr).getAsJsonObject();
+                                    if ("error".equals(event)) {
+                                        String errMsg = chunkJson.has("message") ? chunkJson.get("message").getAsString() : "Lỗi hệ thống";
+                                        listener.onError(errMsg);
+                                        isJsonHandled = true;
+                                    } else if ("chunk".equals(event)) {
+                                        String text = chunkJson.has("text") ? chunkJson.get("text").getAsString() : "";
+                                        legacyTextAccumulator.append(text);
+                                        listener.onChunk(text);
+                                        isJsonHandled = true;
+                                    } else if ("done".equals(event)) {
+                                        listener.onDone(new ChatResult(legacyTextAccumulator.toString(), new ArrayList<>()));
+                                        isJsonHandled = true;
+                                    }
+                                } catch (Exception ignored) {}
+                            } else {
+                                String chunkText = dataStr + " ";
+                                legacyTextAccumulator.append(chunkText);
+                                listener.onChunk(chunkText);
+                                isJsonHandled = true;
+                            }
                         }
                     }
-                    if (data.length() > 0) handleEvent(event, data.toString(), listener);
+
+                    if (!isJsonHandled && legacyTextAccumulator.length() == 0) {
+                        listener.onError("Debug Raw Response: [" + rawBody + "]");
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Unable to parse chat response", e);
+                    listener.onError("The advisor sent an unreadable response.");
                 } finally {
                     response.close();
                 }
@@ -129,28 +200,7 @@ public class ChatRepository {
         });
     }
 
-    private void handleEvent(String event, String raw, StreamListener listener) {
-        try {
-            JsonObject payload = new JsonParser().parse(raw).getAsJsonObject();
-            if ("chunk".equals(event)) {
-                listener.onChunk(stringValue(payload, "text"));
-            } else if ("done".equals(event)) {
-                JsonObject data = payload.has("data") && payload.get("data").isJsonObject()
-                        ? payload.getAsJsonObject("data") : payload;
-                listener.onDone(new ChatResult(
-                        safeUserMessage(stringValue(data, "message")),
-                        extractSuggestions(data.has("data") ? data.get("data") : data)));
-            } else if ("error".equals(event)) {
-                String technicalMessage = stringValue(payload, "message");
-                Log.e(TAG, "Chat stream error: " + technicalMessage);
-                listener.onError(safeUserMessage(technicalMessage));
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Unable to parse chat stream event", e);
-            if ("chunk".equals(event)) listener.onChunk(raw);
-            else listener.onError("The advisor sent an unreadable response.");
-        }
-    }
+
 
     private List<Suggestion> extractSuggestions(JsonElement productData) {
         List<Suggestion> result = new ArrayList<>();
