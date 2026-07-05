@@ -64,6 +64,22 @@
             app:layout_constraintStart_toEndOf="@id/tvNotificationIcon"
             app:layout_constraintTop_toBottomOf="@id/tvNotificationTitle" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnClaimVoucher"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:text="Receive Voucher"
+            android:textColor="@color/tirtir_white"
+            app:backgroundTint="@color/tirtir_red_primary"
+            android:visibility="gone"
+            app:layout_constraintStart_toEndOf="@id/tvNotificationIcon"
+            app:layout_constraintTop_toBottomOf="@id/tvNotificationMessage"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="8dp" />
+
         <View
             android:id="@+id/viewUnreadDot"
             android:layout_width="7dp"

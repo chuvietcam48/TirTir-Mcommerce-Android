@@ -357,6 +357,9 @@ public interface ApiService {
     @DELETE("api/v1/cart/clear")
     Call<Void> clearCartServer();
 
+    @POST("api/v1/cart/sync")
+    Call<ApiResponse<List<CartItem>>> syncCart(@Body Map<String, Object> body);
+
     // ===========================
     // ORDER MODULE
     // ===========================
@@ -446,4 +449,7 @@ public interface ApiService {
 
     @GET("api/v1/routine/suggest")
     Call<ApiResponse<Map<String, Object>>> suggestRoutine(@Query("userId") String userId, @Query("missingStep") String missingStep);
+
+    @POST("api/v1/loyalty/claim-welcome")
+    Call<ApiResponse<Map<String, Object>>> claimWelcomeVoucher();
 }

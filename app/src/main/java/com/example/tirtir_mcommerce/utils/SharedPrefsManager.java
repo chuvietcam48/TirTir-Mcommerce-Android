@@ -4,7 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.example.tirtir_mcommerce.model.User;
+import com.example.tirtir_mcommerce.model.OrderResponse;
 import com.google.gson.Gson;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Quản lý toàn bộ dữ liệu lưu cục bộ trong SharedPreferences.
@@ -225,5 +228,52 @@ public class SharedPrefsManager {
                 .remove(KEY_PENDING_VOUCHER_CODE)
                 .remove(KEY_PENDING_VOUCHER_DISCOUNT)
                 .apply();
+    }
+
+    // ===========================
+    // LOCAL CLAIMED VOUCHERS FALLBACK
+    // ===========================
+    private static final String KEY_CLAIMED_VOUCHERS = "claimed_vouchers";
+
+    public void saveClaimedVoucherLocal(java.util.Map<String, Object> voucher) {
+        java.util.List<java.util.Map<String, Object>> list = getClaimedVouchersLocal();
+        for (java.util.Map<String, Object> v : list) {
+            if (String.valueOf(voucher.get("code")).equalsIgnoreCase(String.valueOf(v.get("code")))) {
+                return;
+            }
+        }
+        list.add(voucher);
+        sharedPreferences.edit().putString(KEY_CLAIMED_VOUCHERS, gson.toJson(list)).apply();
+    }
+
+    public java.util.List<java.util.Map<String, Object>> getClaimedVouchersLocal() {
+        String json = sharedPreferences.getString(KEY_CLAIMED_VOUCHERS, null);
+        if (json == null) return new java.util.ArrayList<>();
+        java.lang.reflect.Type type = new com.google.gson.reflect.TypeToken<java.util.List<java.util.Map<String, Object>>>(){}.getType();
+        try {
+            return gson.fromJson(json, type);
+        } catch (Exception e) {
+            return new java.util.ArrayList<>();
+        }
+    }
+
+    // ===========================
+    // LOCAL ORDERS CACHE FOR DEMO FALLBACK
+    // ===========================
+    public void saveLocalOrder(OrderResponse order) {
+        List<OrderResponse> orders = getLocalOrders();
+        orders.add(0, order); // add to top
+        sharedPreferences.edit().putString("local_orders", gson.toJson(orders)).apply();
+    }
+
+    public List<OrderResponse> getLocalOrders() {
+        String json = sharedPreferences.getString("local_orders", null);
+        if (json == null) return new ArrayList<>();
+        java.lang.reflect.Type type = new com.google.gson.reflect.TypeToken<List<OrderResponse>>(){}.getType();
+        try {
+            return gson.fromJson(json, type);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
 }

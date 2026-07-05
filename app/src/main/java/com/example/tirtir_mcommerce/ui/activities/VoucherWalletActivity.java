@@ -117,25 +117,54 @@ public class VoucherWalletActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ApiResponse<List<Map<String, Object>>>> call, Response<ApiResponse<List<Map<String, Object>>>> response) {
                 if (isFinishing()) return;
+                vouchersList.clear();
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    vouchersList.clear();
                     vouchersList.addAll(response.body().getData());
-                    voucherAdapter.notifyDataSetChanged();
-                    
-                    if (vouchersList.isEmpty()) {
-                        tvNoVouchers.setVisibility(View.VISIBLE);
-                        rvVouchers.setVisibility(View.GONE);
-                    } else {
-                        tvNoVouchers.setVisibility(View.GONE);
-                        rvVouchers.setVisibility(View.VISIBLE);
+                }
+                
+                // Merge with local claimed vouchers
+                com.example.tirtir_mcommerce.utils.SharedPrefsManager prefs = new com.example.tirtir_mcommerce.utils.SharedPrefsManager(VoucherWalletActivity.this);
+                List<Map<String, Object>> localVouchers = prefs.getClaimedVouchersLocal();
+                for (Map<String, Object> lv : localVouchers) {
+                    boolean duplicate = false;
+                    for (Map<String, Object> v : vouchersList) {
+                        if (String.valueOf(lv.get("code")).equalsIgnoreCase(String.valueOf(v.get("code")))) {
+                            duplicate = true;
+                            break;
+                        }
                     }
+                    if (!duplicate) {
+                        vouchersList.add(lv);
+                    }
+                }
+                
+                voucherAdapter.notifyDataSetChanged();
+                
+                if (vouchersList.isEmpty()) {
+                    tvNoVouchers.setVisibility(View.VISIBLE);
+                    rvVouchers.setVisibility(View.GONE);
+                } else {
+                    tvNoVouchers.setVisibility(View.GONE);
+                    rvVouchers.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponse<List<Map<String, Object>>>> call, Throwable t) {
-                if (!isFinishing()) {
+                if (isFinishing()) return;
+                vouchersList.clear();
+                // Load local claimed vouchers as fallback
+                com.example.tirtir_mcommerce.utils.SharedPrefsManager prefs = new com.example.tirtir_mcommerce.utils.SharedPrefsManager(VoucherWalletActivity.this);
+                vouchersList.addAll(prefs.getClaimedVouchersLocal());
+                voucherAdapter.notifyDataSetChanged();
+                
+                if (vouchersList.isEmpty()) {
+                    tvNoVouchers.setVisibility(View.VISIBLE);
+                    rvVouchers.setVisibility(View.GONE);
                     Toast.makeText(VoucherWalletActivity.this, "Không thể kết nối ví voucher", Toast.LENGTH_SHORT).show();
+                } else {
+                    tvNoVouchers.setVisibility(View.GONE);
+                    rvVouchers.setVisibility(View.VISIBLE);
                 }
             }
         });

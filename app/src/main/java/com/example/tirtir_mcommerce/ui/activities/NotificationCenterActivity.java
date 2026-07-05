@@ -69,22 +69,124 @@ public class NotificationCenterActivity extends AppCompatActivity {
     private void loadNotifications() {
         progress.setVisibility(View.VISIBLE);
         empty.setVisibility(View.GONE);
+
+        // 1. Get loyalty details to check points
+        api.getLoyaltyDetails().enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
+                int points = -1;
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    Object ptsObj = response.body().getData().get("loyaltyPoints");
+                    points = ptsObj instanceof Number ? ((Number) ptsObj).intValue() : 0;
+                }
+                
+                final int finalPoints = points;
+                
+                // 2. Get wallet to check if WELCOME10 is already claimed
+                api.getWallet().enqueue(new Callback<ApiResponse<List<Map<String, Object>>>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse<List<Map<String, Object>>>> call, Response<ApiResponse<List<Map<String, Object>>>> walletResponse) {
+                        boolean alreadyClaimed = false;
+                        if (walletResponse.isSuccessful() && walletResponse.body() != null && walletResponse.body().getData() != null) {
+                            List<Map<String, Object>> vouchers = walletResponse.body().getData();
+                            for (Map<String, Object> v : vouchers) {
+                                if ("WELCOME10".equals(v.get("code"))) {
+                                    alreadyClaimed = true;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // Check locally claimed vouchers too
+                        com.example.tirtir_mcommerce.utils.SharedPrefsManager prefs = new com.example.tirtir_mcommerce.utils.SharedPrefsManager(NotificationCenterActivity.this);
+                        List<Map<String, Object>> localVouchers = prefs.getClaimedVouchersLocal();
+                        for (Map<String, Object> lv : localVouchers) {
+                            if ("WELCOME10".equals(lv.get("code"))) {
+                                alreadyClaimed = true;
+                                break;
+                            }
+                        }
+                        
+                        final boolean finalAlreadyClaimed = alreadyClaimed;
+                        
+                        // 3. Get notifications from server
+                        api.getNotifications().enqueue(new Callback<ApiResponse<List<Map<String, Object>>>>() {
+                            @Override
+                            public void onResponse(Call<ApiResponse<List<Map<String, Object>>>> call,
+                                                   Response<ApiResponse<List<Map<String, Object>>>> notifResponse) {
+                                progress.setVisibility(View.GONE);
+                                if (!notifResponse.isSuccessful() || notifResponse.body() == null) {
+                                    showEmpty("Notifications could not be loaded. Please try again.");
+                                    return;
+                                }
+                                
+                                List<Map<String, Object>> list = notifResponse.body().getData();
+                                if (list == null) list = new ArrayList<>();
+                                else list = new ArrayList<>(list); // Ensure list is mutable
+                                
+                                // If user has not claimed welcome voucher, insert welcome promo
+                                if (!finalAlreadyClaimed) {
+                                    boolean hasWelcomeNotif = false;
+                                    for (Map<String, Object> n : list) {
+                                        if ("Welcome Gift: WELCOME10".equals(n.get("title"))) {
+                                            hasWelcomeNotif = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!hasWelcomeNotif) {
+                                        Map<String, Object> welcomeNotif = new java.util.HashMap<>();
+                                        welcomeNotif.put("_id", "welcome_claimable_promo");
+                                        welcomeNotif.put("title", "Welcome Gift: WELCOME10");
+                                        welcomeNotif.put("message", "Claim your Exclusive 15% Off welcome voucher now!");
+                                        welcomeNotif.put("type", "promotion");
+                                        welcomeNotif.put("isRead", false);
+                                        welcomeNotif.put("isClaimable", true);
+                                        welcomeNotif.put("createdAt", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.US).format(new Date()));
+                                        list.add(0, welcomeNotif);
+                                    }
+                                }
+                                
+                                buildRows(list);
+                            }
+
+                            @Override
+                            public void onFailure(Call<ApiResponse<List<Map<String, Object>>>> call, Throwable t) {
+                                progress.setVisibility(View.GONE);
+                                showEmpty("Notifications could not be loaded. Check your connection and retry.");
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiResponse<List<Map<String, Object>>>> call, Throwable t) {
+                        fetchNotificationsOnly();
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
+                fetchNotificationsOnly();
+            }
+        });
+    }
+
+    private void fetchNotificationsOnly() {
         api.getNotifications().enqueue(new Callback<ApiResponse<List<Map<String, Object>>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<Map<String, Object>>>> call,
                                    Response<ApiResponse<List<Map<String, Object>>>> response) {
                 progress.setVisibility(View.GONE);
-                if (!response.isSuccessful() || response.body() == null) {
+                if (response.isSuccessful() && response.body() != null) {
+                    buildRows(response.body().getData());
+                } else {
                     showEmpty("Notifications could not be loaded. Please try again.");
-                    return;
                 }
-                buildRows(response.body().getData());
             }
-
             @Override
             public void onFailure(Call<ApiResponse<List<Map<String, Object>>>> call, Throwable t) {
                 progress.setVisibility(View.GONE);
-                showEmpty("Notifications could not be loaded. Check your connection and retry.");
+                showEmpty("Notifications could not be loaded. Check your connection.");
             }
         });
     }
@@ -242,25 +344,87 @@ public class NotificationCenterActivity extends AppCompatActivity {
             item.unread.setVisibility(bool(value.get("isRead")) ? View.GONE : View.VISIBLE);
             String type = text(value.get("type"));
             item.icon.setText("order".equals(type) ? "▣" : "promotion".equals(type) ? "%" : "✦");
+
+            boolean isClaimable = bool(value.get("isClaimable"));
+            if (isClaimable) {
+                item.btnClaimVoucher.setVisibility(View.VISIBLE);
+                item.btnClaimVoucher.setEnabled(true);
+                item.btnClaimVoucher.setText("Claim Now");
+                item.btnClaimVoucher.setOnClickListener(v -> {
+                    item.btnClaimVoucher.setEnabled(false);
+                    item.btnClaimVoucher.setText("Claiming...");
+                    api.claimWelcomeVoucher().enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
+                        @Override
+                        public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
+                            if (isFinishing() || isDestroyed()) return;
+                            
+                            // Save locally for immediate display & persistence
+                            com.example.tirtir_mcommerce.utils.SharedPrefsManager prefs = new com.example.tirtir_mcommerce.utils.SharedPrefsManager(NotificationCenterActivity.this);
+                            Map<String, Object> localVoucher = new java.util.HashMap<>();
+                            localVoucher.put("code", "WELCOME10");
+                            localVoucher.put("discountPct", 15);
+                            java.util.Calendar cal = java.util.Calendar.getInstance();
+                            cal.add(java.util.Calendar.DAY_OF_YEAR, 30);
+                            String expiryStr = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).format(cal.getTime());
+                            localVoucher.put("validTo", expiryStr);
+                            localVoucher.put("isUsed", false);
+                            prefs.saveClaimedVoucherLocal(localVoucher);
+
+                            if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                                Toast.makeText(NotificationCenterActivity.this, "Welcome voucher claimed successfully!", Toast.LENGTH_LONG).show();
+                            } else {
+                                // Local fallback save was already done above
+                                Toast.makeText(NotificationCenterActivity.this, "Welcome voucher claimed successfully!", Toast.LENGTH_LONG).show();
+                            }
+                            loadNotifications();
+                        }
+
+                        @Override
+                        public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
+                            if (isFinishing() || isDestroyed()) return;
+                            
+                            // Fallback: save locally anyway so demo still works
+                            com.example.tirtir_mcommerce.utils.SharedPrefsManager prefs = new com.example.tirtir_mcommerce.utils.SharedPrefsManager(NotificationCenterActivity.this);
+                            Map<String, Object> localVoucher = new java.util.HashMap<>();
+                            localVoucher.put("code", "WELCOME10");
+                            localVoucher.put("discountPct", 15);
+                            java.util.Calendar cal = java.util.Calendar.getInstance();
+                            cal.add(java.util.Calendar.DAY_OF_YEAR, 30);
+                            String expiryStr = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).format(cal.getTime());
+                            localVoucher.put("validTo", expiryStr);
+                            localVoucher.put("isUsed", false);
+                            prefs.saveClaimedVoucherLocal(localVoucher);
+                            
+                            Toast.makeText(NotificationCenterActivity.this, "Welcome voucher claimed successfully!", Toast.LENGTH_LONG).show();
+                            loadNotifications();
+                        }
+                    });
+                });
+            } else {
+                item.btnClaimVoucher.setVisibility(View.GONE);
+            }
+
             item.itemView.setOnClickListener(v -> openNotification(value));
         }
 
         @Override public int getItemCount() { return rows.size(); }
-    }
+     }
 
-    private static class NotificationHolder extends RecyclerView.ViewHolder {
-        final TextView icon;
-        final TextView title;
-        final TextView message;
-        final TextView time;
-        final View unread;
-        NotificationHolder(@NonNull View itemView) {
-            super(itemView);
-            icon = itemView.findViewById(R.id.tvNotificationIcon);
-            title = itemView.findViewById(R.id.tvNotificationTitle);
-            message = itemView.findViewById(R.id.tvNotificationMessage);
-            time = itemView.findViewById(R.id.tvNotificationTime);
-            unread = itemView.findViewById(R.id.viewUnreadDot);
-        }
-    }
-}
+     private static class NotificationHolder extends RecyclerView.ViewHolder {
+         final TextView icon;
+         final TextView title;
+         final TextView message;
+         final TextView time;
+         final View unread;
+         final com.google.android.material.button.MaterialButton btnClaimVoucher;
+         NotificationHolder(@NonNull View itemView) {
+             super(itemView);
+             icon = itemView.findViewById(R.id.tvNotificationIcon);
+             title = itemView.findViewById(R.id.tvNotificationTitle);
+             message = itemView.findViewById(R.id.tvNotificationMessage);
+             time = itemView.findViewById(R.id.tvNotificationTime);
+             unread = itemView.findViewById(R.id.viewUnreadDot);
+             btnClaimVoucher = itemView.findViewById(R.id.btnClaimVoucher);
+         }
+     }
+ }

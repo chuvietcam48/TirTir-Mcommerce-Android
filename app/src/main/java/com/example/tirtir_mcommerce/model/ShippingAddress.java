@@ -26,6 +26,12 @@ public class ShippingAddress {
     @SerializedName("wardCode")
     private String wardCode;
 
+    @SerializedName("district")
+    private String district;
+
+    @SerializedName("ward")
+    private String ward;
+
     public ShippingAddress() {}
 
     public ShippingAddress(String fullName, String phone, String address, String city, String districtId, String wardCode) {
@@ -35,6 +41,17 @@ public class ShippingAddress {
         this.city = city;
         this.districtId = districtId;
         this.wardCode = wardCode;
+    }
+
+    public ShippingAddress(String fullName, String phone, String address, String city, String districtId, String wardCode, String district, String ward) {
+        this.fullName = fullName;
+        this.phone = phone;
+        this.address = address;
+        this.city = city;
+        this.districtId = districtId;
+        this.wardCode = wardCode;
+        this.district = district;
+        this.ward = ward;
     }
 
     public String getFullName() { return fullName; }
@@ -54,4 +71,10 @@ public class ShippingAddress {
     
     public String getWardCode() { return wardCode; }
     public void setWardCode(String wardCode) { this.wardCode = wardCode; }
+
+    public String getDistrict() { return district; }
+    public void setDistrict(String district) { this.district = district; }
+
+    public String getWard() { return ward; }
+    public void setWard(String ward) { this.ward = ward; }
 }

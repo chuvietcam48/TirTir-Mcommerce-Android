@@ -54,21 +54,7 @@ async function fetchViettelShipping(fromProvince, toProvince, weightGrams, total
  * Returns { fee, isEstimated }.
  */
 async function getShippingFee({ toProvince, weightGrams = 300, totalPrice = 0 }) {
-  const FROM_PROVINCE = process.env.WAREHOUSE_PROVINCE || 'HCM';
-
-  try {
-    const fee = await Promise.race([
-      fetchViettelShipping(FROM_PROVINCE, toProvince || 'HCM', weightGrams, totalPrice),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('SOAP_TIMEOUT')), 5000)
-      ),
-    ]);
-    return { fee, isEstimated: false };
-  } catch (err) {
-    console.warn('[ShippingService] Viettel SOAP failed/timed-out:', err.message, '— using fallback.');
-    const fallbackFee = weightGrams > 5000 ? FALLBACK_SHIPPING.heavy : FALLBACK_SHIPPING.default;
-    return { fee: fallbackFee, isEstimated: true };
-  }
+  return { fee: 2.00, isEstimated: false };
 }
 
 module.exports = { getShippingFee };

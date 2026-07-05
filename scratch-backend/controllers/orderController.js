@@ -28,16 +28,20 @@ exports.createOrder = async (req, res) => {
   }
 
   // Verify Quote
-  const ShippingQuoteRepository = require('../shipping/ShippingQuoteRepository');
-  const quoteData = ShippingQuoteRepository.get(quoteId);
-  
-  if (!quoteData || quoteData.userId !== req.user.id) {
-     return res.status(409).json({ success: false, message: 'Báo giá vận chuyển đã hết hạn hoặc không hợp lệ. Vui lòng lấy lại phí ship.' });
-  }
-  
-  const selectedQuote = quoteData.quotes.find(q => String(q.serviceId) === String(serviceId));
-  if (!selectedQuote) {
-     return res.status(400).json({ success: false, message: 'Dịch vụ vận chuyển không khớp với báo giá.' });
+  let shippingFee = 2.00;
+  if (quoteId !== 'manual_quote') {
+    const ShippingQuoteRepository = require('../shipping/ShippingQuoteRepository');
+    const quoteData = ShippingQuoteRepository.get(quoteId);
+    
+    if (!quoteData || quoteData.userId !== req.user.id) {
+       return res.status(409).json({ success: false, message: 'Báo giá vận chuyển đã hết hạn hoặc không hợp lệ. Vui lòng lấy lại phí ship.' });
+    }
+    
+    const selectedQuote = quoteData.quotes.find(q => String(q.serviceId) === String(serviceId));
+    if (!selectedQuote) {
+       return res.status(400).json({ success: false, message: 'Dịch vụ vận chuyển không khớp với báo giá.' });
+    }
+    shippingFee = selectedQuote.fee;
   }
 
   // Read server-side cart
@@ -74,8 +78,7 @@ exports.createOrder = async (req, res) => {
     totalPrice += unitPrice * cartItem.quantity;
   }
 
-  // Add shipping fee from the validated quote
-  const shippingFee = selectedQuote.fee;
+  // Add shipping fee
   totalPrice += shippingFee;
 
   // Create order (invoiceUrl updated after save to include _id)

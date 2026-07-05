@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.tirtir_mcommerce.database.DatabaseHelper;
 import com.example.tirtir_mcommerce.model.CartItem;
+import com.example.tirtir_mcommerce.model.ApiResponse;
 import com.example.tirtir_mcommerce.network.ApiService;
 import com.example.tirtir_mcommerce.network.RetrofitClient;
 
@@ -213,5 +214,46 @@ public class CartRepository {
                         Log.w(TAG, "Cart quantity sync deferred: " + t.getMessage());
                     }
                 });
+    }
+
+    public void syncAllItemsToServer(Runnable onSuccess, Consumer<String> onError) {
+        List<CartItem> localItems = dbHelper.getCartItems();
+        if (localItems == null || localItems.isEmpty()) {
+            if (onSuccess != null) onSuccess.run();
+            return;
+        }
+
+        ApiService apiService = RetrofitClient.getAuthClient(context).create(ApiService.class);
+        
+        java.util.List<java.util.Map<String, Object>> itemsList = new java.util.ArrayList<>();
+        for (CartItem item : localItems) {
+            java.util.Map<String, Object> map = new java.util.HashMap<>();
+            map.put("productId", item.getProductId());
+            map.put("quantity", item.getQuantity());
+            map.put("shade", item.getShade() != null ? item.getShade() : "");
+            itemsList.add(map);
+        }
+        
+        java.util.Map<String, Object> body = new java.util.HashMap<>();
+        body.put("items", itemsList);
+
+        apiService.syncCart(body).enqueue(new Callback<ApiResponse<List<CartItem>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<CartItem>>> call, Response<ApiResponse<List<CartItem>>> response) {
+                if (response.isSuccessful()) {
+                    for (CartItem item : localItems) {
+                        dbHelper.markCartItemSynced(item.getProductId());
+                    }
+                    if (onSuccess != null) onSuccess.run();
+                } else {
+                    if (onError != null) onError.accept("HTTP " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<CartItem>>> call, Throwable t) {
+                if (onError != null) onError.accept(t.getMessage());
+            }
+        });
     }
 }

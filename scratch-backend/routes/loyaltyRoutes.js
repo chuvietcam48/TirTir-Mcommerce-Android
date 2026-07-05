@@ -9,5 +9,6 @@ router.post('/scan', protect, loyaltyController.scanBarcode);
 router.get('/vouchers', loyaltyController.getVouchersList);
 router.post('/redeem', protect, loyaltyController.redeemPoints);
 router.get('/wallet', protect, loyaltyController.getWallet);
+router.post('/claim-welcome', protect, loyaltyController.claimWelcomeVoucher);
 
 module.exports = router;

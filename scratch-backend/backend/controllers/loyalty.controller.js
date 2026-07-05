@@ -352,7 +352,10 @@ exports.getWallet = async (req, res, next) => {
         const vouchers = await Voucher.find({
             userId,
             isUsed: false,
-            validTo: { $gte: new Date() }
+            $or: [
+                { validTo: { $gte: new Date() } },
+                { expiryDate: { $gte: new Date() } }
+            ]
         }).sort({ createdAt: -1 });
 
         res.status(200).json({ success: true, count: vouchers.length, data: vouchers });
@@ -360,3 +363,69 @@ exports.getWallet = async (req, res, next) => {
         next(err);
     }
 };
+
+/**
+ * @desc    Claim welcome voucher for new users with 0 points
+ * @route   POST /api/v1/loyalty/claim-welcome
+ * @access  Private
+ */
+exports.claimWelcomeVoucher = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Check if welcome voucher already exists in database
+        const existing = await Voucher.findOne({ userId, code: 'WELCOME10' });
+        if (existing) {
+            return res.status(400).json({ success: false, message: 'Welcome voucher already claimed' });
+        }
+
+        const code = 'WELCOME10';
+        const discountPct = 15;
+        const validTo = new Date();
+        validTo.setDate(validTo.getDate() + 30); // 30 days validity
+
+        const voucher = await Voucher.create({
+            code,
+            voucherCode: code,
+            userId,
+            discountPct,
+            validTo,
+            expiryDate: validTo,
+            source: 'LoyaltyRedeem',
+            description: 'Exclusive 15% Off welcome voucher'
+        });
+
+        // Sync with Firestore
+        const firebaseUid = await findFirebaseUidByMongoUserId(userId);
+        if (firebaseUid && firebaseAdmin.isFirebaseEnabled()) {
+            const db = firebaseAdmin.getFirestore();
+            if (db) {
+                const userRef = db.collection('users').doc(firebaseUid);
+                // Add to firestore vouchers subcollection
+                await userRef.collection('vouchers').doc(code).set({
+                    code,
+                    discountPct,
+                    validTo: firebaseAdmin.getFirestore().Timestamp.fromDate(validTo),
+                    isUsed: false,
+                    createdAt: firebaseAdmin.getFirestore().FieldValue.serverTimestamp()
+                });
+            }
+        }
+
+        res.status(200).json({
+            success: true,
+            data: {
+                voucherCode: code,
+                discountPct
+            }
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
