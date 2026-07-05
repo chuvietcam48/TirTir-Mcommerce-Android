@@ -156,15 +156,32 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.Wishli
             // Format giá tiền
             tvPrice.setText(PriceUtils.formatPriceUsd(item.productPrice));
 
+            String nameLower = (item.productName == null ? "" : item.productName).toLowerCase(java.util.Locale.ENGLISH);
+            Object imageSource;
+            int fallbackDrawable = R.drawable.ic_product_placeholder;
+
+            if (nameLower.contains("gift card")) {
+                imageSource = R.drawable.giftcard;
+                fallbackDrawable = R.drawable.giftcard;
+            } else if (nameLower.contains("matcha calming cream")) {
+                imageSource = R.drawable.matcha_cream;
+                fallbackDrawable = R.drawable.matcha_cream;
+            } else if (nameLower.contains("hydro uv shield sunscreen") || nameLower.contains("hydro uv") || nameLower.contains("sunscreen")) {
+                imageSource = R.drawable.hydrosuncreen;
+                fallbackDrawable = R.drawable.hydrosuncreen;
+            } else {
+                imageSource = (item.productImage != null && !item.productImage.isEmpty()) ? resolveImageUrl(item.productImage) : null;
+            }
+
             // Load ảnh bằng Glide
-            if (item.productImage != null && !item.productImage.isEmpty()) {
+            if (imageSource != null) {
                 Glide.with(context)
-                        .load(resolveImageUrl(item.productImage))
-                        .placeholder(R.drawable.ic_product_placeholder)
-                        .error(R.drawable.ic_product_placeholder)
+                        .load(imageSource)
+                        .placeholder(fallbackDrawable)
+                        .error(fallbackDrawable)
                         .into(imgProduct);
             } else {
-                imgProduct.setImageResource(R.drawable.ic_product_placeholder);
+                imgProduct.setImageResource(fallbackDrawable);
             }
 
             // Xóa item

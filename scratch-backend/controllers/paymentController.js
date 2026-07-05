@@ -50,7 +50,7 @@ async function syncOrderToFirestore(order) {
 // ─── POST /api/v1/payments/arbitrate ────────────────────────────────────────
 exports.arbitrate = async (req, res) => {
   try {
-    const { shippingAddress, paymentMethod, voucherCode, toProvince } = req.body;
+    const { shippingAddress, paymentMethod, voucherCode, toProvince, quoteId, serviceId } = req.body;
 
     // 1. Validate required fields
     if (!shippingAddress?.fullName || !shippingAddress?.phone ||
@@ -86,11 +86,17 @@ exports.arbitrate = async (req, res) => {
     }
 
     // 4. Shipping via Viettel Post SOAP (5 s race)
-    const { fee: shippingFee, isEstimated: isEstimatedShipping } = await getShippingFee({
-      toProvince:  toProvince || shippingAddress.city,
-      weightGrams: 300 * cart.items.reduce((sum, i) => sum + i.quantity, 0),
-      totalPrice:  subtotal,
-    });
+    let shippingFee = 2.00;
+    let isEstimatedShipping = false;
+    if (quoteId !== 'manual_quote') {
+      const shippingResult = await getShippingFee({
+        toProvince:  toProvince || shippingAddress.city,
+        weightGrams: 300 * cart.items.reduce((sum, i) => sum + i.quantity, 0),
+        totalPrice:  subtotal,
+      });
+      shippingFee = shippingResult.fee;
+      isEstimatedShipping = shippingResult.isEstimated;
+    }
 
     // 5. Authoritative total calculation
     const tax         = subtotal * VAT_RATE;
@@ -136,7 +142,8 @@ exports.arbitrate = async (req, res) => {
     let paymentUrl = null;
     if (paymentMethod === 'VNPAY') {
       const ipAddr = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '127.0.0.1';
-      paymentUrl   = buildVnpayUrl(order._id, finalTotal, ipAddr, `TirTir Order ${order._id}`);
+      const amountVnd = finalTotal < 1000 ? finalTotal * 25000 : finalTotal;
+      paymentUrl   = buildVnpayUrl(order._id, amountVnd, ipAddr, `TirTir Order ${order._id}`);
     }
 
     return res.status(201).json({

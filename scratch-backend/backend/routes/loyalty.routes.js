@@ -6,7 +6,8 @@ const {
     scanBarcode, 
     getVouchersList, 
     redeemPoints, 
-    getWallet 
+    getWallet,
+    claimWelcomeVoucher
 } = require('../controllers/loyalty.controller');
 const { protect } = require('../middlewares/auth');
 
@@ -18,5 +19,6 @@ router.post('/scan', scanBarcode);
 router.get('/vouchers', getVouchersList);
 router.post('/redeem', redeemPoints);
 router.get('/wallet', getWallet);
+router.post('/claim-welcome', claimWelcomeVoucher);
 
 module.exports = router;

@@ -67,14 +67,34 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/checkout_shipping_address"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/tirtir_black_cover"
-                        android:layout_marginBottom="12dp" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/checkout_shipping_address"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/tirtir_black_cover" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSelectSavedAddress"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Use Saved Address"
+                            android:textColor="@color/tirtir_red_primary"
+                            android:visibility="gone"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:padding="0dp" />
+                    </LinearLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilFullName"
@@ -129,15 +149,15 @@
                             android:id="@+id/actvProvince"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="none" />
+                            android:inputType="text" />
                     </com.google.android.material.textfield.TextInputLayout>
-
+ 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginBottom="10dp">
-
+ 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/tilDistrict"
                             android:layout_width="0dp"
@@ -150,9 +170,9 @@
                                 android:id="@+id/actvDistrict"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:inputType="none" />
+                                android:inputType="text" />
                         </com.google.android.material.textfield.TextInputLayout>
-
+ 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/tilWard"
                             android:layout_width="0dp"
@@ -165,7 +185,7 @@
                                 android:id="@+id/actvWard"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:inputType="none" />
+                                android:inputType="text" />
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const voucherSchema = new mongoose.Schema({
-  code: { type: String, required: true, unique: true, uppercase: true, trim: true, index: true },
+  code: { type: String, required: true, uppercase: true, trim: true, index: true },
   voucherCode: { type: String, uppercase: true, trim: true }, // backward compatibility
   userId: { type: mongoose.Schema.Types.Mixed, required: true, index: true }, // accepts ObjectId or String uid
   discountPct: { type: Number, required: true, min: 1, max: 100 },

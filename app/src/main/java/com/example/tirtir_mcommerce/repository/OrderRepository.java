@@ -15,7 +15,9 @@ import com.example.tirtir_mcommerce.network.ApiConfig;
 import com.example.tirtir_mcommerce.network.RetrofitClient;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.function.Consumer;
+import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -109,9 +111,6 @@ public class OrderRepository {
     // GET ORDERS HISTORY
     // ===========================
 
-    /**
-     * Lấy danh sách đơn hàng của user hiện tại.
-     */
     public void getMyOrders(Consumer<List<OrderResponse>> onSuccess, Consumer<String> onError) {
         ApiService apiService = RetrofitClient.getAuthClient(context).create(ApiService.class);
 
@@ -119,16 +118,39 @@ public class OrderRepository {
             @Override
             public void onResponse(Call<ApiResponse<List<OrderResponse>>> call,
                                    Response<ApiResponse<List<OrderResponse>>> response) {
+                List<OrderResponse> merged = new ArrayList<>(new SharedPrefsManager(context).getLocalOrders());
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    onSuccess.accept(response.body().getData());
+                    List<OrderResponse> remote = response.body().getData();
+                    for (OrderResponse r : remote) {
+                        boolean exists = false;
+                        for (OrderResponse l : merged) {
+                            if (l.getId() != null && l.getId().equals(r.getId())) {
+                                exists = true;
+                                break;
+                            }
+                        }
+                        if (!exists) {
+                            merged.add(r);
+                        }
+                    }
+                    onSuccess.accept(merged);
                 } else {
-                    onError.accept("Unable to load order history.");
+                    if (!merged.isEmpty()) {
+                        onSuccess.accept(merged);
+                    } else {
+                        onError.accept("Unable to load order history.");
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponse<List<OrderResponse>>> call, Throwable t) {
-                onError.accept("Connection error. Please try again.");
+                List<OrderResponse> local = new SharedPrefsManager(context).getLocalOrders();
+                if (!local.isEmpty()) {
+                    onSuccess.accept(local);
+                } else {
+                    onError.accept("Connection error. Please try again.");
+                }
             }
         });
     }
