@@ -110,7 +110,7 @@ public class ShadeFinderFragment extends Fragment {
 
         // Price
         double displayPrice = top.getDisplayPrice();
-        tvTopMatchPrice.setText(displayPrice > 0 ? String.format("$%.2f", displayPrice) : "");
+        tvTopMatchPrice.setText(displayPrice > 0 ? PriceUtils.formatVnd(displayPrice) : "");
 
         // Shade swatch color
         String hex = top.getShadeHex() != null ? top.getShadeHex() : skinHex;

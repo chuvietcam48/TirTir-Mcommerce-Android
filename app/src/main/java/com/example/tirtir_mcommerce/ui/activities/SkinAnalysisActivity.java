@@ -1,6 +1,7 @@
 package com.example.tirtir_mcommerce.ui.activities;
 
 import android.Manifest;
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -115,11 +116,13 @@ public class SkinAnalysisActivity extends AppCompatActivity {
 
     // UI
     private MaterialButton captureButton;
+    private ValueAnimator buttonPulseAnimator;
     private TextView tvStatusGuide;
     private View liveMetricsPanel;
     private ProgressBar progressMoisture, progressRedness, progressPoresLive, progressEvenness;
     private OvalGuideView ovalGuide;
-    private TextView tvLightingWarning;
+    private View tvLightingWarning;
+    private TextView tvLightingWarningText;
 
     private final ActivityResultLauncher<String> cameraPermission =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
@@ -143,6 +146,7 @@ public class SkinAnalysisActivity extends AppCompatActivity {
         progressEvenness  = findViewById(R.id.progressEvenness);
         ovalGuide         = findViewById(R.id.ovalGuide);
         tvLightingWarning = findViewById(R.id.tvLightingWarning);
+        tvLightingWarningText = findViewById(R.id.tvLightingWarningText);
 
         findViewById(R.id.btnCloseSkinAnalysis).setOnClickListener(v -> finish());
         captureButton.setOnClickListener(v -> captureAndAnalyze());
@@ -412,8 +416,34 @@ public class SkinAnalysisActivity extends AppCompatActivity {
             if (!captureReady) {
                 captureReady = true;
                 captureButton.setEnabled(true);
+                startCaptureButtonPulse();
             }
         });
+    }
+
+    private void startCaptureButtonPulse() {
+        if (buttonPulseAnimator == null) {
+            buttonPulseAnimator = android.animation.ValueAnimator.ofFloat(1.0f, 1.05f);
+            buttonPulseAnimator.setDuration(800);
+            buttonPulseAnimator.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+            buttonPulseAnimator.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+            buttonPulseAnimator.addUpdateListener(animation -> {
+                float scale = (float) animation.getAnimatedValue();
+                captureButton.setScaleX(scale);
+                captureButton.setScaleY(scale);
+            });
+        }
+        if (!buttonPulseAnimator.isRunning()) {
+            buttonPulseAnimator.start();
+        }
+    }
+
+    private void stopCaptureButtonPulse() {
+        if (buttonPulseAnimator != null && buttonPulseAnimator.isRunning()) {
+            buttonPulseAnimator.cancel();
+            captureButton.setScaleX(1.0f);
+            captureButton.setScaleY(1.0f);
+        }
     }
 
     // ===========================
@@ -554,14 +584,35 @@ public class SkinAnalysisActivity extends AppCompatActivity {
             int h      = bottom - top;
             if (w <= 0 || h <= 0) { bitmap.recycle(); return null; }
 
-            // 5 điểm ROI (tỷ lệ tương đối trong bounding box)
-            int[][] roiOffsets = {
-                { left + w / 2, top + (int)(h * 0.15) },    // Forehead
-                { left + w / 2, top + (int)(h * 0.50) },    // Nose
-                { left + (int)(w * 0.20), top + (int)(h * 0.60) }, // Left Cheek
-                { left + (int)(w * 0.80), top + (int)(h * 0.60) }, // Right Cheek
-                { left + w / 2, top + (int)(h * 0.85) }     // Chin
-            };
+            int[][] roiOffsets = new int[5][2];
+            com.google.mlkit.vision.face.FaceLandmark leftCheek = face.getLandmark(com.google.mlkit.vision.face.FaceLandmark.LEFT_CHEEK);
+            com.google.mlkit.vision.face.FaceLandmark rightCheek = face.getLandmark(com.google.mlkit.vision.face.FaceLandmark.RIGHT_CHEEK);
+            com.google.mlkit.vision.face.FaceLandmark noseBase = face.getLandmark(com.google.mlkit.vision.face.FaceLandmark.NOSE_BASE);
+            com.google.mlkit.vision.face.FaceLandmark bottomMouth = face.getLandmark(com.google.mlkit.vision.face.FaceLandmark.MOUTH_BOTTOM);
+            com.google.mlkit.vision.face.FaceLandmark leftEye = face.getLandmark(com.google.mlkit.vision.face.FaceLandmark.LEFT_EYE);
+            com.google.mlkit.vision.face.FaceLandmark rightEye = face.getLandmark(com.google.mlkit.vision.face.FaceLandmark.RIGHT_EYE);
+
+            if (leftCheek != null && rightCheek != null && noseBase != null && bottomMouth != null && leftEye != null && rightEye != null) {
+                int eyeCenterY = (int) ((leftEye.getPosition().y + rightEye.getPosition().y) / 2);
+                int eyeCenterX = (int) ((leftEye.getPosition().x + rightEye.getPosition().x) / 2);
+                int noseY = (int) noseBase.getPosition().y;
+                int foreheadY = Math.max(top, eyeCenterY - (noseY - eyeCenterY)); 
+                
+                int chinY = (int) bottomMouth.getPosition().y + ((int)bottomMouth.getPosition().y - noseY) / 2;
+                chinY = Math.min(bottom, chinY);
+
+                roiOffsets[0] = new int[] { eyeCenterX, foreheadY }; // Forehead
+                roiOffsets[1] = new int[] { (int) noseBase.getPosition().x, (int) noseBase.getPosition().y - (int)(h * 0.05) }; // Nose (slightly higher than base)
+                roiOffsets[2] = new int[] { (int) leftCheek.getPosition().x, (int) leftCheek.getPosition().y }; // Left Cheek
+                roiOffsets[3] = new int[] { (int) rightCheek.getPosition().x, (int) rightCheek.getPosition().y }; // Right Cheek
+                roiOffsets[4] = new int[] { (int) bottomMouth.getPosition().x, chinY }; // Chin
+            } else {
+                roiOffsets[0] = new int[] { left + w / 2, top + (int)(h * 0.15) };
+                roiOffsets[1] = new int[] { left + w / 2, top + (int)(h * 0.50) };
+                roiOffsets[2] = new int[] { left + (int)(w * 0.20), top + (int)(h * 0.60) };
+                roiOffsets[3] = new int[] { left + (int)(w * 0.80), top + (int)(h * 0.60) };
+                roiOffsets[4] = new int[] { left + w / 2, top + (int)(h * 0.85) };
+            }
 
             float sumR = 0, sumG = 0, sumB = 0;
             int validPoints = 0;
@@ -782,6 +833,7 @@ public class SkinAnalysisActivity extends AppCompatActivity {
             if (!ready) {
                 captureReady = false;
                 captureButton.setEnabled(false);
+                stopCaptureButtonPulse();
                 liveMetricsPanel.setVisibility(View.INVISIBLE);
             }
         });
@@ -795,8 +847,8 @@ public class SkinAnalysisActivity extends AppCompatActivity {
 
     private void showLightingWarning(String message) {
         runOnUiThread(() -> {
-            if (tvLightingWarning != null) {
-                tvLightingWarning.setText(message);
+            if (tvLightingWarning != null && tvLightingWarningText != null) {
+                tvLightingWarningText.setText(message);
                 tvLightingWarning.setVisibility(View.VISIBLE);
             }
         });
@@ -1001,7 +1053,7 @@ public class SkinAnalysisActivity extends AppCompatActivity {
             r.setProductName(shade[4]);
             r.setPrice(Double.parseDouble(shade[5]));
             r.setSalePrice(0);
-            r.setImageUrl("https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg");
+            r.setImageUrl("https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Cushion");
             results.add(r);
         }
         return results;
@@ -1090,6 +1142,7 @@ public class SkinAnalysisActivity extends AppCompatActivity {
 
     private void setAnalyzing(boolean analyzing) {
         if (captureButton != null) {
+            if (analyzing) stopCaptureButtonPulse();
             captureButton.setEnabled(!analyzing && captureReady);
             captureButton.setText(analyzing ? "Analyzing..." : "Capture & Analyze");
         }

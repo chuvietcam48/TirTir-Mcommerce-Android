@@ -1,10 +1,14 @@
 const admin = require('firebase-admin');
 
-// Ensure bucket is initialized
-const bucket = admin.storage().bucket();
-
 exports.uploadImage = async (req, res) => {
   try {
+    // Ensure bucket is initialized lazily
+    let bucket;
+    try {
+        bucket = admin.storage().bucket();
+    } catch (e) {
+        return res.status(500).json({ success: false, message: 'Firebase Storage is not configured properly.' });
+    }
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'Vui lòng chọn một file ảnh.' });
     }

@@ -56,10 +56,12 @@ app.use('/api/v1/admin', require('./routes/adminRoutes'));
 app.use('/api/v1/tracking', require('./routes/trackingRoutes'));
 app.use('/api/v1/routines', require('./routes/routineRoutes'));
 app.use('/api/routines', require('./routes/routineRoutes'));
+app.use('/api/v1/shades', require('./backend/routes/shade.routes'));
 
 app.use('/api/v1/loyalty', require('./routes/loyaltyRoutes'));
 app.use('/api/loyalty', require('./routes/loyaltyRoutes'));
 app.use('/api/v1/payments', require('./routes/paymentRoutes'));
+app.use('/api/v1/marketing', require('./routes/marketingRoutes'));
 app.use('/soap', require('./shipping/ShippingSoapRouter'));
 app.use('/api/shipping', require('./shipping/ShippingSoapRouter'));
 

@@ -101,7 +101,7 @@ public class CushionMatchAdapter extends RecyclerView.Adapter<CushionMatchAdapte
         void bind(CushionMatch item) {
             name.setText(item.name);
             shade.setText("Shade: " + (item.shadeName != null ? item.shadeName : "—"));
-            price.setText(String.format("$%.2f", item.price));
+            price.setText(com.example.tirtir_mcommerce.utils.PriceUtils.formatVnd(item.price));
             quality.setText(item.matchPercent + "% — " + item.quality);
             try {
                 swatch.setBackgroundColor(Color.parseColor(item.shadeHex));

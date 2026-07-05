@@ -16,10 +16,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardBackgroundColor="@color/tirtir_white"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="3dp"
-            app:strokeColor="@color/tirtir_red_surface"
-            app:strokeWidth="1dp">
+            app:cardCornerRadius="24dp"
+            app:cardElevation="8dp"
+            app:strokeWidth="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -42,12 +41,13 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
-                    <ImageView
+                    <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/imgTopMatchProduct"
                         android:layout_width="80dp"
                         android:layout_height="80dp"
                         android:scaleType="centerCrop"
-                        android:background="@color/tirtir_off_white" />
+                        android:background="@color/tirtir_off_white"
+                        app:shapeAppearanceOverlay="@style/CornerRadius16" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -78,20 +78,21 @@
                             android:id="@+id/tvTopMatchPrice"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="6dp"
                             android:text="$0.00"
-                            android:textColor="@color/tirtir_red_primary"
-                            android:textSize="15sp"
+                            android:textColor="@color/tirtir_black"
+                            android:textSize="16sp"
                             android:textStyle="bold" />
 
                         <!-- Match Percentage Badge -->
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:background="@drawable/bg_tag_primary"
-                            android:paddingHorizontal="10dp"
-                            android:paddingVertical="4dp">
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/bg_tag_premium"
+                            android:backgroundTint="@color/tirtir_black"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="6dp">
 
                             <TextView
                                 android:id="@+id/tvTopMatchPercent"
@@ -107,21 +108,24 @@
                     <!-- Shade Color Swatch -->
                     <View
                         android:id="@+id/viewTopMatchSwatch"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:background="@drawable/bg_shade_swatch"
-                        android:layout_marginStart="8dp" />
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="@drawable/bg_shade_swatch_rounded"
+                        android:layout_marginStart="12dp"
+                        android:elevation="4dp" />
                 </LinearLayout>
 
                 <!-- Add to Cart Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnTopMatchAddToCart"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="16dp"
                     android:text="Add to Cart"
-                    app:backgroundTint="@color/tirtir_red_primary"
-                    app:cornerRadius="8dp" />
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/tirtir_black"
+                    app:cornerRadius="28dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

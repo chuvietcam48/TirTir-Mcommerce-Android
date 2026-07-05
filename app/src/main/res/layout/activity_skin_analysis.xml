@@ -40,36 +40,51 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/tirtir_white" />
 
-    <!-- Lighting Warning Panel (ẩn mặc định) -->
-    <TextView
+    <!-- Lighting Warning Panel -->
+    <LinearLayout
         android:id="@+id/tvLightingWarning"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="60dp"
         android:background="@drawable/bg_camera_panel"
-        android:backgroundTint="#E6FFA000"
+        android:backgroundTint="#D9000000"
         android:gravity="center"
+        android:orientation="horizontal"
         android:paddingStart="20dp"
-        android:paddingTop="10dp"
+        android:paddingTop="12dp"
         android:paddingEnd="20dp"
-        android:paddingBottom="10dp"
-        android:text=""
-        android:textColor="#FFFFFF"
-        android:textSize="13sp"
-        android:textStyle="bold"
+        android:paddingBottom="12dp"
         android:visibility="gone"
-        android:elevation="10dp"
+        android:elevation="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+        
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@android:drawable/ic_dialog_alert"
+            app:tint="#FFC107"
+            android:layout_marginEnd="8dp"/>
+            
+        <TextView
+            android:id="@+id/tvLightingWarningText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Warning"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
-    <!-- Dynamic Status Guide (thay thế text tĩnh cũ) -->
+    <!-- Dynamic Status Guide -->
     <TextView
         android:id="@+id/tvStatusGuide"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/bg_camera_panel"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/bg_rounded_solid"
+        android:backgroundTint="#B3000000"
         android:gravity="center"
         android:paddingStart="24dp"
         android:paddingTop="12dp"
@@ -85,19 +100,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Live Metrics Panel — 4 chỉ số realtime -->
+    <!-- Live Metrics Panel — Modern Look -->
     <LinearLayout
         android:id="@+id/liveMetricsPanel"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/bg_camera_panel"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/bg_rounded_solid"
+        android:backgroundTint="#B3000000"
         android:orientation="vertical"
-        android:padding="16dp"
+        android:padding="20dp"
         android:visibility="invisible"
-        android:elevation="8dp"
+        android:elevation="12dp"
         app:layout_constraintBottom_toTopOf="@id/btnCaptureSkin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -120,18 +136,19 @@
                     android:layout_height="wrap_content"
                     android:text="💧 Moisture"
                     android:textColor="@color/tirtir_white"
-                    android:textSize="12sp"
+                    android:textSize="13sp"
                     android:textStyle="bold" />
 
                 <ProgressBar
                     android:id="@+id/progressMoisture"
                     style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="8dp"
-                    android:layout_marginTop="6dp"
+                    android:layout_height="6dp"
+                    android:layout_marginTop="8dp"
+                    android:progressDrawable="@drawable/bg_progress_bar_rounded"
                     android:max="100"
                     android:progress="0"
-                    android:progressTint="@color/tirtir_info" />
+                    android:progressTint="#64B5F6" />
             </LinearLayout>
 
             <LinearLayout
@@ -146,18 +163,19 @@
                     android:layout_height="wrap_content"
                     android:text="🔴 Redness"
                     android:textColor="@color/tirtir_white"
-                    android:textSize="12sp"
+                    android:textSize="13sp"
                     android:textStyle="bold" />
 
                 <ProgressBar
                     android:id="@+id/progressRedness"
                     style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="8dp"
-                    android:layout_marginTop="6dp"
+                    android:layout_height="6dp"
+                    android:layout_marginTop="8dp"
+                    android:progressDrawable="@drawable/bg_progress_bar_rounded"
                     android:max="100"
                     android:progress="0"
-                    android:progressTint="@color/tirtir_red_primary" />
+                    android:progressTint="#E57373" />
             </LinearLayout>
         </LinearLayout>
 
@@ -165,7 +183,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="20dp"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -180,18 +198,19 @@
                     android:layout_height="wrap_content"
                     android:text="⬤ Pores"
                     android:textColor="@color/tirtir_white"
-                    android:textSize="12sp"
+                    android:textSize="13sp"
                     android:textStyle="bold" />
 
                 <ProgressBar
                     android:id="@+id/progressPoresLive"
                     style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="8dp"
-                    android:layout_marginTop="6dp"
+                    android:layout_height="6dp"
+                    android:layout_marginTop="8dp"
+                    android:progressDrawable="@drawable/bg_progress_bar_rounded"
                     android:max="100"
                     android:progress="0"
-                    android:progressTint="@color/tirtir_warning" />
+                    android:progressTint="#FFB74D" />
             </LinearLayout>
 
             <LinearLayout
@@ -206,42 +225,43 @@
                     android:layout_height="wrap_content"
                     android:text="✨ Evenness"
                     android:textColor="@color/tirtir_white"
-                    android:textSize="12sp"
+                    android:textSize="13sp"
                     android:textStyle="bold" />
 
                 <ProgressBar
                     android:id="@+id/progressEvenness"
                     style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="8dp"
-                    android:layout_marginTop="6dp"
+                    android:layout_height="6dp"
+                    android:layout_marginTop="8dp"
+                    android:progressDrawable="@drawable/bg_progress_bar_rounded"
                     android:max="100"
                     android:progress="0"
-                    android:progressTint="@color/tirtir_red_primary" />
+                    android:progressTint="#81C784" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Capture Button -->
+    <!-- Premium Pill Capture Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCaptureSkin"
         android:layout_width="0dp"
         android:layout_height="64dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
         android:layout_marginBottom="32dp"
         android:text="Capture &amp; Analyze"
         android:textColor="@color/tirtir_white"
-        android:textSize="18sp"
+        android:textSize="17sp"
         android:textStyle="bold"
-        android:letterSpacing="0.03"
+        android:letterSpacing="0.02"
         android:elevation="12dp"
         app:backgroundTint="@color/tirtir_red_primary"
         app:cornerRadius="32dp"
         app:icon="@drawable/ic_skin"
         app:iconTint="@color/tirtir_white"
-        app:iconSize="24dp"
-        app:iconPadding="12dp"
+        app:iconSize="22dp"
+        app:iconPadding="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

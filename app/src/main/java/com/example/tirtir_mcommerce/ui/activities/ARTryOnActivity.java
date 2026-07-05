@@ -335,7 +335,7 @@ public class ARTryOnActivity extends AppCompatActivity {
                     fos.flush();
                     fos.close();
                     
-                    android.net.Uri uri = androidx.core.content.FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
+                    android.net.Uri uri = androidx.core.content.FileProvider.getUriForFile(this, "com.example.tirtir_mcommerce.fileprovider", file);
                     android.content.Intent shareIntent = new android.content.Intent(android.content.Intent.ACTION_SEND);
                     shareIntent.setType("image/png");
                     shareIntent.putExtra(android.content.Intent.EXTRA_STREAM, uri);

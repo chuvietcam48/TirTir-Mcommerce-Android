@@ -448,15 +448,15 @@ public class SkinResultActivity extends AppCompatActivity {
         // {shadeName, hex, matchScore, productName, price, imageUrl, productId}
         String[][] shades = {
             {"21N Ivory", "#ebc5a1", "3.2", "Mask Fit Red Cushion", "35.00",
-                    "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg", "cushion-21n"},
+                    "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product", "cushion-21n"},
             {"23N Sand", "#ebbf98", "6.5", "Mask Fit Red Cushion", "35.00",
-                    "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg", "cushion-23n"},
+                    "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product", "cushion-23n"},
             {"24N Latte", "#e4b58e", "8.0", "Mask Fit Aura Cushion", "38.00",
-                    "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Aura-Cushion.jpg", "cushion-24n"},
+                    "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product", "cushion-24n"},
             {"27N Camel", "#e5b98b", "11.0", "Mask Fit Red Cushion", "35.00",
-                    "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg", "cushion-27n"},
+                    "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product", "cushion-27n"},
             {"33N Macchiato", "#d3a177", "15.0", "Mask Fit All-Cover Cushion", "36.00",
-                    "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-All-Cover-Cushion.jpg", "cushion-33n"}
+                    "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product", "cushion-33n"}
         };
         for (String[] shade : shades) {
             ShadeMatchResult r = new ShadeMatchResult();
@@ -493,23 +493,23 @@ public class SkinResultActivity extends AppCompatActivity {
             {"1", "Cleanser", "Hydro Boost Enzyme Cleansing Balm",
                     "Gentle cleansing is essential for " + skinType + " skin to remove impurities without over-stripping.",
                     "3", "2", "25.00",
-                    "https://tirtir.vn/wp-content/uploads/2024/05/Hydro-Boost-Enzyme-Cleansing-Balm.jpg"},
+                    "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product"},
             {"2", "Toner", "Matcha Skin Toner",
                     "Rebalances skin pH and prepares " + skinType + " skin for better absorption of subsequent products.",
                     "5", "3", "22.00",
-                    "https://tirtir.vn/wp-content/uploads/2024/05/Matcha-Skin-Toner.jpg"},
+                    "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product"},
             {"3", "Serum", "Matcha Calming Duo Set",
                     "Targets concerns with concentrated active ingredients.",
                     "7", "4", "45.00",
-                    "https://tirtir.vn/wp-content/uploads/2024/05/Matcha-Calming-Duo-Set.jpg"},
+                    "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product"},
             {"4", "Cream", "Matcha Calming Cream",
                     "Locks in moisture and creates a protective barrier suited for " + skinType + " skin.",
                     "8", "3", "28.00",
-                    "https://tirtir.vn/wp-content/uploads/2024/05/Matcha-Calming-Cream.jpg"},
+                    "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product"},
             {"5", "Cushion", "Tirtir Mask Fit Red Cushion",
                     "Provides coverage and sun protection while giving a natural, dewy finish.",
                     "4", "2", "35.00",
-                    "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg"}
+                    "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product"}
         };
         for (String[] data : routineData) {
             RoutineStep step = new RoutineStep();

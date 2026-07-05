@@ -23,6 +23,7 @@ public class ShadeMatchResult {
     @SerializedName(value="price", alternate={"Price"})
     private double price;
     
+    @SerializedName(value="salePrice", alternate={"Sale_Price"})
     private double salePrice;
     
     @SerializedName(value="shadeHex", alternate={"Hex_Code"})

@@ -33,16 +33,16 @@ exports.getProducts = async (req, res) => {
   let products = await Product.find(filter).sort(sortQuery).skip(skip).limit(limit).lean();
   
   // Fix CDN URLs
-  const cdnBase = process.env.CDN_BASE_URL || 'https://tirtir.vn/wp-content/uploads/2024/';
+  const cdnBase = process.env.CDN_BASE_URL || 'https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product';
   products = products.map(p => {
     if (p.Thumbnail_Images && !p.Thumbnail_Images.startsWith('http')) {
-      p.Thumbnail_Images = cdnBase + p.Thumbnail_Images;
+      p.Thumbnail_Images = cdnBase;
     }
     if (p.Description_Images && Array.isArray(p.Description_Images)) {
-      p.Description_Images = p.Description_Images.map(img => img.startsWith('http') ? img : cdnBase + img);
+      p.Description_Images = p.Description_Images.map(img => img.startsWith('http') ? img : cdnBase);
     }
     if (p.Gallery_Images && Array.isArray(p.Gallery_Images)) {
-      p.Gallery_Images = p.Gallery_Images.map(img => img.startsWith('http') ? img : cdnBase + img);
+      p.Gallery_Images = p.Gallery_Images.map(img => img.startsWith('http') ? img : cdnBase);
     }
     return p;
   });
@@ -71,15 +71,15 @@ exports.getProductById = async (req, res) => {
     return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm.' });
   }
 
-  const cdnBase = process.env.CDN_BASE_URL || 'https://tirtir.vn/wp-content/uploads/2024/';
+  const cdnBase = process.env.CDN_BASE_URL || 'https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product';
   if (product.Thumbnail_Images && !product.Thumbnail_Images.startsWith('http')) {
-    product.Thumbnail_Images = cdnBase + product.Thumbnail_Images;
+    product.Thumbnail_Images = cdnBase;
   }
   if (product.Description_Images && Array.isArray(product.Description_Images)) {
-    product.Description_Images = product.Description_Images.map(img => img.startsWith('http') ? img : cdnBase + img);
+    product.Description_Images = product.Description_Images.map(img => img.startsWith('http') ? img : cdnBase);
   }
   if (product.Gallery_Images && Array.isArray(product.Gallery_Images)) {
-    product.Gallery_Images = product.Gallery_Images.map(img => img.startsWith('http') ? img : cdnBase + img);
+    product.Gallery_Images = product.Gallery_Images.map(img => img.startsWith('http') ? img : cdnBase);
   }
 
   res.status(200).json({ success: true, data: product });
@@ -100,16 +100,16 @@ exports.matchCushion = async (req, res) => {
 
   // Full TirTir Cushion Shade Dataset (hardcoded fallback khi DB không có shade_color_hex)
   const shadeDataset = [
-    { code: "17C", name: "17C Porcelain", hex: "#f9d9c2", productName: "Mask Fit Red Cushion", price: 35.00, imageUrl: "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg" },
-    { code: "21N", name: "21N Ivory", hex: "#ebc5a1", productName: "Mask Fit Red Cushion", price: 35.00, imageUrl: "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg" },
-    { code: "23N", name: "23N Sand", hex: "#ebbf98", productName: "Mask Fit Red Cushion", price: 35.00, imageUrl: "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg" },
-    { code: "24N", name: "24N Latte", hex: "#e4b58e", productName: "Mask Fit Aura Cushion", price: 38.00, imageUrl: "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Aura-Cushion.jpg" },
-    { code: "25N", name: "25N Mocha", hex: "#d9ab82", productName: "Mask Fit All-Cover Cushion", price: 36.00, imageUrl: "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-All-Cover-Cushion.jpg" },
-    { code: "27N", name: "27N Camel", hex: "#e5b98b", productName: "Mask Fit Red Cushion", price: 35.00, imageUrl: "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg" },
-    { code: "30N", name: "30N Honey", hex: "#d8a178", productName: "Mask Fit Aura Cushion", price: 38.00, imageUrl: "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Aura-Cushion.jpg" },
-    { code: "33N", name: "33N Macchiato", hex: "#d3a177", productName: "Mask Fit All-Cover Cushion", price: 36.00, imageUrl: "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-All-Cover-Cushion.jpg" },
-    { code: "37N", name: "37N Walnut", hex: "#b88a5e", productName: "Mask Fit All-Cover Cushion", price: 36.00, imageUrl: "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-All-Cover-Cushion.jpg" },
-    { code: "43N", name: "43N Deep Cocoa", hex: "#a36a42", productName: "Mask Fit Red Cushion", price: 35.00, imageUrl: "https://tirtir.vn/wp-content/uploads/2024/05/Mask-Fit-Red-Cushion.jpg" }
+    { code: "17C", name: "17C Porcelain", hex: "#f9d9c2", productName: "Mask Fit Red Cushion", price: 35.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
+    { code: "21N", name: "21N Ivory", hex: "#ebc5a1", productName: "Mask Fit Red Cushion", price: 35.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
+    { code: "23N", name: "23N Sand", hex: "#ebbf98", productName: "Mask Fit Red Cushion", price: 35.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
+    { code: "24N", name: "24N Latte", hex: "#e4b58e", productName: "Mask Fit Aura Cushion", price: 38.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
+    { code: "25N", name: "25N Mocha", hex: "#d9ab82", productName: "Mask Fit All-Cover Cushion", price: 36.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
+    { code: "27N", name: "27N Camel", hex: "#e5b98b", productName: "Mask Fit Red Cushion", price: 35.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
+    { code: "30N", name: "30N Honey", hex: "#d8a178", productName: "Mask Fit Aura Cushion", price: 38.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
+    { code: "33N", name: "33N Macchiato", hex: "#d3a177", productName: "Mask Fit All-Cover Cushion", price: 36.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
+    { code: "37N", name: "37N Walnut", hex: "#b88a5e", productName: "Mask Fit All-Cover Cushion", price: 36.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
+    { code: "43N", name: "43N Deep Cocoa", hex: "#a36a42", productName: "Mask Fit Red Cushion", price: 35.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" }
   ];
 
   // Try fetching real products from MongoDB first
@@ -121,7 +121,7 @@ exports.matchCushion = async (req, res) => {
     }).select('Product_ID Name Price Sale_Price Thumbnail_Images Category shade_color_hex').lean();
 
     if (products && products.length > 0) {
-      const cdnBase = process.env.CDN_BASE_URL || 'https://tirtir.vn/wp-content/uploads/2024/';
+      const cdnBase = process.env.CDN_BASE_URL || 'https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product';
       results = products.map(p => {
         const prodRgb = hexToRgb(p.shade_color_hex);
         let deltaE = 999;
@@ -130,7 +130,7 @@ exports.matchCushion = async (req, res) => {
           deltaE = calculateDeltaE(userLab, prodLab);
         }
         let imgUrl = p.Thumbnail_Images || '';
-        if (imgUrl && !imgUrl.startsWith('http')) imgUrl = cdnBase + imgUrl;
+        if (imgUrl && !imgUrl.startsWith('http')) imgUrl = cdnBase;
 
         return {
           Product_ID: p.Product_ID || p._id.toString(),

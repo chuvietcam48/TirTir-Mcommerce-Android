@@ -57,4 +57,15 @@ router.get('/marketing/overview', getMarketingOverview);
 // POST /api/v1/admin/marketing/campaigns
 router.post('/marketing/campaigns', createCampaign);
 
+const { getCartRecoveryStats, getChurnList, sendVoucher } = require('../controllers/adminStatsController');
+
+// GET /api/v1/admin/stats/cart-recovery
+router.get('/stats/cart-recovery', getCartRecoveryStats);
+
+// GET /api/v1/admin/churn
+router.get('/churn', getChurnList);
+
+// POST /api/v1/admin/churn/send-voucher
+router.post('/churn/send-voucher', sendVoucher);
+
 module.exports = router;
