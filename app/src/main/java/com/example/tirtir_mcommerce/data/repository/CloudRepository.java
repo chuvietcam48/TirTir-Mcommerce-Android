@@ -61,29 +61,36 @@ public class CloudRepository {
     public void ensureFirebaseUser(String email, String password, AuthCallback callback) {
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         if (email != null && !email.trim().isEmpty() && password != null && !password.trim().isEmpty()) {
-            firebaseAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && firebaseAuth.getCurrentUser() != null) {
-                            String uid = firebaseAuth.getCurrentUser().getUid();
-                            prefsManager.saveFirebaseUid(uid);
-                            Log.d(TAG, "Firebase Email Sign-in Successful. UID: " + uid);
-                            if (callback != null) callback.onComplete(uid);
-                        } else {
-                            // If user doesn't exist, try to create one
-                            firebaseAuth.createUserWithEmailAndPassword(email, password)
-                                    .addOnCompleteListener(createTask -> {
-                                        if (createTask.isSuccessful() && firebaseAuth.getCurrentUser() != null) {
-                                            String uid = firebaseAuth.getCurrentUser().getUid();
-                                            prefsManager.saveFirebaseUid(uid);
-                                            Log.d(TAG, "Firebase Email Registration Successful. UID: " + uid);
-                                            if (callback != null) callback.onComplete(uid);
-                                        } else {
-                                            Log.e(TAG, "Firebase Email Auth failed, falling back to anonymous", createTask.getException());
-                                            signInAnonymously(callback);
-                                        }
-                                    });
-                        }
-                    });
+            if (currentUser != null && email.equalsIgnoreCase(currentUser.getEmail())) {
+                String uid = currentUser.getUid();
+                prefsManager.saveFirebaseUid(uid);
+                Log.d(TAG, "Firebase session already active for email: " + email + ". Reusing UID: " + uid);
+                if (callback != null) callback.onComplete(uid);
+            } else {
+                firebaseAuth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful() && firebaseAuth.getCurrentUser() != null) {
+                                String uid = firebaseAuth.getCurrentUser().getUid();
+                                prefsManager.saveFirebaseUid(uid);
+                                Log.d(TAG, "Firebase Email Sign-in Successful. UID: " + uid);
+                                if (callback != null) callback.onComplete(uid);
+                            } else {
+                                // If user doesn't exist, try to create one
+                                firebaseAuth.createUserWithEmailAndPassword(email, password)
+                                        .addOnCompleteListener(createTask -> {
+                                            if (createTask.isSuccessful() && firebaseAuth.getCurrentUser() != null) {
+                                                String uid = firebaseAuth.getCurrentUser().getUid();
+                                                prefsManager.saveFirebaseUid(uid);
+                                                Log.d(TAG, "Firebase Email Registration Successful. UID: " + uid);
+                                                if (callback != null) callback.onComplete(uid);
+                                            } else {
+                                                Log.e(TAG, "Firebase Email Auth failed, falling back to anonymous", createTask.getException());
+                                                signInAnonymously(callback);
+                                            }
+                                        });
+                            }
+                        });
+            }
         } else if (currentUser != null) {
             String uid = currentUser.getUid();
             prefsManager.saveFirebaseUid(uid);
@@ -143,7 +150,7 @@ public class CloudRepository {
             data.put("skinType", null);
             data.put("knownAllergies", new ArrayList<String>());
             data.put("loyaltyPoints", 0);
-            data.put("loyaltyTier", "silver");
+            data.put("loyaltyTier", "Bronze");
             data.put("createdAt", FieldValue.serverTimestamp());
             data.put("updatedAt", FieldValue.serverTimestamp());
             data.put("lastLoginAt", FieldValue.serverTimestamp());

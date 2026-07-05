@@ -41,7 +41,6 @@
             android:paddingEnd="12dp"
             android:paddingBottom="166dp" />
 
-<<<<<<< Updated upstream
             <LinearLayout
                 android:id="@+id/layoutChatEmpty"
             android:layout_width="match_parent"
@@ -92,8 +91,6 @@
 
         </LinearLayout>
 
-=======
->>>>>>> Stashed changes
         <HorizontalScrollView
             android:id="@+id/layoutChatQuickPrompts"
             android:layout_width="match_parent"

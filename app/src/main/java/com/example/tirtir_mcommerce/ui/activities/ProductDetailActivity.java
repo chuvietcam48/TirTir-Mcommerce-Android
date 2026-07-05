@@ -809,8 +809,12 @@ public class ProductDetailActivity extends AppCompatActivity {
     private int resolveProductFallback() {
         String value = ((productName == null ? "" : productName) + " "
                 + (productCategory == null ? "" : productCategory)).toLowerCase(java.util.Locale.ENGLISH);
-        if (value.contains("gift card")) return R.drawable.tirtir_gift_card;
+        if (value.contains("gift card")) return R.drawable.giftcard;
+        if (value.contains("matcha calming cream")) return R.drawable.matcha_cream;
         if (value.contains("matcha")) return R.drawable.tirtir_matcha_set;
+        if (value.contains("hydro uv shield sunscreen") || value.contains("hydro uv") || value.contains("sunscreen")) {
+            return R.drawable.hydrosuncreen;
+        }
         return R.drawable.ic_product_placeholder;
     }
 
@@ -836,15 +840,41 @@ public class ProductDetailActivity extends AppCompatActivity {
         if (ivStatic != null) ivStatic.setVisibility(android.view.View.GONE);
 
         java.util.List<String> imagesToDisplay = new java.util.ArrayList<>();
-        // Thumbnail (main product image) always first so the customer recognises it immediately
-        if (productImage != null && !productImage.isEmpty()) {
-            imagesToDisplay.add(productImage);
-        }
-        // Append gallery images that aren't already the thumbnail
-        if (galleryImages != null) {
-            for (String img : galleryImages) {
-                if (img != null && !img.isEmpty() && !img.equals(productImage)) {
-                    imagesToDisplay.add(img);
+        String nameLower = (productName == null ? "" : productName).toLowerCase(java.util.Locale.ENGLISH);
+        String catLower  = (productCategory == null ? "" : productCategory).toLowerCase(java.util.Locale.ENGLISH);
+
+        if (nameLower.contains("gift card") || catLower.contains("gift card")) {
+            String pkg = getPackageName();
+            imagesToDisplay.add("android.resource://" + pkg + "/" + R.drawable.giftcard);
+            imagesToDisplay.add("android.resource://" + pkg + "/" + R.drawable.giftcard_1);
+            imagesToDisplay.add("android.resource://" + pkg + "/" + R.drawable.giftcard_2);
+            imagesToDisplay.add("android.resource://" + pkg + "/" + R.drawable.giftcard_3);
+            imagesToDisplay.add("android.resource://" + pkg + "/" + R.drawable.giftcard_4);
+        } else if (nameLower.contains("matcha calming cream")) {
+            String pkg = getPackageName();
+            imagesToDisplay.add("android.resource://" + pkg + "/" + R.drawable.matcha_cream);
+            imagesToDisplay.add("android.resource://" + pkg + "/" + R.drawable.matcha_cream_1);
+            imagesToDisplay.add("android.resource://" + pkg + "/" + R.drawable.matcha_cream_2);
+            imagesToDisplay.add("android.resource://" + pkg + "/" + R.drawable.matcha_cream_3);
+            imagesToDisplay.add("android.resource://" + pkg + "/" + R.drawable.matcha_cream_4);
+            imagesToDisplay.add("android.resource://" + pkg + "/" + R.drawable.matcha_cream_5);
+        } else if (nameLower.contains("hydro uv shield sunscreen") || nameLower.contains("hydro uv") || nameLower.contains("sunscreen")) {
+            String pkg = getPackageName();
+            imagesToDisplay.add("android.resource://" + pkg + "/" + R.drawable.hydrosuncreen);
+            imagesToDisplay.add("android.resource://" + pkg + "/" + R.drawable.hydrosuncreen_1);
+            imagesToDisplay.add("android.resource://" + pkg + "/" + R.drawable.hydrosuncreen_2);
+            imagesToDisplay.add("android.resource://" + pkg + "/" + R.drawable.hydrosuncreen_3);
+        } else {
+            // Thumbnail (main product image) always first so the customer recognises it immediately
+            if (productImage != null && !productImage.isEmpty()) {
+                imagesToDisplay.add(productImage);
+            }
+            // Append gallery images that aren't already the thumbnail
+            if (galleryImages != null) {
+                for (String img : galleryImages) {
+                    if (img != null && !img.isEmpty() && !img.equals(productImage)) {
+                        imagesToDisplay.add(img);
+                    }
                 }
             }
         }
@@ -941,6 +971,9 @@ public class ProductDetailActivity extends AppCompatActivity {
     }
 
     private String buildImageUrl(String path) {
+        if (path != null && path.startsWith("android.resource://")) {
+            return path; // Local drawable URI — pass through unchanged
+        }
         return com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(path);
     }
 

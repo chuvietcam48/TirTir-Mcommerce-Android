@@ -14,17 +14,21 @@ function determineTier(points) {
 
     if (points >= platinumThreshold) return 'Platinum';
     if (points >= goldThreshold) return 'Gold';
-    return 'Silver'; // Default tier
+    if (points >= silverThreshold) return 'Silver';
+    return 'Bronze'; // Default tier
 }
 
 /**
  * Get next tier details
  */
 function getNextTierDetails(points) {
+    const silverThreshold = process.env.LOYALTY_SILVER_THRESHOLD ? parseInt(process.env.LOYALTY_SILVER_THRESHOLD, 10) : 100;
     const goldThreshold = process.env.LOYALTY_GOLD_THRESHOLD ? parseInt(process.env.LOYALTY_GOLD_THRESHOLD, 10) : 500;
     const platinumThreshold = process.env.LOYALTY_PLATINUM_THRESHOLD ? parseInt(process.env.LOYALTY_PLATINUM_THRESHOLD, 10) : 2000;
 
-    if (points < goldThreshold) {
+    if (points < silverThreshold) {
+        return { nextTier: 'Silver', pointsToNextTier: silverThreshold - points };
+    } else if (points < goldThreshold) {
         return { nextTier: 'Gold', pointsToNextTier: goldThreshold - points };
     } else if (points < platinumThreshold) {
         return { nextTier: 'Platinum', pointsToNextTier: platinumThreshold - points };

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="200dp"
+    android:viewportWidth="320"
+    android:viewportHeight="200">
+
+    <!-- Shadow -->
+    <path
+        android:fillColor="#18000000"
+        android:pathData="M10,14 L310,14 C316,14 322,20 322,26 L322,194 C322,200 316,204 310,204 L10,204 C4,204 0,200 0,194 L0,26 C0,20 4,14 10,14 Z" />
+
+    <!-- Card Background: Deep burgundy red -->
+    <path
+        android:fillColor="#8B1A1A"
+        android:pathData="M8,8 L312,8 C318,8 324,14 324,20 L324,186 C324,192 318,196 312,196 L8,196 C2,196 -2,192 -2,186 L-2,20 C-2,14 2,8 8,8 Z" />
+
+    <!-- Top diagonal gold accent -->
+    <path
+        android:fillColor="#C5A880"
+        android:pathData="M-2,20 Q-2,14 8,8 L160,8 L-2,140 Z" />
+
+    <!-- Shimmer -->
+    <path
+        android:fillColor="#30FFD700"
+        android:pathData="M-2,20 Q-2,14 8,8 L80,8 L-2,80 Z" />
+
+    <!-- Bottom-right dark corner -->
+    <path
+        android:fillColor="#5C0000"
+        android:pathData="M324,150 L324,186 C324,192 318,196 312,196 L190,196 Z" />
+
+    <!-- Gold horizontal rule -->
+    <path
+        android:fillColor="#C5A880"
+        android:pathData="M16,116 L304,116 L304,118 L16,118 Z" />
+
+    <!-- "TIRTIR" in large white -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M28,35 L68,35 L68,43 L53,43 L53,80 L43,80 L43,43 L28,43 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M76,35 L86,35 L86,80 L76,80 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M94,35 L120,35 C130,35 136,41 136,50 C136,57 131,63 122,65 L138,80 L126,80 L111,66 L104,66 L104,80 L94,80 Z M104,43 L104,58 L119,58 C124,58 126,55 126,50 C126,45 124,43 119,43 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M148,35 L188,35 L188,43 L173,43 L173,80 L163,80 L163,43 L148,43 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M196,35 L206,35 L206,80 L196,80 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M214,35 L240,35 C250,35 256,41 256,50 C256,57 251,63 242,65 L258,80 L246,80 L231,66 L224,66 L224,80 L214,80 Z M224,43 L224,58 L239,58 C244,58 246,55 246,50 C246,45 244,43 239,43 Z" />
+
+    <!-- Subtitle gold: 50,000 VND -->
+    <path
+        android:fillColor="#C5A880"
+        android:pathData="M16,128 L70,128 L70,134 L16,134 Z" />
+    <!-- "VALUE" label placeholder block -->
+    <path
+        android:fillColor="#C5A880"
+        android:pathData="M18,140 L120,140 L120,148 L18,148 Z" />
+
+    <!-- Star decoration right -->
+    <path
+        android:fillColor="#C5A880"
+        android:pathData="M285,38 L288,48 L298,48 L290,54 L293,64 L285,58 L277,64 L280,54 L272,48 L282,48 Z" />
+
+    <!-- Dots -->
+    <path android:fillColor="#C5A880" android:pathData="M270,170 A4,4 0 1,0 278,170 A4,4 0 1,0 270,170 Z" />
+    <path android:fillColor="#C5A880" android:pathData="M284,170 A4,4 0 1,0 292,170 A4,4 0 1,0 284,170 Z" />
+    <path android:fillColor="#C5A880" android:pathData="M298,170 A4,4 0 1,0 306,170 A4,4 0 1,0 298,170 Z" />
+</vector>

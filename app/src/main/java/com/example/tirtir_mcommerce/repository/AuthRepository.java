@@ -255,6 +255,11 @@ public class AuthRepository {
             @Override
             public void onResponse(Call<ApiResponse<Void>> call, Response<ApiResponse<Void>> response) {
                 // Dù server trả lỗi hay thành công, ta vẫn xóa local data
+                try {
+                    com.google.firebase.auth.FirebaseAuth.getInstance().signOut();
+                } catch (Exception e) {
+                    Log.e(TAG, "Error signing out of Firebase: " + e.getMessage());
+                }
                 prefsManager.clear();
                 onSuccess.onSuccess(null);
             }
@@ -262,6 +267,11 @@ public class AuthRepository {
             @Override
             public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {
                 // Offline logout: Vẫn xóa local data kể cả khi không có mạng
+                try {
+                    com.google.firebase.auth.FirebaseAuth.getInstance().signOut();
+                } catch (Exception e) {
+                    Log.e(TAG, "Error signing out of Firebase (offline): " + e.getMessage());
+                }
                 prefsManager.clear();
                 onSuccess.onSuccess(null);
             }

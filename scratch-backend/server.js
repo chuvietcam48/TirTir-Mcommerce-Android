@@ -4,11 +4,25 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const admin = require('firebase-admin');
 
-const serviceAccount = require('./config/serviceAccountKey.json');
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET
-});
+try {
+  const serviceAccount = require('./config/serviceAccountKey.json');
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET
+  });
+  console.log('[FIREBASE] Firebase Admin SDK initialized successfully via serviceAccountKey.json');
+} catch (err) {
+  console.warn('[FIREBASE] serviceAccountKey.json not found or failed to load. Trying default application credentials...', err.message);
+  try {
+    admin.initializeApp({
+      credential: admin.credential.applicationDefault(),
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET
+    });
+    console.log('[FIREBASE] Firebase Admin SDK initialized via Application Default Credentials');
+  } catch (defaultErr) {
+    console.error('[FIREBASE] Could not initialize Firebase Admin SDK. Firestore operations will fail.', defaultErr.message);
+  }
+}
 
 const app = express();
 

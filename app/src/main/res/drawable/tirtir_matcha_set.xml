@@ -1,14 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle">
-            <solid android:color="#F4F9F1" />
-            <corners android:radius="12dp" />
-        </shape>
-    </item>
-    <item
-        android:width="108dp"
-        android:height="108dp"
-        android:gravity="center"
-        android:drawable="@drawable/ic_tirtir_product_silhouette" />
-</layer-list>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="210dp"
+    android:viewportWidth="400"
+    android:viewportHeight="210">
+
+    <!-- Background: Rich matcha green gradient simulation -->
+    <path
+        android:fillColor="#2D5A27"
+        android:pathData="M0,0 L400,0 L400,210 L0,210 Z" />
+
+    <!-- Darker left panel -->
+    <path
+        android:fillColor="#1E3D1A"
+        android:pathData="M0,0 L220,0 L220,210 L0,210 Z" />
+
+    <!-- Matcha green mid-tone -->
+    <path
+        android:fillColor="#3A7A32"
+        android:pathData="M200,0 L400,0 L400,210 L200,210 Z" />
+
+    <!-- Light matcha highlight top-right -->
+    <path
+        android:fillColor="#4E9445"
+        android:pathData="M280,0 L400,0 L400,140 Z" />
+
+    <!-- Leaf silhouette 1 (large) — bottom right -->
+    <path
+        android:fillColor="#2D6828"
+        android:pathData="M310,210 C310,210 390,180 400,120 C400,120 390,200 350,210 Z" />
+
+    <!-- Leaf silhouette 2 — top right -->
+    <path
+        android:fillColor="#4E9445"
+        android:pathData="M350,0 C370,20 395,60 400,90 C395,50 375,15 350,0 Z" />
+
+    <!-- Leaf silhouette 3 — smaller mid right -->
+    <path
+        android:fillColor="#3A7A32"
+        android:pathData="M380,30 C390,50 400,80 398,100 C392,80 385,55 380,30 Z" />
+
+    <!-- Leaf accent bottom-right corner -->
+    <path
+        android:fillColor="#236820"
+        android:pathData="M380,210 C380,210 400,190 400,170 L400,210 Z" />
+
+    <!-- Cream/white circular product glow — right side -->
+    <path
+        android:fillColor="#20FFFFFF"
+        android:pathData="M280,55 A75,75 0 1,0 430,105 A75,75 0 1,0 280,55 Z" />
+
+    <!-- Product jar circle (TirTir product silhouette — right) -->
+    <path
+        android:fillColor="#F5F5F0"
+        android:pathData="M320,60 A50,50 0 1,0 420,110 A50,50 0 1,0 320,60 Z" />
+
+    <!-- Jar lid top -->
+    <path
+        android:fillColor="#D4C9A8"
+        android:pathData="M325,62 A48,20 0 1,0 415,62 A48,20 0 1,0 325,62 Z" />
+
+    <!-- Jar body -->
+    <path
+        android:fillColor="#EEEAE0"
+        android:pathData="M325,72 L325,110 C325,118 340,124 370,124 C400,124 415,118 415,110 L415,72 Z" />
+
+    <!-- Jar label stripe (green) -->
+    <path
+        android:fillColor="#3A7A32"
+        android:pathData="M328,82 L412,82 L412,90 L328,90 Z" />
+
+    <!-- Jar label "TirTir" mark (simplified white) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M340,84 L344,84 L344,88 L340,88 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M348,84 L360,84 L360,86 L348,86 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M348,86 L356,86 L356,88 L348,88 Z" />
+
+    <!-- Left side: text area decorative green splash -->
+    <path
+        android:fillColor="#25FFFFFF"
+        android:pathData="M0,150 C30,120 80,130 100,160 C70,175 30,170 0,150 Z" />
+
+    <!-- Matcha powder dots (decorative) -->
+    <path
+        android:fillColor="#4E9445"
+        android:pathData="M30,170 A5,5 0 1,0 40,170 A5,5 0 1,0 30,170 Z" />
+    <path
+        android:fillColor="#4E9445"
+        android:pathData="M50,180 A4,4 0 1,0 58,180 A4,4 0 1,0 50,180 Z" />
+    <path
+        android:fillColor="#4E9445"
+        android:pathData="M20,185 A3,3 0 1,0 26,185 A3,3 0 1,0 20,185 Z" />
+
+    <!-- Small leaf sprigs (left area) -->
+    <path
+        android:fillColor="#4E9445"
+        android:pathData="M85,140 C90,130 100,132 98,140 C94,148 85,148 85,140 Z" />
+    <path
+        android:fillColor="#3A7A32"
+        android:pathData="M100,145 C105,135 115,136 113,144 C110,152 100,152 100,145 Z" />
+
+</vector>

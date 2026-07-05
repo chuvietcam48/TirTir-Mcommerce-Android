@@ -102,7 +102,7 @@ public class ChatRepository {
                 if (!response.isSuccessful() || response.body() == null) {
                     String errorBody = response.body() != null ? response.body().string() : "null";
                     Log.e(TAG, "Chat API failed with HTTP " + response.code() + " " + errorBody);
-                    listener.onError("Debug Error: HTTP " + response.code() + " " + errorBody);
+                    listener.onError("Sorry, I could not generate a response right now.");
                     if (response.body() != null) response.close();
                     return;
                 }
@@ -188,11 +188,12 @@ public class ChatRepository {
                     }
 
                     if (!isJsonHandled && legacyTextAccumulator.length() == 0) {
-                        listener.onError("Debug Raw Response: [" + rawBody + "]");
+                        Log.e(TAG, "Chat raw response unhandled: " + rawBody);
+                        listener.onError("Sorry, I could not generate a response right now.");
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Unable to parse chat response", e);
-                    listener.onError("The advisor sent an unreadable response.");
+                    listener.onError("Sorry, I could not generate a response right now.");
                 } finally {
                     response.close();
                 }

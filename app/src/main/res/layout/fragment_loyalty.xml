@@ -137,7 +137,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="100 pts to Silver"
+                        android:text=""
                         android:textColor="@color/tirtir_white"
                         android:textStyle="bold"
                         android:textSize="13sp" />

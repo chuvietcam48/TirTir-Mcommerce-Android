@@ -247,7 +247,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/tirtir_home_banner" />
+                        android:src="@drawable/matcha_banner" />
 
                     <View
                         android:layout_width="match_parent"

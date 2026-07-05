@@ -40,7 +40,7 @@
                     android:indeterminate="false"
                     android:progressDrawable="@drawable/circular_progress_bar"
                     android:max="1000"
-                    android:progress="250" />
+                    android:progress="0" />
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/ivAvatar"
@@ -108,7 +108,7 @@
                     android:backgroundTint="#333333"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="4dp"
-                    android:text="SILVER"
+                    android:text="BRONZE"
                     android:textColor="@color/tirtir_white"
                     android:textSize="10sp"
                     android:textStyle="bold"
@@ -119,7 +119,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="1,250 points"
+                    android:text="0 points"
                     android:textColor="@color/tirtir_text_secondary"
                     android:textSize="12sp" />
             </LinearLayout>

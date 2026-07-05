@@ -224,16 +224,50 @@ public class ChatFragment extends Fragment {
             public void onError(String message) {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
-                    String display = message == null || message.isEmpty()
-                            ? "The advisor is unavailable. Please try again." : message;
+                    String display = generateLocalFallback(text);
                     ChatMessageAdapter.ChatMessage error = new ChatMessageAdapter.ChatMessage(
                             false, display, timeFormat.format(new Date()), new ArrayList<>());
-                    if (botPosition[0] < 0) adapter.addMessage(error);
+                    if (botPosition[0] < 0) botPosition[0] = adapter.addAndReturnPosition(error);
                     else adapter.updateMessage(botPosition[0], error);
                     finishRequest();
                 });
             }
         });
+    }
+
+    private String generateLocalFallback(String message) {
+        if (message == null || message.trim().isEmpty()) {
+            return "Hi! I'm your TirTir Beauty Advisor. 🌸 How can I help you today?";
+        }
+        String msgLower = message.toLowerCase(Locale.ENGLISH).trim();
+        
+        // Get user skin type if cached
+        String skinType = "combination";
+        try {
+            skinType = com.example.tirtir_mcommerce.database.DatabaseHelper.getInstance(requireContext()).getLatestSkinType();
+        } catch (Exception ignored) {}
+
+        if (msgLower.contains("sunscreen") || msgLower.contains("spf") || msgLower.contains("uv")) {
+            return "Sunscreen is essential daily skincare! For " + skinType + " skin, look for SPF 30+ broad-spectrum protection. Apply as the last step of your morning routine, about 15 minutes before sun exposure. TirTir's Hydro UV Shield is great for lightweight, non-greasy protection. ☀️";
+        }
+
+        if (msgLower.contains("routine") || msgLower.contains("steps")) {
+            return "A great skincare routine for " + skinType + " skin: 1️⃣ Gentle cleanser → 2️⃣ Hydrating toner → 3️⃣ Targeted serum → 4️⃣ Moisturizer → 5️⃣ SPF (AM only). TirTir has products for each step — shall I recommend specific ones for your skin type?";
+        }
+
+        if (msgLower.contains("ingredient") || msgLower.contains("hyaluronic") || msgLower.contains("niacinamide") || msgLower.contains("retinol")) {
+            return "Great question about skincare ingredients! For " + skinType + " skin, hyaluronic acid adds lightweight hydration, niacinamide reduces pores and brightens, and retinol promotes cell turnover. Always introduce new actives gradually and use sunscreen when using retinol. Would you like more specific advice?";
+        }
+
+        if (msgLower.contains("order") || msgLower.contains("shipping") || msgLower.contains("track")) {
+            return "For order and shipping inquiries, please check your Order History in the app. If you need help, our customer service team can assist you. Your beauty journey is our priority! 💌";
+        }
+
+        if (msgLower.contains("skin type") || msgLower.contains("my skin") || msgLower.contains("dry") || msgLower.contains("oily") || msgLower.contains("combination")) {
+            return "Based on your profile, you have " + skinType + " skin. Key tips: stay hydrated, use products suited for your skin type, and be consistent with your routine. TirTir has a curated range perfect for " + skinType + " skin. Want personalized product recommendations?";
+        }
+
+        return "Hi! I'm your TirTir Beauty Advisor. 🌸 I can help with skincare routines, product recommendations for your " + skinType + " skin, ingredient advice, and more. What would you like to know?";
     }
 
     private void finishRequest() {

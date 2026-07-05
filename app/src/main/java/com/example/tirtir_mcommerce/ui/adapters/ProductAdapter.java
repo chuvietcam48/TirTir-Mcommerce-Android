@@ -221,26 +221,39 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             String imageUrl = resolveImageUrl(product);
             if (imgProduct != null) {
                 int fallbackDrawable = resolveFallbackDrawable(product);
-                RequestBuilder<Drawable> request = Glide.with(imgProduct)
-                        .load(imageUrl.isEmpty() ? null : imageUrl)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .signature(new com.bumptech.glide.signature.ObjectKey(imageUrl))
-                        .priority(com.bumptech.glide.Priority.HIGH)
-                        .placeholder(fallbackDrawable)
-                        .centerCrop()
-                        .transition(DrawableTransitionOptions.withCrossFade(80));
-
                 String secondaryUrl = resolveSecondaryImageUrl(product, imageUrl);
-                if (!secondaryUrl.isEmpty()) {
-                    request.error(Glide.with(imgProduct)
+
+                String nameLower = (product.getName() == null ? "" : product.getName()).toLowerCase(java.util.Locale.ENGLISH);
+                String catLower = (product.getCategory() == null ? "" : product.getCategory()).toLowerCase(java.util.Locale.ENGLISH);
+                Object imageSource;
+                if (nameLower.contains("gift card") || catLower.contains("gift card")) {
+                    imageSource = R.drawable.giftcard;
+                } else if (nameLower.contains("matcha calming cream")) {
+                    imageSource = R.drawable.matcha_cream;
+                } else if (nameLower.contains("hydro uv shield sunscreen") || nameLower.contains("hydro uv") || nameLower.contains("sunscreen")) {
+                    imageSource = R.drawable.hydrosuncreen;
+                } else {
+                    imageSource = imageUrl.isEmpty() ? null : imageUrl;
+                }
+
+                RequestBuilder<Drawable> glideRequest = Glide.with(context)
+                        .load(imageSource)
+                        .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                        .placeholder(fallbackDrawable)
+                        .centerCrop();
+
+                if (imageSource instanceof String && !secondaryUrl.isEmpty()) {
+                    glideRequest = glideRequest.error(
+                        Glide.with(context)
                             .load(secondaryUrl)
                             .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                             .centerCrop()
-                            .error(fallbackDrawable));
+                            .error(fallbackDrawable)
+                    );
                 } else {
-                    request.error(fallbackDrawable);
+                    glideRequest = glideRequest.error(fallbackDrawable);
                 }
-                request.into(imgProduct);
+                glideRequest.into(imgProduct);
             }
 
             // Wishlist toggle state
@@ -384,10 +397,31 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             String name = product.getName() == null ? "" : product.getName().toLowerCase(java.util.Locale.ENGLISH);
             String category = product.getCategory() == null ? "" : product.getCategory().toLowerCase(java.util.Locale.ENGLISH);
             if (name.contains("gift card") || category.contains("gift card")) {
-                return R.drawable.tirtir_gift_card;
+                return R.drawable.giftcard;
+            }
+            if (name.contains("matcha calming cream")) {
+                return R.drawable.matcha_cream;
             }
             if (name.contains("matcha")) {
                 return R.drawable.tirtir_matcha_set;
+            }
+            if (name.contains("hydro uv shield sunscreen") || name.contains("hydro uv") || name.contains("sunscreen")) {
+                return R.drawable.hydrosuncreen;
+            }
+            if (name.contains("sunscreen") || name.contains("uv shield") || category.contains("sunscreen")) {
+                return R.drawable.ic_category_sunscreen;
+            }
+            if (name.contains("cleanser") || name.contains("wash") || category.contains("cleanser")) {
+                return R.drawable.ic_category_cleanser;
+            }
+            if (name.contains("serum") || name.contains("ampoule") || category.contains("serum")) {
+                return R.drawable.ic_category_serum;
+            }
+            if (name.contains("toner") || name.contains("skin") || category.contains("toner")) {
+                return R.drawable.ic_category_toner;
+            }
+            if (name.contains("cream") || name.contains("moisturizer") || category.contains("cream") || category.contains("moisturizer")) {
+                return R.drawable.ic_category_cream;
             }
             return R.drawable.ic_product_placeholder;
         }

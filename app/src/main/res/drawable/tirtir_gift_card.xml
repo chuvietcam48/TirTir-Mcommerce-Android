@@ -1,14 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle">
-            <solid android:color="#FDF1F2" />
-            <corners android:radius="12dp" />
-        </shape>
-    </item>
-    <item
-        android:width="108dp"
-        android:height="108dp"
-        android:gravity="center"
-        android:drawable="@drawable/ic_tirtir_product_silhouette" />
-</layer-list>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="200dp"
+    android:viewportWidth="320"
+    android:viewportHeight="200">
+
+    <!-- Card shadow -->
+    <path
+        android:fillColor="#18000000"
+        android:pathData="M10,14 L310,14 C316,14 322,20 322,26 L322,194 C322,200 316,204 310,204 L10,204 C4,204 0,200 0,194 L0,26 C0,20 4,14 10,14 Z" />
+
+    <!-- Card Background: Deep luxury black -->
+    <path
+        android:fillColor="#0D0D0D"
+        android:pathData="M8,8 L312,8 C318,8 324,14 324,20 L324,186 C324,192 318,196 312,196 L8,196 C2,196 -2,192 -2,186 L-2,20 C-2,14 2,8 8,8 Z" />
+
+    <!-- Diagonal golden gradient accent - top left -->
+    <path
+        android:fillColor="#BFA06A"
+        android:pathData="M-2,20 Q-2,14 8,8 L130,8 L-2,130 Z" />
+
+    <!-- Subtle shimmer overlay on top left -->
+    <path
+        android:fillColor="#40FFE4B5"
+        android:pathData="M-2,20 Q-2,14 8,8 L70,8 L-2,70 Z" />
+
+    <!-- Bottom-right red accent -->
+    <path
+        android:fillColor="#C62828"
+        android:pathData="M324,140 L324,186 C324,192 318,196 312,196 L200,196 Z" />
+
+    <!-- Bottom-right deeper red corner detail -->
+    <path
+        android:fillColor="#8B0000"
+        android:pathData="M324,165 L324,186 C324,192 318,196 312,196 L240,196 Z" />
+
+    <!-- Horizontal gold divider line -->
+    <path
+        android:fillColor="#BFA06A"
+        android:pathData="M16,110 L304,110 L304,112 L16,112 Z" />
+
+    <!-- ===== TIRTIR WORDMARK ===== -->
+    <!-- T -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M28,32 L68,32 L68,40 L53,40 L53,80 L43,80 L43,40 L28,40 Z" />
+    <!-- I -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M76,32 L86,32 L86,80 L76,80 Z" />
+    <!-- R -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M94,32 L122,32 C132,32 138,38 138,47 C138,54 133,60 124,62 L140,80 L128,80 L113,63 L104,63 L104,80 L94,80 Z M104,40 L104,56 L121,56 C126,56 128,53 128,48 C128,43 126,40 121,40 Z" />
+    <!-- T2 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M148,32 L188,32 L188,40 L173,40 L173,80 L163,80 L163,40 L148,40 Z" />
+    <!-- I2 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M196,32 L206,32 L206,80 L196,80 Z" />
+    <!-- R2 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M214,32 L242,32 C252,32 258,38 258,47 C258,54 253,60 244,62 L260,80 L248,80 L233,63 L224,63 L224,80 L214,80 Z M224,40 L224,56 L241,56 C246,56 248,53 248,48 C248,43 246,40 241,40 Z" />
+
+    <!-- ===== E-GIFT CARD text in gold ===== -->
+    <!-- E -->
+    <path
+        android:fillColor="#BFA06A"
+        android:pathData="M18,120 L18,156 L44,156 L44,148 L26,148 L26,142 L40,142 L40,134 L26,134 L26,128 L44,128 L44,120 Z" />
+    <!-- - -->
+    <path
+        android:fillColor="#BFA06A"
+        android:pathData="M50,136 L62,136 L62,140 L50,140 Z" />
+    <!-- G -->
+    <path
+        android:fillColor="#BFA06A"
+        android:pathData="M68,120 C68,120 90,120 90,120 L90,128 L76,128 L76,148 L90,148 L90,140 L82,140 L82,132 L98,132 L98,156 L68,156 Z" />
+    <!-- I -->
+    <path
+        android:fillColor="#BFA06A"
+        android:pathData="M104,120 L112,120 L112,156 L104,156 Z" />
+    <!-- F -->
+    <path
+        android:fillColor="#BFA06A"
+        android:pathData="M118,120 L144,120 L144,128 L126,128 L126,136 L140,136 L140,144 L126,144 L126,156 L118,156 Z" />
+    <!-- T -->
+    <path
+        android:fillColor="#BFA06A"
+        android:pathData="M150,120 L178,120 L178,128 L168,128 L168,156 L160,156 L160,128 L150,128 Z" />
+
+    <!-- space -->
+
+    <!-- C -->
+    <path
+        android:fillColor="#BFA06A"
+        android:pathData="M192,120 C192,120 214,120 214,120 L214,128 L200,128 L200,148 L214,148 L214,156 L192,156 Z" />
+    <!-- A -->
+    <path
+        android:fillColor="#BFA06A"
+        android:pathData="M220,156 L234,120 L248,120 L262,156 L253,156 L249,144 L233,144 L229,156 Z M235,136 L247,136 L241,122 Z" />
+    <!-- R -->
+    <path
+        android:fillColor="#BFA06A"
+        android:pathData="M268,120 L292,120 C300,120 306,125 306,132 C306,137 302,142 296,144 L308,156 L298,156 L287,145 L276,145 L276,156 L268,156 Z M276,128 L276,138 L291,138 C294,138 297,136 297,133 C297,130 294,128 291,128 Z" />
+    <!-- D -->
+    <path
+        android:fillColor="#BFA06A"
+        android:pathData="M314,120 L332,120 C342,120 348,128 348,138 C348,148 342,156 332,156 L314,156 Z M322,128 L322,148 L330,148 C336,148 340,144 340,138 C340,132 336,128 330,128 Z" />
+
+    <!-- Small gold star accent top right -->
+    <path
+        android:fillColor="#BFA06A"
+        android:pathData="M290,25 L293,34 L302,34 L295,40 L298,49 L290,44 L282,49 L285,40 L278,34 L287,34 Z" />
+
+    <!-- Small decorative dots -->
+    <path
+        android:fillColor="#BFA06A"
+        android:pathData="M274,168 A3,3 0 1,0 280,168 A3,3 0 1,0 274,168 Z" />
+    <path
+        android:fillColor="#BFA06A"
+        android:pathData="M286,168 A3,3 0 1,0 292,168 A3,3 0 1,0 286,168 Z" />
+    <path
+        android:fillColor="#BFA06A"
+        android:pathData="M298,168 A3,3 0 1,0 304,168 A3,3 0 1,0 298,168 Z" />
+
+</vector>

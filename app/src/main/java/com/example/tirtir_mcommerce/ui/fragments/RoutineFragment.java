@@ -997,12 +997,74 @@ public class RoutineFragment extends Fragment {
                     });
                 }
 
-                String path = step.product.getThumbnailImages();
-                String url = com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(path);
                 productImage.setPadding(4, 4, 4, 4);
-                Glide.with(itemView).load(url).fitCenter()
-                        .placeholder(R.drawable.ic_product_placeholder)
-                        .error(R.drawable.ic_product_placeholder).into(productImage);
+
+                // Smart fallback: use category-appropriate drawable (same logic as ProductAdapter)
+                String pName = step.product.getName() == null ? "" : step.product.getName().toLowerCase(java.util.Locale.ENGLISH);
+                String pCat  = step.product.getCategory() == null ? "" : step.product.getCategory().toLowerCase(java.util.Locale.ENGLISH);
+                String pSlot = step.slot == null ? "" : step.slot.toLowerCase(java.util.Locale.ENGLISH);
+                int fallback;
+                Object imageSource = null;
+                
+                if (pName.contains("gift card") || pCat.contains("gift card")) {
+                    fallback = R.drawable.giftcard;
+                    imageSource = R.drawable.giftcard;
+                } else if (pName.contains("matcha calming cream")) {
+                    fallback = R.drawable.matcha_cream;
+                    imageSource = R.drawable.matcha_cream;
+                } else if (pName.contains("matcha")) {
+                    fallback = R.drawable.tirtir_matcha_set;
+                } else if (pName.contains("hydro uv shield sunscreen") || pName.contains("hydro uv") || pName.contains("sunscreen")
+                        || pSlot.contains("sunscreen") || pCat.contains("sunscreen") || pName.contains("uv shield") || pName.contains("spf")) {
+                    fallback = R.drawable.hydrosuncreen;
+                    imageSource = R.drawable.hydrosuncreen;
+                } else if (pSlot.contains("serum") || pName.contains("serum") || pName.contains("ampoule") || pCat.contains("serum")) {
+                    fallback = R.drawable.ic_category_serum;
+                } else if (pSlot.contains("toner") || pName.contains("toner") || pCat.contains("toner")) {
+                    fallback = R.drawable.ic_category_toner;
+                } else if (pSlot.contains("cream") || pSlot.contains("moisturizer") || pName.contains("cream") || pName.contains("moisturizer") || pCat.contains("cream")) {
+                    fallback = R.drawable.ic_category_cream;
+                } else if (pSlot.contains("cleanser") || pName.contains("cleanser") || pName.contains("wash") || pCat.contains("cleanser")) {
+                    fallback = R.drawable.ic_category_cleanser;
+                } else {
+                    fallback = R.drawable.ic_product_placeholder;
+                }
+
+                if (imageSource == null) {
+                    // Try to find product in DB first to get correct URLs
+                    Product dbProd = null;
+                    try {
+                        String id = step.product.getProductId() != null ? step.product.getProductId() : step.product.getId();
+                        dbProd = com.example.tirtir_mcommerce.database.DatabaseHelper.getInstance(itemView.getContext()).getProductByIdOrName(id);
+                        if (dbProd == null) {
+                            dbProd = com.example.tirtir_mcommerce.database.DatabaseHelper.getInstance(itemView.getContext()).getProductByIdOrName(step.product.getName());
+                        }
+                    } catch (Exception ignored) {}
+                    
+                    String path = "";
+                    if (dbProd != null) {
+                        path = dbProd.getThumbnailImages();
+                        if (path == null || path.isEmpty()) {
+                            if (dbProd.getGalleryImages() != null && !dbProd.getGalleryImages().isEmpty()) {
+                                path = dbProd.getGalleryImages().get(0);
+                            }
+                        }
+                    }
+                    if (path == null || path.isEmpty()) {
+                        path = step.product.getThumbnailImages();
+                        if (path == null || path.isEmpty()) {
+                            if (step.product.getGalleryImages() != null && !step.product.getGalleryImages().isEmpty()) {
+                                path = step.product.getGalleryImages().get(0);
+                            }
+                        }
+                    }
+                    String url = com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(path);
+                    imageSource = (url != null && !url.isEmpty()) ? url : null;
+                }
+
+                Glide.with(itemView).load(imageSource).fitCenter()
+                        .placeholder(fallback)
+                        .error(fallback).into(productImage);
             }
         }
     }
@@ -1035,13 +1097,38 @@ public class RoutineFragment extends Fragment {
             Product product = items.get(position);
             holder.name.setText(product.getName() == null ? "TirTir product" : product.getName());
             holder.category.setText(product.getCategory() == null ? "Skincare" : product.getCategory());
-            String path = product.getGalleryImages() != null && !product.getGalleryImages().isEmpty()
-                    ? product.getGalleryImages().get(0) : product.getThumbnailImages();
+            
+            Object imageSource = null;
+            int fallback = R.drawable.ic_product_placeholder;
+            String nameLower = (product.getName() == null ? "" : product.getName()).toLowerCase(java.util.Locale.ENGLISH);
+            String catLower = (product.getCategory() == null ? "" : product.getCategory()).toLowerCase(java.util.Locale.ENGLISH);
+            
+            if (nameLower.contains("gift card") || catLower.contains("gift card")) {
+                imageSource = R.drawable.giftcard;
+                fallback = R.drawable.giftcard;
+            } else if (nameLower.contains("matcha calming cream")) {
+                imageSource = R.drawable.matcha_cream;
+                fallback = R.drawable.matcha_cream;
+            } else if (nameLower.contains("matcha")) {
+                fallback = R.drawable.tirtir_matcha_set;
+            }
+            
+            if (imageSource == null) {
+                String path = product.getThumbnailImages();
+                if (path == null || path.isEmpty()) {
+                    if (product.getGalleryImages() != null && !product.getGalleryImages().isEmpty()) {
+                        path = product.getGalleryImages().get(0);
+                    }
+                }
+                String resolvedUrl = com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(path);
+                imageSource = (resolvedUrl != null && !resolvedUrl.isEmpty()) ? resolvedUrl : null;
+            }
+            
             Glide.with(holder.itemView)
-                    .load(com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(path))
+                    .load(imageSource)
                     .centerCrop()
-                    .placeholder(R.drawable.ic_product_placeholder)
-                    .error(R.drawable.ic_product_placeholder)
+                    .placeholder(fallback)
+                    .error(fallback)
                     .into(holder.image);
             View.OnClickListener select = v -> {
                 if (listener != null) listener.onSelected(product);

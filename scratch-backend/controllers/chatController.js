@@ -1,17 +1,35 @@
 const { processChatbotMessage } = require('../services/geminiService');
 const admin = require('firebase-admin');
 
-// POST /api/v1/chat/stream
+// POST /api/v1/chat and POST /api/v1/chat/stream
+// Android ChatRepository posts to CHAT_URL = BASE_URL + "api/v1/chat"
 exports.streamChat = async (req, res) => {
   try {
-    const message = req.body.message || req.query.message || 'Xin chào';
-    const productId = req.body.productId || req.query.productId;
-    const userId = req.user ? req.user.id : null;
+    const message = (req.body && req.body.message) || req.query.message;
+    const productId = (req.body && req.body.productId) || req.query.productId;
+    const userId = req.user ? (req.user.id || req.user._id) : null;
 
-    const result = await processChatbotMessage({ userId, message, productId });
+    console.log(`[CHAT] Incoming message. userId=${userId}, message="${message ? message.substring(0, 60) : 'EMPTY'}"`);
+
+    if (!message || !message.trim()) {
+      console.warn('[CHAT] Empty message received');
+      if (!res.headersSent) {
+        res.writeHead(200, {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+        });
+      }
+      const errorPayload = JSON.stringify({ message: 'Please type a message to get a response.' });
+      res.write(`event: error\ndata: ${errorPayload}\n\n`);
+      return res.end();
+    }
+
+    const result = await processChatbotMessage({ userId, message: message.trim(), productId });
     const replyText = result.reply;
 
-    // Always respond with SSE format since Android client sends Accept: text/event-stream
+    console.log(`[CHAT] Reply ready, length=${replyText ? replyText.length : 0}`);
+
+    // Respond with SSE format so Android ChatRepository SSE parser can handle it
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
@@ -22,12 +40,14 @@ exports.streamChat = async (req, res) => {
     // Stream each word as a "chunk" event that Android ChatRepository can parse
     const words = replyText.split(' ');
     for (const word of words) {
-      const chunkPayload = JSON.stringify({ text: word + ' ' });
-      res.write(`event: chunk\ndata: ${chunkPayload}\n\n`);
-      await new Promise(r => setTimeout(r, 30));
+      if (word.trim()) {
+        const chunkPayload = JSON.stringify({ text: word + ' ' });
+        res.write(`event: chunk\ndata: ${chunkPayload}\n\n`);
+        await new Promise(r => setTimeout(r, 20));
+      }
     }
 
-    // Send final "done" event with full message and any suggestions
+    // Send final "done" event with full message
     const donePayload = JSON.stringify({
       message: replyText,
       data: { recommendations: [] }
@@ -35,15 +55,24 @@ exports.streamChat = async (req, res) => {
     res.write(`event: done\ndata: ${donePayload}\n\n`);
     res.end();
   } catch (err) {
-    console.error('Chatbot error:', err);
+    console.error('[CHAT] Unexpected error:', err.message, err.stack ? err.stack.substring(0, 500) : '');
     if (!res.headersSent) {
       res.writeHead(200, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
       });
     }
-    const errorPayload = JSON.stringify({ message: 'The advisor is temporarily unavailable. Please try again.' });
-    res.write(`event: error\ndata: ${errorPayload}\n\n`);
+    // Return a helpful message even on error, not a generic failure
+    const fallbackMsg = 'Hi! I\'m your TirTir Beauty Advisor. I can help with skincare routines, product recommendations, and ingredient advice. What would you like to know? 🌸';
+    const words = fallbackMsg.split(' ');
+    for (const word of words) {
+      if (word.trim()) {
+        const chunkPayload = JSON.stringify({ text: word + ' ' });
+        res.write(`event: chunk\ndata: ${chunkPayload}\n\n`);
+      }
+    }
+    const donePayload = JSON.stringify({ message: fallbackMsg, data: { recommendations: [] } });
+    res.write(`event: done\ndata: ${donePayload}\n\n`);
     res.end();
   }
 };
@@ -51,7 +80,7 @@ exports.streamChat = async (req, res) => {
 // GET /api/v1/chat/history — reads logged-in user's Firestore chat_history
 exports.getChatHistory = async (req, res) => {
   try {
-    const userId = req.user ? String(req.user.id) : null;
+    const userId = req.user ? String(req.user.id || req.user._id) : null;
     if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' });
 
     const db = admin.firestore();

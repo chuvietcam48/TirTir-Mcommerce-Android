@@ -137,6 +137,10 @@ public class ShopFragment extends Fragment {
             intent.putExtra("PRODUCT_SALE_PRICE",       product.getSalePrice());
             intent.putExtra("PRODUCT_CATEGORY",         product.getCategory());
             intent.putExtra("PRODUCT_STOCK",            product.getStockQuantity());
+            intent.putExtra("PRODUCT_IMAGE",            product.getThumbnailImages());
+            if (product.getGalleryImages() != null) {
+                intent.putStringArrayListExtra("PRODUCT_GALLERY", new ArrayList<>(product.getGalleryImages()));
+            }
             startActivity(intent);
         });
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));

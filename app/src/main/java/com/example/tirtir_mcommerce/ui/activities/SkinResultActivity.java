@@ -377,14 +377,41 @@ public class SkinResultActivity extends AppCompatActivity {
             Object productObj = itemMap.get("product");
             if (productObj instanceof Map) {
                 Map<String, Object> productMap = (Map<String, Object>) productObj;
-                step.setProductId(stringVal(productMap.get("Product_ID")));
-                
+
+                // Product ID — try Product_ID first then productId
+                String pId = stringVal(productMap.get("Product_ID"));
+                if (pId.isEmpty()) pId = stringVal(productMap.get("productId"));
+                step.setProductId(pId);
+
+                // Product Name — backend returns "Name" field
+                String pName = stringVal(productMap.get("Name"));
+                if (!pName.isEmpty() && step.getProductName().isEmpty()) {
+                    step.setProductName(pName);
+                }
+
+                // Price
                 Object price = productMap.get("Price");
                 if (price instanceof Number) step.setPrice(((Number) price).doubleValue());
-                
-                String imgUrl = stringVal(productMap.get("Thumbnail_Images"));
+                Object salePrice = productMap.get("Sale_Price");
+                if (salePrice instanceof Number && ((Number) salePrice).doubleValue() > 0) {
+                    step.setSalePrice(((Number) salePrice).doubleValue());
+                }
+
+                // Image URL — prefer our added "imageUrl" field, then Thumbnail_Images
+                String imgUrl = stringVal(productMap.get("imageUrl"));
+                if (imgUrl.isEmpty()) {
+                    imgUrl = stringVal(productMap.get("Thumbnail_Images"));
+                    // Thumbnail_Images might be a JSON array string like ["url1","url2"]
+                    if (imgUrl.startsWith("[")) {
+                        try {
+                            imgUrl = imgUrl.replaceAll("^\\[\"?|\"?\\]$|\"", "").split(",")[0].trim();
+                        } catch (Exception e) {
+                            imgUrl = "";
+                        }
+                    }
+                }
                 // Prepend base URL if it's a relative path
-                if (!imgUrl.isEmpty() && !imgUrl.startsWith("http")) {
+                if (!imgUrl.isEmpty() && !imgUrl.startsWith("http") && !imgUrl.startsWith("android.resource://")) {
                     imgUrl = "https://tirtir-project.onrender.com/" + imgUrl;
                 }
                 step.setImageUrl(imgUrl);

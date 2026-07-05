@@ -146,14 +146,68 @@ public class RoutineStepAdapter extends ListAdapter<RoutineStep, RoutineStepAdap
                     : "");
 
             // Product image
-            if (step.getImageUrl() != null && !step.getImageUrl().isEmpty()) {
-                Glide.with(itemView.getContext())
-                        .load(step.getImageUrl())
-                        .placeholder(R.drawable.ic_skin)
-                        .into(imgProduct);
-            } else {
-                imgProduct.setImageResource(R.drawable.ic_skin);
+            Object imageSource = null;
+            int fallbackDrawable = R.drawable.ic_product_placeholder;
+            String stepNameLower = step.getStepName() != null ? step.getStepName().toLowerCase(java.util.Locale.ENGLISH) : "";
+            String prodNameLower = step.getProductName() != null ? step.getProductName().toLowerCase(java.util.Locale.ENGLISH) : "";
+            
+            if (prodNameLower.contains("gift card")) {
+                fallbackDrawable = R.drawable.giftcard;
+                imageSource = R.drawable.giftcard;
+            } else if (prodNameLower.contains("matcha calming cream")) {
+                fallbackDrawable = R.drawable.matcha_cream;
+                imageSource = R.drawable.matcha_cream;
+            } else if (prodNameLower.contains("matcha")) {
+                fallbackDrawable = R.drawable.tirtir_matcha_set;
+            } else if (prodNameLower.contains("hydro uv shield sunscreen") || prodNameLower.contains("hydro uv") || prodNameLower.contains("sunscreen")
+                    || stepNameLower.contains("sunscreen") || prodNameLower.contains("uv shield")) {
+                fallbackDrawable = R.drawable.hydrosuncreen;
+                imageSource = R.drawable.hydrosuncreen;
+            } else if (stepNameLower.contains("cleanser") || prodNameLower.contains("cleanser") || prodNameLower.contains("wash")) {
+                fallbackDrawable = R.drawable.ic_category_cleanser;
+            } else if (stepNameLower.contains("serum") || prodNameLower.contains("serum") || prodNameLower.contains("ampoule")) {
+                fallbackDrawable = R.drawable.ic_category_serum;
+            } else if (stepNameLower.contains("toner") || prodNameLower.contains("toner") || prodNameLower.contains("skin")) {
+                fallbackDrawable = R.drawable.ic_category_toner;
+            } else if (stepNameLower.contains("cream") || stepNameLower.contains("moisturizer") || prodNameLower.contains("cream") || prodNameLower.contains("moisturizer")) {
+                fallbackDrawable = R.drawable.ic_category_cream;
             }
+
+            if (imageSource == null) {
+                // Try to find the product in DB to get the actual product image URL
+                com.example.tirtir_mcommerce.model.Product dbProd = null;
+                try {
+                    dbProd = com.example.tirtir_mcommerce.database.DatabaseHelper.getInstance(itemView.getContext())
+                            .getProductByIdOrName(step.getProductId());
+                    if (dbProd == null) {
+                        dbProd = com.example.tirtir_mcommerce.database.DatabaseHelper.getInstance(itemView.getContext())
+                                .getProductByIdOrName(step.getProductName());
+                    }
+                } catch (Exception ignored) {}
+                
+                String path = "";
+                if (dbProd != null) {
+                    path = dbProd.getThumbnailImages();
+                    if (path == null || path.isEmpty()) {
+                        if (dbProd.getGalleryImages() != null && !dbProd.getGalleryImages().isEmpty()) {
+                            path = dbProd.getGalleryImages().get(0);
+                        }
+                    }
+                }
+                if (path == null || path.isEmpty()) {
+                    path = step.getImageUrl();
+                }
+                
+                String resolvedUrl = com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(path);
+                imageSource = (resolvedUrl != null && !resolvedUrl.isEmpty()) ? resolvedUrl : null;
+            }
+
+            Glide.with(itemView.getContext())
+                    .load(imageSource)
+                    .placeholder(fallbackDrawable)
+                    .error(fallbackDrawable)
+                    .centerCrop()
+                    .into(imgProduct);
 
             // Improvement badges
             tvHydrationBadge.setText("💧 +" + step.getHydrationBoost() + "% Hydration");

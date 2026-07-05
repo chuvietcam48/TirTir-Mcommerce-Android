@@ -127,7 +127,7 @@ const UserSchema = new mongoose.Schema({
     },
     loyaltyTier: {
         type: String,
-        default: 'Silver'
+        default: 'Bronze'
     },
     totalOrders: {
         type: Number,

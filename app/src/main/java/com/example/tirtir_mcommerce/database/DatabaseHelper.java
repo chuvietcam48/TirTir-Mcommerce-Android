@@ -256,6 +256,78 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return productList;
     }
 
+    public Product getProductByIdOrName(String idOrName) {
+        if (idOrName == null || idOrName.trim().isEmpty()) return null;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_PRODUCT + 
+                " WHERE " + COLUMN_ID + " = ? OR " + COLUMN_PRODUCT_ID + " = ? OR " + COLUMN_NAME + " = ?", 
+                new String[]{idOrName, idOrName, idOrName});
+        Product product = null;
+        if (cursor.moveToFirst()) {
+            product = new Product();
+            product.setId(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID)));
+            product.setProductId(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PRODUCT_ID)));
+            product.setName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME)));
+            product.setPrice(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_PRICE)));
+            product.setSalePrice(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_SALE_PRICE)));
+            product.setThumbnailImages(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_THUMBNAIL)));
+            product.setCategory(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY)));
+            product.setSkinTypeTarget(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SKIN_TYPE)));
+            product.setMainConcern(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MAIN_CONCERN)));
+            product.setIsSkincare(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_IS_SKINCARE)));
+            int ratingIdx = cursor.getColumnIndex(COLUMN_RATING);
+            if (ratingIdx >= 0) product.setRating(cursor.getDouble(ratingIdx));
+            int reviewIdx = cursor.getColumnIndex(COLUMN_REVIEW_COUNT);
+            if (reviewIdx >= 0) product.setReviewCount(cursor.getInt(reviewIdx));
+            int veganIdx = cursor.getColumnIndex(COLUMN_IS_VEGAN);
+            if (veganIdx >= 0) product.setVeganFormula(cursor.getInt(veganIdx) == 1);
+            int dermaIdx = cursor.getColumnIndex(COLUMN_IS_DERMA);
+            if (dermaIdx >= 0) product.setDermatologistTested(cursor.getInt(dermaIdx) == 1);
+        }
+        cursor.close();
+        
+        // If not found by exact ID or name, do a fuzzy search by name
+        if (product == null) {
+            cursor = db.rawQuery("SELECT * FROM " + TABLE_PRODUCT + " WHERE " + COLUMN_NAME + " LIKE ?", 
+                    new String[]{"%" + idOrName + "%"});
+            if (cursor.moveToFirst()) {
+                product = new Product();
+                product.setId(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID)));
+                product.setProductId(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PRODUCT_ID)));
+                product.setName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME)));
+                product.setPrice(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_PRICE)));
+                product.setSalePrice(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_SALE_PRICE)));
+                product.setThumbnailImages(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_THUMBNAIL)));
+                product.setCategory(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY)));
+                product.setSkinTypeTarget(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SKIN_TYPE)));
+                product.setMainConcern(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MAIN_CONCERN)));
+                product.setIsSkincare(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_IS_SKINCARE)));
+                int ratingIdx = cursor.getColumnIndex(COLUMN_RATING);
+                if (ratingIdx >= 0) product.setRating(cursor.getDouble(ratingIdx));
+                int reviewIdx = cursor.getColumnIndex(COLUMN_REVIEW_COUNT);
+                if (reviewIdx >= 0) product.setReviewCount(cursor.getInt(reviewIdx));
+                int veganIdx = cursor.getColumnIndex(COLUMN_IS_VEGAN);
+                if (veganIdx >= 0) product.setVeganFormula(cursor.getInt(veganIdx) == 1);
+                int dermaIdx = cursor.getColumnIndex(COLUMN_IS_DERMA);
+                if (dermaIdx >= 0) product.setDermatologistTested(cursor.getInt(dermaIdx) == 1);
+            }
+            cursor.close();
+        }
+        return product;
+    }
+
+    public String getLatestSkinType() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT skin_type FROM " + TABLE_SKIN_PROFILES + 
+                " ORDER BY timestamp DESC LIMIT 1", null);
+        String skinType = "combination";
+        if (cursor.moveToFirst()) {
+            skinType = cursor.getString(0);
+        }
+        cursor.close();
+        return skinType;
+    }
+
     // ===========================
     // INGREDIENT CONFLICTS (FTS4)
     // ===========================

@@ -102,11 +102,6 @@ public class HomeFragment extends Fragment {
             R.drawable.ic_category_toner,
             R.drawable.ic_category_mask,
             R.drawable.ic_category_sunscreen,
-<<<<<<< Updated upstream
-            R.drawable.ic_skin,
-            R.drawable.ic_category_sunscreen,
-=======
->>>>>>> Stashed changes
             R.drawable.ic_category_cushion,
             R.drawable.ic_category_makeup
     };
@@ -237,6 +232,10 @@ public class HomeFragment extends Fragment {
         intent.putExtra("PRODUCT_SALE_PRICE",  product.getSalePrice());
         intent.putExtra("PRODUCT_CATEGORY",    product.getCategory());
         intent.putExtra("PRODUCT_STOCK",       product.getStockQuantity());
+        intent.putExtra("PRODUCT_IMAGE",       product.getThumbnailImages());
+        if (product.getGalleryImages() != null) {
+            intent.putStringArrayListExtra("PRODUCT_GALLERY", new ArrayList<>(product.getGalleryImages()));
+        }
         startActivity(intent);
     }
 

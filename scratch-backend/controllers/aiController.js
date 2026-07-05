@@ -94,11 +94,11 @@ exports.recommendRoutine = async (req, res) => {
               { Skin_Type_Target: { $regex: searchRegex } },
               { Name: { $regex: searchRegex } }
           ]
-      }).select('Name Category Thumbnail_Images');
+      }).select('Name Category Thumbnail_Images Product_ID Price Sale_Price');
       
       // Fallback if not found
       if (!product) {
-         product = await Product.findOne(query).select('Name Category Thumbnail_Images');
+         product = await Product.findOne(query).select('Name Category Thumbnail_Images Product_ID Price Sale_Price');
       }
       return product;
     };
@@ -108,7 +108,7 @@ exports.recommendRoutine = async (req, res) => {
        { name: 'Toner', keywords: 'Toner' },
        { name: 'Serum', keywords: 'Serum|Ampoule' },
        { name: 'Cream', keywords: 'Cream|Moisturizer' },
-       { name: 'Sunscreen', keywords: 'Sunscreen|SPF' }
+       { name: 'Sunscreen', keywords: 'Sunscreen|SPF|UV Shield' }
     ];
     
     const routine = [];
@@ -116,9 +116,26 @@ exports.recommendRoutine = async (req, res) => {
     for (const step of steps) {
        const prod = await getProductForStep(step.name, step.keywords);
        if (prod) {
+          // Extract the first thumbnail URL (Thumbnail_Images can be array or string)
+          let thumbUrl = '';
+          if (Array.isArray(prod.Thumbnail_Images) && prod.Thumbnail_Images.length > 0) {
+            thumbUrl = prod.Thumbnail_Images[0];
+          } else if (typeof prod.Thumbnail_Images === 'string' && prod.Thumbnail_Images) {
+            // Could be JSON stringified array
+            try {
+              const parsed = JSON.parse(prod.Thumbnail_Images);
+              thumbUrl = Array.isArray(parsed) ? (parsed[0] || '') : prod.Thumbnail_Images;
+            } catch {
+              thumbUrl = prod.Thumbnail_Images;
+            }
+          }
           routine.push({
              step: step.name,
-             product: prod
+             product: {
+               ...prod.toObject ? prod.toObject() : prod,
+               imageUrl: thumbUrl,
+               productId: String(prod.Product_ID || prod._id),
+             }
           });
        }
     }

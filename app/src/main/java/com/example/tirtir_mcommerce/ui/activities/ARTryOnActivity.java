@@ -53,9 +53,38 @@ public class ARTryOnActivity extends AppCompatActivity {
     private LinearLayout layoutColors;
     private TextView tvLoading;
     private int selectedIndex = 0;
+    private String productId;
+    private int[] activeShadeColors;
+    private String[] activeShadeNames;
+    private final List<Map<String, Object>> availableShades = new ArrayList<>();
+    private final List<Integer> parsedColors = new ArrayList<>();
+    private final Map<AugmentedFace, AugmentedFaceNode> faceNodeMap = new HashMap<>();
+    private Texture lipsTexture;
+    private ArFrontFacingFragment arFragment;
+    private androidx.activity.result.ActivityResultLauncher<String> cameraPermissionLauncher;
 
-        java.util.ArrayList<String> namesExtra = getIntent().getStringArrayListExtra("SHADE_NAMES");
-        java.util.ArrayList<String> hexesExtra = getIntent().getStringArrayListExtra("SHADE_HEXES");
+    private static final int[] SHADE_COLORS = {
+            Color.parseColor("#E9B5A5"),
+            Color.parseColor("#D48F78"),
+            Color.parseColor("#B5715D"),
+            Color.parseColor("#965746"),
+            Color.parseColor("#7A4132")
+    };
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_ar_try_on);
+
+        productId = getIntent().getStringExtra("PRODUCT_ID");
+        layoutColors = findViewById(R.id.layoutArColorPicker);
+        tvLoading = findViewById(R.id.tvArLoading);
+
+        findViewById(R.id.btnCloseAr).setOnClickListener(v -> finish());
+        findViewById(R.id.fabArCapture).setOnClickListener(v -> takeArScreenshot());
+
+        ArrayList<String> namesExtra = getIntent().getStringArrayListExtra("SHADE_NAMES");
+        ArrayList<String> hexesExtra = getIntent().getStringArrayListExtra("SHADE_HEXES");
 
         if (namesExtra != null && hexesExtra != null && !hexesExtra.isEmpty()) {
             activeShadeColors = new int[hexesExtra.size()];
@@ -82,7 +111,6 @@ public class ARTryOnActivity extends AppCompatActivity {
 
         buildColorPicker();
 
-
         cameraPermissionLauncher = registerForActivityResult(
                 new androidx.activity.result.contract.ActivityResultContracts.RequestPermission(),
                 isGranted -> {
@@ -101,6 +129,10 @@ public class ARTryOnActivity extends AppCompatActivity {
             }
         } else {
             cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA);
+        }
+
+        if (productId != null && (hexesExtra == null || hexesExtra.isEmpty())) {
+            fetchShadesFromApi();
         }
     }
 
@@ -121,30 +153,44 @@ public class ARTryOnActivity extends AppCompatActivity {
                     parsedColors.clear();
                     availableShades.addAll(response.body());
 
-                    for (Map<String, Object> shade : availableShades) {
+                    activeShadeColors = new int[availableShades.size()];
+                    activeShadeNames = new String[availableShades.size()];
+
+                    for (int i = 0; i < availableShades.size(); i++) {
+                        Map<String, Object> shade = availableShades.get(i);
                         String hex = "";
                         if (shade.get("Hex_Code") != null) {
                             hex = shade.get("Hex_Code").toString().trim();
                         } else if (shade.get("shade_color_hex") != null) {
                             hex = shade.get("shade_color_hex").toString().trim();
                         }
+
+                        String name = "Shade " + (i + 1);
+                        if (shade.get("Name") != null) name = shade.get("Name").toString();
+                        else if (shade.get("shade_name") != null) name = shade.get("shade_name").toString();
                         
                         if (!hex.startsWith("#") && !hex.isEmpty()) hex = "#" + hex;
                         int color = Color.parseColor("#E9B5A5"); // Fallback
                         try {
                             if (!hex.isEmpty()) color = Color.parseColor(hex);
                         } catch (Exception ignored) {}
+                        
+                        activeShadeColors[i] = color;
+                        activeShadeNames[i] = name;
                         parsedColors.add(color);
                     }
                     buildColorPicker();
                     updateMaterialColor();
+                    tvLoading.setVisibility(View.GONE);
                 } else {
+                    tvLoading.setVisibility(View.GONE);
                     Toast.makeText(ARTryOnActivity.this, "No shades available for AR", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) {
+                tvLoading.setVisibility(View.GONE);
                 Toast.makeText(ARTryOnActivity.this, "Failed to load shades", Toast.LENGTH_SHORT).show();
             }
         });
