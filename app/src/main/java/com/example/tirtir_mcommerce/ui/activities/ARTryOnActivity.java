@@ -329,7 +329,9 @@ public class ARTryOnActivity extends AppCompatActivity {
         PixelCopy.request(view, bitmap, copyResult -> {
             if (copyResult == PixelCopy.SUCCESS) {
                 try {
-                    File file = new File(getExternalFilesDir(null), "ar_tryon_" + System.currentTimeMillis() + ".png");
+                    File dir = getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES);
+                    if (dir != null && !dir.exists()) dir.mkdirs();
+                    File file = new File(dir, "ar_tryon_" + System.currentTimeMillis() + ".png");
                     FileOutputStream fos = new FileOutputStream(file);
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
                     fos.flush();
