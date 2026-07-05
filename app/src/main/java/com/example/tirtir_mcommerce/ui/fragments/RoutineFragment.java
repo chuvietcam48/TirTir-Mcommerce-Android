@@ -28,15 +28,18 @@ import com.example.tirtir_mcommerce.model.ApiResponse;
 import com.example.tirtir_mcommerce.model.Product;
 import com.example.tirtir_mcommerce.model.OrderResponse;
 import com.example.tirtir_mcommerce.model.RoutineRecommendRequest;
+import com.example.tirtir_mcommerce.model.User;
 import com.example.tirtir_mcommerce.network.ApiService;
 import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.example.tirtir_mcommerce.repository.ProductRepository;
 import com.example.tirtir_mcommerce.utils.RoutineConflictChecker;
+import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.gson.Gson;
 
@@ -779,16 +782,31 @@ public class RoutineFragment extends Fragment {
         private void saveAndShare() {
             if (adapter.getItemCount() == 0) return;
 
+            SharedPrefsManager prefs = new SharedPrefsManager(requireContext());
+            User user = prefs.getCachedUser();
+            if (user == null || user.getId() == null) {
+                Toast.makeText(requireContext(), "Routine could not be saved. Please sign in and retry.", Toast.LENGTH_LONG).show();
+                return;
+            }
+
             ApiService api = RetrofitClient.getAuthClient(requireContext()).create(ApiService.class);
             Map<String, Object> req = new HashMap<>();
             req.put("isPublic", true);
+            req.put("isMorning", isMorning);
             req.put("name", isMorning ? "My AM Routine" : "My PM Routine");
             req.put("description", isMorning ? "Personalized morning ritual" : "Personalized evening ritual");
             
+            req.put("userId", user.getId());
+            if (user.getEmail() != null) {
+                req.put("email", user.getEmail());
+            }
+
             List<Map<String, String>> items = new ArrayList<>();
             for (RoutineStep step : adapter.steps) {
                 Map<String, String> i = new HashMap<>();
                 i.put("step", step.slot);
+                i.put("stepType", step.slot);
+                i.put("stepName", step.slot);
                 i.put("productId", step.product.getProductId() != null && !step.product.getProductId().isEmpty()
                         ? step.product.getProductId() : step.product.getId());
                 i.put("productName", step.product.getName());
@@ -811,7 +829,11 @@ public class RoutineFragment extends Fragment {
                             .setPositiveButton("Done", null)
                             .show();
                     } else {
-                        Toast.makeText(requireContext(), "Routine could not be saved. Please sign in and retry.", Toast.LENGTH_LONG).show();
+                        if (response.code() == 401) {
+                            Toast.makeText(requireContext(), "Routine could not be saved. Please sign in and retry.", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(requireContext(), "Routine could not be saved. Please check your connection and retry.", Toast.LENGTH_LONG).show();
+                        }
                     }
                 }
                 @Override
@@ -845,6 +867,9 @@ public class RoutineFragment extends Fragment {
     }
 
     public static class RoutineCommunityPageFragment extends Fragment {
+        private RoutineCommunityAdapter adapter;
+        private TextView emptyTextView;
+
         static RoutineCommunityPageFragment newInstance() { return new RoutineCommunityPageFragment(); }
 
         @Nullable
@@ -857,11 +882,21 @@ public class RoutineFragment extends Fragment {
         @Override
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             RecyclerView list = view.findViewById(R.id.rvCommunityRoutines);
-            TextView empty = view.findViewById(R.id.tvCommunityEmpty);
+            emptyTextView = view.findViewById(R.id.tvCommunityEmpty);
             list.setLayoutManager(new LinearLayoutManager(getContext()));
-            RoutineCommunityAdapter adapter = new RoutineCommunityAdapter();
+            adapter = new RoutineCommunityAdapter();
             list.setAdapter(adapter);
+        }
 
+        @Override
+        public void onResume() {
+            super.onResume();
+            if (adapter != null && emptyTextView != null) {
+                loadCommunityRoutines();
+            }
+        }
+
+        private void loadCommunityRoutines() {
             ApiService api = RetrofitClient.getAuthClient(requireContext()).create(ApiService.class);
             api.getCommunityRoutines().enqueue(new Callback<ApiResponse<List<Map<String, Object>>>>() {
                 @Override
@@ -880,16 +915,16 @@ public class RoutineFragment extends Fragment {
                         }
                     }
                     adapter.submitList(routines);
-                    empty.setText(routines.isEmpty()
+                    emptyTextView.setText(routines.isEmpty()
                             ? "No public routines are available yet. Save a four-step routine to start the community."
                             : "");
-                    empty.setVisibility(routines.isEmpty() ? View.VISIBLE : View.GONE);
+                    emptyTextView.setVisibility(routines.isEmpty() ? View.VISIBLE : View.GONE);
                 }
 
                 @Override
                 public void onFailure(Call<ApiResponse<List<Map<String, Object>>>> call, Throwable t) {
-                    empty.setText("Community routines could not be loaded. Pull back and retry when connected.");
-                    empty.setVisibility(View.VISIBLE);
+                    emptyTextView.setText("Community routines could not be loaded. Pull back and retry when connected.");
+                    emptyTextView.setVisibility(View.VISIBLE);
                 }
             });
         }

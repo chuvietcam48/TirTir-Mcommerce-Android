@@ -332,6 +332,7 @@ public class MainActivity extends AppCompatActivity {
         }
         updateDrawerHeader();
         updateCartBadge();
+        com.example.tirtir_mcommerce.utils.HeaderHelper.updateNotificationBadge(findViewById(R.id.drawerLayoutMain), this);
     }
 
     @Override

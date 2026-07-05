@@ -148,7 +148,7 @@
                 android:id="@+id/tvNoVouchers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="No vouchers yet. Redeem your points above!"
+                android:text="No vouchers yet. Redeem a voucher above."
                 android:textColor="@color/tirtir_text_secondary"
                 android:textSize="14sp"
                 android:gravity="center"

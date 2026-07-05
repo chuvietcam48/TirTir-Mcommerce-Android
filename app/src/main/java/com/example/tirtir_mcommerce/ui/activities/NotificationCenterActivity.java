@@ -143,8 +143,12 @@ public class NotificationCenterActivity extends AppCompatActivity {
     private void openNotification(Map<String, Object> notification) {
         String id = text(notification.get("_id"));
         if (!id.isEmpty() && !bool(notification.get("isRead"))) {
+            notification.put("isRead", true);
+            adapter.notifyDataSetChanged();
             api.markNotificationRead(id).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
-                @Override public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) { }
+                @Override public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
+                    loadNotifications();
+                }
                 @Override public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) { }
             });
         }

@@ -48,14 +48,41 @@
 
     </LinearLayout>
 
-    <ImageButton
+    <FrameLayout
         android:id="@+id/btnNotifications"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/ic_notifications"
-        app:tint="@color/tirtir_black"
-        android:contentDescription="Notifications" />
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackgroundBorderless">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_notifications"
+            app:tint="@color/tirtir_black"
+            android:contentDescription="Notifications" />
+
+        <TextView
+            android:id="@+id/tvNotificationBadge"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="2dp"
+            android:background="@drawable/ic_tirtir_brand_circle"
+            android:backgroundTint="@color/tirtir_red_primary"
+            android:gravity="center"
+            android:text="0"
+            android:textColor="@color/tirtir_white"
+            android:textSize="9sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+    </FrameLayout>
 
     <FrameLayout
         android:id="@+id/btnCart"

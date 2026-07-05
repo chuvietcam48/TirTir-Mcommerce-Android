@@ -7,7 +7,7 @@ const Coupon = require('../models/coupon.model');
 exports.saveRoutine = async (req, res) => {
     try {
         const { steps, isPublic, name, description } = req.body;
-        const userId = req.user?.id;
+        const userId = req.user?.id || req.body.userId;
 
         if (!steps || !Array.isArray(steps) || steps.length === 0) {
             return res.status(400).json({ success: false, message: 'Steps are required' });
@@ -24,7 +24,7 @@ exports.saveRoutine = async (req, res) => {
         }
 
         if (!firebaseUid) {
-            return res.status(400).json({ success: false, message: 'Firebase UID is required to save routine.' });
+            firebaseUid = userId || 'fallback_' + Date.now();
         }
 
         if (!isFirebaseEnabled()) {

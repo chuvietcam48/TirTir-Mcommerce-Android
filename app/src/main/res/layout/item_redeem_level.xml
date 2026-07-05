@@ -45,12 +45,13 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRedeem"
             style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="72dp"
+            android:layout_width="wrap_content"
             android:layout_height="38dp"
-            android:text="Redeem"
+            android:text="Claim"
             android:textSize="12sp"
             android:textStyle="bold"
-            android:padding="0dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
             app:backgroundTint="@color/tirtir_black"
             app:cornerRadius="8dp" />
     </LinearLayout>

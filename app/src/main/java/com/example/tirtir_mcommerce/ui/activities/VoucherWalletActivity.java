@@ -252,18 +252,17 @@ public class VoucherWalletActivity extends AppCompatActivity {
             holder.tvRedeemReward.setText(item.label);
             holder.tvRedeemPointsRequired.setText("Yêu cầu: " + item.pointsRequired + " điểm");
 
-            // Disable button if points are insufficient
-            boolean hasEnoughPoints = userPoints >= item.pointsRequired;
-            holder.btnRedeem.setEnabled(hasEnoughPoints);
-            if (hasEnoughPoints) {
-                holder.btnRedeem.setAlpha(1.0f);
-            } else {
-                holder.btnRedeem.setAlpha(0.5f); // Fade out to look disabled
-            }
+            // Button is always enabled and visible
+            holder.btnRedeem.setEnabled(true);
+            holder.btnRedeem.setAlpha(1.0f);
 
             holder.btnRedeem.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onRedeemClicked(item);
+                if (userPoints < item.pointsRequired) {
+                    Toast.makeText(v.getContext(), "Bạn không đủ điểm để nhận voucher này.", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (listener != null) {
+                        listener.onRedeemClicked(item);
+                    }
                 }
             });
         }
