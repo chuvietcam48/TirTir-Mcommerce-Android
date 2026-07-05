@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const mongoose = require('mongoose');
 
 // GET /api/v1/products
 // Query params:
@@ -99,53 +100,70 @@ exports.matchCushion = async (req, res) => {
   const userLab = rgbToLab(userRgb);
 
   // Full TirTir Cushion Shade Dataset (hardcoded fallback khi DB không có shade_color_hex)
+  const defaultImg = "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400";
   const shadeDataset = [
-    { code: "17C", name: "17C Porcelain", hex: "#f9d9c2", productName: "Mask Fit Red Cushion", price: 35.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
-    { code: "21N", name: "21N Ivory", hex: "#ebc5a1", productName: "Mask Fit Red Cushion", price: 35.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
-    { code: "23N", name: "23N Sand", hex: "#ebbf98", productName: "Mask Fit Red Cushion", price: 35.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
-    { code: "24N", name: "24N Latte", hex: "#e4b58e", productName: "Mask Fit Aura Cushion", price: 38.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
-    { code: "25N", name: "25N Mocha", hex: "#d9ab82", productName: "Mask Fit All-Cover Cushion", price: 36.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
-    { code: "27N", name: "27N Camel", hex: "#e5b98b", productName: "Mask Fit Red Cushion", price: 35.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
-    { code: "30N", name: "30N Honey", hex: "#d8a178", productName: "Mask Fit Aura Cushion", price: 38.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
-    { code: "33N", name: "33N Macchiato", hex: "#d3a177", productName: "Mask Fit All-Cover Cushion", price: 36.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
-    { code: "37N", name: "37N Walnut", hex: "#b88a5e", productName: "Mask Fit All-Cover Cushion", price: 36.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" },
-    { code: "43N", name: "43N Deep Cocoa", hex: "#a36a42", productName: "Mask Fit Red Cushion", price: 35.00, imageUrl: "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product" }
+    { code: "17C", name: "17C Porcelain", hex: "#f9d9c2", productName: "Mask Fit Red Cushion", price: 35.00, salePrice: 24.00, imageUrl: defaultImg },
+    { code: "21N", name: "21N Ivory", hex: "#ebc5a1", productName: "Mask Fit Red Cushion", price: 35.00, salePrice: 24.00, imageUrl: defaultImg },
+    { code: "23N", name: "23N Sand", hex: "#ebbf98", productName: "Mask Fit Red Cushion", price: 35.00, salePrice: 24.00, imageUrl: defaultImg },
+    { code: "24N", name: "24N Latte", hex: "#e4b58e", productName: "Mask Fit Aura Cushion", price: 35.00, salePrice: 24.00, imageUrl: "assets/images/products/PRD-MK-AURA/Main-Images/thumb.webp" },
+    { code: "27N", name: "27N Camel", hex: "#e5b98b", productName: "Mask Fit Red Cushion", price: 35.00, salePrice: 24.00, imageUrl: defaultImg },
+    { code: "29N", name: "29N Natural Beige", hex: "#dcb287", productName: "Mask Fit All-Cover Cushion", price: 35.00, salePrice: 24.00, imageUrl: "assets/images/products/PRD-MK-ALL/Main-Images/thumb.webp" },
+    { code: "31N", name: "31N Medium Brown", hex: "#d8a87b", productName: "Mask Fit Red Cushion", price: 35.00, salePrice: 24.00, imageUrl: defaultImg },
+    { code: "33N", name: "33N Macchiato", hex: "#d3a177", productName: "Mask Fit Red Cushion", price: 35.00, salePrice: 24.00, imageUrl: defaultImg },
+    { code: "43N", name: "43N Deep Cocoa", hex: "#a36a42", productName: "Mask Fit Red Cushion", price: 35.00, salePrice: 24.00, imageUrl: defaultImg }
   ];
 
-  // Try fetching real products from MongoDB first
+  // Fetch shades from real dataset in MongoDB
   let results = [];
   try {
-    const products = await Product.find({
-      Category: { $regex: /cushion|foundation/i },
-      shade_color_hex: { $ne: null }
-    }).select('Product_ID Name Price Sale_Price Thumbnail_Images Category shade_color_hex').lean();
+    const shades = await mongoose.connection.db.collection('shades').find({
+      Shade_Type: { $regex: /cushion/i }
+    }).toArray();
 
-    if (products && products.length > 0) {
-      const cdnBase = process.env.CDN_BASE_URL || 'https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product';
-      results = products.map(p => {
-        const prodRgb = hexToRgb(p.shade_color_hex);
+    if (shades && shades.length > 0) {
+      const productIds = [...new Set(shades.map(s => s.Product_ID))];
+      const products = await Product.find({ Product_ID: { $in: productIds } }).lean();
+      const productMap = {};
+      products.forEach(p => {
+        productMap[p.Product_ID] = p;
+      });
+
+      results = shades.map(shade => {
+        const shadeRgb = hexToRgb(shade.Hex_Code);
         let deltaE = 999;
-        if (prodRgb) {
-          const prodLab = rgbToLab(prodRgb);
-          deltaE = calculateDeltaE(userLab, prodLab);
+        if (shadeRgb) {
+          const shadeLab = rgbToLab(shadeRgb);
+          deltaE = calculateDeltaE(userLab, shadeLab);
         }
-        let imgUrl = p.Thumbnail_Images || '';
-        if (imgUrl && !imgUrl.startsWith('http')) imgUrl = cdnBase;
+        
+        const parentProd = productMap[shade.Product_ID] || {};
+        
+          let finalImageUrl = defaultImg;
+          if (parentProd && parentProd.Thumbnail_Images) {
+              try {
+                  const arr = JSON.parse(parentProd.Thumbnail_Images);
+                  if (Array.isArray(arr) && arr.length > 0) finalImageUrl = arr[0];
+              } catch(e) {
+                  finalImageUrl = parentProd.Thumbnail_Images;
+              }
+          } else if (shade.Shade_Image) {
+              finalImageUrl = shade.Shade_Image;
+          }
 
-        return {
-          Product_ID: p.Product_ID || p._id.toString(),
-          Shade_Name: p.Name || '',
-          matchScore: parseFloat(deltaE.toFixed(2)),
-          productName: p.Name || 'TirTir Cushion',
-          imageUrl: imgUrl,
-          price: p.Price || 0,
-          salePrice: p.Sale_Price || 0,
-          shadeHex: p.shade_color_hex
+          return {
+            Product_ID: shade.Shade_ID || `cushion-${shade.Shade_Code.toLowerCase()}`,
+            Shade_Name: `${shade.Shade_Code} ${shade.Shade_Name}`,
+            matchScore: parseFloat(deltaE.toFixed(2)),
+            productName: parentProd.Name || shade.Shade_Category_Name || 'TirTir Cushion',
+            imageUrl: finalImageUrl,
+          price: parentProd.Price || 35,
+          salePrice: parentProd.Sale_Price || 0,
+          shadeHex: shade.Hex_Code
         };
       });
     }
   } catch (dbErr) {
-    console.warn('DB query failed for cushion-match, using fallback dataset:', dbErr.message);
+    console.warn('DB query failed for shades collection, using fallback dataset:', dbErr.message);
   }
 
   // Fallback: use hardcoded dataset if DB returned nothing
@@ -162,7 +180,7 @@ exports.matchCushion = async (req, res) => {
         productName: shade.productName,
         imageUrl: shade.imageUrl,
         price: shade.price,
-        salePrice: 0,
+        salePrice: shade.salePrice || 0,
         shadeHex: shade.hex
       };
     });

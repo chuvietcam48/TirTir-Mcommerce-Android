@@ -134,7 +134,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="💧 Moisture"
+                    android:text="Moisture"
                     android:textColor="@color/tirtir_white"
                     android:textSize="13sp"
                     android:textStyle="bold" />
@@ -161,7 +161,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="🔴 Redness"
+                    android:text="Redness"
                     android:textColor="@color/tirtir_white"
                     android:textSize="13sp"
                     android:textStyle="bold" />
@@ -196,7 +196,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="⬤ Pores"
+                    android:text="Pores"
                     android:textColor="@color/tirtir_white"
                     android:textSize="13sp"
                     android:textStyle="bold" />
@@ -223,7 +223,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="✨ Evenness"
+                    android:text="Evenness"
                     android:textColor="@color/tirtir_white"
                     android:textSize="13sp"
                     android:textStyle="bold" />

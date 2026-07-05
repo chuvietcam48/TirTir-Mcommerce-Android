@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,6 +16,8 @@ import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.SkinAnalysisResult;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.flexbox.FlexboxLayout;
+import com.bumptech.glide.Glide;
+import java.io.File;
 
 import java.util.List;
 
@@ -35,12 +38,15 @@ public class SkinReportFragment extends Fragment {
 
     // UI
     private View cardConfidenceWarning;
-    private View viewSkinToneSwatch;
+    private ImageView imgSkinToneFace;
     private TextView tvSkinToneMeta;
     private TextView tvItaAngle;
     private TextView tvSkinType;
-    private CircularProgressIndicator progressTexture, progressPores, progressHydration;
-    private TextView tvTextureScore, tvPoresScore, tvHydrationScore;
+    private CircularProgressIndicator progressOverall, progressTexture, progressPores, progressHydration;
+    private TextView tvOverallScore, tvOverallDesc;
+    private TextView tvTextureScore, tvTextureDesc;
+    private TextView tvPoresScore, tvPoresDesc;
+    private TextView tvHydrationScore, tvHydrationDesc;
     private FlexboxLayout flexConcerns;
     private TextView tvNoConcerns;
 
@@ -74,16 +80,26 @@ public class SkinReportFragment extends Fragment {
 
     private void bindViews(View view) {
         cardConfidenceWarning = view.findViewById(R.id.cardConfidenceWarning);
-        viewSkinToneSwatch    = view.findViewById(R.id.viewSkinToneSwatch);
+        imgSkinToneFace       = view.findViewById(R.id.imgSkinToneFace);
         tvSkinToneMeta        = view.findViewById(R.id.tvSkinToneMeta);
         tvItaAngle            = view.findViewById(R.id.tvItaAngle);
         tvSkinType            = view.findViewById(R.id.tvSkinType);
+        progressOverall       = view.findViewById(R.id.progressOverall);
+        tvOverallScore        = view.findViewById(R.id.tvOverallScore);
+        tvOverallDesc         = view.findViewById(R.id.tvOverallDesc);
+        
         progressTexture       = view.findViewById(R.id.progressTexture);
         progressPores         = view.findViewById(R.id.progressPores);
         progressHydration     = view.findViewById(R.id.progressHydration);
+        
         tvTextureScore        = view.findViewById(R.id.tvTextureScore);
+        tvTextureDesc         = view.findViewById(R.id.tvTextureDesc);
+        
         tvPoresScore          = view.findViewById(R.id.tvPoresScore);
+        tvPoresDesc           = view.findViewById(R.id.tvPoresDesc);
+        
         tvHydrationScore      = view.findViewById(R.id.tvHydrationScore);
+        tvHydrationDesc       = view.findViewById(R.id.tvHydrationDesc);
         flexConcerns          = view.findViewById(R.id.flexConcerns);
         tvNoConcerns          = view.findViewById(R.id.tvNoConcerns);
     }
@@ -96,12 +112,16 @@ public class SkinReportFragment extends Fragment {
                 && analysisResult.getConfidence() < 50.0;
         cardConfidenceWarning.setVisibility(lowConfidence ? View.VISIBLE : View.GONE);
 
-        // Skin tone swatch
-        String hex = analysisResult.getSkinHex();
-        if (hex != null && !hex.isEmpty()) {
-            try {
-                viewSkinToneSwatch.setBackgroundColor(Color.parseColor(hex));
-            } catch (Exception ignored) { }
+        // Skin tone face image / swatch fallback
+        if (analysisResult.getImagePath() != null && !analysisResult.getImagePath().isEmpty()) {
+            Glide.with(this).load(new File(analysisResult.getImagePath())).into(imgSkinToneFace);
+        } else {
+            String hex = analysisResult.getSkinHex();
+            if (hex != null && !hex.isEmpty()) {
+                try {
+                    imgSkinToneFace.setBackgroundColor(Color.parseColor(hex));
+                } catch (Exception ignored) { }
+            }
         }
 
         // Tone + Undertone meta
@@ -120,10 +140,30 @@ public class SkinReportFragment extends Fragment {
         // Skin type badge
         tvSkinType.setText(safeStr(analysisResult.getSkinType(), "—"));
 
-        // Circular scores
-        bindScore(progressTexture, tvTextureScore, "Texture", textureScore);
-        bindScore(progressPores, tvPoresScore, "Pores", poresScore);
-        bindScore(progressHydration, tvHydrationScore, "Hydration", hydrationScore);
+        // Overall Score Calculation
+        if (textureScore >= 0 && poresScore >= 0 && hydrationScore >= 0) {
+            int overall = (textureScore + Math.max(0, 100 - poresScore) + hydrationScore) / 3;
+            progressOverall.setProgressCompat(overall, true);
+            tvOverallScore.setText(String.valueOf(overall));
+            if (overall >= 90) tvOverallDesc.setText("Your skin is looking excellent!");
+            else if (overall >= 70) tvOverallDesc.setText("Your skin is healthy and well-maintained.");
+            else if (overall >= 50) tvOverallDesc.setText("Your skin could use a little more care.");
+            else tvOverallDesc.setText("Your skin needs some attention.");
+        } else {
+            progressOverall.setProgressCompat(0, false);
+            tvOverallScore.setText("-");
+            tvOverallDesc.setText("Not enough data.");
+        }
+
+        // Circular scores inside indicators
+        bindScore(progressTexture, tvTextureScore, textureScore);
+        bindScore(progressPores, tvPoresScore, poresScore);
+        bindScore(progressHydration, tvHydrationScore, hydrationScore);
+        
+        // Descriptions
+        setDesc(tvTextureDesc, textureScore, "Smooth", "Fair", "Uneven", true);
+        setDesc(tvPoresDesc, poresScore, "Large", "Visible", "Tight", false); // lower pores is better
+        setDesc(tvHydrationDesc, hydrationScore, "Hydrated", "Normal", "Dry", true);
 
         // Concerns FlexboxLayout
         List<String> concerns = analysisResult.getConcerns();
@@ -155,14 +195,30 @@ public class SkinReportFragment extends Fragment {
         }
     }
 
-    private void bindScore(CircularProgressIndicator indicator, TextView label,
-                           String name, int score) {
+    private void bindScore(CircularProgressIndicator indicator, TextView label, int score) {
         if (score >= 0) {
             indicator.setProgressCompat(score, true);
-            label.setText(name + " " + score);
+            label.setText(String.valueOf(score));
         } else {
             indicator.setProgressCompat(0, false);
-            label.setText(name);
+            label.setText("-");
+        }
+    }
+
+    private void setDesc(TextView tv, int score, String high, String mid, String low, boolean higherIsBetter) {
+        if (score < 0) {
+            tv.setText("-");
+            return;
+        }
+        boolean good = higherIsBetter ? (score >= 70) : (score <= 30);
+        boolean bad = higherIsBetter ? (score <= 30) : (score >= 70);
+        
+        if (good) {
+            tv.setText(higherIsBetter ? high : low);
+        } else if (bad) {
+            tv.setText(higherIsBetter ? low : high);
+        } else {
+            tv.setText(mid);
         }
     }
 

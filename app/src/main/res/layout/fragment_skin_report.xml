@@ -1,273 +1,433 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/tirtir_off_white">
+    android:background="@color/tirtir_off_white"
+    android:paddingHorizontal="16dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <!-- Low Confidence Warning -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardConfidenceWarning"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <!-- Low Confidence Warning Banner -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardConfidenceWarning"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="8dp"
+        app:cardBackgroundColor="#FFF3CD"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="0dp"
+        app:strokeColor="#FFC107"
+        app:strokeWidth="1dp">
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:visibility="gone"
-            app:cardBackgroundColor="#FFF3CD"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="0dp"
-            app:strokeColor="#FFC107"
-            app:strokeWidth="1dp">
+            android:padding="8dp"
+            android:text="⚠️ Low image quality (confidence &lt; 50%)."
+            android:textColor="#856404"
+            android:textSize="12sp" />
+    </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="12dp"
-                android:text="⚠️ Low image quality detected (confidence &lt; 50%). Results may be less accurate. Try retaking in better lighting."
-                android:textColor="#856404"
-                android:textSize="13sp" />
-        </com.google.android.material.card.MaterialCardView>
+    <!-- Hero Card: Overall Score & Skin Profile -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardHero"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/cardConfidenceWarning"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="4dp"
+        app:cardBackgroundColor="@color/tirtir_white"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp">
 
-        <!-- Skin Tone Card -->
-        <com.google.android.material.card.MaterialCardView
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/tirtir_white"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="1dp">
+            android:padding="16dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="16dp">
+            <!-- Left side: Overall Score -->
+            <FrameLayout
+                android:id="@+id/frameOverall"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
 
-                <View
-                    android:id="@+id/viewSkinToneSwatch"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:background="@drawable/bg_shade_swatch" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="14dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Skin Tone"
-                        android:textColor="@color/tirtir_black"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvSkinToneMeta"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Analyzing..."
-                        android:textColor="@color/tirtir_text_secondary"
-                        android:textSize="13sp" />
-
-                    <TextView
-                        android:id="@+id/tvItaAngle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:textColor="@color/tirtir_text_secondary"
-                        android:textSize="12sp" />
-                </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Skin Type Badge -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:cardBackgroundColor="@color/tirtir_white"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Skin Type"
-                    android:textColor="@color/tirtir_black"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvSkinType"
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/progressOverall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_tag_primary"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="4dp"
-                    android:text="—"
-                    android:textColor="@color/tirtir_white"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Skin Scores -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal">
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="130dp"
-                android:layout_marginEnd="6dp"
-                android:layout_weight="1"
-                app:cardBackgroundColor="@color/tirtir_white"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="1dp">
+                    android:layout_gravity="center"
+                    app:indicatorColor="@color/tirtir_red_primary"
+                    app:indicatorSize="140dp"
+                    app:trackColor="@color/tirtir_red_surface"
+                    app:trackThickness="10dp" />
 
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:gravity="center"
                     android:orientation="vertical">
+                    
+                    <TextView
+                        android:id="@+id/tvOverallScore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="@color/tirtir_black"
+                        android:textSize="40sp"
+                        android:textStyle="bold" />
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="/100"
+                        android:textColor="@color/tirtir_text_secondary"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </FrameLayout>
 
+            <TextView
+                android:id="@+id/tvHeroTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@id/frameOverall"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginStart="16dp"
+                android:text="Skin Health"
+                android:textColor="@color/tirtir_black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <!-- Right side: Face Image -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardFace"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                app:layout_constraintStart_toEndOf="@id/frameOverall"
+                app:layout_constraintTop_toBottomOf="@id/tvHeroTitle"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="28dp"
+                app:strokeColor="#E0E0E0"
+                app:strokeWidth="1dp">
+                
+                <ImageView
+                    android:id="@+id/imgSkinToneFace"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/bg_shade_swatch" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintStart_toEndOf="@id/cardFace"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/cardFace"
+                app:layout_constraintBottom_toBottomOf="@id/cardFace"
+                android:layout_marginStart="8dp">
+
+                <TextView
+                    android:id="@+id/tvSkinToneMeta"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tone"
+                    android:textColor="@color/tirtir_black"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvItaAngle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvSkinType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@id/frameOverall"
+                app:layout_constraintTop_toBottomOf="@id/cardFace"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_tag_primary"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:text="—"
+                android:textColor="@color/tirtir_white"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/tvOverallDesc"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/cardHero"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="Your skin is looking great!"
+        android:textColor="@color/tirtir_text_secondary"
+        android:textSize="15sp" />
+
+    <!-- Detailed Metrics Row -->
+    <LinearLayout
+        android:id="@+id/llMetrics"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/tvOverallDesc"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <!-- Texture Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            app:cardBackgroundColor="@color/tirtir_white"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingVertical="12dp"
+                android:paddingHorizontal="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Texture"
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
                     <com.google.android.material.progressindicator.CircularProgressIndicator
                         android:id="@+id/progressTexture"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        app:indicatorColor="@color/tirtir_red_primary"
-                        app:trackColor="@color/tirtir_red_surface"
-                        app:trackThickness="6dp" />
-
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        app:indicatorColor="#4CAF50"
+                        app:indicatorSize="60dp"
+                        app:trackColor="#E8F5E9"
+                        app:trackThickness="5dp" />
                     <TextView
                         android:id="@+id/tvTextureScore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Texture"
+                        android:layout_gravity="center"
+                        android:text="0"
                         android:textColor="@color/tirtir_black"
-                        android:textSize="13sp"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="130dp"
-                android:layout_marginHorizontal="6dp"
-                android:layout_weight="1"
-                app:cardBackgroundColor="@color/tirtir_white"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                </FrameLayout>
+                <TextView
+                    android:id="@+id/tvTextureDesc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:text="Smooth"
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
+        <!-- Pores Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            app:cardBackgroundColor="@color/tirtir_white"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingVertical="12dp"
+                android:paddingHorizontal="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Pores"
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
                     <com.google.android.material.progressindicator.CircularProgressIndicator
                         android:id="@+id/progressPores"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         app:indicatorColor="@color/tirtir_warning"
-                        app:trackColor="@color/tirtir_off_white"
-                        app:trackThickness="6dp" />
-
+                        app:indicatorSize="60dp"
+                        app:trackColor="#FFF3E0"
+                        app:trackThickness="5dp" />
                     <TextView
                         android:id="@+id/tvPoresScore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Pores"
+                        android:layout_gravity="center"
+                        android:text="0"
                         android:textColor="@color/tirtir_black"
-                        android:textSize="13sp"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="130dp"
-                android:layout_marginStart="6dp"
-                android:layout_weight="1"
-                app:cardBackgroundColor="@color/tirtir_white"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                </FrameLayout>
+                <TextView
+                    android:id="@+id/tvPoresDesc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:text="Visible"
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
+        <!-- Hydration Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:cardBackgroundColor="@color/tirtir_white"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingVertical="12dp"
+                android:paddingHorizontal="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Hydration"
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
                     <com.google.android.material.progressindicator.CircularProgressIndicator
                         android:id="@+id/progressHydration"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        app:indicatorColor="@color/tirtir_info"
-                        app:trackColor="@color/tirtir_off_white"
-                        app:trackThickness="6dp" />
-
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        app:indicatorColor="#2196F3"
+                        app:indicatorSize="60dp"
+                        app:trackColor="#E3F2FD"
+                        app:trackThickness="5dp" />
                     <TextView
                         android:id="@+id/tvHydrationScore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Hydration"
+                        android:layout_gravity="center"
+                        android:text="0"
                         android:textColor="@color/tirtir_black"
-                        android:textSize="13sp"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
-
-        <!-- Skin Concerns -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="8dp"
-            android:text="Skin Concerns"
-            android:textColor="@color/tirtir_black"
-            android:textSize="15sp"
-            android:textStyle="bold" />
-
-        <com.google.android.flexbox.FlexboxLayout
-            android:id="@+id/flexConcerns"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:flexWrap="wrap"
-            app:alignItems="flex_start"
-            app:justifyContent="flex_start" />
-
-        <TextView
-            android:id="@+id/tvNoConcerns"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="No concerns detected 🎉"
-            android:textColor="@color/tirtir_text_secondary"
-            android:textSize="13sp"
-            android:visibility="gone" />
+                </FrameLayout>
+                <TextView
+                    android:id="@+id/tvHydrationDesc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center"
+                    android:text="Optimal"
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+
+    <!-- Key Concerns -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardConcerns"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/llMetrics"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp"
+        app:cardBackgroundColor="@color/tirtir_white"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Key Skin Concerns"
+                android:textColor="@color/tirtir_black"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/flexConcerns"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:flexWrap="wrap"
+                app:alignItems="flex_start"
+                app:alignContent="flex_start"
+                app:justifyContent="flex_start" />
+
+            <TextView
+                android:id="@+id/tvNoConcerns"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="No major concerns detected."
+                android:textColor="@color/tirtir_text_secondary"
+                android:textSize="13sp"
+                android:visibility="gone" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

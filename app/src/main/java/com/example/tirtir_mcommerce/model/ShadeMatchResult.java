@@ -10,23 +10,31 @@ import com.google.gson.annotations.SerializedName;
  */
 public class ShadeMatchResult {
     // Trường từ API response
+    @SerializedName(value="Product_ID")
     private String Product_ID;
+
+    @SerializedName(value="Shade_Name")
     private String Shade_Name;
+
+    @SerializedName(value="deltaE")
     private double matchScore;
     
-    @SerializedName(value="productName", alternate={"Product_Name"})
+    @SerializedName(value="Name", alternate={"productName", "Product_Name"})
     private String productName;
     
-    @SerializedName(value="imageUrl", alternate={"Image_URL"})
+    @SerializedName(value="Thumbnail_Images")
+    private java.util.List<String> thumbnailImages;
+    
+    @SerializedName(value="imageUrl", alternate={"image"})
     private String imageUrl;
     
-    @SerializedName(value="price", alternate={"Price"})
+    @SerializedName(value="Price", alternate={"price"})
     private double price;
     
-    @SerializedName(value="salePrice", alternate={"Sale_Price"})
+    @SerializedName(value="Sale_Price", alternate={"salePrice"})
     private double salePrice;
     
-    @SerializedName(value="shadeHex", alternate={"Hex_Code"})
+    @SerializedName(value="shade_color_hex", alternate={"shadeHex", "Hex_Code"})
     private String shadeHex;
 
     /**
@@ -71,7 +79,15 @@ public class ShadeMatchResult {
     public String getShadeName() { return Shade_Name; }
     public double getMatchScore() { return matchScore; }
     public String getProductName() { return productName; }
-    public String getImageUrl() { return imageUrl; }
+    public String getImageUrl() { 
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            return imageUrl;
+        }
+        if (thumbnailImages != null && !thumbnailImages.isEmpty()) {
+            return thumbnailImages.get(0);
+        }
+        return null; 
+    }
     public double getPrice() { return price; }
     public double getSalePrice() { return salePrice; }
     public String getShadeHex() { return shadeHex; }
@@ -82,7 +98,12 @@ public class ShadeMatchResult {
     public void setShadeName(String name) { this.Shade_Name = name; }
     public void setMatchScore(double score) { this.matchScore = score; }
     public void setProductName(String name) { this.productName = name; }
-    public void setImageUrl(String url) { this.imageUrl = url; }
+    public void setImageUrl(String url) { 
+        if (this.thumbnailImages == null) {
+            this.thumbnailImages = new java.util.ArrayList<>();
+        }
+        this.thumbnailImages.add(url);
+    }
     public void setPrice(double price) { this.price = price; }
     public void setSalePrice(double salePrice) { this.salePrice = salePrice; }
     public void setShadeHex(String hex) { this.shadeHex = hex; }

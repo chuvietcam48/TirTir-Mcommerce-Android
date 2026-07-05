@@ -110,7 +110,17 @@ public class ShadeFinderFragment extends Fragment {
 
         // Price
         double displayPrice = top.getDisplayPrice();
-        tvTopMatchPrice.setText(displayPrice > 0 ? PriceUtils.formatVnd(displayPrice) : "");
+        double originalPrice = top.getPrice();
+        
+        TextView tvTopMatchOriginalPrice = getView().findViewById(R.id.tvTopMatchOriginalPrice);
+        if (originalPrice > displayPrice) {
+            tvTopMatchOriginalPrice.setVisibility(View.VISIBLE);
+            tvTopMatchOriginalPrice.setText(PriceUtils.formatPriceUsd(originalPrice));
+            tvTopMatchOriginalPrice.setPaintFlags(tvTopMatchOriginalPrice.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+        } else {
+            tvTopMatchOriginalPrice.setVisibility(View.GONE);
+        }
+        tvTopMatchPrice.setText(displayPrice > 0 ? PriceUtils.formatPriceUsd(displayPrice) : "");
 
         // Shade swatch color
         String hex = top.getShadeHex() != null ? top.getShadeHex() : skinHex;
@@ -125,7 +135,7 @@ public class ShadeFinderFragment extends Fragment {
             String topImgUrl = ApiConfig.resolveMediaUrl(top.getImageUrl());
             Glide.with(requireContext()).load(topImgUrl)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .placeholder(R.drawable.ic_skin).into(imgTopMatchProduct);
+                    .placeholder(R.drawable.ic_product_placeholder).into(imgTopMatchProduct);
         }
 
         // Add to cart — top match
@@ -136,7 +146,8 @@ public class ShadeFinderFragment extends Fragment {
         for (int i = 1; i < shadeResults.size(); i++) {
             ShadeMatchResult item = shadeResults.get(i);
             String id = item.getProductId() != null ? item.getProductId() : "";
-            double price = item.getDisplayPrice();
+            double salePrc = item.getDisplayPrice();
+            double origPrc = item.getPrice();
             String shadeHex = item.getShadeHex() != null ? item.getShadeHex() : (skinHex != null ? skinHex : "#E9B5A5");
             
             String imgUrl = item.getImageUrl() != null ? ApiConfig.resolveMediaUrl(item.getImageUrl()) : null;
@@ -147,7 +158,8 @@ public class ShadeFinderFragment extends Fragment {
                     imgUrl,
                     shadeHex,
                     item.getQualityLabel(),
-                    price,
+                    salePrc,
+                    origPrc,
                     item.getShadeName(),
                     item.getMatchPercent()
             ));

@@ -141,9 +141,14 @@ public class SkinResultActivity extends AppCompatActivity {
             
             String skinHex = analysisResult != null ? analysisResult.getSkinHex() : null;
             
+            // Retrieve live metrics scores
+            int scoreMoisture = getIntent().getIntExtra("SCORE_MOISTURE", -1);
+            int scoreTexture = getIntent().getIntExtra("SCORE_TEXTURE", -1);
+            int scorePores = getIntent().getIntExtra("SCORE_PORES", -1);
+
             // Cập nhật UI của Tab 1 và Tab 2 trước
             shadeFinderFragment.updateData(shadeResults, skinHex);
-            skinReportFragment.updateData(analysisResult, -1, -1, -1,
+            skinReportFragment.updateData(analysisResult, scoreTexture, scorePores, scoreMoisture,
                     analysisResult != null ? analysisResult.computeItaAngle() : Double.NaN);
 
             // Preload shade match images for faster display
@@ -424,11 +429,19 @@ public class SkinResultActivity extends AppCompatActivity {
 
             Object hBoost = itemMap.get("hydrationBoost");
             if (hBoost instanceof Number) step.setHydrationBoost(((Number) hBoost).intValue());
-            else step.setHydrationBoost(3);
+            else {
+                // Generate dynamic hydration boost based on step index (1-10)
+                int dynamicHydration = (stepIndex * 2) % 5 + 3; // Values between 3 and 7
+                step.setHydrationBoost(dynamicHydration);
+            }
 
             Object tBoost = itemMap.get("textureBoost");
             if (tBoost instanceof Number) step.setTextureBoost(((Number) tBoost).intValue());
-            else step.setTextureBoost(2);
+            else {
+                // Generate dynamic texture boost based on step index
+                int dynamicTexture = (stepIndex * 3) % 4 + 2; // Values between 2 and 5
+                step.setTextureBoost(dynamicTexture);
+            }
 
             steps.add(step);
         }
@@ -445,18 +458,18 @@ public class SkinResultActivity extends AppCompatActivity {
      */
     private List<ShadeMatchResult> buildClientSideShadeMatches() {
         List<ShadeMatchResult> results = new ArrayList<>();
-        // {shadeName, hex, matchScore, productName, price, imageUrl, productId}
+        // {shadeName, hex, matchScore, productName, price, imageUrl, productId, salePrice}
         String[][] shades = {
             {"21N Ivory", "#ebc5a1", "3.2", "Mask Fit Red Cushion", "35.00",
-                    "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product", "cushion-21n"},
+                    "assets/images/products/PRD-MK-RED/Main-Images/thumb.webp", "cushion-21n", "24.00"},
             {"23N Sand", "#ebbf98", "6.5", "Mask Fit Red Cushion", "35.00",
-                    "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product", "cushion-23n"},
-            {"24N Latte", "#e4b58e", "8.0", "Mask Fit Aura Cushion", "38.00",
-                    "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product", "cushion-24n"},
+                    "assets/images/products/PRD-MK-RED/Main-Images/thumb.webp", "cushion-23n", "24.00"},
+            {"24N Latte", "#e4b58e", "8.0", "Mask Fit Aura Cushion", "35.00",
+                    "assets/images/products/PRD-MK-AURA/Main-Images/thumb.webp", "cushion-24n", "24.00"},
             {"27N Camel", "#e5b98b", "11.0", "Mask Fit Red Cushion", "35.00",
-                    "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product", "cushion-27n"},
-            {"33N Macchiato", "#d3a177", "15.0", "Mask Fit All-Cover Cushion", "36.00",
-                    "https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product", "cushion-33n"}
+                    "assets/images/products/PRD-MK-RED/Main-Images/thumb.webp", "cushion-27n", "24.00"},
+            {"33N Macchiato", "#d3a177", "15.0", "Mask Fit All-Cover Cushion", "35.00",
+                    "assets/images/products/PRD-MK-ALL/Main-Images/thumb.webp", "cushion-33n", "24.00"}
         };
         for (String[] shade : shades) {
             ShadeMatchResult r = new ShadeMatchResult();
@@ -467,6 +480,7 @@ public class SkinResultActivity extends AppCompatActivity {
             r.setPrice(Double.parseDouble(shade[4]));
             r.setImageUrl(shade[5]);
             r.setProductId(shade[6]);
+            r.setSalePrice(Double.parseDouble(shade[7]));
             results.add(r);
         }
         return results;

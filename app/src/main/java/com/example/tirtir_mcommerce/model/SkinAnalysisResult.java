@@ -13,6 +13,7 @@ public class SkinAnalysisResult {
     private List<String> concerns; // e.g. ["Acne/Blemishes", "Visible Pores"]
     private double confidence;     // 0–100
     private String skinHex;        // e.g. "#D8A087" — có thể null nếu backend chưa trả
+    private String imagePath;      // Path to the captured face image
 
     // Debug values dùng để tính ITA angle
     private DebugValues debug_values;
@@ -47,6 +48,7 @@ public class SkinAnalysisResult {
     public List<String> getConcerns() { return concerns; }
     public double getConfidence() { return confidence; }
     public String getSkinHex() { return skinHex; }
+    public String getImagePath() { return imagePath; }
     public DebugValues getDebugValues() { return debug_values; }
 
     // ---- Setters (dùng khi parse thủ công từ Map<String, Object>) ----
@@ -57,4 +59,5 @@ public class SkinAnalysisResult {
     public void setConcerns(List<String> concerns) { this.concerns = concerns; }
     public void setConfidence(double confidence) { this.confidence = confidence; }
     public void setSkinHex(String skinHex) { this.skinHex = skinHex; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
 }

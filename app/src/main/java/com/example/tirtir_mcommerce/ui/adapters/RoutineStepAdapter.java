@@ -114,6 +114,7 @@ public class RoutineStepAdapter extends ListAdapter<RoutineStep, RoutineStepAdap
         private final ImageView imgProduct;
         private final TextView tvProductName;
         private final TextView tvProductPrice;
+        private final TextView tvOriginalPrice;
         private final MaterialButton btnAddToCart;
         private final TextView tvHydrationBadge;
         private final TextView tvTextureBadge;
@@ -126,6 +127,7 @@ public class RoutineStepAdapter extends ListAdapter<RoutineStep, RoutineStepAdap
             imgProduct      = itemView.findViewById(R.id.imgRoutineProduct);
             tvProductName   = itemView.findViewById(R.id.tvAiRoutineProductName);
             tvProductPrice  = itemView.findViewById(R.id.tvRoutineProductPrice);
+            tvOriginalPrice = itemView.findViewById(R.id.tvRoutineOriginalPrice);
             btnAddToCart    = itemView.findViewById(R.id.btnRoutineAddToCart);
             tvHydrationBadge = itemView.findViewById(R.id.tvHydrationBadge);
             tvTextureBadge  = itemView.findViewById(R.id.tvTextureBadge);
@@ -141,6 +143,20 @@ public class RoutineStepAdapter extends ListAdapter<RoutineStep, RoutineStepAdap
             tvProductName.setText(productName != null ? productName : "Product TBD");
 
             double price = step.getDisplayPrice();
+            double originalPrice = step.getPrice();
+            
+            if (originalPrice > price) {
+                if (tvOriginalPrice != null) {
+                    tvOriginalPrice.setVisibility(View.VISIBLE);
+                    tvOriginalPrice.setText(PriceUtils.formatPriceUsd(originalPrice));
+                    tvOriginalPrice.setPaintFlags(tvOriginalPrice.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+                }
+            } else {
+                if (tvOriginalPrice != null) {
+                    tvOriginalPrice.setVisibility(View.GONE);
+                }
+            }
+            
             tvProductPrice.setText(price > 0
                     ? PriceUtils.formatPriceUsd(price)
                     : "");

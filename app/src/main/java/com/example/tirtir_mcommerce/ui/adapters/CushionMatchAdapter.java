@@ -29,17 +29,19 @@ public class CushionMatchAdapter extends RecyclerView.Adapter<CushionMatchAdapte
         public final String imageUrl;
         public final String shadeHex;
         public final String quality;
-        public final double price;
+        public final double price; // this is the display (sale) price
+        public final double originalPrice; // this is the base price
         public final String shadeName;
         public final int matchPercent;
 
-        public CushionMatch(String productId, String name, String imageUrl, String shadeHex, String quality, double price, String shadeName, int matchPercent) {
+        public CushionMatch(String productId, String name, String imageUrl, String shadeHex, String quality, double price, double originalPrice, String shadeName, int matchPercent) {
             this.productId = productId;
             this.name = name;
             this.imageUrl = imageUrl;
             this.shadeHex = shadeHex;
             this.quality = quality;
             this.price = price;
+            this.originalPrice = originalPrice;
             this.shadeName = shadeName;
             this.matchPercent = matchPercent;
         }
@@ -80,6 +82,7 @@ public class CushionMatchAdapter extends RecyclerView.Adapter<CushionMatchAdapte
         private final TextView name;
         private final TextView shade;
         private final TextView price;
+        private final TextView originalPrice;
         private final View swatch;
         private final Chip quality;
 
@@ -89,6 +92,7 @@ public class CushionMatchAdapter extends RecyclerView.Adapter<CushionMatchAdapte
             name = itemView.findViewById(R.id.tvCushionName);
             shade = itemView.findViewById(R.id.tvCushionShade);
             price = itemView.findViewById(R.id.tvCushionPrice);
+            originalPrice = itemView.findViewById(R.id.tvCushionOriginalPrice);
             swatch = itemView.findViewById(R.id.viewShadeSwatch);
             quality = itemView.findViewById(R.id.chipMatchQuality);
             itemView.findViewById(R.id.btnAddCushionToCart).setOnClickListener(v -> {
@@ -101,7 +105,16 @@ public class CushionMatchAdapter extends RecyclerView.Adapter<CushionMatchAdapte
         void bind(CushionMatch item) {
             name.setText(item.name);
             shade.setText("Shade: " + (item.shadeName != null ? item.shadeName : "—"));
-            price.setText(com.example.tirtir_mcommerce.utils.PriceUtils.formatVnd(item.price));
+            price.setText(com.example.tirtir_mcommerce.utils.PriceUtils.formatPriceUsd(item.price));
+            
+            if (item.originalPrice > item.price) {
+                originalPrice.setVisibility(View.VISIBLE);
+                originalPrice.setText(com.example.tirtir_mcommerce.utils.PriceUtils.formatPriceUsd(item.originalPrice));
+                originalPrice.setPaintFlags(originalPrice.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+            } else {
+                originalPrice.setVisibility(View.GONE);
+            }
+            
             quality.setText(item.matchPercent + "% — " + item.quality);
             try {
                 swatch.setBackgroundColor(Color.parseColor(item.shadeHex));
@@ -109,7 +122,7 @@ public class CushionMatchAdapter extends RecyclerView.Adapter<CushionMatchAdapte
                 swatch.setBackgroundResource(R.drawable.bg_shade_swatch);
             }
             Glide.with(image)
-                    .load(item.imageUrl)
+                    .load(com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(item.imageUrl))
                     .placeholder(R.drawable.ic_product_placeholder)
                     .error(R.drawable.ic_product_placeholder)
                     .into(image);

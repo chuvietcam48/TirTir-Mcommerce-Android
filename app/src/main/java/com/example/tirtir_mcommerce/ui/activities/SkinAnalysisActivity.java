@@ -114,6 +114,8 @@ public class SkinAnalysisActivity extends AppCompatActivity {
     // Last extracted ROI colors per-point (5 points × RGB)
     private float[][] lastRoiPerPoint;
 
+    private LiveMetrics lastMetrics;
+
     // UI
     private MaterialButton captureButton;
     private ValueAnimator buttonPulseAnimator;
@@ -292,26 +294,18 @@ public class SkinAnalysisActivity extends AppCompatActivity {
     }
 
     private void processFrameResult(ImageProxy imageProxy, List<Face> faces) {
-        boolean isEmulator = android.os.Build.FINGERPRINT.startsWith("generic")
-                || android.os.Build.FINGERPRINT.startsWith("unknown")
-                || android.os.Build.MODEL.contains("google_sdk")
-                || android.os.Build.MODEL.contains("Emulator")
-                || android.os.Build.MODEL.contains("Android SDK built for")
-                || android.os.Build.HARDWARE.contains("goldfish")
-                || android.os.Build.HARDWARE.contains("ranchu");
-
         // a. Validate face pose
         String poseError = validateFacePose(faces);
-        if (poseError != null && !isEmulator) {
+        if (poseError != null) {
             synchronized (colorHistory) { colorHistory.clear(); }
             updateStatus(poseError, false);
-            setWarningState(poseError.contains("⚠️") || poseError.contains("↔️"));
+            setWarningState(true);
             clearRoiOverlay();
             return;
         }
 
         // b. Kiểm tra face nằm trong khung oval
-        if (!faces.isEmpty() && !isEmulator) {
+        if (!faces.isEmpty()) {
             Face face = faces.get(0);
             String boundaryError = validateFaceBoundary(face, imageProxy);
             if (boundaryError != null) {
@@ -328,37 +322,21 @@ public class SkinAnalysisActivity extends AppCompatActivity {
 
         float[] roiColor;
         RoiExtractionResult roiResult;
-        if (faces.isEmpty() && isEmulator) {
-            // Mock color for emulator
-            roiColor = new float[]{216f, 160f, 135f};
-            roiResult = new RoiExtractionResult(roiColor, new float[][]{
-                    {216f, 160f, 135f}, {210f, 155f, 130f},
-                    {220f, 165f, 140f}, {218f, 162f, 138f},
-                    {212f, 158f, 132f}
-            }, 5);
-        } else {
-            Face face = faces.get(0);
-            // c. Trích xuất màu 5 ROI points từ bounding box
-            roiResult = extractRoiColorDetailed(imageProxy, face);
-            roiColor = roiResult != null ? roiResult.avgColor : null;
-        }
+        
+        Face face = faces.get(0);
+        // c. Trích xuất màu 5 ROI points từ bounding box
+        roiResult = extractRoiColorDetailed(imageProxy, face);
+        roiColor = roiResult != null ? roiResult.avgColor : null;
 
-        if (roiResult == null && !isEmulator) {
+        if (roiResult == null) {
             updateStatus("Analyzing skin...", false);
             clearRoiOverlay();
             return;
-        } else if (roiResult == null) {
-            roiColor = new float[]{216f, 160f, 135f};
-            roiResult = new RoiExtractionResult(roiColor, new float[][]{
-                    {216f, 160f, 135f}, {210f, 155f, 130f},
-                    {220f, 165f, 140f}, {218f, 162f, 138f},
-                    {212f, 158f, 132f}
-            }, 5);
         }
 
         // d. Kiểm tra đủ 5 ROI points hợp lệ
-        if (roiResult.validPointCount < 5 && !isEmulator) {
-            updateStatus("📍 Cannot detect all 5 skin points. Adjust your position.", false);
+        if (roiResult.validPointCount < 5) {
+            updateStatus("Cannot detect all 5 skin points. Adjust your position.", false);
             clearRoiOverlay();
             return;
         }
@@ -402,16 +380,16 @@ public class SkinAnalysisActivity extends AppCompatActivity {
         hideLightingWarning();
 
         // h. Tính Live Metrics
-        LiveMetrics metrics = computeLiveMetrics(snapshot, avgR, avgG, avgB);
+        lastMetrics = computeLiveMetrics(snapshot, avgR, avgG, avgB);
 
         // i. Cập nhật UI — sẵn sàng chụp
         runOnUiThread(() -> {
-            tvStatusGuide.setText("✅ Ready! Tap to capture.");
+            tvStatusGuide.setText("Ready! Tap to capture.");
             liveMetricsPanel.setVisibility(View.VISIBLE);
-            progressMoisture.setProgress((int) metrics.moisture);
-            progressRedness.setProgress((int) metrics.redness);
-            progressPoresLive.setProgress((int) metrics.pores);
-            progressEvenness.setProgress((int) metrics.evenness);
+            progressMoisture.setProgress((int) lastMetrics.moisture);
+            progressRedness.setProgress((int) lastMetrics.redness);
+            progressPoresLive.setProgress((int) lastMetrics.pores);
+            progressEvenness.setProgress((int) lastMetrics.evenness);
 
             if (!captureReady) {
                 captureReady = true;
@@ -500,15 +478,15 @@ public class SkinAnalysisActivity extends AppCompatActivity {
 
         if (!strictOval.contains(faceMapped)) {
             if (faceMapped.top < strictOval.top) {
-                return "⬆️ Face too high. Move your face down into the oval.";
+                return "Face too high. Move your face down into the oval.";
             }
             if (faceMapped.bottom > strictOval.bottom) {
-                return "⬇️ Face too low. Move your face up into the oval.";
+                return "Face too low. Move your face up into the oval.";
             }
             if (faceMapped.left < strictOval.left || faceMapped.right > strictOval.right) {
-                return "↔️ Face out of frame. Center your face in the oval.";
+                return "Face out of frame. Center your face in the oval.";
             }
-            return "⚠️ Face must be entirely inside the oval frame.";
+            return "Face must be entirely inside the oval frame.";
         }
 
         return null; // OK
@@ -523,7 +501,7 @@ public class SkinAnalysisActivity extends AppCompatActivity {
             return "No face detected. Please look straight at the camera.";
         }
         if (faces.size() > 1) {
-            return "⚠️ Multiple faces detected. Please have only ONE person in frame.";
+            return "Multiple faces detected. Please have only ONE person in frame.";
         }
 
         Face face = faces.get(0);
@@ -533,14 +511,14 @@ public class SkinAnalysisActivity extends AppCompatActivity {
         Float rightEyeOpen = face.getRightEyeOpenProbability();
         if (leftEyeOpen != null && rightEyeOpen != null
                 && leftEyeOpen < 0.4f && rightEyeOpen < 0.4f) {
-            return "👁️ Eyes closed. Please open your eyes and look at the camera.";
+            return "Eyes closed. Please open your eyes and look at the camera.";
         }
 
         // Kiểm tra góc nghiêng đầu (Euler Y = yaw, Euler Z = roll)
         float yaw  = Math.abs(face.getHeadEulerAngleY());
         float roll = Math.abs(face.getHeadEulerAngleZ());
         if (yaw > 20f || roll > 15f) {
-            return "↔️ Head tilted. Please face the camera straight on.";
+            return "Head tilted. Please face the camera straight on.";
         }
 
         return null; // Hợp lệ
@@ -705,11 +683,11 @@ public class SkinAnalysisActivity extends AppCompatActivity {
      */
     private String checkLighting(float r, float g, float b) {
         float luminance = 0.299f * r + 0.587f * g + 0.114f * b;
-        if (luminance < 60f) return "🌙 Too dark. Please move to a brighter area.";
-        if (luminance > 220f) return "☀️ Too bright. Avoid direct strong light.";
+        if (luminance < 60f) return "Too dark. Please move to a brighter area.";
+        if (luminance > 220f) return "Too bright. Avoid direct strong light.";
         // Cảnh báo gần ngưỡng
-        if (luminance < 80f) return "🌗 Lighting is dim. Move to a brighter area for better accuracy.";
-        if (luminance > 200f) return "🌤️ Slightly too bright. Avoid direct light.";
+        if (luminance < 80f) return "Lighting is dim. Move to a brighter area for better accuracy.";
+        if (luminance > 200f) return "Slightly too bright. Avoid direct light.";
         return null; // OK
     }
 
@@ -969,6 +947,9 @@ public class SkinAnalysisActivity extends AppCompatActivity {
             result.setUndertone(undertone);
             result.setSkinType("Combination");
             result.setConfidence(96.0);
+            if (imageFile != null && imageFile.exists()) {
+                result.setImagePath(imageFile.getAbsolutePath());
+            }
 
             List<String> concerns = new ArrayList<>();
             concerns.add("Visible Pores");
@@ -981,7 +962,6 @@ public class SkinAnalysisActivity extends AppCompatActivity {
             Log.e(TAG, "Failed to process skin color locally", e);
             setAnalyzing(false);
             showAnalysisUnavailableDialog();
-        } finally {
             if (imageFile != null && imageFile.exists()) {
                 imageFile.delete();
             }
@@ -1037,12 +1017,12 @@ public class SkinAnalysisActivity extends AppCompatActivity {
     private List<ShadeMatchResult> buildFallbackShades() {
         List<ShadeMatchResult> results = new ArrayList<>();
         String[][] shades = {
-            {"17C Porcelain", "#f9d9c2", "3.2", "cushion-17c", "Mask Fit Red Cushion", "35.00"},
-            {"21N Ivory",     "#ebc5a1", "6.5", "cushion-21n", "Mask Fit Red Cushion", "35.00"},
-            {"23N Sand",      "#ebbf98", "8.0", "cushion-23n", "Mask Fit Red Cushion", "35.00"},
-            {"24N Latte",     "#e4b58e", "10.0", "cushion-24n", "Mask Fit Aura Cushion", "38.00"},
-            {"27N Camel",     "#e5b98b", "12.0", "cushion-27n", "Mask Fit Red Cushion", "35.00"},
-            {"33N Macchiato", "#d3a177", "15.0", "cushion-33n", "Mask Fit All-Cover Cushion", "36.00"}
+            {"17C Porcelain", "#f9d9c2", "3.2", "cushion-17c", "Mask Fit Red Cushion", "35.00", "24.00"},
+            {"21N Ivory",     "#ebc5a1", "6.5", "cushion-21n", "Mask Fit Red Cushion", "35.00", "24.00"},
+            {"23N Sand",      "#ebbf98", "8.0", "cushion-23n", "Mask Fit Red Cushion", "35.00", "24.00"},
+            {"24N Latte",     "#e4b58e", "10.0", "cushion-24n", "Mask Fit Aura Cushion", "35.00", "24.00"},
+            {"27N Camel",     "#e5b98b", "12.0", "cushion-27n", "Mask Fit Red Cushion", "35.00", "24.00"},
+            {"33N Macchiato", "#d3a177", "15.0", "cushion-33n", "Mask Fit All-Cover Cushion", "35.00", "24.00"}
         };
         for (String[] shade : shades) {
             ShadeMatchResult r = new ShadeMatchResult();
@@ -1052,8 +1032,8 @@ public class SkinAnalysisActivity extends AppCompatActivity {
             r.setProductId(shade[3]);
             r.setProductName(shade[4]);
             r.setPrice(Double.parseDouble(shade[5]));
-            r.setSalePrice(0);
-            r.setImageUrl("https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Cushion");
+            r.setSalePrice(Double.parseDouble(shade[6]));
+            r.setImageUrl("assets/images/products/PRD-MK-RED/Main-Images/thumb.webp");
             results.add(r);
         }
         return results;
@@ -1066,6 +1046,11 @@ public class SkinAnalysisActivity extends AppCompatActivity {
         intent.putExtra(SkinResultActivity.EXTRA_AVG_R, (int) avgR);
         intent.putExtra(SkinResultActivity.EXTRA_AVG_G, (int) avgG);
         intent.putExtra(SkinResultActivity.EXTRA_AVG_B, (int) avgB);
+        if (lastMetrics != null) {
+            intent.putExtra("SCORE_MOISTURE", (int) lastMetrics.moisture);
+            intent.putExtra("SCORE_TEXTURE", (int) lastMetrics.evenness);
+            intent.putExtra("SCORE_PORES", (int) lastMetrics.pores);
+        }
         startActivity(intent);
         setAnalyzing(false);
     }
