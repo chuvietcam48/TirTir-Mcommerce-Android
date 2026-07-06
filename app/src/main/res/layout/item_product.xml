@@ -78,8 +78,7 @@
                 android:layout_gravity="top|end"
                 android:layout_margin="6dp"
                 android:background="@android:color/transparent"
-                android:src="@drawable/ic_wishlist"
-                app:tint="@color/tirtir_text_secondary"
+                android:src="@drawable/ic_wishlist_outline"
                 android:scaleType="centerInside"
                 android:contentDescription="Wishlist" />
 

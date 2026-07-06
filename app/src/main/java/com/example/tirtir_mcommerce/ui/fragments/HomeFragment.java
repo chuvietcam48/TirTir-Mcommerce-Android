@@ -25,7 +25,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tirtir_mcommerce.R;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.example.tirtir_mcommerce.model.Product;
+import com.example.tirtir_mcommerce.network.ApiConfig;
 import com.example.tirtir_mcommerce.model.User;
 import com.example.tirtir_mcommerce.repository.ProductRepository;
 import com.example.tirtir_mcommerce.repository.CartRepository;
@@ -163,6 +166,13 @@ public class HomeFragment extends Fragment {
         cardSearchSuggestions = view.findViewById(R.id.cardSearchSuggestions);
         containerSearchSuggestions = view.findViewById(R.id.containerSearchSuggestions);
         btnShopCollection   = view.findViewById(R.id.btnShopCollection);
+
+        // Banner: matcha_cream.webp is the full product shot used for the promo card
+        // Server image 5.webp crops to just the lid — local drawable is the correct asset here
+        ImageView ivPromoBanner = view.findViewById(R.id.ivPromoBanner);
+        if (ivPromoBanner != null) {
+            ivPromoBanner.setImageResource(R.drawable.matcha_cream);
+        }
     }
 
     // ===========================
@@ -245,7 +255,7 @@ public class HomeFragment extends Fragment {
 
     private void setupClickListeners(View view) {
         if (btnRetry != null)          btnRetry.setOnClickListener(v -> loadProducts());
-        if (btnShopCollection != null) btnShopCollection.setOnClickListener(v -> navigateToShop());
+        if (btnShopCollection != null) btnShopCollection.setOnClickListener(v -> navigateToMatchaCollection());
 
         // AI Skin Analysis banner → SkinAnalysisActivity
         View cardAI = view.findViewById(R.id.cardAISkinAnalysis);
@@ -322,6 +332,13 @@ public class HomeFragment extends Fragment {
     private void navigateToShop() {
         requireActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragmentContainer, ShopFragment.newInstance("All"))
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void navigateToMatchaCollection() {
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragmentContainer, ShopFragment.newInstance("Matcha"))
                 .addToBackStack(null)
                 .commit();
     }

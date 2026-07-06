@@ -242,12 +242,12 @@
                     app:cardElevation="0dp"
                     app:strokeWidth="0dp">
 
-                    <!-- In a real app this would be loaded via Glide, using a local placeholder for now -->
                     <ImageView
+                        android:id="@+id/ivPromoBanner"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/matcha_banner" />
+                        android:src="@drawable/matcha_cream" />
 
                     <View
                         android:layout_width="match_parent"

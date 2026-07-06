@@ -152,6 +152,19 @@ public class ShopFragment extends Fragment {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
                 @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                     currentSearch = s.toString();
+                    // Search across all categories — reset category chip when user types
+                    if (!currentSearch.trim().isEmpty() && !"All".equals(currentCategory)) {
+                        currentCategory = "All";
+                        if (chipGroupCategory != null) {
+                            for (int i = 0; i < chipGroupCategory.getChildCount(); i++) {
+                                View child = chipGroupCategory.getChildAt(i);
+                                if (child instanceof com.google.android.material.chip.Chip) {
+                                    com.google.android.material.chip.Chip c = (com.google.android.material.chip.Chip) child;
+                                    c.setChecked("All".equals(c.getText().toString()));
+                                }
+                            }
+                        }
+                    }
                     applyFilter();
                 }
                 @Override public void afterTextChanged(Editable s) {}

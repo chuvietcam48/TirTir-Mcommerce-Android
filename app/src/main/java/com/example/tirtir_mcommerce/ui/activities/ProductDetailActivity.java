@@ -67,6 +67,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     private TextView tvIngredientList;
     private TextView tvProductDescription;
     private android.widget.ImageView btnWishlist;
+    private android.widget.ImageView btnCopyLink;
     private MaterialButton btnARTryOn;
     private Button btnAddToCart;
     private com.google.android.material.chip.ChipGroup chipGroupSkinTypes;
@@ -119,6 +120,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         tvIngredientList = findViewById(R.id.tvIngredientList);
         tvProductDescription = findViewById(R.id.tvProductDescription);
         btnWishlist = findViewById(R.id.btnWishlist);
+        btnCopyLink = findViewById(R.id.btnCopyLink);
         btnARTryOn = findViewById(R.id.btnARTryOn);
         btnAddToCart = findViewById(R.id.btnAddToCart);
         btnBuyNow = findViewById(R.id.btnBuyNow);
@@ -276,6 +278,18 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         // Wishlist toggle via ContentProvider
         btnWishlist.setOnClickListener(v -> toggleWishlist());
+
+        // Copy product link to clipboard
+        if (btnCopyLink != null) {
+            btnCopyLink.setOnClickListener(v -> {
+                String link = com.example.tirtir_mcommerce.network.ApiConfig.BASE_URL + "api/v1/products/" + productId;
+                android.content.ClipboardManager cm = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                if (cm != null) {
+                    cm.setPrimaryClip(android.content.ClipData.newPlainText("TirTir product link", link));
+                    Toast.makeText(this, "Link copied!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
 
         if (btnARTryOn != null) {
             btnARTryOn.setVisibility(isShadeProduct() ? View.VISIBLE : View.GONE);
@@ -1033,8 +1047,8 @@ public class ProductDetailActivity extends AppCompatActivity {
             btnWishlist.setImageResource(R.drawable.ic_wishlist);
             btnWishlist.setColorFilter(getColor(R.color.tirtir_red_primary));
         } else {
-            btnWishlist.setImageResource(R.drawable.ic_wishlist);
-            btnWishlist.setColorFilter(getColor(R.color.tirtir_text_secondary));
+            btnWishlist.setImageResource(R.drawable.ic_wishlist_outline);
+            btnWishlist.setColorFilter(0xFF5F5E5E);
         }
     }
 }

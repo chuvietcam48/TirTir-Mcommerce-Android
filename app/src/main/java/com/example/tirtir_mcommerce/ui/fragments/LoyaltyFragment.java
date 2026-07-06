@@ -42,6 +42,7 @@ import retrofit2.Response;
 public class LoyaltyFragment extends Fragment {
 
     private ImageButton btnBack;
+    private ImageButton btnHowItWorks;
     private CardView cardLoyaltyBadge;
     private LinearLayout layoutCardBackground;
     private TextView tvLoyaltyTierLabel;
@@ -72,6 +73,7 @@ public class LoyaltyFragment extends Fragment {
 
     private void bindViews(View view) {
         btnBack = view.findViewById(R.id.btnBack);
+        btnHowItWorks = view.findViewById(R.id.btnHowItWorks);
         cardLoyaltyBadge = view.findViewById(R.id.cardLoyaltyBadge);
         layoutCardBackground = view.findViewById(R.id.layoutCardBackground);
         tvLoyaltyTierLabel = view.findViewById(R.id.tvLoyaltyTierLabel);
@@ -92,12 +94,16 @@ public class LoyaltyFragment extends Fragment {
             }
         });
 
+        if (btnHowItWorks != null) {
+            btnHowItWorks.setOnClickListener(v -> showHowItWorksDialog());
+        }
+
         btnScanBarcode.setOnClickListener(v -> {
             try {
                 Intent intent = new Intent(requireContext(), BarcodeScanActivity.class);
                 startActivity(intent);
             } catch (Exception e) {
-                Toast.makeText(getContext(), "Không tìm thấy chức năng quét mã vạch", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Barcode scan not available", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -106,9 +112,31 @@ public class LoyaltyFragment extends Fragment {
                 Intent intent = new Intent(requireContext(), VoucherWalletActivity.class);
                 startActivity(intent);
             } catch (Exception e) {
-                Toast.makeText(getContext(), "Không tìm thấy ví voucher", Toast.LENGTH_SHORT).show();
+                showRedeemOptionsDialog();
             }
         });
+    }
+
+    private void showHowItWorksDialog() {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("How It Works")
+                .setMessage(
+                    "EARN POINTS\n" +
+                    "• Scan purchase barcode: +10 pts\n" +
+                    "• Every $1 spent: +1 pt\n" +
+                    "• Birthday bonus: +50 pts\n\n" +
+                    "REDEEM VOUCHERS\n" +
+                    "• 100 pts → 5% discount\n" +
+                    "• 200 pts → 10% discount\n" +
+                    "• 500 pts → 25% discount\n\n" +
+                    "MEMBERSHIP TIERS\n" +
+                    "🥉 Bronze  0–99 pts\n" +
+                    "🥈 Silver  100–299 pts — 1.5× pts\n" +
+                    "🥇 Gold   300–599 pts — 2× pts\n" +
+                    "💎 Platinum  600+ pts — 3× pts"
+                )
+                .setPositiveButton("Got it", null)
+                .show();
     }
 
     private void setupRecyclerView() {
@@ -130,7 +158,7 @@ public class LoyaltyFragment extends Fragment {
             @Override
             public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
                 if (isAdded()) {
-                    Toast.makeText(getContext(), "Không thể tải thông tin tích lũy", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Unable to load loyalty data", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -153,11 +181,10 @@ public class LoyaltyFragment extends Fragment {
         pbLoyaltyUpgrade.setMax(max);
         pbLoyaltyUpgrade.setProgress(points);
 
-        // Target upgrade label (Còn X điểm lên [tier])
         if (toNext > 0) {
-            tvLoyaltyNextTierLabel.setText("Còn " + toNext + " điểm lên " + nextTier);
+            tvLoyaltyNextTierLabel.setText(toNext + " more points to reach " + nextTier);
         } else {
-            tvLoyaltyNextTierLabel.setText("Hạng thành viên cao nhất");
+            tvLoyaltyNextTierLabel.setText("You've reached the highest tier!");
         }
 
         // Populate history
@@ -203,28 +230,28 @@ public class LoyaltyFragment extends Fragment {
 
     private void showRedeemOptionsDialog() {
         String[] options = {
-                "Đổi 100 điểm lấy Voucher giảm 5%",
-                "Đổi 200 điểm lấy Voucher giảm 10%",
-                "Đổi 500 điểm lấy Voucher giảm 25%"
+                "100 pts → 5% Discount Voucher",
+                "200 pts → 10% Discount Voucher",
+                "500 pts → 25% Discount Voucher"
         };
         int[] pointValues = {100, 200, 500};
 
         new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Đổi Điểm Nhận Voucher")
+                .setTitle("Redeem Points for Voucher")
                 .setItems(options, (dialog, which) -> {
                     int pts = pointValues[which];
                     confirmRedemption(pts);
                 })
-                .setNegativeButton("Hủy", null)
+                .setNegativeButton("Cancel", null)
                 .show();
     }
 
     private void confirmRedemption(int pts) {
         new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Xác Nhận Đổi Điểm")
-                .setMessage("Bạn có chắc chắn muốn dùng " + pts + " điểm để đổi voucher?")
-                .setPositiveButton("Đổi ngay", (dialog, which) -> performRedemption(pts))
-                .setNegativeButton("Hủy", null)
+                .setTitle("Confirm Redemption")
+                .setMessage("Use " + pts + " points to redeem a voucher?")
+                .setPositiveButton("Redeem", (dialog, which) -> performRedemption(pts))
+                .setNegativeButton("Cancel", null)
                 .show();
     }
 
@@ -242,11 +269,11 @@ public class LoyaltyFragment extends Fragment {
                     Map<String, Object> respData = response.body().getData();
                     String code = String.valueOf(respData.getOrDefault("voucherCode", ""));
                     showRedeemSuccessDialog(code);
-                    loadLoyaltyData(); // Reload points and history
+                    loadLoyaltyData();
                 } else {
-                    String errorMsg = "Đổi voucher thất bại";
+                    String errorMsg = "Redemption failed";
                     if (response.code() == 400) {
-                        errorMsg = "Không đủ điểm tích lũy để đổi";
+                        errorMsg = "Not enough points to redeem";
                     }
                     Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
                 }
@@ -255,7 +282,7 @@ public class LoyaltyFragment extends Fragment {
             @Override
             public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
                 if (isAdded()) {
-                    Toast.makeText(getContext(), "Không thể kết nối máy chủ", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Unable to connect to server", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -263,9 +290,9 @@ public class LoyaltyFragment extends Fragment {
 
     private void showRedeemSuccessDialog(String code) {
         new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Đổi Điểm Thành Công!")
-                .setMessage("Mã voucher của bạn:\n\n" + code + "\n\nVoucher có giá trị sử dụng trong 30 ngày.")
-                .setPositiveButton("Đóng", null)
+                .setTitle("Redemption Successful!")
+                .setMessage("Your voucher code:\n\n" + code + "\n\nValid for 30 days.")
+                .setPositiveButton("Done", null)
                 .show();
     }
 
@@ -315,10 +342,10 @@ public class LoyaltyFragment extends Fragment {
 
             // Description
             if ("SCAN_BARCODE".equals(source)) {
-                holder.tvPointDescription.setText("Tích điểm quét mã vạch");
+                holder.tvPointDescription.setText("Barcode scan");
                 holder.ivPointIcon.setImageResource(android.R.drawable.ic_input_add);
             } else if ("REDEEM_VOUCHER".equals(source)) {
-                holder.tvPointDescription.setText("Đổi điểm lấy voucher");
+                holder.tvPointDescription.setText("Voucher redemption");
                 holder.ivPointIcon.setImageResource(android.R.drawable.ic_menu_send);
             } else {
                 holder.tvPointDescription.setText("Loyalty transaction");

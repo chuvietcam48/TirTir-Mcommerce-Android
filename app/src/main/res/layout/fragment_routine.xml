@@ -1,216 +1,344 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/tirtir_off_white">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/tirtir_white"
-        app:elevation="0dp">
+    <!-- Shared header -->
+    <include layout="@layout/layout_app_header" />
 
-        <include layout="@layout/layout_app_header" />
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabRoutine"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:tabIndicatorColor="@color/tirtir_red_primary"
-            app:tabSelectedTextColor="@color/tirtir_red_primary"
-            app:tabTextColor="@color/tirtir_text_secondary" />
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <FrameLayout
+    <!-- ═══ QUIZ CONTAINER (visible for new users) ═══ -->
+    <LinearLayout
+        android:id="@+id/quizContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:orientation="vertical"
+        android:visibility="visible">
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewPagerRoutine"
+        <!-- Quiz header: title + progress -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/tirtir_white"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="12dp"
+            android:elevation="2dp">
 
-        <ScrollView
-            android:id="@+id/layoutRoutineOnboarding"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/tirtir_red_surface"
-            android:fillViewport="true"
-            android:visibility="gone">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Skin Quiz"
+                android:textColor="@color/tirtir_red_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.04" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
-
-                <TextView
-                    android:id="@+id/tvRoutineQuestionStep"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="STEP 1 OF 3"
-                    android:textColor="@color/tirtir_text_secondary"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp">
 
                 <ProgressBar
-                    android:id="@+id/progressRoutineQuestions"
+                    android:id="@+id/quizProgressBar"
                     style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="4dp"
-                    android:layout_marginTop="10dp"
-                    android:max="3"
+                    android:layout_width="0dp"
+                    android:layout_height="6dp"
+                    android:layout_weight="1"
+                    android:max="6"
                     android:progress="1"
                     android:progressTint="@color/tirtir_red_primary"
-                    android:progressBackgroundTint="@color/tirtir_border_gray" />
+                    android:progressBackgroundTint="@color/tirtir_bg_gray" />
 
                 <TextView
-                    android:id="@+id/tvRoutineQuestionTitle"
-                    android:layout_width="match_parent"
+                    android:id="@+id/tvQuizStepCounter"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="28dp"
-                    android:fontFamily="serif"
-                    android:text="Build Your Glow"
-                    android:textColor="@color/tirtir_red_dark"
-                    android:textSize="34sp" />
-
-                <TextView
-                    android:id="@+id/tvRoutineQuestionPrompt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:gravity="center"
-                    android:text="What is your primary skin goal?"
+                    android:layout_marginStart="10dp"
+                    android:text="1 / 6"
                     android:textColor="@color/tirtir_text_secondary"
-                    android:textSize="15sp" />
-
-                <LinearLayout
-                    android:id="@+id/layoutRoutineQuestionGoals"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:background="@color/tirtir_white"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Choose one or more goals" android:textColor="@color/tirtir_black"
-                        android:textSize="14sp" android:textStyle="bold" />
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chipsRoutineGoals"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        app:singleSelection="false">
-                        <com.google.android.material.chip.Chip android:id="@+id/chipGoalHydration" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="Hydration" />
-                        <com.google.android.material.chip.Chip android:id="@+id/chipGoalBrightening" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Brightening" />
-                        <com.google.android.material.chip.Chip android:id="@+id/chipGoalAcne" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Acne Control" />
-                        <com.google.android.material.chip.Chip android:id="@+id/chipGoalRedness" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Redness" />
-                        <com.google.android.material.chip.Chip android:id="@+id/chipGoalPores" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pores" />
-                        <com.google.android.material.chip.Chip android:id="@+id/chipGoalAntiAging" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Anti-Aging" />
-                    </com.google.android.material.chip.ChipGroup>
-                </LinearLayout>
-
-
-                <LinearLayout
-                    android:id="@+id/layoutRoutineQuestionType"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:background="@color/tirtir_white"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:visibility="gone">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="How does your skin usually feel?" android:textColor="@color/tirtir_black"
-                        android:textSize="14sp" android:textStyle="bold" />
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chipsRoutineSkinType"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        app:selectionRequired="true"
-                        app:singleSelection="true">
-                        <com.google.android.material.chip.Chip android:id="@+id/chipRoutineNormal" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="Normal" />
-                        <com.google.android.material.chip.Chip android:id="@+id/chipRoutineDry" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Dry" />
-                        <com.google.android.material.chip.Chip android:id="@+id/chipRoutineOily" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Oily" />
-                        <com.google.android.material.chip.Chip android:id="@+id/chipRoutineCombination" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Combination" />
-                        <com.google.android.material.chip.Chip android:id="@+id/chipRoutineSensitive" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sensitive" />
-                    </com.google.android.material.chip.ChipGroup>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/layoutRoutineQuestionTone"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:background="@color/tirtir_white"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:visibility="gone">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Choose the closest skin tone" android:textColor="@color/tirtir_black"
-                        android:textSize="14sp" android:textStyle="bold" />
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chipsRoutineSkinTone"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        app:selectionRequired="true"
-                        app:singleSelection="true">
-                        <com.google.android.material.chip.Chip android:id="@+id/chipRoutineFair" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Fair" />
-                        <com.google.android.material.chip.Chip android:id="@+id/chipRoutineLight" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Light" />
-                        <com.google.android.material.chip.Chip android:id="@+id/chipRoutineMedium" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="Medium" />
-                        <com.google.android.material.chip.Chip android:id="@+id/chipRoutineDeep" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Deep" />
-                    </com.google.android.material.chip.ChipGroup>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="28dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnRoutineBack"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="52dp"
-                        android:text="Back"
-                        android:textColor="@color/tirtir_red_dark"
-                        android:visibility="invisible" />
-                    <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnRoutineNext"
-                        android:layout_width="132dp"
-                        android:layout_height="52dp"
-                        android:text="Next"
-                        android:textColor="@color/tirtir_white"
-                        app:backgroundTint="@color/tirtir_red_dark"
-                        app:cornerRadius="26dp" />
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnBuildRoutine"
-                        android:layout_width="164dp"
-                        android:layout_height="52dp"
-                        android:text="Build my routine"
-                        android:textColor="@color/tirtir_white"
-                        android:textStyle="bold"
-                        android:visibility="gone"
-                        app:backgroundTint="@color/tirtir_red_dark"
-                        app:cornerRadius="26dp" />
-                </LinearLayout>
-
+                    android:textSize="12sp" />
             </LinearLayout>
+        </LinearLayout>
+
+        <!-- Scrollable step content injected programmatically -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:id="@+id/stepContentContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="20dp" />
         </ScrollView>
 
-        <ProgressBar
-            android:id="@+id/progressRoutineProfile"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="center"
-            android:indeterminateTint="@color/tirtir_red_primary"
-            android:visibility="gone" />
-    </FrameLayout>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <!-- Navigation buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:background="@color/tirtir_white"
+            android:elevation="4dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnQuizBack"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="Back"
+                android:textSize="14sp"
+                android:textAllCaps="false"
+                android:visibility="invisible"
+                app:strokeColor="@color/tirtir_red_primary"
+                android:textColor="@color/tirtir_red_primary"
+                app:cornerRadius="10dp"
+                android:layout_marginEnd="12dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnQuizNext"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Next"
+                android:textSize="14sp"
+                android:textAllCaps="false"
+                android:textColor="@color/tirtir_white"
+                app:backgroundTint="@color/tirtir_red_primary"
+                app:cornerRadius="10dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ═══ RESULT CONTAINER (visible after quiz) ═══ -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/resultContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="24dp">
+
+            <!-- Routine header banner -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@color/tirtir_white"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="16dp"
+                android:elevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Your Routine"
+                        android:textColor="@color/tirtir_red_primary"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvSkinProfileLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text=""
+                        android:textColor="@color/tirtir_text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRetakeQuiz"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="Retake Quiz"
+                    android:textSize="12sp"
+                    android:textAllCaps="false"
+                    android:textColor="@color/tirtir_red_primary"
+                    app:strokeColor="@color/tirtir_red_primary"
+                    app:cornerRadius="8dp" />
+            </LinearLayout>
+
+            <!-- Combo picks section -->
+            <LinearLayout
+                android:id="@+id/comboSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="RECOMMENDED SETS"
+                    android:textColor="@color/tirtir_red_primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.08" />
+
+                <View
+                    android:layout_width="32dp"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@color/tirtir_red_primary" />
+
+                <LinearLayout
+                    android:id="@+id/comboProductsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+
+            <!-- AM routine section -->
+            <LinearLayout
+                android:id="@+id/amSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="MORNING ROUTINE"
+                        android:textColor="@color/tirtir_red_primary"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.08" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="AM"
+                        android:textColor="@color/tirtir_text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="32dp"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@color/tirtir_red_primary" />
+
+                <LinearLayout
+                    android:id="@+id/amProductsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+
+            <!-- PM routine section -->
+            <LinearLayout
+                android:id="@+id/pmSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="EVENING ROUTINE"
+                        android:textColor="@color/tirtir_red_primary"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.08" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="PM"
+                        android:textColor="@color/tirtir_text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="32dp"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@color/tirtir_red_primary" />
+
+                <LinearLayout
+                    android:id="@+id/pmProductsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+
+            <!-- Empty state -->
+            <LinearLayout
+                android:id="@+id/routineEmptyState"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="40dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No products matched your profile yet."
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:textSize="14sp"
+                    android:gravity="center" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBrowseShop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="16dp"
+                    android:text="Browse Shop"
+                    android:textAllCaps="false"
+                    android:textColor="@color/tirtir_white"
+                    app:backgroundTint="@color/tirtir_red_primary"
+                    app:cornerRadius="10dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

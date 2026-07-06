@@ -28,31 +28,67 @@ public final class ApiConfig {
     }
 
     public static String resolveMediaUrl(String path) {
+        String cleaned = cleanPath(path);
+        if (cleaned.isEmpty()) return "";
+        return buildAbsoluteUrl(cleaned);
+    }
+
+    /**
+     * Returns a fallback URL when the primary URL may be missing a subfolder.
+     *
+     * Some products in the DB store paths like:
+     *   assets/images/products/{id}/thumb.webp          ← missing subfolder → 404
+     * while the files actually live at:
+     *   assets/images/products/{id}/Main-Images/thumb.webp ← correct → 200
+     *
+     * This method returns the canonical subfolder variant so Glide can retry.
+     * Returns "" when the path already contains a subfolder (no fix needed).
+     */
+    public static String resolveMediaFallbackUrl(String path) {
+        String cleaned = cleanPath(path);
+        if (cleaned.isEmpty()) return "";
+
+        // Only fix relative product-image paths
+        String productPrefix = "assets/images/products/";
+        if (!cleaned.startsWith(productPrefix)) return "";
+
+        String afterPrefix = cleaned.substring(productPrefix.length()); // e.g. "PRD-SK-MATCHA-02/thumb.webp"
+        String[] segments = afterPrefix.split("/");
+        // segments[0] = product-id, segments[1] = filename (no subfolder present)
+        if (segments.length != 2) return ""; // already has subfolder or malformed
+
+        // Insert the canonical subfolder used on the server
+        String fixed = productPrefix + segments[0] + "/Main-Images/" + segments[1];
+        return buildAbsoluteUrl(fixed);
+    }
+
+    // ---- private helpers ----
+
+    private static String cleanPath(String path) {
         if (path == null || path.trim().isEmpty()) return "";
-        String trimmed = path.trim();
-        
-        // Clean up stringified JSON arrays/strings (e.g., '["url"]' or '"url"')
-        if (trimmed.length() >= 4 && trimmed.startsWith("[\"") && trimmed.endsWith("\"]")) {
-            trimmed = trimmed.substring(2, trimmed.length() - 2);
-            // If it contains multiple URLs, take the first one
-            if (trimmed.contains("\",\"")) {
-                trimmed = trimmed.split("\",\"")[0];
-            } else if (trimmed.contains("\", \"")) {
-                trimmed = trimmed.split("\", \"")[0];
-            }
-        } else if (trimmed.length() >= 2 && trimmed.startsWith("\"") && trimmed.endsWith("\"")) {
-            trimmed = trimmed.substring(1, trimmed.length() - 1);
+        String t = path.trim();
+        // Unwrap stringified JSON array: '["url"]' → url
+        if (t.startsWith("[\"") && t.endsWith("\"]")) {
+            t = t.substring(2, t.length() - 2);
+            int comma = t.indexOf("\",\"");
+            if (comma < 0) comma = t.indexOf("\", \"");
+            if (comma >= 0) t = t.substring(0, comma);
+        } else if (t.startsWith("\"") && t.endsWith("\"") && t.length() >= 2) {
+            t = t.substring(1, t.length() - 1);
         }
-        
+        return t;
+    }
+
+    private static String buildAbsoluteUrl(String cleaned) {
         for (String prefix : LOCAL_BACKEND_PREFIXES) {
-            if (trimmed.startsWith(prefix)) {
-                return BASE_URL + trimmed.substring(prefix.length());
+            if (cleaned.startsWith(prefix)) {
+                return BASE_URL + cleaned.substring(prefix.length());
             }
         }
-        if (trimmed.startsWith("https://") || trimmed.startsWith("http://")) {
-            return trimmed;
+        if (cleaned.startsWith("https://") || cleaned.startsWith("http://")) {
+            return cleaned;
         }
-        String cleanPath = trimmed.startsWith("/") ? trimmed.substring(1) : trimmed;
-        return Uri.parse(BASE_URL).buildUpon().appendEncodedPath(cleanPath).build().toString();
+        String clean = cleaned.startsWith("/") ? cleaned.substring(1) : cleaned;
+        return Uri.parse(BASE_URL).buildUpon().appendEncodedPath(clean).build().toString();
     }
 }

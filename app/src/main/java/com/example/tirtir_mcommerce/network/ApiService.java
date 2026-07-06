@@ -171,8 +171,17 @@ public interface ApiService {
     @GET("api/v1/loyalty/me")
     Call<ApiResponse<Map<String, Object>>> getLoyaltyDetails();
 
+    @GET("api/v1/chat/config")
+    Call<ApiResponse<Map<String, Object>>> getChatConfig();
+
+    @GET("api/v1/chat/suggested-questions")
+    Call<ApiResponse<List<Map<String, Object>>>> getChatSuggestedQuestions();
+
     @GET("api/v1/chat/history")
     Call<ApiResponse<List<Map<String, Object>>>> getChatHistory();
+
+    @POST("api/v1/chat/handoff")
+    Call<ApiResponse<Map<String, Object>>> postChatHandoff(@Body Map<String, Object> body);
 
     @POST("api/v1/ai/analyze-face")
     Call<ApiResponse<Map<String, Object>>> analyzeSkin(@Body Map<String, String> body);

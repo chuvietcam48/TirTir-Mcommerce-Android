@@ -31,25 +31,46 @@ import okhttp3.Response;
 
 public class ChatRepository {
     private static final String TAG = "ChatRepository";
-    private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
+    private static final MediaType JSON_MEDIA = MediaType.get("application/json; charset=utf-8");
+
+    // ── Data classes ──────────────────────────────────────────────────────────
 
     public static class Suggestion {
         public final String productId;
         public final String name;
-
         public Suggestion(String productId, String name) {
             this.productId = productId;
             this.name = name;
         }
     }
 
+    public static class ChatAction {
+        public final String type;  // choose_topic | contact_staff | call_hotline
+        public final String label;
+        public ChatAction(String type, String label) {
+            this.type = type;
+            this.label = label;
+        }
+    }
+
     public static class ChatResult {
         public final String message;
         public final List<Suggestion> suggestions;
+        public final boolean isOutOfDataset;
+        public final List<ChatAction> actions;
 
         ChatResult(String message, List<Suggestion> suggestions) {
             this.message = message;
-            this.suggestions = suggestions;
+            this.suggestions = suggestions != null ? suggestions : new ArrayList<>();
+            this.isOutOfDataset = false;
+            this.actions = new ArrayList<>();
+        }
+
+        ChatResult(String message, List<Suggestion> suggestions, boolean isOutOfDataset, List<ChatAction> actions) {
+            this.message = message;
+            this.suggestions = suggestions != null ? suggestions : new ArrayList<>();
+            this.isOutOfDataset = isOutOfDataset;
+            this.actions = actions != null ? actions : new ArrayList<>();
         }
     }
 
@@ -59,11 +80,13 @@ public class ChatRepository {
         void onError(String message);
     }
 
+    // ── Fields ────────────────────────────────────────────────────────────────
+
     private final Context context;
     private final SharedPrefsManager prefs;
     private final OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(20, TimeUnit.SECONDS)
-            .readTimeout(55, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
             .writeTimeout(20, TimeUnit.SECONDS)
             .build();
 
@@ -72,23 +95,59 @@ public class ChatRepository {
         this.prefs = new SharedPrefsManager(context);
     }
 
+    // ── Retrofit calls ────────────────────────────────────────────────────────
+
     public void loadHistory(retrofit2.Callback<ApiResponse<List<Map<String, Object>>>> callback) {
         RetrofitClient.getAuthClient(context).create(ApiService.class).getChatHistory().enqueue(callback);
     }
 
+    public void loadConfig(retrofit2.Callback<ApiResponse<Map<String, Object>>> callback) {
+        RetrofitClient.getAuthClient(context).create(ApiService.class).getChatConfig().enqueue(callback);
+    }
+
+    public void loadSuggestedQuestions(retrofit2.Callback<ApiResponse<List<Map<String, Object>>>> callback) {
+        RetrofitClient.getAuthClient(context).create(ApiService.class).getChatSuggestedQuestions().enqueue(callback);
+    }
+
+    public void postHandoff(String reason, retrofit2.Callback<ApiResponse<Map<String, Object>>> callback) {
+        java.util.HashMap<String, Object> body = new java.util.HashMap<>();
+        body.put("reason", reason != null ? reason : "");
+        RetrofitClient.getAuthClient(context).create(ApiService.class).postChatHandoff(body).enqueue(callback);
+    }
+
+    // ── SSE streaming calls ───────────────────────────────────────────────────
+
+    /** Send a free-text message. */
     public void sendMessage(String message, StreamListener listener) {
         JsonObject payload = new JsonObject();
         payload.addProperty("message", message);
-        Request.Builder request = new Request.Builder()
+        sendRequest(payload, listener);
+    }
+
+    /** Send a chip-tap: includes selectedQuestionId so the backend skips matching. */
+    public void sendQuestion(String questionId, String questionText, StreamListener listener) {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("message", questionText);
+        if (questionId != null && !questionId.isEmpty()) {
+            payload.addProperty("selectedQuestionId", questionId);
+        }
+        sendRequest(payload, listener);
+    }
+
+    // ── Internal OkHttp SSE request ───────────────────────────────────────────
+
+    private void sendRequest(JsonObject payload, StreamListener listener) {
+        Request.Builder requestBuilder = new Request.Builder()
                 .url(ApiConfig.CHAT_URL)
-                .header("Accept", "application/json")
-                .post(RequestBody.create(JSON, payload.toString()));
+                .header("Accept", "text/event-stream")
+                .post(RequestBody.create(JSON_MEDIA, payload.toString()));
+
         String token = prefs.getToken();
         if (token != null && !token.isEmpty()) {
-            request.header("Authorization", "Bearer " + token);
+            requestBuilder.header("Authorization", "Bearer " + token);
         }
 
-        client.newCall(request.build()).enqueue(new Callback() {
+        client.newCall(requestBuilder.build()).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, "Chat request failed", e);
@@ -101,7 +160,7 @@ public class ChatRepository {
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful() || response.body() == null) {
                     String errorBody = response.body() != null ? response.body().string() : "null";
-                    Log.e(TAG, "Chat API failed with HTTP " + response.code() + " " + errorBody);
+                    Log.e(TAG, "Chat API HTTP " + response.code() + ": " + errorBody);
                     listener.onError("Sorry, I could not generate a response right now.");
                     if (response.body() != null) response.close();
                     return;
@@ -110,89 +169,104 @@ public class ChatRepository {
                 try {
                     String rawBody = response.body().string();
                     String[] lines = rawBody.split("\n");
-                    
-                    boolean isJsonHandled = false;
-                    StringBuilder legacyTextAccumulator = new StringBuilder();
+
+                    boolean handled = false;
+                    StringBuilder accumulated = new StringBuilder();
                     String event = "";
 
                     for (String lineRaw : lines) {
                         String line = lineRaw.trim();
                         if (line.isEmpty()) continue;
 
-                        // Case 1: Standard JSON Object
-                        if (line.startsWith("{") && line.endsWith("}")) {
+                        // Plain JSON fallback (non-SSE response)
+                        if (line.startsWith("{") && line.endsWith("}") && !handled) {
                             try {
                                 JsonObject json = new JsonParser().parse(line).getAsJsonObject();
-                                if (json.has("success") && !json.get("success").getAsBoolean() && json.has("message")) {
-                                    listener.onError(json.get("message").getAsString());
-                                    isJsonHandled = true;
+                                if (json.has("success") && !json.get("success").getAsBoolean()) {
+                                    listener.onError(strOf(json, "message"));
+                                    handled = true;
                                     break;
                                 }
-                                
-                                String reply = "";
-                                if (json.has("reply") && !json.get("reply").isJsonNull()) {
-                                    reply = json.get("reply").getAsString();
-                                } else if (json.has("message") && !json.get("message").isJsonNull()) {
-                                    reply = json.get("message").getAsString();
-                                }
-
-                                String[] words = reply.split(" ");
-                                for (String word : words) {
+                                String reply = !json.has("reply") || json.get("reply").isJsonNull()
+                                        ? strOf(json, "message") : strOf(json, "reply");
+                                for (String word : reply.split(" ")) {
                                     listener.onChunk(word + " ");
-                                    try { Thread.sleep(30); } catch (InterruptedException ignored) {}
+                                    try { Thread.sleep(25); } catch (InterruptedException ignored) {}
                                 }
-
-                                List<Suggestion> suggestions = new ArrayList<>();
-                                if (json.has("recommendedProductIds") && json.get("recommendedProductIds").isJsonArray()) {
-                                    for (JsonElement idElem : json.getAsJsonArray("recommendedProductIds")) {
-                                        suggestions.add(new Suggestion(idElem.getAsString(), "Suggested Product"));
-                                    }
-                                }
-                                listener.onDone(new ChatResult(reply, suggestions));
-                                isJsonHandled = true;
+                                listener.onDone(new ChatResult(reply, new ArrayList<>()));
+                                handled = true;
                                 break;
                             } catch (Exception ignored) {}
                         }
 
-                        // Case 2: SSE Stream Format
+                        // SSE format
                         if (line.startsWith("event:")) {
                             event = line.substring(6).trim();
                         } else if (line.startsWith("data:")) {
                             String dataStr = line.substring(5).trim();
                             if ("[DONE]".equals(dataStr)) {
-                                listener.onDone(new ChatResult(legacyTextAccumulator.toString(), new ArrayList<>()));
-                            } else if (dataStr.startsWith("{") && dataStr.endsWith("}")) {
+                                listener.onDone(new ChatResult(accumulated.toString(), new ArrayList<>()));
+                                handled = true;
+                            } else if (dataStr.startsWith("{")) {
                                 try {
-                                    JsonObject chunkJson = new JsonParser().parse(dataStr).getAsJsonObject();
+                                    JsonObject chunk = new JsonParser().parse(dataStr).getAsJsonObject();
                                     if ("error".equals(event)) {
-                                        String errMsg = chunkJson.has("message") ? chunkJson.get("message").getAsString() : "Lỗi hệ thống";
-                                        listener.onError(errMsg);
-                                        isJsonHandled = true;
+                                        listener.onError(strOf(chunk, "message"));
+                                        handled = true;
                                     } else if ("chunk".equals(event)) {
-                                        String text = chunkJson.has("text") ? chunkJson.get("text").getAsString() : "";
-                                        legacyTextAccumulator.append(text);
+                                        String text = strOf(chunk, "text");
+                                        accumulated.append(text);
                                         listener.onChunk(text);
-                                        isJsonHandled = true;
+                                        handled = true;
                                     } else if ("done".equals(event)) {
-                                        listener.onDone(new ChatResult(legacyTextAccumulator.toString(), new ArrayList<>()));
-                                        isJsonHandled = true;
+                                        // Parse OOD flags and actions
+                                        boolean ood = chunk.has("isOutOfDataset")
+                                                && !chunk.get("isOutOfDataset").isJsonNull()
+                                                && chunk.get("isOutOfDataset").getAsBoolean();
+
+                                        List<ChatAction> actions = new ArrayList<>();
+                                        if (chunk.has("actions") && chunk.get("actions").isJsonArray()) {
+                                            for (JsonElement a : chunk.getAsJsonArray("actions")) {
+                                                if (!a.isJsonObject()) continue;
+                                                JsonObject ao = a.getAsJsonObject();
+                                                actions.add(new ChatAction(
+                                                        strOf(ao, "type"),
+                                                        strOf(ao, "label")
+                                                ));
+                                            }
+                                        }
+
+                                        // Parse product suggestions
+                                        List<Suggestion> sug = new ArrayList<>();
+                                        if (chunk.has("suggestions") && chunk.get("suggestions").isJsonArray()) {
+                                            for (JsonElement s : chunk.getAsJsonArray("suggestions")) {
+                                                if (!s.isJsonObject()) continue;
+                                                JsonObject so = s.getAsJsonObject();
+                                                String id = strOf(so, "id");
+                                                String name = strOf(so, "name");
+                                                if (!id.isEmpty()) sug.add(new Suggestion(id, name));
+                                            }
+                                        }
+
+                                        listener.onDone(new ChatResult(
+                                                accumulated.toString(), sug, ood, actions));
+                                        handled = true;
                                     }
                                 } catch (Exception ignored) {}
                             } else {
-                                String chunkText = dataStr + " ";
-                                legacyTextAccumulator.append(chunkText);
-                                listener.onChunk(chunkText);
-                                isJsonHandled = true;
+                                accumulated.append(dataStr).append(" ");
+                                listener.onChunk(dataStr + " ");
+                                handled = true;
                             }
                         }
                     }
 
-                    if (!isJsonHandled && legacyTextAccumulator.length() == 0) {
-                        Log.e(TAG, "Chat raw response unhandled: " + rawBody);
+                    if (!handled) {
+                        Log.e(TAG, "Unhandled chat response: " + rawBody);
                         listener.onError("Sorry, I could not generate a response right now.");
                     }
                 } catch (Exception e) {
-                    Log.e(TAG, "Unable to parse chat response", e);
+                    Log.e(TAG, "Chat response parse error", e);
                     listener.onError("Sorry, I could not generate a response right now.");
                 } finally {
                     response.close();
@@ -201,59 +275,10 @@ public class ChatRepository {
         });
     }
 
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
-
-    private List<Suggestion> extractSuggestions(JsonElement productData) {
-        List<Suggestion> result = new ArrayList<>();
-        if (productData == null || productData.isJsonNull()) return result;
-        if (productData.isJsonArray()) {
-            addSuggestions(productData.getAsJsonArray(), result);
-        } else if (productData.isJsonObject()) {
-            JsonObject object = productData.getAsJsonObject();
-            if (object.has("recommendations") && object.get("recommendations").isJsonArray()) {
-                addSuggestions(object.getAsJsonArray("recommendations"), result);
-            } else if (object.has("products") && object.get("products").isJsonArray()) {
-                addSuggestions(object.getAsJsonArray("products"), result);
-            } else if (object.has("id") || object.has("_id")) {
-                addSuggestion(object, result);
-            }
-        }
-        return result;
-    }
-
-    private void addSuggestions(JsonArray array, List<Suggestion> result) {
-        for (JsonElement item : array) {
-            if (item.isJsonObject()) addSuggestion(item.getAsJsonObject(), result);
-        }
-    }
-
-    private void addSuggestion(JsonObject object, List<Suggestion> result) {
-        String id = stringValue(object, "id");
-        if (id.isEmpty()) id = stringValue(object, "_id");
-        if (id.isEmpty()) id = stringValue(object, "productId");
-        String name = stringValue(object, "name");
-        if (!id.isEmpty() && !name.isEmpty()) result.add(new Suggestion(id, name));
-    }
-
-    private String stringValue(JsonObject object, String key) {
-        return object != null && object.has(key) && !object.get(key).isJsonNull()
-                ? object.get(key).getAsString() : "";
-    }
-
-    private String safeUserMessage(String message) {
-        if (message == null || message.trim().isEmpty()) {
-            return "The advisor is temporarily unavailable. Please try again shortly.";
-        }
-        String normalized = message.toLowerCase(Locale.ROOT);
-        if (normalized.contains("localhost")
-                || normalized.contains("127.0.0.1")
-                || normalized.contains("10.0.2.2")
-                || normalized.contains(":8002")
-                || normalized.contains("service chưa")
-                || normalized.contains("exception")
-                || normalized.contains("stacktrace")) {
-            return "The advisor is temporarily unavailable. You can still browse products and routines.";
-        }
-        return message.trim();
+    private String strOf(JsonObject obj, String key) {
+        return (obj != null && obj.has(key) && !obj.get(key).isJsonNull())
+                ? obj.get(key).getAsString() : "";
     }
 }

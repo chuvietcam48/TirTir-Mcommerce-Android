@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +18,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
 import com.bumptech.glide.RequestBuilder;
-import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.signature.ObjectKey;
 import com.example.tirtir_mcommerce.MainActivity;
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.WishlistContentProvider;
@@ -221,39 +220,57 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             String imageUrl = resolveImageUrl(product);
             if (imgProduct != null) {
                 int fallbackDrawable = resolveFallbackDrawable(product);
+
+                // Fallback URL: retry with Main-Images/ subfolder inserted.
+                // Some DB entries store paths without this subfolder (→ 404), while the
+                // server files actually live under Main-Images/. resolveMediaFallbackUrl()
+                // detects 2-segment paths and inserts the subfolder automatically.
+                String mainImagesFallback = ApiConfig.resolveMediaFallbackUrl(product.getThumbnailImages());
+                if (mainImagesFallback.isEmpty() && product.getGalleryImages() != null && !product.getGalleryImages().isEmpty()) {
+                    mainImagesFallback = ApiConfig.resolveMediaFallbackUrl(product.getGalleryImages().get(0));
+                }
                 String secondaryUrl = resolveSecondaryImageUrl(product, imageUrl);
 
-                String nameLower = (product.getName() == null ? "" : product.getName()).toLowerCase(java.util.Locale.ENGLISH);
-                String catLower = (product.getCategory() == null ? "" : product.getCategory()).toLowerCase(java.util.Locale.ENGLISH);
-                Object imageSource;
-                if (nameLower.contains("gift card") || catLower.contains("gift card")) {
-                    imageSource = R.drawable.giftcard;
-                } else if (nameLower.contains("matcha calming cream")) {
-                    imageSource = R.drawable.matcha_cream;
-                } else if (nameLower.contains("hydro uv shield sunscreen") || nameLower.contains("hydro uv") || nameLower.contains("sunscreen")) {
-                    imageSource = R.drawable.hydrosuncreen;
-                } else {
-                    imageSource = imageUrl.isEmpty() ? null : imageUrl;
-                }
+                Log.d("TirTirImg", "[" + product.getName() + "] primary=" + imageUrl + " fallback=" + mainImagesFallback);
 
-                RequestBuilder<Drawable> glideRequest = Glide.with(context)
-                        .load(imageSource)
-                        .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                        .placeholder(fallbackDrawable)
-                        .centerCrop();
-
-                if (imageSource instanceof String && !secondaryUrl.isEmpty()) {
-                    glideRequest = glideRequest.error(
-                        Glide.with(context)
+                // Innermost error: gallery image → fallback drawable
+                RequestBuilder<Drawable> errSecondary = null;
+                if (!secondaryUrl.isEmpty()) {
+                    errSecondary = Glide.with(context)
                             .load(secondaryUrl)
-                            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .centerCrop()
-                            .error(fallbackDrawable)
-                    );
-                } else {
-                    glideRequest = glideRequest.error(fallbackDrawable);
+                            .error(fallbackDrawable);
                 }
-                glideRequest.into(imgProduct);
+
+                // Middle error: Main-Images/ variant → gallery image → fallback drawable
+                RequestBuilder<Drawable> errMainImages = null;
+                if (!mainImagesFallback.isEmpty()) {
+                    RequestBuilder<Drawable> b = Glide.with(context)
+                            .load(mainImagesFallback)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .centerCrop();
+                    errMainImages = (errSecondary != null) ? b.error(errSecondary) : b.error(fallbackDrawable);
+                }
+
+                // Primary: thumbnail/gallery URL → Main-Images/ variant → gallery → drawable
+                RequestBuilder<Drawable> primary = Glide.with(context)
+                        .load(imageUrl.isEmpty() ? null : imageUrl)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .signature(new ObjectKey(imageUrl.isEmpty() ? "no-img" : imageUrl))
+                        .priority(Priority.HIGH)
+                        .placeholder(fallbackDrawable)
+                        .centerCrop()
+                        .transition(DrawableTransitionOptions.withCrossFade(80));
+
+                if (errMainImages != null) {
+                    primary = primary.error(errMainImages);
+                } else if (errSecondary != null) {
+                    primary = primary.error(errSecondary);
+                } else {
+                    primary = primary.error(fallbackDrawable);
+                }
+                primary.into(imgProduct);
             }
 
             // Wishlist toggle state
@@ -349,11 +366,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             if (wishlisted) {
                 btnWishlistToggle.setImageResource(R.drawable.ic_wishlist);
                 btnWishlistToggle.setColorFilter(0xFFE23B2E);
-                btnWishlistToggle.setAlpha(1f);
             } else {
-                btnWishlistToggle.setImageResource(R.drawable.ic_wishlist);
-                btnWishlistToggle.setColorFilter(0xFF666666);
-                btnWishlistToggle.setAlpha(0.9f);
+                btnWishlistToggle.setImageResource(R.drawable.ic_wishlist_outline);
+                btnWishlistToggle.setColorFilter(0xFF888888);
             }
         }
 
@@ -394,35 +409,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         }
 
         private int resolveFallbackDrawable(Product product) {
-            String name = product.getName() == null ? "" : product.getName().toLowerCase(java.util.Locale.ENGLISH);
-            String category = product.getCategory() == null ? "" : product.getCategory().toLowerCase(java.util.Locale.ENGLISH);
-            if (name.contains("gift card") || category.contains("gift card")) {
-                return R.drawable.giftcard;
-            }
-            if (name.contains("matcha calming cream")) {
-                return R.drawable.matcha_cream;
-            }
-            if (name.contains("matcha")) {
-                return R.drawable.tirtir_matcha_set;
-            }
-            if (name.contains("hydro uv shield sunscreen") || name.contains("hydro uv") || name.contains("sunscreen")) {
-                return R.drawable.hydrosuncreen;
-            }
-            if (name.contains("sunscreen") || name.contains("uv shield") || category.contains("sunscreen")) {
-                return R.drawable.ic_category_sunscreen;
-            }
-            if (name.contains("cleanser") || name.contains("wash") || category.contains("cleanser")) {
-                return R.drawable.ic_category_cleanser;
-            }
-            if (name.contains("serum") || name.contains("ampoule") || category.contains("serum")) {
-                return R.drawable.ic_category_serum;
-            }
-            if (name.contains("toner") || name.contains("skin") || category.contains("toner")) {
-                return R.drawable.ic_category_toner;
-            }
-            if (name.contains("cream") || name.contains("moisturizer") || category.contains("cream") || category.contains("moisturizer")) {
-                return R.drawable.ic_category_cream;
-            }
+            String cat = product.getCategory() == null ? "" : product.getCategory().toLowerCase(java.util.Locale.ENGLISH);
+            if (cat.contains("gift card")) return R.drawable.giftcard_3;
+            if (cat.contains("sunscreen") || cat.contains("uv")) return R.drawable.ic_category_sunscreen;
+            if (cat.contains("cleanser") || cat.contains("wash")) return R.drawable.ic_category_cleanser;
+            if (cat.contains("serum") || cat.contains("ampoule")) return R.drawable.ic_category_serum;
+            if (cat.contains("toner")) return R.drawable.ic_category_toner;
+            if (cat.contains("cream") || cat.contains("moisturizer")) return R.drawable.ic_category_cream;
             return R.drawable.ic_product_placeholder;
         }
     }

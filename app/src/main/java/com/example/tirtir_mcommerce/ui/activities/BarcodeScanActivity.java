@@ -54,6 +54,9 @@ public class BarcodeScanActivity extends AppCompatActivity {
         previewView = findViewById(R.id.previewView);
         cameraExecutor = Executors.newSingleThreadExecutor();
 
+        View btnBack = findViewById(R.id.btnBarcodeBack);
+        if (btnBack != null) btnBack.setOnClickListener(v -> finish());
+
         BarcodeScannerOptions options = new BarcodeScannerOptions.Builder()
                 .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
                 .build();

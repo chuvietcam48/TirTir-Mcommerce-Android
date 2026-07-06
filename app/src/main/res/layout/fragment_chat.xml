@@ -41,55 +41,6 @@
             android:paddingEnd="12dp"
             android:paddingBottom="166dp" />
 
-            <LinearLayout
-                android:id="@+id/layoutChatEmpty"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="16dp"
-                android:background="@drawable/bg_chat_welcome_card"
-                android:orientation="vertical"
-                android:padding="18dp">
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="96dp"
-                android:layout_marginBottom="16dp"
-                android:background="@color/tirtir_red_surface">
-                <ImageView
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_tirtir_brand_circle"
-                    android:scaleType="fitCenter"
-                    android:contentDescription="@null" />
-            </FrameLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Your AI Beauty Advisor"
-                android:textColor="@color/tirtir_red_dark"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="Personalized guidance for your skin, routine, ingredients, and TirTir products."
-                android:textColor="@color/tirtir_black"
-                android:textSize="14sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="I’ll greet you here in a moment and help you decide what to explore first."
-                android:textColor="@color/tirtir_text_secondary"
-                android:textSize="13sp" />
-
-        </LinearLayout>
         <HorizontalScrollView
             android:id="@+id/layoutChatQuickPrompts"
             android:layout_width="match_parent"

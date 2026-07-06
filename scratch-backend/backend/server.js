@@ -15,9 +15,9 @@ const Sentry = require("@sentry/node");
 
 const errorHandler = require('./middlewares/error');
 const logger = require('./utils/logger');
-require('./cron/abandonedCart.cron'); // Initialize Cron Jobs
-require('./cron/fcmCartRecovery.cron'); // Initialize FCM Cart Recovery
-require('./cron/fcmSkinTips.cron'); // Initialize FCM Skin Tips
+try { require('./cron/abandonedCart.cron'); } catch (e) { console.warn('[CRON] abandonedCart skipped:', e.message); }
+try { require('./cron/fcmCartRecovery.cron'); } catch (e) { console.warn('[CRON] fcmCartRecovery skipped:', e.message); }
+try { require('./cron/fcmSkinTips.cron'); } catch (e) { console.warn('[CRON] fcmSkinTips skipped:', e.message); }
 const socketService = require('./services/socket.service');
 
 const { apiLimiter } = require('./middlewares/rateLimit');

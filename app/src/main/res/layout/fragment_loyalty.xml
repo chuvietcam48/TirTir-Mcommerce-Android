@@ -29,10 +29,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="Thành viên &amp; Ưu đãi"
+            android:text="Membership &amp; Rewards"
             android:textColor="@color/tirtir_black"
             android:textSize="18sp"
             android:textStyle="bold" />
+
+        <!-- Info / How it Works -->
+        <ImageButton
+            android:id="@+id/btnHowItWorks"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_dialog_info"
+            android:contentDescription="How it works"
+            app:tint="@color/tirtir_text_secondary" />
+
     </RelativeLayout>
 
     <ScrollView
@@ -53,7 +66,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="6dp"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="16dp">
 
                 <LinearLayout
                     android:id="@+id/layoutCardBackground"
@@ -61,22 +74,20 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="24dp"
-                    android:background="#CD7F32"> <!-- Dynamic background color changed in code, fallback bronze -->
+                    android:background="#CD7F32">
 
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
                         <TextView
-                            android:id="@+id/tvLoyaltyTierTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Hạng thành viên"
+                            android:text="Membership Tier"
                             android:textColor="@color/tirtir_white"
                             android:textSize="14sp"
-                            android:alpha="0.8" />
+                            android:alpha="0.85" />
 
-                        <!-- TIER BADGE CONTAINER -->
                         <androidx.cardview.widget.CardView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -100,7 +111,6 @@
                         </androidx.cardview.widget.CardView>
                     </RelativeLayout>
 
-                    <!-- POINTS NUMBER (MUST BE 56sp) -->
                     <TextView
                         android:id="@+id/tvLoyaltyPointsMain"
                         android:layout_width="wrap_content"
@@ -120,7 +130,6 @@
                         android:alpha="0.8"
                         android:layout_marginBottom="20dp" />
 
-                    <!-- PROGRESS BAR FOR UPGRADE -->
                     <ProgressBar
                         android:id="@+id/pbLoyaltyUpgrade"
                         style="?android:attr/progressBarStyleHorizontal"
@@ -131,7 +140,6 @@
                         android:max="100"
                         android:progress="0" />
 
-                    <!-- TARGET LABEL (Còn X điểm lên [tier]) -->
                     <TextView
                         android:id="@+id/tvLoyaltyNextTierLabel"
                         android:layout_width="match_parent"
@@ -149,7 +157,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRedeemVoucher"
@@ -171,7 +179,7 @@
                     android:layout_height="54dp"
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
-                    android:text="Quét Barcode"
+                    android:text="Scan Barcode"
                     android:textColor="@color/tirtir_black"
                     android:textStyle="bold"
                     app:strokeColor="@color/tirtir_black"
@@ -179,11 +187,295 @@
                     app:cornerRadius="12dp" />
             </LinearLayout>
 
-            <!-- RECENT TRANSACTIONS HEADER -->
+            <!-- HOW TO EARN POINTS CARD -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/tirtir_white"
+                app:strokeColor="@color/tirtir_rose_outline"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="HOW TO EARN POINTS"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/tirtir_red_primary"
+                        android:letterSpacing="0.08"
+                        android:layout_marginBottom="10dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Scan purchase barcode"
+                            android:textSize="13sp"
+                            android:textColor="@color/tirtir_black" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+10 pts"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/tirtir_red_primary" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Every $1 spent"
+                            android:textSize="13sp"
+                            android:textColor="@color/tirtir_black" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+1 pt"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/tirtir_red_primary" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Birthday bonus"
+                            android:textSize="13sp"
+                            android:textColor="@color/tirtir_black" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+50 pts"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/tirtir_red_primary" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- MEMBERSHIP TIERS CARD -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/tirtir_white"
+                app:strokeColor="@color/tirtir_rose_outline"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="MEMBERSHIP TIERS"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/tirtir_red_primary"
+                        android:letterSpacing="0.08"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Bronze -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="10dp"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:text="🥉"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:layout_marginEnd="10dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Bronze  •  0–99 pts"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/tirtir_black" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Standard benefits"
+                                android:textSize="11sp"
+                                android:textColor="@color/tirtir_text_secondary" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Silver -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="10dp"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:text="🥈"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:layout_marginEnd="10dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Silver  •  100–299 pts"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/tirtir_black" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="1.5× points on every purchase"
+                                android:textSize="11sp"
+                                android:textColor="@color/tirtir_text_secondary" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Gold -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="10dp"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:text="🥇"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:layout_marginEnd="10dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Gold  •  300–599 pts"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/tirtir_black" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="2× points + birthday gift"
+                                android:textSize="11sp"
+                                android:textColor="@color/tirtir_text_secondary" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Platinum -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:text="💎"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:layout_marginEnd="10dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Platinum  •  600+ pts"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/tirtir_black" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="3× points + free shipping"
+                                android:textSize="11sp"
+                                android:textColor="@color/tirtir_text_secondary" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- POINTS HISTORY HEADER -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="LỊCH SỬ ĐIỂM TÍCH LŨY"
+                android:text="POINTS HISTORY"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:textColor="@color/tirtir_text_secondary"
