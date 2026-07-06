@@ -148,7 +148,7 @@
                     android:progressDrawable="@drawable/bg_progress_bar_rounded"
                     android:max="100"
                     android:progress="0"
-                    android:progressTint="#64B5F6" />
+                    android:progressTint="@color/tirtir_white" />
             </LinearLayout>
 
             <LinearLayout
@@ -175,7 +175,7 @@
                     android:progressDrawable="@drawable/bg_progress_bar_rounded"
                     android:max="100"
                     android:progress="0"
-                    android:progressTint="#E57373" />
+                    android:progressTint="@color/tirtir_red_primary" />
             </LinearLayout>
         </LinearLayout>
 
@@ -210,7 +210,7 @@
                     android:progressDrawable="@drawable/bg_progress_bar_rounded"
                     android:max="100"
                     android:progress="0"
-                    android:progressTint="#FFB74D" />
+                    android:progressTint="@color/tirtir_silver_gray" />
             </LinearLayout>
 
             <LinearLayout
@@ -237,7 +237,7 @@
                     android:progressDrawable="@drawable/bg_progress_bar_rounded"
                     android:max="100"
                     android:progress="0"
-                    android:progressTint="#81C784" />
+                    android:progressTint="#555555" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

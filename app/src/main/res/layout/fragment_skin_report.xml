@@ -1,433 +1,338 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/tirtir_off_white"
-    android:paddingHorizontal="16dp"
-    android:paddingTop="12dp"
-    android:paddingBottom="12dp">
+    android:fillViewport="true">
 
-    <!-- Low Confidence Warning -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardConfidenceWarning"
-        android:layout_width="0dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="8dp"
-        app:cardBackgroundColor="#FFF3CD"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="0dp"
-        app:strokeColor="#FFC107"
-        app:strokeWidth="1dp">
-        <TextView
-            android:layout_width="match_parent"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="24dp">
+
+        <!-- Confidence Warning (Hidden by default) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardConfidenceWarning"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="⚠️ Low image quality (confidence &lt; 50%)."
-            android:textColor="#856404"
-            android:textSize="12sp" />
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Hero Card: Overall Score & Skin Profile -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardHero"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/cardConfidenceWarning"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="4dp"
-        app:cardBackgroundColor="@color/tirtir_white"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp">
-
-            <!-- Left side: Overall Score -->
-            <FrameLayout
-                android:id="@+id/frameOverall"
-                android:layout_width="140dp"
-                android:layout_height="140dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <com.google.android.material.progressindicator.CircularProgressIndicator
-                    android:id="@+id/progressOverall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    app:indicatorColor="@color/tirtir_red_primary"
-                    app:indicatorSize="140dp"
-                    app:trackColor="@color/tirtir_red_surface"
-                    app:trackThickness="10dp" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    
-                    <TextView
-                        android:id="@+id/tvOverallScore"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="@color/tirtir_black"
-                        android:textSize="40sp"
-                        android:textStyle="bold" />
-                    
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="/100"
-                        android:textColor="@color/tirtir_text_secondary"
-                        android:textSize="14sp" />
-                </LinearLayout>
-            </FrameLayout>
-
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="8dp"
+            app:cardBackgroundColor="#FFF3CD"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#FFC107"
+            app:strokeWidth="1dp">
             <TextView
-                android:id="@+id/tvHeroTitle"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintStart_toEndOf="@id/frameOverall"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginStart="16dp"
-                android:text="Skin Health"
-                android:textColor="@color/tirtir_black"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:padding="8dp"
+                android:text="⚠️ Low image quality (confidence &lt; 50%)."
+                android:textColor="#856404"
+                android:textSize="12sp" />
+        </com.google.android.material.card.MaterialCardView>
 
-            <!-- Right side: Face Image -->
+        <!-- Header Card (Black) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/cardConfidenceWarning"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            app:cardBackgroundColor="#1A1A1A"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+                
+                <TextView
+                    android:id="@+id/tvHeaderLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TIRTIR AI · SKIN ANALYSIS REPORT"
+                    android:textColor="#A0A0A0"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+                    
+                <TextView
+                    android:id="@+id/tvHeaderTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Clinical Skin Overview"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvHeaderLabel"
+                    android:layout_marginTop="4dp" />
+
+                <TextView
+                    android:id="@+id/tvHeaderSkinTypeLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SKIN TYPE"
+                    android:textColor="#A0A0A0"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+                    
+                <TextView
+                    android:id="@+id/tvSkinType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="OILY"
+                    android:textColor="#E50000"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvHeaderSkinTypeLabel"
+                    android:layout_marginTop="2dp" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Face Image and Notes Row -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layoutTopContent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/cardHeader"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- Face Image Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardFace"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                app:layout_constraintStart_toEndOf="@id/frameOverall"
-                app:layout_constraintTop_toBottomOf="@id/tvHeroTitle"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                app:cardCornerRadius="28dp"
-                app:strokeColor="#E0E0E0"
-                app:strokeWidth="1dp">
+                android:layout_width="140dp"
+                android:layout_height="180dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
                 
-                <ImageView
-                    android:id="@+id/imgSkinToneFace"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:background="@drawable/bg_shade_swatch" />
+                    android:layout_height="match_parent">
+                    
+                    <ImageView
+                        android:id="@+id/imgSkinToneFace"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:background="#E0E0E0" />
+                        
+                    <!-- Gradient overlay for text -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_gravity="bottom"
+                        android:background="@drawable/bg_progress_bar_rounded"
+                        android:backgroundTint="#88000000" />
+                        
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:padding="8dp"
+                        android:text="AI SCAN COMPLETE"
+                        android:textColor="@color/white"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.05" />
+                        
+                    <!-- Red bar at very bottom -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="3dp"
+                        android:layout_gravity="bottom"
+                        android:background="#E50000" />
+                </FrameLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <LinearLayout
+            <!-- Skin Tone Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardSkinTone"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="6dp"
+                app:layout_constraintStart_toEndOf="@id/cardFace"
+                app:layout_constraintEnd_toStartOf="@id/cardUndertone"
+                app:layout_constraintTop_toTopOf="parent"
+                app:cardBackgroundColor="#F8F8F8"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#EEEEEE"
+                app:strokeWidth="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Skin Tone"
+                        android:textColor="#A0A0A0"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/tvToneValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Light"
+                        android:textColor="@color/tirtir_black"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Undertone Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardUndertone"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                app:layout_constraintStart_toEndOf="@id/cardSkinTone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:cardBackgroundColor="#F8F8F8"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#EEEEEE"
+                app:strokeWidth="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Undertone"
+                        android:textColor="#A0A0A0"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/tvUndertoneValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Cool"
+                        android:textColor="@color/tirtir_black"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Dermatologist's Note -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardDermNote"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="12dp"
                 app:layout_constraintStart_toEndOf="@id/cardFace"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/cardFace"
+                app:layout_constraintTop_toBottomOf="@id/cardSkinTone"
                 app:layout_constraintBottom_toBottomOf="@id/cardFace"
-                android:layout_marginStart="8dp">
-
-                <TextView
-                    android:id="@+id/tvSkinToneMeta"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Tone"
-                    android:textColor="@color/tirtir_black"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvItaAngle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/tirtir_text_secondary"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvSkinType"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toEndOf="@id/frameOverall"
-                app:layout_constraintTop_toBottomOf="@id/cardFace"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_tag_primary"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
-                android:text="—"
-                android:textColor="@color/tirtir_white"
-                android:textSize="13sp"
-                android:textStyle="bold" />
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
+                
+                <!-- Left red border effect -->
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent"
+                    android:background="#E50000" />
+                    
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="10dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp">
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="DERMATOLOGIST'S NOTE"
+                        android:textColor="#E50000"
+                        android:textSize="9sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.05" />
+                        
+                    <TextView
+                        android:id="@+id/tvDermNote"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Your skin presents characteristics of Oily type with notable concerns. A gentle, consistent routine targeting your specific concerns is the foundation of healthy skin."
+                        android:textColor="#666666"
+                        android:textSize="11sp"
+                        android:textStyle="italic"
+                        android:lineSpacingExtra="2dp"
+                        android:ellipsize="end"
+                        android:maxLines="6" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
 
-    <TextView
-        android:id="@+id/tvOverallDesc"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/cardHero"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"
-        android:gravity="center"
-        android:text="Your skin is looking great!"
-        android:textColor="@color/tirtir_text_secondary"
-        android:textSize="15sp" />
-
-    <!-- Detailed Metrics Row -->
-    <LinearLayout
-        android:id="@+id/llMetrics"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tvOverallDesc"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal"
-        android:baselineAligned="false">
-
-        <!-- Texture Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="6dp"
-            android:layout_weight="1"
-            app:cardBackgroundColor="@color/tirtir_white"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingVertical="12dp"
-                android:paddingHorizontal="4dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="Texture"
-                    android:textColor="@color/tirtir_text_secondary"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <FrameLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-                    <com.google.android.material.progressindicator.CircularProgressIndicator
-                        android:id="@+id/progressTexture"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        app:indicatorColor="#4CAF50"
-                        app:indicatorSize="60dp"
-                        app:trackColor="#E8F5E9"
-                        app:trackThickness="5dp" />
-                    <TextView
-                        android:id="@+id/tvTextureScore"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="0"
-                        android:textColor="@color/tirtir_black"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-                </FrameLayout>
-                <TextView
-                    android:id="@+id/tvTextureDesc"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:gravity="center"
-                    android:text="Smooth"
-                    android:textColor="@color/tirtir_text_secondary"
-                    android:textSize="11sp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Pores Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="6dp"
-            android:layout_weight="1"
-            app:cardBackgroundColor="@color/tirtir_white"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingVertical="12dp"
-                android:paddingHorizontal="4dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="Pores"
-                    android:textColor="@color/tirtir_text_secondary"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <FrameLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-                    <com.google.android.material.progressindicator.CircularProgressIndicator
-                        android:id="@+id/progressPores"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        app:indicatorColor="@color/tirtir_warning"
-                        app:indicatorSize="60dp"
-                        app:trackColor="#FFF3E0"
-                        app:trackThickness="5dp" />
-                    <TextView
-                        android:id="@+id/tvPoresScore"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="0"
-                        android:textColor="@color/tirtir_black"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-                </FrameLayout>
-                <TextView
-                    android:id="@+id/tvPoresDesc"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:gravity="center"
-                    android:text="Visible"
-                    android:textColor="@color/tirtir_text_secondary"
-                    android:textSize="11sp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Hydration Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            app:cardBackgroundColor="@color/tirtir_white"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingVertical="12dp"
-                android:paddingHorizontal="4dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="Hydration"
-                    android:textColor="@color/tirtir_text_secondary"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <FrameLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-                    <com.google.android.material.progressindicator.CircularProgressIndicator
-                        android:id="@+id/progressHydration"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        app:indicatorColor="#2196F3"
-                        app:indicatorSize="60dp"
-                        app:trackColor="#E3F2FD"
-                        app:trackThickness="5dp" />
-                    <TextView
-                        android:id="@+id/tvHydrationScore"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="0"
-                        android:textColor="@color/tirtir_black"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-                </FrameLayout>
-                <TextView
-                    android:id="@+id/tvHydrationDesc"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:gravity="center"
-                    android:text="Optimal"
-                    android:textColor="@color/tirtir_text_secondary"
-                    android:textSize="11sp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
-
-    <!-- Key Concerns -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardConcerns"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/llMetrics"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp"
-        app:cardBackgroundColor="@color/tirtir_white"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp">
-
+        <!-- 4 Metrics Section -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/llMetrics"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@id/layoutTopContent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Key Skin Concerns"
-                android:textColor="@color/tirtir_black"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+            <!-- Hydration -->
+            <include layout="@layout/item_skin_metric" android:id="@+id/metricHydration" />
+            <!-- Evenness -->
+            <include layout="@layout/item_skin_metric" android:id="@+id/metricEvenness" />
+            <!-- Texture & Pores -->
+            <include layout="@layout/item_skin_metric" android:id="@+id/metricTexture" />
+            <!-- Sensitivity (Custom styled) -->
+            <include layout="@layout/item_skin_metric" android:id="@+id/metricSensitivity" />
 
-            <com.google.android.flexbox.FlexboxLayout
-                android:id="@+id/flexConcerns"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:flexWrap="wrap"
-                app:alignItems="flex_start"
-                app:alignContent="flex_start"
-                app:justifyContent="flex_start" />
-
-            <TextView
-                android:id="@+id/tvNoConcerns"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="No major concerns detected."
-                android:textColor="@color/tirtir_text_secondary"
-                android:textSize="13sp"
-                android:visibility="gone" />
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Bottom Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnViewRoutine"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="16dp"
+            android:text="View Personalized AI Routine ->"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:cornerRadius="8dp"
+            app:backgroundTint="#E50000"
+            app:layout_constraintTop_toBottomOf="@id/llMetrics"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

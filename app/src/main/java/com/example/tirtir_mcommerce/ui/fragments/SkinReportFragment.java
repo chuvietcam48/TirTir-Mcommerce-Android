@@ -14,41 +14,28 @@ import androidx.fragment.app.Fragment;
 
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.SkinAnalysisResult;
-import com.google.android.material.progressindicator.CircularProgressIndicator;
-import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.bumptech.glide.Glide;
 import java.io.File;
 
 import java.util.List;
 
-/**
- * Tab 2: Skin Report — Hồ sơ da.
- * Hiển thị kết quả từ API /api/v1/ai/analyze-face:
- * - SkinTone swatch + Undertone + ITA angle
- * - SkinType badge
- * - 3 CircularProgressIndicator (Texture, Pores, Hydration)
- * - Concerns tags (FlexboxLayout)
- * - Confidence warning banner nếu confidence < 50%
- */
 public class SkinReportFragment extends Fragment {
 
     private SkinAnalysisResult analysisResult;
-    private int textureScore = -1, poresScore = -1, hydrationScore = -1;
+    private int textureScore = -1, poresScore = -1, hydrationScore = -1, rednessScore = -1;
     private double itaAngle = Double.NaN;
 
     // UI
     private View cardConfidenceWarning;
-    private ImageView imgSkinToneFace;
-    private TextView tvSkinToneMeta;
-    private TextView tvItaAngle;
     private TextView tvSkinType;
-    private CircularProgressIndicator progressOverall, progressTexture, progressPores, progressHydration;
-    private TextView tvOverallScore, tvOverallDesc;
-    private TextView tvTextureScore, tvTextureDesc;
-    private TextView tvPoresScore, tvPoresDesc;
-    private TextView tvHydrationScore, tvHydrationDesc;
-    private FlexboxLayout flexConcerns;
-    private TextView tvNoConcerns;
+    private ImageView imgSkinToneFace;
+    private TextView tvToneValue;
+    private TextView tvUndertoneValue;
+    private TextView tvDermNote;
+
+    // Metric items
+    private View metricHydration, metricEvenness, metricTexture, metricSensitivity;
 
     public static SkinReportFragment newInstance() {
         return new SkinReportFragment();
@@ -65,43 +52,47 @@ public class SkinReportFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         bindViews(view);
+        
+        // Let's set up the button click (can navigate to AI Routine tab, or we can leave it empty since ViewPager handles tabs)
+        View btnViewRoutine = view.findViewById(R.id.btnViewRoutine);
+        if (btnViewRoutine != null) {
+            btnViewRoutine.setOnClickListener(v -> {
+                // For now just simulate clicking the tab
+                if (getActivity() != null && getActivity() instanceof com.example.tirtir_mcommerce.ui.activities.SkinResultActivity) {
+                    androidx.viewpager2.widget.ViewPager2 viewPager = getActivity().findViewById(R.id.viewPagerSkinResult);
+                    if (viewPager != null) {
+                        viewPager.setCurrentItem(2, true);
+                    }
+                }
+            });
+        }
+        
         if (analysisResult != null) populateData();
     }
 
-    public void updateData(SkinAnalysisResult result, int texture, int pores, int hydration,
+    public void updateData(SkinAnalysisResult result, int texture, int pores, int hydration, int redness,
                            double itaDegrees) {
         this.analysisResult = result;
         this.textureScore = texture;
         this.poresScore = pores;
         this.hydrationScore = hydration;
+        this.rednessScore = redness;
         this.itaAngle = itaDegrees;
         if (getView() != null) populateData();
     }
 
     private void bindViews(View view) {
         cardConfidenceWarning = view.findViewById(R.id.cardConfidenceWarning);
-        imgSkinToneFace       = view.findViewById(R.id.imgSkinToneFace);
-        tvSkinToneMeta        = view.findViewById(R.id.tvSkinToneMeta);
-        tvItaAngle            = view.findViewById(R.id.tvItaAngle);
         tvSkinType            = view.findViewById(R.id.tvSkinType);
-        progressOverall       = view.findViewById(R.id.progressOverall);
-        tvOverallScore        = view.findViewById(R.id.tvOverallScore);
-        tvOverallDesc         = view.findViewById(R.id.tvOverallDesc);
+        imgSkinToneFace       = view.findViewById(R.id.imgSkinToneFace);
+        tvToneValue           = view.findViewById(R.id.tvToneValue);
+        tvUndertoneValue      = view.findViewById(R.id.tvUndertoneValue);
+        tvDermNote            = view.findViewById(R.id.tvDermNote);
         
-        progressTexture       = view.findViewById(R.id.progressTexture);
-        progressPores         = view.findViewById(R.id.progressPores);
-        progressHydration     = view.findViewById(R.id.progressHydration);
-        
-        tvTextureScore        = view.findViewById(R.id.tvTextureScore);
-        tvTextureDesc         = view.findViewById(R.id.tvTextureDesc);
-        
-        tvPoresScore          = view.findViewById(R.id.tvPoresScore);
-        tvPoresDesc           = view.findViewById(R.id.tvPoresDesc);
-        
-        tvHydrationScore      = view.findViewById(R.id.tvHydrationScore);
-        tvHydrationDesc       = view.findViewById(R.id.tvHydrationDesc);
-        flexConcerns          = view.findViewById(R.id.flexConcerns);
-        tvNoConcerns          = view.findViewById(R.id.tvNoConcerns);
+        metricHydration       = view.findViewById(R.id.metricHydration);
+        metricEvenness        = view.findViewById(R.id.metricEvenness);
+        metricTexture         = view.findViewById(R.id.metricTexture);
+        metricSensitivity     = view.findViewById(R.id.metricSensitivity);
     }
 
     private void populateData() {
@@ -110,9 +101,11 @@ public class SkinReportFragment extends Fragment {
         // Confidence warning (< 50%)
         boolean lowConfidence = analysisResult.getConfidence() > 0
                 && analysisResult.getConfidence() < 50.0;
-        cardConfidenceWarning.setVisibility(lowConfidence ? View.VISIBLE : View.GONE);
+        if (cardConfidenceWarning != null) {
+            cardConfidenceWarning.setVisibility(lowConfidence ? View.VISIBLE : View.GONE);
+        }
 
-        // Skin tone face image / swatch fallback
+        // Skin tone face image
         if (analysisResult.getImagePath() != null && !analysisResult.getImagePath().isEmpty()) {
             Glide.with(this).load(new File(analysisResult.getImagePath())).into(imgSkinToneFace);
         } else {
@@ -124,101 +117,66 @@ public class SkinReportFragment extends Fragment {
             }
         }
 
-        // Tone + Undertone meta
-        String tone = safeStr(analysisResult.getSkinTone(), "Skin tone unavailable");
-        String undertone = safeStr(analysisResult.getUndertone(), "Undertone unavailable");
-        tvSkinToneMeta.setText(tone + " · " + undertone);
-
-        // ITA angle
-        if (!Double.isNaN(itaAngle)) {
-            tvItaAngle.setText(String.format("ITA %.1f°", itaAngle));
-            tvItaAngle.setVisibility(View.VISIBLE);
-        } else {
-            tvItaAngle.setVisibility(View.GONE);
-        }
-
-        // Skin type badge
+        // Top info
         tvSkinType.setText(safeStr(analysisResult.getSkinType(), "—"));
+        tvToneValue.setText(safeStr(analysisResult.getSkinTone(), "Medium"));
+        tvUndertoneValue.setText(safeStr(analysisResult.getUndertone(), "Neutral"));
 
-        // Overall Score Calculation
-        if (textureScore >= 0 && poresScore >= 0 && hydrationScore >= 0) {
-            int overall = (textureScore + Math.max(0, 100 - poresScore) + hydrationScore) / 3;
-            progressOverall.setProgressCompat(overall, true);
-            tvOverallScore.setText(String.valueOf(overall));
-            if (overall >= 90) tvOverallDesc.setText("Your skin is looking excellent!");
-            else if (overall >= 70) tvOverallDesc.setText("Your skin is healthy and well-maintained.");
-            else if (overall >= 50) tvOverallDesc.setText("Your skin could use a little more care.");
-            else tvOverallDesc.setText("Your skin needs some attention.");
-        } else {
-            progressOverall.setProgressCompat(0, false);
-            tvOverallScore.setText("-");
-            tvOverallDesc.setText("Not enough data.");
-        }
-
-        // Circular scores inside indicators
-        bindScore(progressTexture, tvTextureScore, textureScore);
-        bindScore(progressPores, tvPoresScore, poresScore);
-        bindScore(progressHydration, tvHydrationScore, hydrationScore);
-        
-        // Descriptions
-        setDesc(tvTextureDesc, textureScore, "Smooth", "Fair", "Uneven", true);
-        setDesc(tvPoresDesc, poresScore, "Large", "Visible", "Tight", false); // lower pores is better
-        setDesc(tvHydrationDesc, hydrationScore, "Hydrated", "Normal", "Dry", true);
-
-        // Concerns FlexboxLayout
+        // Build derm note from concerns
         List<String> concerns = analysisResult.getConcerns();
-        flexConcerns.removeAllViews();
+        String concernsText = "";
         if (concerns != null && !concerns.isEmpty()) {
-            tvNoConcerns.setVisibility(View.GONE);
-            flexConcerns.setVisibility(View.VISIBLE);
-            for (String concern : concerns) {
-                TextView tag = new TextView(requireContext());
-                tag.setText(concern);
-                tag.setTextSize(12f);
-                tag.setTextColor(Color.WHITE);
-                tag.setBackgroundResource(R.drawable.bg_tag_primary);
-                FlexboxLayout.LayoutParams lp = new FlexboxLayout.LayoutParams(
-                        FlexboxLayout.LayoutParams.WRAP_CONTENT,
-                        FlexboxLayout.LayoutParams.WRAP_CONTENT
-                );
-                int margin = (int) (6 * getResources().getDisplayMetrics().density);
-                lp.setMargins(0, 0, margin, margin);
-                tag.setLayoutParams(lp);
-                int padH = (int) (10 * getResources().getDisplayMetrics().density);
-                int padV = (int) (4 * getResources().getDisplayMetrics().density);
-                tag.setPadding(padH, padV, padH, padV);
-                flexConcerns.addView(tag);
+            concernsText = " with notable " + String.join(", ", concerns);
+        }
+        String note = String.format("\"Your skin presents characteristics of %s type%s. A gentle, consistent routine targeting your specific concerns is the foundation of healthy skin.\"", 
+                safeStr(analysisResult.getSkinType(), "Normal"), concernsText);
+        tvDermNote.setText(note);
+
+        // Bind Metrics
+        // Hydration (mapped to moisture)
+        bindMetric(metricHydration, "Hydration", hydrationScore >= 0 ? hydrationScore : 62, "Deep skin hydration and surface barrier protection", false);
+        
+        // Evenness (mapped to texture/evenness score)
+        bindMetric(metricEvenness, "Skin Evenness", textureScore >= 0 ? textureScore : 60, "Skin tone evenness and dark spot presence", false);
+        
+        // Texture & Pores (mapped to pores variance)
+        bindMetric(metricTexture, "Texture & Pores", poresScore >= 0 ? poresScore : 60, "Surface smoothness, pore size, and skin texture", false);
+        
+        // Sensitivity (mapped to redness score)
+        bindMetric(metricSensitivity, "Sensitivity Index", rednessScore >= 0 ? rednessScore : 30, "Reactivity level to environmental factors", true);
+    }
+
+    private void bindMetric(View metricView, String title, int score, String subtitle, boolean isSensitivity) {
+        if (metricView == null) return;
+        
+        TextView tvTitle = metricView.findViewById(R.id.tvMetricTitle);
+        TextView tvScore = metricView.findViewById(R.id.tvMetricScore);
+        TextView tvSubtitle = metricView.findViewById(R.id.tvMetricSubtitle);
+        LinearProgressIndicator progress = metricView.findViewById(R.id.progressMetric);
+        TextView tvTag = metricView.findViewById(R.id.tvMetricTag);
+        
+        tvTitle.setText(title);
+        tvScore.setText(String.valueOf(score));
+        tvSubtitle.setText(subtitle);
+        
+        progress.setProgressCompat(score, true);
+        
+        if (isSensitivity) {
+            progress.setIndicatorColor(Color.parseColor("#4A4A4A"));
+            tvTag.setVisibility(View.VISIBLE);
+            if (score <= 40) {
+                tvTag.setText("NORMAL RANGE");
+                tvTag.setBackgroundColor(Color.parseColor("#4A4A4A"));
+            } else if (score <= 70) {
+                tvTag.setText("MODERATE");
+                tvTag.setBackgroundColor(Color.parseColor("#FF9800")); // Orange
+            } else {
+                tvTag.setText("HIGH SENSITIVITY");
+                tvTag.setBackgroundColor(Color.parseColor("#E50000")); // Red
             }
         } else {
-            tvNoConcerns.setVisibility(View.VISIBLE);
-            flexConcerns.setVisibility(View.GONE);
-        }
-    }
-
-    private void bindScore(CircularProgressIndicator indicator, TextView label, int score) {
-        if (score >= 0) {
-            indicator.setProgressCompat(score, true);
-            label.setText(String.valueOf(score));
-        } else {
-            indicator.setProgressCompat(0, false);
-            label.setText("-");
-        }
-    }
-
-    private void setDesc(TextView tv, int score, String high, String mid, String low, boolean higherIsBetter) {
-        if (score < 0) {
-            tv.setText("-");
-            return;
-        }
-        boolean good = higherIsBetter ? (score >= 70) : (score <= 30);
-        boolean bad = higherIsBetter ? (score <= 30) : (score >= 70);
-        
-        if (good) {
-            tv.setText(higherIsBetter ? high : low);
-        } else if (bad) {
-            tv.setText(higherIsBetter ? low : high);
-        } else {
-            tv.setText(mid);
+            tvTag.setVisibility(View.GONE);
+            progress.setIndicatorColor(Color.parseColor("#E0E0E0"));
         }
     }
 

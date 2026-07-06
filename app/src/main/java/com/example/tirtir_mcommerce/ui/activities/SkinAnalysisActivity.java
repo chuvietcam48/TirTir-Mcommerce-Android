@@ -1050,6 +1050,7 @@ public class SkinAnalysisActivity extends AppCompatActivity {
             intent.putExtra("SCORE_MOISTURE", (int) lastMetrics.moisture);
             intent.putExtra("SCORE_TEXTURE", (int) lastMetrics.evenness);
             intent.putExtra("SCORE_PORES", (int) lastMetrics.pores);
+            intent.putExtra("SCORE_REDNESS", (int) lastMetrics.redness);
         }
         startActivity(intent);
         setAnalyzing(false);

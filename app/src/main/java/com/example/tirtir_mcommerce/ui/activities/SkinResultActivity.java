@@ -145,10 +145,11 @@ public class SkinResultActivity extends AppCompatActivity {
             int scoreMoisture = getIntent().getIntExtra("SCORE_MOISTURE", -1);
             int scoreTexture = getIntent().getIntExtra("SCORE_TEXTURE", -1);
             int scorePores = getIntent().getIntExtra("SCORE_PORES", -1);
+            int scoreRedness = getIntent().getIntExtra("SCORE_REDNESS", -1);
 
             // Cập nhật UI của Tab 1 và Tab 2 trước
             shadeFinderFragment.updateData(shadeResults, skinHex);
-            skinReportFragment.updateData(analysisResult, scoreTexture, scorePores, scoreMoisture,
+            skinReportFragment.updateData(analysisResult, scoreTexture, scorePores, scoreMoisture, scoreRedness,
                     analysisResult != null ? analysisResult.computeItaAngle() : Double.NaN);
 
             // Preload shade match images for faster display
@@ -551,7 +552,7 @@ public class SkinResultActivity extends AppCompatActivity {
         List<RoutineStep> routine = buildDemoRoutineSteps("Combination");
 
         shadeFinderFragment.updateData(shadeResults, analysisResult.getSkinHex());
-        skinReportFragment.updateData(analysisResult, 76, 68, 72,
+        skinReportFragment.updateData(analysisResult, 76, 68, 72, 25,
                 analysisResult.computeItaAngle());
         aiRoutineFragment.updateData(routine);
         showLoading(false, null, null);

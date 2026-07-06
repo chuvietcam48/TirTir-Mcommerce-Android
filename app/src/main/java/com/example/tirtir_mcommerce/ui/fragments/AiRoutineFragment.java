@@ -58,6 +58,7 @@ public class AiRoutineFragment extends Fragment {
     private TextView tvTextureForecast;
     private RecyclerView rvRoutineSteps;
     private TextView tvRoutineEmpty;
+    private View btnAddAllToCart;
     private RoutineStepAdapter adapter;
 
     // Base scores tính từ tất cả steps (không skip)
@@ -87,9 +88,11 @@ public class AiRoutineFragment extends Fragment {
         View layoutActions = view.findViewById(R.id.layoutRoutineActions);
         View btnReminder = view.findViewById(R.id.btnSetReminder);
         View btnCommunity = view.findViewById(R.id.btnApplyCommunity);
+        btnAddAllToCart = view.findViewById(R.id.btnAddAllToCart);
 
         btnReminder.setOnClickListener(v -> setReminder());
         btnCommunity.setOnClickListener(v -> showCommunityDialog());
+        btnAddAllToCart.setOnClickListener(v -> addAllToCart());
 
         adapter = new RoutineStepAdapter(
                 this::onStepSkipToggled,
@@ -153,7 +156,10 @@ public class AiRoutineFragment extends Fragment {
 
         tvRoutineEmpty.setVisibility(View.GONE);
         rvRoutineSteps.setVisibility(View.VISIBLE);
-        if (getView() != null) getView().findViewById(R.id.layoutRoutineActions).setVisibility(View.VISIBLE);
+        if (getView() != null) {
+            getView().findViewById(R.id.layoutRoutineActions).setVisibility(View.VISIBLE);
+            btnAddAllToCart.setVisibility(View.VISIBLE);
+        }
         adapter.submitList(new ArrayList<>(routineSteps));
         updateEvolutionForecast();
     }
@@ -209,6 +215,34 @@ public class AiRoutineFragment extends Fragment {
         repository.syncItemToServer(item, null, error -> {});
         Toast.makeText(requireContext(), step.getStepName() + " product added to cart!",
                 Toast.LENGTH_SHORT).show();
+    }
+
+    private void addAllToCart() {
+        if (routineSteps == null || routineSteps.isEmpty()) return;
+        
+        CartRepository repository = new CartRepository(requireContext());
+        int addedCount = 0;
+        
+        for (RoutineStep step : routineSteps) {
+            if (!step.isSkipped() && step.getProductId() != null && !step.getProductId().isEmpty()) {
+                String imgUrl = step.getImageUrl() != null ? ApiConfig.resolveMediaUrl(step.getImageUrl()) : "";
+                CartItem item = new CartItem(
+                        step.getProductId(),
+                        step.getProductName(),
+                        imgUrl,
+                        step.getDisplayPrice(), 1, null
+                );
+                repository.addToCartLocal(item);
+                repository.syncItemToServer(item, null, error -> {});
+                addedCount++;
+            }
+        }
+        
+        if (addedCount > 0) {
+            Toast.makeText(requireContext(), "Added " + addedCount + " products to cart!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(requireContext(), "No products to add (all skipped or unavailable)", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void setReminder() {
