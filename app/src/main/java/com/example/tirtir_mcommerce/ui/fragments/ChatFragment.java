@@ -1,7 +1,7 @@
 package com.example.tirtir_mcommerce.ui.fragments;
 
-import android.content.Context;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.ColorStateList;
@@ -52,6 +52,11 @@ import retrofit2.Response;
 
 public class ChatFragment extends Fragment {
 
+    // ── Chat mode state machine ───────────────────────────────────────────────
+
+    private enum ChatMode { NONE, BEAUTY_ADVISOR, STAFF }
+    private ChatMode currentMode = ChatMode.NONE;
+
     // ── Views ─────────────────────────────────────────────────────────────────
 
     private RecyclerView rvChatMessages;
@@ -68,23 +73,14 @@ public class ChatFragment extends Fragment {
     private ChatRepository chatRepository;
     private SharedPrefsManager prefs;
 
-    // Config loaded from backend
+    // Config from backend
     private String chatHotline            = "";
     private String welcomeMessageTemplate = "";
-    private String botName                = "";
+    private String botName                = "TIRTIR Beauty Advisor";
 
-    private boolean sessionGreetingShown = false;
+    private boolean sessionStarted = false;
 
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
-
-    // ── Session key: one greeting per user per day ────────────────────────────
-
-    private String sessionKey() {
-        User user = prefs != null ? prefs.getCachedUser() : null;
-        String uid = user != null && user.getId() != null ? user.getId() : "guest";
-        long day = System.currentTimeMillis() / (24L * 60 * 60 * 1000);
-        return "chat_greeted_" + uid + "_" + day;
-    }
 
     private final BroadcastReceiver networkReceiver = new BroadcastReceiver() {
         @Override public void onReceive(Context context, Intent intent) { updateConnectivityState(); }
@@ -108,21 +104,22 @@ public class ChatFragment extends Fragment {
         prefs = new SharedPrefsManager(requireContext());
         chatRepository = new ChatRepository(requireContext());
 
-        rvChatMessages       = view.findViewById(R.id.rvChatMessages);
-        layoutTyping         = view.findViewById(R.id.layoutTyping);
-        etChatInput          = view.findViewById(R.id.etChatInput);
-        btnSendMessage       = view.findViewById(R.id.btnSendMessage);
-        offlineBanner        = view.findViewById(R.id.tvChatOfflineBanner);
+        rvChatMessages         = view.findViewById(R.id.rvChatMessages);
+        layoutTyping           = view.findViewById(R.id.layoutTyping);
+        etChatInput            = view.findViewById(R.id.etChatInput);
+        btnSendMessage         = view.findViewById(R.id.btnSendMessage);
+        offlineBanner          = view.findViewById(R.id.tvChatOfflineBanner);
         layoutChatQuickPrompts = view.findViewById(R.id.layoutChatQuickPrompts);
-        chipGroupPrompts     = view.findViewById(R.id.chipGroupPrompts);
+        chipGroupPrompts       = view.findViewById(R.id.chipGroupPrompts);
 
         adapter = new ChatMessageAdapter(
                 product -> {
-                    Intent intent = new Intent(requireContext(), ProductDetailActivity.class);
-                    intent.putExtra("PRODUCT_ID", product.productId);
-                    startActivity(intent);
+                    Intent i = new Intent(requireContext(), ProductDetailActivity.class);
+                    i.putExtra("PRODUCT_ID", product.productId);
+                    startActivity(i);
                 },
-                this::handleActionChip
+                this::handleActionChip,
+                this::handleOptionSelected
         );
 
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
@@ -136,11 +133,11 @@ public class ChatFragment extends Fragment {
             return false;
         });
 
-        bindProductContextIfAvailable();
+        // Category chips hidden until Beauty Advisor mode activated
+        if (layoutChatQuickPrompts != null) layoutChatQuickPrompts.setVisibility(View.GONE);
 
-        // Load config first (sets welcomeMessageTemplate + hotline), then chips + history in parallel
+        bindProductContextIfAvailable();
         loadConfig();
-        loadHistory();
     }
 
     @Override
@@ -157,7 +154,7 @@ public class ChatFragment extends Fragment {
         try { requireContext().unregisterReceiver(networkReceiver); } catch (Exception ignored) {}
     }
 
-    // ── Config & suggested questions ──────────────────────────────────────────
+    // ── Config loading ────────────────────────────────────────────────────────
 
     private void loadConfig() {
         chatRepository.loadConfig(new Callback<ApiResponse<Map<String, Object>>>() {
@@ -170,84 +167,262 @@ public class ChatFragment extends Fragment {
                     Map<String, Object> data = response.body().getData();
                     chatHotline            = val(data.get("hotline"));
                     welcomeMessageTemplate = val(data.get("welcomeMessage"));
-                    botName                = val(data.get("botName"));
+                    String bn = val(data.get("botName"));
+                    if (!bn.isEmpty()) botName = bn;
                 }
-                loadSuggestedQuestions();
+                loadHistory();
             }
 
             @Override
             public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
-                if (isAdded()) loadSuggestedQuestions();
+                if (isAdded()) loadHistory();
             }
         });
     }
 
-    private void loadSuggestedQuestions() {
-        chatRepository.loadSuggestedQuestions(new Callback<ApiResponse<List<Map<String, Object>>>>() {
+    // ── History loading ───────────────────────────────────────────────────────
+
+    private void loadHistory() {
+        chatRepository.loadHistory(new Callback<ApiResponse<List<Map<String, Object>>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<Map<String, Object>>>> call,
                                    Response<ApiResponse<List<Map<String, Object>>>> response) {
                 if (!isAdded()) return;
-                List<Map<String, Object>> questions = null;
-                if (response.isSuccessful() && response.body() != null) {
-                    questions = response.body().getData();
+
+                List<ChatMessageAdapter.ChatMessage> history = new ArrayList<>();
+                if (response.isSuccessful() && response.body() != null
+                        && response.body().getData() != null) {
+                    for (Map<String, Object> item : response.body().getData()) {
+                        String sender = val(item.get("sender"));
+                        String text   = val(item.get("text"));
+                        if (text.isEmpty() || "system".equalsIgnoreCase(sender)) continue;
+                        history.add(new ChatMessageAdapter.ChatMessage(
+                                "user".equalsIgnoreCase(sender), text, "",
+                                extractRecommendations(item)));
+                    }
                 }
-                populateChips(questions);
+
+                requireActivity().runOnUiThread(() -> {
+                    adapter.addMessage(ChatMessageAdapter.ChatMessage.system(
+                            "Chat history is saved for 24 hours"));
+                    for (ChatMessageAdapter.ChatMessage m : history) adapter.addMessage(m);
+                    startFreshSession();
+                    scrollToBottom();
+                });
             }
 
             @Override
             public void onFailure(Call<ApiResponse<List<Map<String, Object>>>> call, Throwable t) {
-                if (isAdded()) populateChips(null);
+                if (isAdded()) requireActivity().runOnUiThread(() -> {
+                    adapter.addMessage(ChatMessageAdapter.ChatMessage.system(
+                            "Chat history is saved for 24 hours"));
+                    startFreshSession();
+                    scrollToBottom();
+                });
             }
         });
     }
 
-    private void populateChips(@Nullable List<Map<String, Object>> questions) {
+    // ── Fresh session: welcome + mode options ─────────────────────────────────
+
+    private void startFreshSession() {
+        if (sessionStarted) return;
+        sessionStarted = true;
+        addWelcomeGreeting();
+        showModeOptions();
+    }
+
+    private void addWelcomeGreeting() {
+        if (!isAdded()) return;
+
+        User user = prefs != null ? prefs.getCachedUser() : null;
+        String firstName = "there";
+        if (user != null && user.getName() != null && !user.getName().trim().isEmpty()) {
+            firstName = user.getName().trim().split("\\s+")[0];
+        }
+
+        int hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY);
+        String timeGreeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
+        String body;
+        if (!welcomeMessageTemplate.isEmpty()) {
+            String hl = chatHotline.isEmpty() ? "(not available)" : chatHotline;
+            body = welcomeMessageTemplate
+                    .replace("{name}",    firstName)
+                    .replace("{botName}", botName)
+                    .replace("{hotline}", hl);
+        } else {
+            String hl = chatHotline.isEmpty() ? "" : "\nHotline: " + chatHotline;
+            body = "I'm your " + botName + ". I can help with:\n"
+                    + "• Skincare routines\n"
+                    + "• Product recommendations\n"
+                    + "• Ingredient safety\n"
+                    + "• Order support"
+                    + hl
+                    + "\n\nWhat would you like to do?";
+        }
+
+        adapter.addMessage(new ChatMessageAdapter.ChatMessage(
+                false,
+                timeGreeting + ", " + firstName + " 👋\n\n" + body,
+                timeFormat.format(new Date()),
+                new ArrayList<>()));
+    }
+
+    // ── Mode selection cards ──────────────────────────────────────────────────
+
+    private void showModeOptions() {
+        List<String> opts = new ArrayList<>();
+        opts.add("Chat with TIRTIR Beauty Advisor");
+        opts.add("Chat with TIRTIR Staff");
+        if (!chatHotline.isEmpty()) opts.add("📞 Call Hotline " + chatHotline);
+        adapter.addMessage(ChatMessageAdapter.ChatMessage.options(opts));
+        scrollToBottom();
+    }
+
+    // ── Option card tapped ────────────────────────────────────────────────────
+
+    private void handleOptionSelected(int adapterPosition, String option) {
+        adapter.collapseOptions(adapterPosition, option);
+
+        if (option.startsWith("📞 Call Hotline") || option.startsWith("Call Hotline")) {
+            String phone = chatHotline.replaceAll("[^0-9+]", "");
+            if (!phone.isEmpty()) startActivity(new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone)));
+            return;
+        }
+
+        if (option.startsWith("← ")) {
+            // Back-to-menu or explore-more-topics
+            if (option.contains("main menu")) {
+                currentMode = ChatMode.NONE;
+                if (layoutChatQuickPrompts != null) layoutChatQuickPrompts.setVisibility(View.GONE);
+                showModeOptions();
+            } else {
+                // "← Explore more topics" — reload root categories
+                loadRootCategories();
+            }
+            scrollToBottom();
+            return;
+        }
+
+        // Echo user's choice as a user bubble
+        adapter.addMessage(new ChatMessageAdapter.ChatMessage(
+                true, option, timeFormat.format(new Date()), new ArrayList<>()));
+        scrollToBottom();
+
+        if (option.contains("Beauty Advisor")) {
+            currentMode = ChatMode.BEAUTY_ADVISOR;
+            if (layoutChatQuickPrompts != null) layoutChatQuickPrompts.setVisibility(View.VISIBLE);
+            adapter.addMessage(new ChatMessageAdapter.ChatMessage(
+                    false,
+                    "Great! Choose a topic to get started 👇",
+                    timeFormat.format(new Date()),
+                    new ArrayList<>()));
+            scrollToBottom();
+            loadRootCategories();
+
+        } else if (option.contains("Staff")) {
+            currentMode = ChatMode.STAFF;
+            if (layoutChatQuickPrompts != null) layoutChatQuickPrompts.setVisibility(View.GONE);
+            triggerHandoff();
+        }
+    }
+
+    // ── Category tree navigation ──────────────────────────────────────────────
+
+    private void loadRootCategories() {
+        loadCategoryLevel(null);
+    }
+
+    private void loadCategoryLevel(@Nullable String parentId) {
+        chatRepository.loadCategories(parentId, new Callback<ApiResponse<List<Map<String, Object>>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Map<String, Object>>>> call,
+                                   Response<ApiResponse<List<Map<String, Object>>>> response) {
+                if (!isAdded()) return;
+                List<Map<String, Object>> cats = null;
+                if (response.isSuccessful() && response.body() != null) {
+                    cats = response.body().getData();
+                }
+                populateCategoryChips(cats, parentId == null);
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<Map<String, Object>>>> call, Throwable t) {
+                if (isAdded()) requireActivity().runOnUiThread(() ->
+                        Toast.makeText(requireContext(), "Could not load topics. Please try again.",
+                                Toast.LENGTH_SHORT).show());
+            }
+        });
+    }
+
+    private void populateCategoryChips(@Nullable List<Map<String, Object>> categories,
+                                       boolean isRoot) {
         if (!isAdded()) return;
         requireActivity().runOnUiThread(() -> {
-            if (questions == null || questions.isEmpty()) {
-                // Backend unavailable — wire the static chips from XML as fallback
-                bindStaticChips(getView());
-                return;
+            chipGroupPrompts.removeAllViews();
+
+            if (!isRoot) {
+                addNavChip("← Topics", null, true);
             }
 
-            chipGroupPrompts.removeAllViews();
-            for (Map<String, Object> q : questions) {
-                String id       = val(q.get("id"));
-                String question = val(q.get("question"));
-                if (question.isEmpty()) continue;
+            if (categories == null || categories.isEmpty()) return;
 
-                Chip chip = new Chip(requireContext());
-                chip.setText(question);
-                chip.setClickable(true);
-                chip.setCheckable(false);
-                chip.setChipBackgroundColor(ColorStateList.valueOf(0xE6FFFFFF));
-                chip.setChipStrokeColor(ColorStateList.valueOf(0x4DE3BEB8));
-                chip.setChipStrokeWidth(dpToPx(1));
-                chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.tirtir_red_dark));
-
-                String finalId = id;
-                chip.setOnClickListener(v ->
-                        dispatchMessage(question, finalId.isEmpty() ? null : finalId));
-                chipGroupPrompts.addView(chip);
+            for (Map<String, Object> cat : categories) {
+                String id    = val(cat.get("id"));
+                String title = val(cat.get("title"));
+                String emoji = val(cat.get("emoji"));
+                if (title.isEmpty()) continue;
+                String label = emoji.isEmpty() ? title : emoji + " " + title;
+                addNavChip(label, cat, false);
             }
         });
     }
 
-    /** Wires the 4 static XML chips when the backend is unavailable. */
-    private void bindStaticChips(View root) {
-        if (root == null) return;
-        wireStaticChip(root, R.id.chipPromptSkin,       "What routine is suitable for my skin type?");
-        wireStaticChip(root, R.id.chipPromptIngredient,  "Can I combine serum and moisturizer together?");
-        wireStaticChip(root, R.id.chipPromptRoutine,     "What is the correct morning skincare order?");
-        wireStaticChip(root, R.id.chipPromptOrder,       "How can I check my order status?");
+    private void addNavChip(String label, @Nullable Map<String, Object> category, boolean isBack) {
+        Chip chip = new Chip(requireContext());
+        chip.setText(label);
+        chip.setClickable(true);
+        chip.setCheckable(false);
+        if (isBack) {
+            chip.setChipBackgroundColor(ColorStateList.valueOf(0xFFF5F5F5));
+            chip.setChipStrokeColor(ColorStateList.valueOf(0xFF8B0000));
+            chip.setChipStrokeWidth(dpToPx(1));
+            chip.setTextColor(0xFF8B0000);
+        } else {
+            chip.setChipBackgroundColor(ColorStateList.valueOf(0xE6FFFFFF));
+            chip.setChipStrokeColor(ColorStateList.valueOf(0x4DE3BEB8));
+            chip.setChipStrokeWidth(dpToPx(1));
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.tirtir_red_dark));
+        }
+        chip.setOnClickListener(v -> {
+            if (isBack) loadRootCategories();
+            else if (category != null) handleCategorySelected(category);
+        });
+        chipGroupPrompts.addView(chip);
     }
 
-    private void wireStaticChip(View root, int chipId, String question) {
-        Chip chip = root.findViewById(chipId);
-        if (chip == null) return;
-        chip.setText(question);
-        chip.setOnClickListener(v -> dispatchMessage(question, null));
+    private void handleCategorySelected(Map<String, Object> category) {
+        String id         = val(category.get("id"));
+        String title      = val(category.get("title"));
+        String emoji      = val(category.get("emoji"));
+        String intentCode = val(category.get("intentCode"));
+        boolean isLeaf    = Boolean.TRUE.equals(category.get("isLeaf"));
+        String displayTitle = emoji.isEmpty() ? title : emoji + " " + title;
+
+        adapter.addMessage(new ChatMessageAdapter.ChatMessage(
+                true, displayTitle, timeFormat.format(new Date()), new ArrayList<>()));
+        scrollToBottom();
+
+        if (isLeaf && !intentCode.isEmpty()) {
+            dispatchMessage(title, intentCode);
+        } else if (!isLeaf && !id.isEmpty()) {
+            adapter.addMessage(new ChatMessageAdapter.ChatMessage(
+                    false, "Choose a specific topic:",
+                    timeFormat.format(new Date()), new ArrayList<>()));
+            scrollToBottom();
+            loadCategoryLevel(id);
+        }
     }
 
     // ── Product context (launched from product detail) ────────────────────────
@@ -266,93 +441,9 @@ public class ChatFragment extends Fragment {
                 "I'm looking at " + name + ". Ask me about ingredients, skin fit, routine order, or what to pair with it.",
                 timeFormat.format(new Date()),
                 new ArrayList<>()));
-        if (prefs != null) chatSessionPrefs().edit().putBoolean(sessionKey(), true).apply();
-        sessionGreetingShown = true;
-    }
-
-    // ── History loading ───────────────────────────────────────────────────────
-
-    private void loadHistory() {
-        chatRepository.loadHistory(new Callback<ApiResponse<List<Map<String, Object>>>>() {
-            @Override
-            public void onResponse(Call<ApiResponse<List<Map<String, Object>>>> call,
-                                   Response<ApiResponse<List<Map<String, Object>>>> response) {
-                if (!isAdded()) return;
-                if (!response.isSuccessful() || response.body() == null
-                        || response.body().getData() == null
-                        || response.body().getData().isEmpty()) {
-                    requireActivity().runOnUiThread(() -> startFreshSession());
-                    return;
-                }
-
-                List<ChatMessageAdapter.ChatMessage> history = new ArrayList<>();
-                for (Map<String, Object> item : response.body().getData()) {
-                    String sender = val(item.get("sender"));
-                    String text   = val(item.get("text"));
-                    if (text.isEmpty()) continue;
-                    history.add(new ChatMessageAdapter.ChatMessage(
-                            "user".equalsIgnoreCase(sender), text, "", extractRecommendations(item)));
-                }
-
-                requireActivity().runOnUiThread(() -> {
-                    if (history.isEmpty()) { startFreshSession(); return; }
-
-                    boolean newSession = !chatSessionPrefs().getBoolean(sessionKey(), false);
-                    adapter.submitMessages(history);
-                    adapter.addMessage(ChatMessageAdapter.ChatMessage.system(
-                            "Chat history is saved for 24 hours"));
-                    scrollToBottom();
-
-                    if (newSession) addWelcomeGreeting();
-                    if (prefs != null) chatSessionPrefs().edit().putBoolean(sessionKey(), true).apply();
-                });
-            }
-
-            @Override
-            public void onFailure(Call<ApiResponse<List<Map<String, Object>>>> call, Throwable t) {
-                if (isAdded()) requireActivity().runOnUiThread(() -> startFreshSession());
-            }
-        });
-    }
-
-    private void startFreshSession() {
-        adapter.addMessage(ChatMessageAdapter.ChatMessage.system(
-                "Chat history is saved for 24 hours"));
-        addWelcomeGreeting();
-        if (prefs != null) chatSessionPrefs().edit().putBoolean(sessionKey(), true).apply();
-    }
-
-    private void addWelcomeGreeting() {
-        if (sessionGreetingShown || adapter == null || !isAdded()) return;
-        sessionGreetingShown = true;
-
-        User user = prefs != null ? prefs.getCachedUser() : null;
-        String firstName = "there";
-        if (user != null && user.getName() != null && !user.getName().trim().isEmpty()) {
-            firstName = user.getName().trim().split("\\s+")[0];
-        }
-
-        String welcomeText;
-        if (!welcomeMessageTemplate.isEmpty()) {
-            String bn = botName.isEmpty() ? "TIRTIR Beauty Advisor" : botName;
-            welcomeText = welcomeMessageTemplate
-                    .replace("{name}", firstName)
-                    .replace("{botName}", bn);
-        } else {
-            int hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY);
-            String timeGreeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-            welcomeText = timeGreeting + ", " + firstName + " 👋\n\n"
-                    + "I'm your TIRTIR Beauty Advisor. I can help with:\n"
-                    + "• Skincare routines\n"
-                    + "• Product recommendations\n"
-                    + "• Ingredient safety\n"
-                    + "• Order support\n\n"
-                    + "What would you like to explore?";
-        }
-
-        adapter.addMessage(new ChatMessageAdapter.ChatMessage(
-                false, welcomeText, timeFormat.format(new Date()), new ArrayList<>()));
-        scrollToBottom();
+        sessionStarted = true;
+        currentMode = ChatMode.BEAUTY_ADVISOR;
+        if (layoutChatQuickPrompts != null) layoutChatQuickPrompts.setVisibility(View.VISIBLE);
     }
 
     // ── Message sending ───────────────────────────────────────────────────────
@@ -360,16 +451,54 @@ public class ChatFragment extends Fragment {
     private void sendCurrentMessage() {
         String text = etChatInput.getText() == null ? ""
                 : etChatInput.getText().toString().trim();
+        if (TextUtils.isEmpty(text)) return;
+        etChatInput.setText("");
+
+        if (currentMode == ChatMode.NONE) {
+            // Free-text before mode selection: redirect without answering
+            adapter.addMessage(new ChatMessageAdapter.ChatMessage(
+                    true, text, timeFormat.format(new Date()), new ArrayList<>()));
+            scrollToBottom();
+            adapter.addMessage(new ChatMessageAdapter.ChatMessage(
+                    false,
+                    "Please choose how you would like to continue:",
+                    timeFormat.format(new Date()),
+                    new ArrayList<>()));
+            showModeOptions();
+            return;
+        }
+
+        if (currentMode == ChatMode.STAFF) {
+            // Staff mode: just echo; real staff chat handled externally
+            adapter.addMessage(new ChatMessageAdapter.ChatMessage(
+                    true, text, timeFormat.format(new Date()), new ArrayList<>()));
+            scrollToBottom();
+            adapter.addMessage(new ChatMessageAdapter.ChatMessage(
+                    false,
+                    "Your message has been noted. Our staff will respond shortly.",
+                    timeFormat.format(new Date()),
+                    new ArrayList<>()));
+            scrollToBottom();
+            return;
+        }
+
         dispatchMessage(text, null);
     }
 
-    private void dispatchMessage(String text, @Nullable String questionId) {
-        if (TextUtils.isEmpty(text)) return;
+    /**
+     * Sends to the backend for dataset matching.
+     * @param text      Display text / user message
+     * @param intentCode  If non-null, sent as selectedQuestionId to skip full-text matching
+     */
+    private void dispatchMessage(String text, @Nullable String intentCode) {
+        if (TextUtils.isEmpty(text) && TextUtils.isEmpty(intentCode)) return;
 
-        adapter.addMessage(new ChatMessageAdapter.ChatMessage(
-                true, text, timeFormat.format(new Date()), new ArrayList<>()));
-        scrollToBottom();
-        etChatInput.setText("");
+        // Category-taps already added the user bubble; free-text sends add it here
+        if (intentCode == null) {
+            adapter.addMessage(new ChatMessageAdapter.ChatMessage(
+                    true, text, timeFormat.format(new Date()), new ArrayList<>()));
+            scrollToBottom();
+        }
 
         layoutTyping.setVisibility(View.VISIBLE);
         btnSendMessage.setEnabled(false);
@@ -401,20 +530,15 @@ public class ChatFragment extends Fragment {
                     String finalText = (result.message == null || result.message.isEmpty())
                             ? streamed.toString() : result.message;
 
-                    List<ChatMessageAdapter.RecommendedProduct> recommendations = new ArrayList<>();
+                    List<ChatMessageAdapter.RecommendedProduct> recs = new ArrayList<>();
                     for (ChatRepository.Suggestion s : result.suggestions) {
-                        recommendations.add(new ChatMessageAdapter.RecommendedProduct(s.productId, s.name));
+                        recs.add(new ChatMessageAdapter.RecommendedProduct(s.productId, s.name));
                     }
-
                     Pattern p = Pattern.compile("\\[PRODUCT:([^:]+):([^]]+)\\]");
                     Matcher m = p.matcher(finalText);
-                    while (m.find()) {
-                        recommendations.add(new ChatMessageAdapter.RecommendedProduct(
-                                m.group(1), m.group(2)));
-                    }
+                    while (m.find()) recs.add(new ChatMessageAdapter.RecommendedProduct(m.group(1), m.group(2)));
                     finalText = m.replaceAll("").trim();
 
-                    // OOD action chips
                     List<ChatMessageAdapter.ChatAction> actions = new ArrayList<>();
                     if (result.isOutOfDataset && result.actions != null) {
                         for (ChatRepository.ChatAction a : result.actions) {
@@ -423,9 +547,11 @@ public class ChatFragment extends Fragment {
                     }
 
                     ChatMessageAdapter.ChatMessage msg = new ChatMessageAdapter.ChatMessage(
-                            false, finalText, timeFormat.format(new Date()), recommendations, actions);
+                            false, finalText, timeFormat.format(new Date()), recs, actions);
                     if (botPosition[0] < 0) botPosition[0] = adapter.addAndReturnPosition(msg);
                     else adapter.updateMessage(botPosition[0], msg);
+
+                    if (currentMode == ChatMode.BEAUTY_ADVISOR) showPostAnswerOptions();
                     finishRequest();
                 });
             }
@@ -436,9 +562,8 @@ public class ChatFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     ChatMessageAdapter.ChatMessage err = new ChatMessageAdapter.ChatMessage(
                             false,
-                            "Sorry, I couldn't connect right now. Please check your internet connection and try again.",
-                            timeFormat.format(new Date()),
-                            new ArrayList<>());
+                            "Sorry, I couldn't connect right now. Please check your connection and try again.",
+                            timeFormat.format(new Date()), new ArrayList<>());
                     if (botPosition[0] < 0) botPosition[0] = adapter.addAndReturnPosition(err);
                     else adapter.updateMessage(botPosition[0], err);
                     finishRequest();
@@ -446,11 +571,21 @@ public class ChatFragment extends Fragment {
             }
         };
 
-        if (questionId != null && !questionId.isEmpty()) {
-            chatRepository.sendQuestion(questionId, text, listener);
+        if (intentCode != null && !intentCode.isEmpty()) {
+            chatRepository.sendQuestion(intentCode, text, listener);
         } else {
             chatRepository.sendMessage(text, listener);
         }
+    }
+
+    private void showPostAnswerOptions() {
+        List<String> opts = new ArrayList<>();
+        opts.add("← Explore more topics");
+        opts.add("Chat with TIRTIR Staff");
+        if (!chatHotline.isEmpty()) opts.add("📞 Call Hotline " + chatHotline);
+        adapter.addMessage(ChatMessageAdapter.ChatMessage.options(opts));
+        scrollToBottom();
+        loadRootCategories();
     }
 
     // ── OOD action chip handler ───────────────────────────────────────────────
@@ -458,44 +593,63 @@ public class ChatFragment extends Fragment {
     private void handleActionChip(ChatMessageAdapter.ChatAction action) {
         switch (action.type) {
             case "call_hotline":
-                String phone = chatHotline.isEmpty() ? "" : chatHotline.replaceAll("[^0-9+]", "");
+                String phone = chatHotline.replaceAll("[^0-9+]", "");
                 if (!phone.isEmpty()) {
                     startActivity(new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone)));
                 } else {
-                    Toast.makeText(requireContext(), "Hotline not available right now.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Hotline not available.", Toast.LENGTH_SHORT).show();
                 }
                 break;
 
             case "contact_staff":
-                chatRepository.postHandoff("user_requested_staff",
-                        new Callback<ApiResponse<Map<String, Object>>>() {
-                            @Override
-                            public void onResponse(Call<ApiResponse<Map<String, Object>>> call,
-                                                   Response<ApiResponse<Map<String, Object>>> response) {
-                                if (!isAdded()) return;
-                                requireActivity().runOnUiThread(() ->
-                                        Toast.makeText(requireContext(),
-                                                "A staff member will be with you shortly.",
-                                                Toast.LENGTH_SHORT).show());
-                            }
-
-                            @Override
-                            public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
-                                if (!isAdded()) return;
-                                requireActivity().runOnUiThread(() ->
-                                        Toast.makeText(requireContext(),
-                                                "Could not connect to staff. Please try again.",
-                                                Toast.LENGTH_SHORT).show());
-                            }
-                        });
+                triggerHandoff();
                 break;
 
             case "choose_topic":
+                currentMode = ChatMode.BEAUTY_ADVISOR;
                 if (layoutChatQuickPrompts != null) {
+                    layoutChatQuickPrompts.setVisibility(View.VISIBLE);
                     layoutChatQuickPrompts.smoothScrollTo(0, 0);
                 }
+                loadRootCategories();
                 break;
         }
+    }
+
+    // ── Staff handoff ─────────────────────────────────────────────────────────
+
+    private void triggerHandoff() {
+        chatRepository.postHandoff("user_requested_staff",
+                new Callback<ApiResponse<Map<String, Object>>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse<Map<String, Object>>> call,
+                                           Response<ApiResponse<Map<String, Object>>> response) {
+                        if (!isAdded()) return;
+                        requireActivity().runOnUiThread(() -> {
+                            currentMode = ChatMode.STAFF;
+                            if (layoutChatQuickPrompts != null)
+                                layoutChatQuickPrompts.setVisibility(View.GONE);
+                            String hl = chatHotline.isEmpty() ? ""
+                                    : "\n\nHotline: " + chatHotline;
+                            adapter.addMessage(new ChatMessageAdapter.ChatMessage(
+                                    false,
+                                    "Your request has been forwarded to TIRTIR Staff. "
+                                    + "Please wait while we connect you with an advisor. "
+                                    + "Thank you for your patience. 🙏" + hl,
+                                    timeFormat.format(new Date()), new ArrayList<>()));
+                            scrollToBottom();
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
+                        if (!isAdded()) return;
+                        requireActivity().runOnUiThread(() ->
+                                Toast.makeText(requireContext(),
+                                        "Could not connect to staff. Please try again.",
+                                        Toast.LENGTH_SHORT).show());
+                    }
+                });
     }
 
     // ── Utilities ─────────────────────────────────────────────────────────────
@@ -517,13 +671,14 @@ public class ChatFragment extends Fragment {
         Network net = cm == null ? null : cm.getActiveNetwork();
         NetworkCapabilities caps = net == null ? null : cm.getNetworkCapabilities(net);
         boolean online = caps != null && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
-        if (offlineBanner != null) offlineBanner.setVisibility(online ? View.GONE : View.VISIBLE);
-        if (etChatInput != null)    etChatInput.setEnabled(online);
-        if (btnSendMessage != null) btnSendMessage.setEnabled(online);
+        if (offlineBanner != null)  offlineBanner.setVisibility(online ? View.GONE : View.VISIBLE);
+        if (etChatInput != null)     etChatInput.setEnabled(online);
+        if (btnSendMessage != null)  btnSendMessage.setEnabled(online);
     }
 
     @SuppressWarnings("unchecked")
-    private List<ChatMessageAdapter.RecommendedProduct> extractRecommendations(Map<String, Object> message) {
+    private List<ChatMessageAdapter.RecommendedProduct> extractRecommendations(
+            Map<String, Object> message) {
         List<ChatMessageAdapter.RecommendedProduct> result = new ArrayList<>();
         Object dataObj = message.get("productData");
         if (!(dataObj instanceof Map)) return result;
@@ -535,16 +690,11 @@ public class ChatFragment extends Fragment {
                 Map<String, Object> prod = (Map<String, Object>) item;
                 String id   = val(prod.get("id"));
                 String name = val(prod.get("name"));
-                if (!id.isEmpty() && !name.isEmpty()) {
+                if (!id.isEmpty() && !name.isEmpty())
                     result.add(new ChatMessageAdapter.RecommendedProduct(id, name));
-                }
             }
         }
         return result;
-    }
-
-    private android.content.SharedPreferences chatSessionPrefs() {
-        return requireContext().getSharedPreferences("tirtir_chat_session", Context.MODE_PRIVATE);
     }
 
     private float dpToPx(float dp) {

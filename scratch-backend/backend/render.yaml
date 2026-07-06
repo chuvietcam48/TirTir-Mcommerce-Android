@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: tirtir-backend
+    env: node
+    region: singapore
+    plan: free
+    rootDir: scratch-backend/backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production

@@ -1,9 +1,11 @@
 package com.example.tirtir_mcommerce.ui.adapters;
 
 import android.content.res.ColorStateList;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tirtir_mcommerce.R;
 import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 
 import java.util.ArrayList;
@@ -27,6 +30,10 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     public interface ActionChipListener {
         void onActionChipClick(ChatAction action);
+    }
+
+    public interface OptionClickListener {
+        void onOptionClick(int adapterPosition, String option);
     }
 
     // ── Data classes ──────────────────────────────────────────────────────────
@@ -55,9 +62,11 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         public final String timestamp;
         public final List<RecommendedProduct> recommendations;
         public final boolean isSystem;
+        public final boolean isOptions;
         public final List<ChatAction> actions;
+        public final List<String> options;
 
-        /** Normal user/bot message. */
+        /** Normal user/bot message (no OOD actions). */
         public ChatMessage(boolean fromUser, String text, String timestamp,
                            List<RecommendedProduct> recommendations) {
             this(fromUser, text, timestamp, recommendations, null);
@@ -72,7 +81,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.timestamp = timestamp;
             this.recommendations = recommendations != null ? recommendations : new ArrayList<>();
             this.isSystem = false;
+            this.isOptions = false;
             this.actions = actions != null ? actions : new ArrayList<>();
+            this.options = new ArrayList<>();
         }
 
         /** System divider note (centered text). */
@@ -82,30 +93,52 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.timestamp = "";
             this.recommendations = new ArrayList<>();
             this.isSystem = true;
+            this.isOptions = false;
             this.actions = new ArrayList<>();
+            this.options = new ArrayList<>();
+        }
+
+        /** Mode/guided options selection message. */
+        private ChatMessage(List<String> options) {
+            this.fromUser = false;
+            this.text = "";
+            this.timestamp = "";
+            this.recommendations = new ArrayList<>();
+            this.isSystem = false;
+            this.isOptions = true;
+            this.actions = new ArrayList<>();
+            this.options = options != null ? new ArrayList<>(options) : new ArrayList<>();
         }
 
         public static ChatMessage system(String text) {
             return new ChatMessage(text);
         }
+
+        public static ChatMessage options(List<String> opts) {
+            return new ChatMessage(opts);
+        }
     }
 
     // ── View type constants ───────────────────────────────────────────────────
 
-    private static final int TYPE_SYSTEM = 0;
-    private static final int TYPE_USER   = 1;
-    private static final int TYPE_BOT    = 2;
+    private static final int TYPE_SYSTEM  = 0;
+    private static final int TYPE_USER    = 1;
+    private static final int TYPE_BOT     = 2;
+    private static final int TYPE_OPTIONS = 3;
 
     // ── Adapter state ─────────────────────────────────────────────────────────
 
     private final List<ChatMessage> messages = new ArrayList<>();
     private final ProductChipListener productChipListener;
     private final ActionChipListener  actionChipListener;
+    private final OptionClickListener optionClickListener;
 
     public ChatMessageAdapter(ProductChipListener productChipListener,
-                              ActionChipListener actionChipListener) {
+                              ActionChipListener  actionChipListener,
+                              OptionClickListener optionClickListener) {
         this.productChipListener = productChipListener;
         this.actionChipListener  = actionChipListener;
+        this.optionClickListener = optionClickListener;
     }
 
     // ── List mutation ─────────────────────────────────────────────────────────
@@ -133,10 +166,17 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         notifyItemChanged(position);
     }
 
+    /** Replace the options message at `position` with a plain user-bubble echo. */
+    public void collapseOptions(int position, String chosenLabel) {
+        if (position < 0 || position >= messages.size()) return;
+        messages.remove(position);
+        notifyItemRemoved(position);
+    }
+
     public String getLastMessageTimestamp() {
         for (int i = messages.size() - 1; i >= 0; i--) {
             ChatMessage m = messages.get(i);
-            if (!m.isSystem && m.timestamp != null && !m.timestamp.isEmpty()) {
+            if (!m.isSystem && !m.isOptions && m.timestamp != null && !m.timestamp.isEmpty()) {
                 return m.timestamp;
             }
         }
@@ -149,6 +189,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public int getItemViewType(int position) {
         ChatMessage m = messages.get(position);
         if (m.isSystem)  return TYPE_SYSTEM;
+        if (m.isOptions) return TYPE_OPTIONS;
         if (m.fromUser)  return TYPE_USER;
         return TYPE_BOT;
     }
@@ -162,6 +203,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 return new UserViewHolder(inf.inflate(R.layout.item_bubble_user, parent, false));
             case TYPE_SYSTEM:
                 return new SystemViewHolder(inf.inflate(R.layout.item_bubble_system, parent, false));
+            case TYPE_OPTIONS:
+                return new OptionsViewHolder(inf.inflate(R.layout.item_options_message, parent, false));
             default:
                 return new BotViewHolder(inf.inflate(R.layout.item_bubble_bot, parent, false));
         }
@@ -170,9 +213,10 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ChatMessage message = messages.get(position);
-        if (holder instanceof UserViewHolder)   ((UserViewHolder) holder).bind(message);
-        else if (holder instanceof SystemViewHolder) ((SystemViewHolder) holder).bind(message);
-        else ((BotViewHolder) holder).bind(message);
+        if      (holder instanceof OptionsViewHolder) ((OptionsViewHolder) holder).bind(message);
+        else if (holder instanceof UserViewHolder)    ((UserViewHolder) holder).bind(message);
+        else if (holder instanceof SystemViewHolder)  ((SystemViewHolder) holder).bind(message);
+        else                                           ((BotViewHolder) holder).bind(message);
     }
 
     @Override
@@ -205,9 +249,60 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
+    class OptionsViewHolder extends RecyclerView.ViewHolder {
+        private final LinearLayout llOptionButtons;
+
+        OptionsViewHolder(@NonNull View itemView) {
+            super(itemView);
+            llOptionButtons = itemView.findViewById(R.id.llOptionButtons);
+        }
+
+        void bind(ChatMessage message) {
+            llOptionButtons.removeAllViews();
+            for (String option : message.options) {
+                MaterialButton btn = new MaterialButton(itemView.getContext());
+
+                // Outlined style: white bg, burgundy stroke + text
+                GradientDrawable bg = new GradientDrawable();
+                bg.setShape(GradientDrawable.RECTANGLE);
+                bg.setCornerRadius(dpToPx(28));
+                bg.setColor(0xFFFFFFFF);
+                bg.setStroke((int) dpToPx(1.5f), 0xFF8B0000);
+                btn.setBackground(bg);
+                btn.setTextColor(0xFF8B0000);
+                btn.setTextSize(14f);
+                btn.setAllCaps(false);
+
+                int ph = (int) dpToPx(20);
+                int pv = (int) dpToPx(13);
+                btn.setPadding(ph, pv, ph, pv);
+
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                params.setMargins(0, 0, 0, (int) dpToPx(10));
+                btn.setLayoutParams(params);
+
+                btn.setText(option);
+                btn.setOnClickListener(v -> {
+                    int pos = getAdapterPosition();
+                    if (pos != RecyclerView.NO_ID && optionClickListener != null) {
+                        optionClickListener.onOptionClick(pos, option);
+                    }
+                });
+
+                llOptionButtons.addView(btn);
+            }
+        }
+
+        private float dpToPx(float dp) {
+            return dp * itemView.getContext().getResources().getDisplayMetrics().density;
+        }
+    }
+
     class BotViewHolder extends RecyclerView.ViewHolder {
-        private final TextView     tvMessage;
-        private final TextView     tvTimestamp;
+        private final TextView      tvMessage;
+        private final TextView      tvTimestamp;
         private final FlexboxLayout flexProducts;
         private final FlexboxLayout flexActions;
 
@@ -266,4 +361,5 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
         }
     }
+
 }

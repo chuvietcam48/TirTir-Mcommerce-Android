@@ -109,6 +109,12 @@ public class ChatRepository {
         RetrofitClient.getAuthClient(context).create(ApiService.class).getChatSuggestedQuestions().enqueue(callback);
     }
 
+    public void loadCategories(String parentId, retrofit2.Callback<ApiResponse<List<Map<String, Object>>>> callback) {
+        RetrofitClient.getClient().create(ApiService.class)
+                .getChatCategories(parentId == null ? "null" : parentId)
+                .enqueue(callback);
+    }
+
     public void postHandoff(String reason, retrofit2.Callback<ApiResponse<Map<String, Object>>> callback) {
         java.util.HashMap<String, Object> body = new java.util.HashMap<>();
         body.put("reason", reason != null ? reason : "");
@@ -124,12 +130,12 @@ public class ChatRepository {
         sendRequest(payload, listener);
     }
 
-    /** Send a chip-tap: includes selectedQuestionId so the backend skips matching. */
-    public void sendQuestion(String questionId, String questionText, StreamListener listener) {
+    /** Send via intentCode: backend matches directly against the dataset, skipping text search. */
+    public void sendQuestion(String intentCode, String questionText, StreamListener listener) {
         JsonObject payload = new JsonObject();
         payload.addProperty("message", questionText);
-        if (questionId != null && !questionId.isEmpty()) {
-            payload.addProperty("selectedQuestionId", questionId);
+        if (intentCode != null && !intentCode.isEmpty()) {
+            payload.addProperty("intentCode", intentCode);
         }
         sendRequest(payload, listener);
     }

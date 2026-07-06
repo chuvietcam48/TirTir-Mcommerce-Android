@@ -183,6 +183,9 @@ public interface ApiService {
     @POST("api/v1/chat/handoff")
     Call<ApiResponse<Map<String, Object>>> postChatHandoff(@Body Map<String, Object> body);
 
+    @GET("api/v1/chat/categories")
+    Call<ApiResponse<List<Map<String, Object>>>> getChatCategories(@Query("parentId") String parentId);
+
     @POST("api/v1/ai/analyze-face")
     Call<ApiResponse<Map<String, Object>>> analyzeSkin(@Body Map<String, String> body);
 
