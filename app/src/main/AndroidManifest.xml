@@ -206,6 +206,14 @@
             android:name=".ui.activities.AdminVoucherDetailActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.activities.AdminNotificationCenterActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.AdminProfileActivity"
+            android:exported="false" />
+
 
         <activity
             android:name=".ui.activities.BarcodeScanActivity"

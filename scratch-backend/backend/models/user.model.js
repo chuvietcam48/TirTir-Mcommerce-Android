@@ -157,7 +157,17 @@ const UserSchema = new mongoose.Schema({
             lastSeenAt: { type: Date, default: Date.now },
             createdAt: { type: Date, default: Date.now }
         }
-    ]
+    ],
+    // ===== SYSTEM PREFERENCES =====
+    twoFactorEnabled: {
+        type: Boolean,
+        default: false
+    },
+    preferences: {
+        theme: { type: String, enum: ['light', 'dark', 'system'], default: 'light' },
+        language: { type: String, enum: ['en', 'vi'], default: 'en' },
+        criticalAlerts: { type: Boolean, default: true }
+    }
 }, {
     timestamps: true
 });

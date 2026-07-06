@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardAdminNotification"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="6dp"
+    app:cardBackgroundColor="#ffffff"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="0dp"
+    app:strokeColor="#e3beb8"
+    app:strokeWidth="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <!-- Dot Indicator -->
+        <View
+            android:id="@+id/viewTypeDot"
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_rounded_primary"
+            android:backgroundTint="#610000"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/ivTypeIcon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_sync"
+            app:tint="#454747"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Tag Label -->
+        <TextView
+            android:id="@+id/tvCategoryTag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_rounded_primary"
+            android:backgroundTint="#ffdad4"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:text="INVENTORY"
+            android:textColor="#610000"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/ivTypeIcon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Time Label -->
+        <TextView
+            android:id="@+id/tvTimeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2 mins ago"
+            android:textColor="#5f5e5e"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@id/tvCategoryTag"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvCategoryTag" />
+
+        <!-- Message Body -->
+        <TextView
+            android:id="@+id/tvMessageBody"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Low Stock Alert: Mask Fit Red Cushion (17C) is below 10 units."
+            android:textColor="#1a1c1c"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/tvCategoryTag"
+            app:layout_constraintTop_toBottomOf="@id/tvCategoryTag" />
+
+        <!-- Primary Action Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPrimaryAction"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Restock Now"
+            android:textColor="#ffffff"
+            app:backgroundTint="#610000"
+            app:cornerRadius="4dp"
+            app:layout_constraintStart_toStartOf="@id/tvCategoryTag"
+            app:layout_constraintTop_toBottomOf="@id/tvMessageBody"
+            android:visibility="gone" />
+
+        <!-- Secondary Action Button -->
+        <TextView
+            android:id="@+id/btnSecondaryAction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Ignore"
+            android:textColor="#5f5e5e"
+            android:textSize="14sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/btnPrimaryAction"
+            app:layout_constraintStart_toEndOf="@id/btnPrimaryAction"
+            app:layout_constraintTop_toTopOf="@id/btnPrimaryAction" />
+
+        <!-- Text Link Action Button (e.g. Review History) -->
+        <TextView
+            android:id="@+id/btnTextLinkAction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Review History"
+            android:textColor="#610000"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@id/tvCategoryTag"
+            app:layout_constraintTop_toBottomOf="@id/tvMessageBody" />
+
+        <ImageView
+            android:id="@+id/btnCloseSystemNotif"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_close"
+            app:tint="#5f5e5e"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

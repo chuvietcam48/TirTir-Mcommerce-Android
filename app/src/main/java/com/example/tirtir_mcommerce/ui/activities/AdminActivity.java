@@ -84,21 +84,19 @@ public class AdminActivity extends AppCompatActivity {
             btnProfile.setOnClickListener(v -> showAdminProfile());
         }
 
+        android.view.View btnNotifications = findViewById(R.id.btnAdminNotifications);
+        if (btnNotifications != null) {
+            btnNotifications.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AdminNotificationCenterActivity.class);
+                startActivity(intent);
+            });
+        }
+
     }
 
     private void showAdminProfile() {
-        com.example.tirtir_mcommerce.utils.SharedPrefsManager prefs =
-                new com.example.tirtir_mcommerce.utils.SharedPrefsManager(this);
-        com.example.tirtir_mcommerce.model.User user = prefs.getCachedUser();
-        String name = user != null ? user.getName() : "Admin";
-        String email = user != null ? user.getEmail() : "";
-
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Admin Profile")
-                .setMessage("Name: " + name + "\nEmail: " + email)
-                .setPositiveButton("Logout", (dialog, which) -> confirmLogout())
-                .setNegativeButton("Close", null)
-                .show();
+        Intent intent = new Intent(this, AdminProfileActivity.class);
+        startActivity(intent);
     }
 
     private void confirmLogout() {

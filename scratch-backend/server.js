@@ -53,6 +53,7 @@ app.use('/api/v1/vouchers', require('./routes/voucherRoutes'));
 app.use('/api/v1/orders', require('./routes/orderRoutes'));
 app.use('/api/v1/upload', require('./routes/uploadRoutes'));
 app.use('/api/v1/admin', require('./routes/adminRoutes'));
+app.use('/api/v1/admin/settings', require('./routes/adminSettingsRoutes'));
 app.use('/api/v1/tracking', require('./routes/trackingRoutes'));
 app.use('/api/v1/routines', require('./routes/routineRoutes'));
 app.use('/api/routines', require('./routes/routineRoutes'));

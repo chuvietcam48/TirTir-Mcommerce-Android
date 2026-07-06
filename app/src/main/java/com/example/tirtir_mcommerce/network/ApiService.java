@@ -354,6 +354,24 @@ public interface ApiService {
     @POST("api/v1/admin/orders/{id}/cancel")
     Call<ApiResponse<Map<String, Object>>> cancelAdminOrder(@Path("id") String orderId, @Body Map<String, Object> body);
 
+    // ===========================
+    // ADMIN SETTINGS MODULE
+    // ===========================
+    @PUT("api/v1/admin/settings/preferences")
+    Call<ApiResponse<Map<String, Object>>> updateAdminPreferences(@Body Map<String, Object> body);
+
+    @PUT("api/v1/admin/settings/change-password")
+    Call<ApiResponse<Map<String, Object>>> changeAdminPassword(@Body Map<String, String> body);
+
+    @GET("api/v1/admin/settings/login-history")
+    Call<ApiResponse<List<Map<String, Object>>>> getAdminLoginHistory();
+
+    @GET("api/v1/admin/settings/api-logs")
+    Call<ApiResponse<List<Map<String, Object>>>> getAdminApiLogs();
+
+    @GET("api/v1/admin/settings/audit-trails")
+    Call<ApiResponse<List<Map<String, Object>>>> getAdminAuditTrails();
+
     @GET("api/v1/admin/stats/cart-recovery")
     Call<Map<String, Object>> getCartRecoveryStats();
 
