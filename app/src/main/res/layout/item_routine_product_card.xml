@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="5dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="1dp"
+    app:cardBackgroundColor="@color/tirtir_white"
+    app:strokeColor="@color/tirtir_rose_outline"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <!-- Product image -->
+        <ImageView
+            android:id="@+id/ivRoutineProduct"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:background="@color/tirtir_bg_gray" />
+
+        <!-- Info -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
+
+            <TextView
+                android:id="@+id/tvRoutineStepLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Step 1  •  Cleanser"
+                android:textColor="@color/tirtir_red_primary"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.04" />
+
+            <TextView
+                android:id="@+id/tvRoutineProductName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Product Name"
+                android:textColor="@color/tirtir_black"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/tvRoutineProductReason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="Gentle formula for oily skin."
+                android:textColor="@color/tirtir_text_secondary"
+                android:textSize="11sp"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/tvRoutineTag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="For oily skin"
+                android:textColor="@color/tirtir_white"
+                android:textSize="10sp"
+                android:background="@drawable/bg_tag_primary"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp" />
+
+            <!-- Price + actions -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:id="@+id/tvRoutineProductPrice"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="$28.00"
+                    android:textColor="@color/tirtir_red_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <ImageButton
+                    android:id="@+id/btnRoutineWishlist"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginEnd="4dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_wishlist_outline"
+                    android:scaleType="centerInside"
+                    android:contentDescription="Wishlist" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRoutineAddCart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="Add"
+                    android:textSize="11sp"
+                    android:textAllCaps="false"
+                    android:textColor="@color/tirtir_white"
+                    app:backgroundTint="@color/tirtir_red_primary"
+                    app:cornerRadius="8dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

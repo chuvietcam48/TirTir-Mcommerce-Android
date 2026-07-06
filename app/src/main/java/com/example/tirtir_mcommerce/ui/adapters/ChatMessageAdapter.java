@@ -13,8 +13,8 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tirtir_mcommerce.R;
+import androidx.appcompat.widget.AppCompatButton;
 import com.google.android.flexbox.FlexboxLayout;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 
 import java.util.ArrayList;
@@ -260,9 +260,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         void bind(ChatMessage message) {
             llOptionButtons.removeAllViews();
             for (String option : message.options) {
-                MaterialButton btn = new MaterialButton(itemView.getContext());
+                // Use AppCompatButton — MaterialButton overrides custom backgrounds via backgroundTint
+                AppCompatButton btn = new AppCompatButton(itemView.getContext());
 
-                // Outlined style: white bg, burgundy stroke + text
                 GradientDrawable bg = new GradientDrawable();
                 bg.setShape(GradientDrawable.RECTANGLE);
                 bg.setCornerRadius(dpToPx(28));

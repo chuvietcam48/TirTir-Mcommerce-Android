@@ -50,52 +50,17 @@
             android:paddingHorizontal="16dp"
             android:paddingVertical="8dp"
             android:clipToPadding="false"
-            android:scrollbars="none">
-            
+            android:scrollbars="none"
+            android:visibility="gone">
+
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroupPrompts"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 app:chipSpacingHorizontal="12dp"
-                app:singleLine="true">
-                
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipPromptSkin"
-                    style="@style/Widget.MaterialComponents.Chip.Action"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Analyze my skin type" android:textColor="@color/tirtir_red_dark"
-                    app:chipBackgroundColor="#E6FFFFFF"
-                    app:chipStrokeColor="#4DE3BEB8" app:chipStrokeWidth="1dp" 
-                    app:chipIcon="@drawable/ic_search" />
-                    
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipPromptIngredient"
-                    style="@style/Widget.MaterialComponents.Chip.Action"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Check ingredient safety" android:textColor="@color/tirtir_red_dark"
-                    app:chipBackgroundColor="#E6FFFFFF"
-                    app:chipStrokeColor="#4DE3BEB8" app:chipStrokeWidth="1dp" 
-                    app:chipIcon="@drawable/ic_badge_dermatologist" />
+                app:singleLine="true" />
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipPromptRoutine"
-                    style="@style/Widget.MaterialComponents.Chip.Action"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Morning routine help" android:textColor="@color/tirtir_red_dark"
-                    app:chipBackgroundColor="#E6FFFFFF"
-                    app:chipStrokeColor="#4DE3BEB8" app:chipStrokeWidth="1dp" 
-                    app:chipIcon="@drawable/ic_routine" />
-                    
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipPromptOrder"
-                    style="@style/Widget.MaterialComponents.Chip.Action"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Order status" android:textColor="@color/tirtir_red_dark"
-                    app:chipBackgroundColor="#E6FFFFFF"
-                    app:chipStrokeColor="#4DE3BEB8" app:chipStrokeWidth="1dp" 
-                    app:chipIcon="@drawable/ic_local_shipping" />
-            </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
 
         <LinearLayout

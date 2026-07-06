@@ -73,8 +73,9 @@ public class ChatFragment extends Fragment {
     private ChatRepository chatRepository;
     private SharedPrefsManager prefs;
 
-    // Config from backend
-    private String chatHotline            = "";
+    // Config from backend (fallback values used until backend responds)
+    // TODO: final value comes from backend chatConfig — fallback only for offline/deploy-pending
+    private String chatHotline            = "1900-1234";
     private String welcomeMessageTemplate = "";
     private String botName                = "TIRTIR Beauty Advisor";
 
@@ -123,7 +124,6 @@ public class ChatFragment extends Fragment {
         );
 
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
-        llm.setStackFromEnd(true);
         rvChatMessages.setLayoutManager(llm);
         rvChatMessages.setAdapter(adapter);
 
@@ -133,11 +133,17 @@ public class ChatFragment extends Fragment {
             return false;
         });
 
-        // Category chips hidden until Beauty Advisor mode activated
+        // Chips hidden until Beauty Advisor mode — also enforced in XML visibility="gone"
         if (layoutChatQuickPrompts != null) layoutChatQuickPrompts.setVisibility(View.GONE);
 
+        // Show initial UI immediately using defaults — do not wait for backend
         bindProductContextIfAvailable();
-        loadConfig();
+        if (!sessionStarted) {
+            startFreshSession();
+        }
+
+        // Load config in background to update hotline/botName if backend is available
+        loadConfigInBackground();
     }
 
     @Override
@@ -154,9 +160,9 @@ public class ChatFragment extends Fragment {
         try { requireContext().unregisterReceiver(networkReceiver); } catch (Exception ignored) {}
     }
 
-    // ── Config loading ────────────────────────────────────────────────────────
+    // ── Background config load (does not gate initial UI) ────────────────────
 
-    private void loadConfig() {
+    private void loadConfigInBackground() {
         chatRepository.loadConfig(new Callback<ApiResponse<Map<String, Object>>>() {
             @Override
             public void onResponse(Call<ApiResponse<Map<String, Object>>> call,
@@ -165,71 +171,33 @@ public class ChatFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null
                         && response.body().getData() != null) {
                     Map<String, Object> data = response.body().getData();
-                    chatHotline            = val(data.get("hotline"));
-                    welcomeMessageTemplate = val(data.get("welcomeMessage"));
+                    String hl = val(data.get("hotline"));
+                    String wm = val(data.get("welcomeMessage"));
                     String bn = val(data.get("botName"));
+                    if (!hl.isEmpty()) chatHotline = hl;
+                    if (!wm.isEmpty()) welcomeMessageTemplate = wm;
                     if (!bn.isEmpty()) botName = bn;
                 }
-                loadHistory();
+                // Config loaded silently — UI already rendered with defaults
             }
 
             @Override
             public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
-                if (isAdded()) loadHistory();
+                // Backend unavailable — continue with defaults, no UI change
             }
         });
     }
 
-    // ── History loading ───────────────────────────────────────────────────────
-
-    private void loadHistory() {
-        chatRepository.loadHistory(new Callback<ApiResponse<List<Map<String, Object>>>>() {
-            @Override
-            public void onResponse(Call<ApiResponse<List<Map<String, Object>>>> call,
-                                   Response<ApiResponse<List<Map<String, Object>>>> response) {
-                if (!isAdded()) return;
-
-                List<ChatMessageAdapter.ChatMessage> history = new ArrayList<>();
-                if (response.isSuccessful() && response.body() != null
-                        && response.body().getData() != null) {
-                    for (Map<String, Object> item : response.body().getData()) {
-                        String sender = val(item.get("sender"));
-                        String text   = val(item.get("text"));
-                        if (text.isEmpty() || "system".equalsIgnoreCase(sender)) continue;
-                        history.add(new ChatMessageAdapter.ChatMessage(
-                                "user".equalsIgnoreCase(sender), text, "",
-                                extractRecommendations(item)));
-                    }
-                }
-
-                requireActivity().runOnUiThread(() -> {
-                    adapter.addMessage(ChatMessageAdapter.ChatMessage.system(
-                            "Chat history is saved for 24 hours"));
-                    for (ChatMessageAdapter.ChatMessage m : history) adapter.addMessage(m);
-                    startFreshSession();
-                    scrollToBottom();
-                });
-            }
-
-            @Override
-            public void onFailure(Call<ApiResponse<List<Map<String, Object>>>> call, Throwable t) {
-                if (isAdded()) requireActivity().runOnUiThread(() -> {
-                    adapter.addMessage(ChatMessageAdapter.ChatMessage.system(
-                            "Chat history is saved for 24 hours"));
-                    startFreshSession();
-                    scrollToBottom();
-                });
-            }
-        });
-    }
-
-    // ── Fresh session: welcome + mode options ─────────────────────────────────
+    // ── Fresh session: system note + welcome + mode options ──────────────────
 
     private void startFreshSession() {
         if (sessionStarted) return;
         sessionStarted = true;
+        adapter.addMessage(ChatMessageAdapter.ChatMessage.system(
+                "Chat history is saved for 24 hours"));
         addWelcomeGreeting();
         showModeOptions();
+        scrollToBottom();
     }
 
     private void addWelcomeGreeting() {
@@ -244,22 +212,22 @@ public class ChatFragment extends Fragment {
         int hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY);
         String timeGreeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
+        // chatHotline always has a value (fallback: "1900-1234")
         String body;
         if (!welcomeMessageTemplate.isEmpty()) {
-            String hl = chatHotline.isEmpty() ? "(not available)" : chatHotline;
             body = welcomeMessageTemplate
                     .replace("{name}",    firstName)
                     .replace("{botName}", botName)
-                    .replace("{hotline}", hl);
+                    .replace("{hotline}", chatHotline);
         } else {
-            String hl = chatHotline.isEmpty() ? "" : "\nHotline: " + chatHotline;
             body = "I'm your " + botName + ". I can help with:\n"
                     + "• Skincare routines\n"
                     + "• Product recommendations\n"
                     + "• Ingredient safety\n"
-                    + "• Order support"
-                    + hl
-                    + "\n\nWhat would you like to do?";
+                    + "• Order support\n\n"
+                    + "📞 Hotline: " + chatHotline + "\n"
+                    + "💬 Chat history is saved for 24 hours\n\n"
+                    + "Please choose how you would like to continue:";
         }
 
         adapter.addMessage(new ChatMessageAdapter.ChatMessage(
@@ -275,7 +243,7 @@ public class ChatFragment extends Fragment {
         List<String> opts = new ArrayList<>();
         opts.add("Chat with TIRTIR Beauty Advisor");
         opts.add("Chat with TIRTIR Staff");
-        if (!chatHotline.isEmpty()) opts.add("📞 Call Hotline " + chatHotline);
+        opts.add("📞 Call Hotline " + chatHotline);   // always shown; chatHotline has fallback value
         adapter.addMessage(ChatMessageAdapter.ChatMessage.options(opts));
         scrollToBottom();
     }
@@ -455,13 +423,15 @@ public class ChatFragment extends Fragment {
         etChatInput.setText("");
 
         if (currentMode == ChatMode.NONE) {
-            // Free-text before mode selection: redirect without answering
+            // Free-text before mode selection: do not answer, redirect to mode selection
             adapter.addMessage(new ChatMessageAdapter.ChatMessage(
                     true, text, timeFormat.format(new Date()), new ArrayList<>()));
             scrollToBottom();
             adapter.addMessage(new ChatMessageAdapter.ChatMessage(
                     false,
-                    "Please choose how you would like to continue:",
+                    "Please choose how you would like to continue:\n"
+                    + "1. Chat with TIRTIR Beauty Advisor\n"
+                    + "2. Chat with TIRTIR Staff",
                     timeFormat.format(new Date()),
                     new ArrayList<>()));
             showModeOptions();
@@ -629,13 +599,12 @@ public class ChatFragment extends Fragment {
                             currentMode = ChatMode.STAFF;
                             if (layoutChatQuickPrompts != null)
                                 layoutChatQuickPrompts.setVisibility(View.GONE);
-                            String hl = chatHotline.isEmpty() ? ""
-                                    : "\n\nHotline: " + chatHotline;
                             adapter.addMessage(new ChatMessageAdapter.ChatMessage(
                                     false,
                                     "Your request has been forwarded to TIRTIR Staff. "
-                                    + "Please wait while we connect you with an advisor. "
-                                    + "Thank you for your patience. 🙏" + hl,
+                                    + "Please wait a moment while we connect you with an admin. "
+                                    + "Thank you for waiting. 🙏\n\n"
+                                    + "📞 Hotline: " + chatHotline,
                                     timeFormat.format(new Date()), new ArrayList<>()));
                             scrollToBottom();
                         });
@@ -644,10 +613,20 @@ public class ChatFragment extends Fragment {
                     @Override
                     public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
                         if (!isAdded()) return;
-                        requireActivity().runOnUiThread(() ->
-                                Toast.makeText(requireContext(),
-                                        "Could not connect to staff. Please try again.",
-                                        Toast.LENGTH_SHORT).show());
+                        requireActivity().runOnUiThread(() -> {
+                            // Show staff mode message even if handoff API is unreachable
+                            currentMode = ChatMode.STAFF;
+                            if (layoutChatQuickPrompts != null)
+                                layoutChatQuickPrompts.setVisibility(View.GONE);
+                            adapter.addMessage(new ChatMessageAdapter.ChatMessage(
+                                    false,
+                                    "Your request has been forwarded to TIRTIR Staff. "
+                                    + "Please wait a moment while we connect you with an admin. "
+                                    + "Thank you for waiting. 🙏\n\n"
+                                    + "📞 Hotline: " + chatHotline,
+                                    timeFormat.format(new Date()), new ArrayList<>()));
+                            scrollToBottom();
+                        });
                     }
                 });
     }

@@ -120,7 +120,6 @@
         android:layout_gravity="bottom"
         android:background="@android:color/white"
         app:backgroundTint="@android:color/white"
-        app:surfaceTint="@android:color/white"
         app:itemIconTint="@color/admin_nav_color"
         app:itemTextColor="@color/admin_nav_color"
         app:labelVisibilityMode="labeled"
