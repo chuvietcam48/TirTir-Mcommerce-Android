@@ -81,4 +81,4 @@ userSchema.methods.toClientJSON = function () {
   };
 };
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.models.User || mongoose.model('User', userSchema);

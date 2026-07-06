@@ -9,4 +9,4 @@ const DailyStatsSchema = new mongoose.Schema({
     revenue: { type: Number, default: 0 }
 }, { timestamps: true });
 
-module.exports = mongoose.model('DailyStats', DailyStatsSchema);
+module.exports = mongoose.models.DailyStats || mongoose.model('DailyStats', DailyStatsSchema);

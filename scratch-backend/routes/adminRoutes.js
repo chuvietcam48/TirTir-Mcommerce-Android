@@ -5,11 +5,19 @@ const {
   getOverview,
   getTopProducts,
   getMetrics,
-  getAdminOrders,
+  createCampaign,
+  getAdminVoucherStats,
+  getAdminVouchers,
+  getAdminVoucherById,
+  createAdminVoucher,
+  updateAdminVoucher,
+  deleteAdminVoucher,
   getMarketingOverview,
-  createCampaign
+  getRetentionAnalytics,
+  getAtRiskUsers
 } = require('../controllers/adminController');
 const {
+  getAdminOrders,
   getAdminOrderDetails,
   updateAdminNotes,
   updateShippingDetails,
@@ -67,5 +75,29 @@ router.get('/churn', getChurnList);
 
 // POST /api/v1/admin/churn/send-voucher
 router.post('/churn/send-voucher', sendVoucher);
+
+// GET /api/v1/admin/vouchers/stats
+router.get('/vouchers/stats', getAdminVoucherStats);
+
+// GET /api/v1/admin/vouchers
+router.get('/vouchers', getAdminVouchers);
+
+// GET /api/v1/admin/vouchers/:id
+router.get('/vouchers/:id', getAdminVoucherById);
+
+// POST /api/v1/admin/vouchers
+router.post('/vouchers', createAdminVoucher);
+
+// PUT /api/v1/admin/vouchers/:id
+router.put('/vouchers/:id', updateAdminVoucher);
+
+// DELETE /api/v1/admin/vouchers/:id
+router.delete('/vouchers/:id', deleteAdminVoucher);
+
+// GET /api/v1/admin/retention/stats
+router.get('/retention/stats', getRetentionAnalytics);
+
+// GET /api/v1/admin/retention/users
+router.get('/retention/users', getAtRiskUsers);
 
 module.exports = router;

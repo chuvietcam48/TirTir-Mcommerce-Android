@@ -17,6 +17,8 @@ import com.example.tirtir_mcommerce.model.ApiResponse;
 import com.example.tirtir_mcommerce.network.ApiService;
 import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.example.tirtir_mcommerce.ui.adapters.CartRecoveryAdapter;
+import com.example.tirtir_mcommerce.utils.AdminNavUtils;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -57,6 +59,12 @@ public class AdminCartRecoveryActivity extends AppCompatActivity {
             tvEmpty.setText("Individual cart recovery details are not available from the API.\nAggregate statistics are shown above.");
             tvEmpty.setVisibility(android.view.View.VISIBLE);
         }
+        
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNavAdmin);
+        if (bottomNav != null) {
+            AdminNavUtils.setupBottomNav(this, bottomNav, R.id.nav_admin_marketing);
+        }
+
         loadStats();
     }
 

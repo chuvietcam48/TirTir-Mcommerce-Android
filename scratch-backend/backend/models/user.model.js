@@ -133,6 +133,18 @@ const UserSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    totalSpent: {
+        type: Number,
+        default: 0
+    },
+    lastPurchaseDate: {
+        type: Date,
+        default: null
+    },
+    lastActiveDate: {
+        type: Date,
+        default: Date.now
+    },
     // ===== FCM TOKENS (Push Notification Tokens) =====
     fcmTokens: [
         {
@@ -224,4 +236,4 @@ UserSchema.methods.getResetPasswordToken = function () {
     return resetToken;
 };
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.models.User || mongoose.model('User', UserSchema);

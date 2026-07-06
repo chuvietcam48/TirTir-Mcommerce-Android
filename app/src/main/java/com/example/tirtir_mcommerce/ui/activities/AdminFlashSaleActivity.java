@@ -12,11 +12,19 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tirtir_mcommerce.R;
+import com.example.tirtir_mcommerce.adapters.AdminCampaignAdapter;
 import com.example.tirtir_mcommerce.model.ApiResponse;
+import com.example.tirtir_mcommerce.model.Campaign;
+import com.example.tirtir_mcommerce.model.MarketingOverviewResponse;
 import com.example.tirtir_mcommerce.network.ApiService;
 import com.example.tirtir_mcommerce.network.RetrofitClient;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.example.tirtir_mcommerce.utils.AdminNavUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +39,9 @@ public class AdminFlashSaleActivity extends AppCompatActivity {
     private Button btnSend;
     private ProgressBar pbLoading;
     private View btnBack;
+    private View cvCreateForm;
+    private RecyclerView rvFlashSales;
+    private AdminCampaignAdapter adapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,8 +59,49 @@ public class AdminFlashSaleActivity extends AppCompatActivity {
         etTarget = findViewById(R.id.etFlashSaleTarget);
         btnSend = findViewById(R.id.btnSendFlashSale);
         pbLoading = findViewById(R.id.pbFlashSaleLoading);
+        cvCreateForm = findViewById(R.id.cvCreateForm);
+        rvFlashSales = findViewById(R.id.rvFlashSales);
+        
+        rvFlashSales.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        adapter = new AdminCampaignAdapter(null);
+        rvFlashSales.setAdapter(adapter);
+
+        findViewById(R.id.fabAddFlashSale).setOnClickListener(v -> {
+            if (cvCreateForm.getVisibility() == View.VISIBLE) {
+                cvCreateForm.setVisibility(View.GONE);
+            } else {
+                cvCreateForm.setVisibility(View.VISIBLE);
+            }
+        });
 
         btnSend.setOnClickListener(v -> sendFlashSale());
+        
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNavAdmin);
+        if (bottomNav != null) {
+            AdminNavUtils.setupBottomNav(this, bottomNav, R.id.nav_admin_marketing);
+        }
+        
+        loadCampaigns();
+    }
+    
+    private void loadCampaigns() {
+        ApiService apiService = RetrofitClient.getAuthClient(this).create(ApiService.class);
+        apiService.getMarketingOverview().enqueue(new Callback<ApiResponse<MarketingOverviewResponse>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<MarketingOverviewResponse>> call, Response<ApiResponse<MarketingOverviewResponse>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    MarketingOverviewResponse data = response.body().getData();
+                    if (data != null && data.getCampaigns() != null) {
+                        adapter.setCampaigns(data.getCampaigns());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<MarketingOverviewResponse>> call, Throwable t) {
+                Toast.makeText(AdminFlashSaleActivity.this, "Failed to load campaigns", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void sendFlashSale() {
@@ -81,7 +133,10 @@ public class AdminFlashSaleActivity extends AppCompatActivity {
 
                 if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(AdminFlashSaleActivity.this, "Flash sale broadcasted successfully!", Toast.LENGTH_LONG).show();
-                    finish(); // Close activity
+                    cvCreateForm.setVisibility(View.GONE);
+                    etTitle.setText("");
+                    etMessage.setText("");
+                    loadCampaigns();
                 } else {
                     Toast.makeText(AdminFlashSaleActivity.this, "Failed to send flash sale", Toast.LENGTH_SHORT).show();
                 }

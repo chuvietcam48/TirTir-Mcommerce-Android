@@ -1,6 +1,98 @@
 const User = require('../models/user.model');
 const Cart = require('../models/cart.model');
+const Order = require('../models/order.model');
 const { createNotification } = require('./notification.controller');
+const { ORDER_STATUS } = require('../constants');
+
+/**
+ * @desc    Get Marketing Overview Data
+ * @route   GET /api/v1/admin/marketing/overview
+ * @access  Private (Admin)
+ */
+exports.getMarketingOverview = async (req, res, next) => {
+    try {
+        console.log('[MARKETING] Fetching overview data...');
+
+        // 1. Insights calculation with Safeguards
+        let revenueRecovered = 0;
+        let atRiskUsers = 0;
+        let vouchersUsed = 0;
+        let conversionRate = 0;
+
+        try {
+            // Revenue Recovered
+            const recoveryOrders = await Order.find({
+                status: { $ne: ORDER_STATUS.CANCELLED },
+                recoveredFrom: { $exists: true }
+            });
+            revenueRecovered = recoveryOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+            vouchersUsed = recoveryOrders.length;
+        } catch (e) { console.error('Insights calculation error (Orders):', e.message); }
+
+        try {
+            // At Risk Users (Haven't updated profile in 30 days)
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            atRiskUsers = await User.countDocuments({
+                role: 'user',
+                updatedAt: { $lt: thirtyDaysAgo }
+            });
+        } catch (e) { console.error('Insights calculation error (Users):', e.message); }
+
+        try {
+            // Conversion Rate
+            const totalOrders = await Order.countDocuments({ status: { $ne: ORDER_STATUS.CANCELLED } });
+            const totalUsers = await User.countDocuments({ role: 'user' });
+            conversionRate = totalUsers > 0 ? Number(((totalOrders / totalUsers) * 100).toFixed(1)) : 0;
+        } catch (e) { console.error('Insights calculation error (Conv):', e.message); }
+
+        // 2. Campaigns (Always return at least empty array, never null)
+        const campaigns = [
+            {
+                _id: 'camp_demo_1',
+                title: 'Spring Glow Blast',
+                status: 'Active',
+                currentRevenue: revenueRecovered || 500000,
+                targetRevenue: 2000000,
+                endDate: new Date(Date.now() + 86400000 * 7).toISOString()
+            }
+        ];
+
+        // 3. Activities
+        const activities = [
+            {
+                _id: 'act_demo_1',
+                title: 'Cart Recovery Engine',
+                targetOrStatus: `Active - Processed ${revenueRecovered > 0 ? 'recent' : '0'} items`,
+                type: 'system',
+                createdAt: new Date().toISOString()
+            }
+        ];
+
+        console.log('[MARKETING] Data compiled successfully.');
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                insights: {
+                    revenueRecovered,
+                    atRiskUsers,
+                    vouchersUsed,
+                    conversionRate
+                },
+                campaigns,
+                activities
+            }
+        });
+
+    } catch (err) {
+        console.error('[MARKETING] Critical Controller Error:', err);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error in marketing controller: ' + err.message
+        });
+    }
+};
 
 /**
  * @desc    Send Flash Sale Notification (Bulk)

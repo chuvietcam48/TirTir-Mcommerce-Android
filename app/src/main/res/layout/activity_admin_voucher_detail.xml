@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/apk/res/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f9f9f9">
+
+    <!-- Top App Bar -->
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#f9f9f9"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="#610000" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Edit Voucher"
+            android:textColor="#610000"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+            
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+            
+        <ImageButton
+            android:id="@+id/btnDelete"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_delete"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="#ba1a1a"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:padding="16dp"
+        app:layout_constraintBottom_toTopOf="@id/bottomBar"
+        app:layout_constraintTop_toBottomOf="@id/topBar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Voucher Identification -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Voucher Identification"
+                android:textColor="#1a1c1c"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="24dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="VOUCHER CODE"
+                    android:textColor="#5f5e5e"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+                <EditText
+                    android:id="@+id/etVoucherCode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="e.g. RADIANCE10"
+                    android:textSize="16sp"
+                    android:textColor="#1a1c1c"
+                    android:backgroundTint="#8b0000"
+                    android:paddingVertical="12dp"
+                    android:singleLine="true" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="32dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="INTERNAL DESCRIPTION"
+                    android:textColor="#5f5e5e"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+                <EditText
+                    android:id="@+id/etDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Internal notes only"
+                    android:textSize="16sp"
+                    android:textColor="#1a1c1c"
+                    android:backgroundTint="#8b0000"
+                    android:paddingVertical="12dp"
+                    android:singleLine="true" />
+            </LinearLayout>
+
+            <!-- Discount Configuration -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="#f3f3f4"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                android:layout_marginBottom="32dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Discount Configuration"
+                        android:textColor="#1a1c1c"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="DISCOUNT TYPE"
+                        android:textColor="#5f5e5e"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+                        
+                    <RadioGroup
+                        android:id="@+id/rgDiscountType"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
+                        <RadioButton
+                            android:id="@+id/rbPercentage"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Percentage"
+                            android:checked="true"/>
+                        <RadioButton
+                            android:id="@+id/rbFixed"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Fixed Amount"
+                            android:layout_marginStart="16dp"/>
+                        <RadioButton
+                            android:id="@+id/rbFreeShip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Free Ship"
+                            android:layout_marginStart="16dp"/>
+                    </RadioGroup>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="DISCOUNT VALUE"
+                        android:textColor="#5f5e5e"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                    <EditText
+                        android:id="@+id/etDiscountValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"
+                        android:hint="10"
+                        android:textSize="16sp"
+                        android:textColor="#1a1c1c"
+                        android:backgroundTint="#8b0000"
+                        android:paddingVertical="12dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Usage Constraints -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Usage Constraints"
+                android:textColor="#1a1c1c"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
+                
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="8dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TOTAL LIMIT"
+                        android:textColor="#5f5e5e"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                    <EditText
+                        android:id="@+id/etTotalLimit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:hint="500"
+                        android:textSize="16sp"
+                        android:textColor="#1a1c1c"
+                        android:backgroundTint="#8b0000"
+                        android:paddingVertical="12dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="8dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="LIMIT PER CUSTOMER"
+                        android:textColor="#5f5e5e"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                    <EditText
+                        android:id="@+id/etLimitPerUser"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:hint="1"
+                        android:textSize="16sp"
+                        android:textColor="#1a1c1c"
+                        android:backgroundTint="#8b0000"
+                        android:paddingVertical="12dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="24dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="MIN PURCHASE AMOUNT"
+                    android:textColor="#5f5e5e"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+                <EditText
+                    android:id="@+id/etMinPurchase"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:hint="50"
+                    android:textSize="16sp"
+                    android:textColor="#1a1c1c"
+                    android:backgroundTint="#8b0000"
+                    android:paddingVertical="12dp" />
+            </LinearLayout>
+            
+            <!-- End Date -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="32dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="EXPIRY DATE (YYYY-MM-DD)"
+                    android:textColor="#5f5e5e"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+                <EditText
+                    android:id="@+id/etValidTo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="2024-12-31"
+                    android:textSize="16sp"
+                    android:textColor="#1a1c1c"
+                    android:backgroundTint="#8b0000"
+                    android:paddingVertical="12dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Bottom Action Bar -->
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="#ffffff"
+        android:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="CANCEL"
+            android:textColor="#610000"
+            android:backgroundTint="#ffffff"
+            style="?attr/materialButtonOutlinedStyle"
+            app:strokeColor="#610000" />
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="SAVE CHANGES"
+            android:textColor="#ffffff"
+            android:backgroundTint="#610000" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

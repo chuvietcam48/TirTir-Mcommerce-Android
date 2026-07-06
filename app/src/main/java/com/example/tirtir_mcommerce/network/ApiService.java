@@ -12,6 +12,8 @@ import com.example.tirtir_mcommerce.model.LoginResponse;
 import com.example.tirtir_mcommerce.model.OrderResponse;
 import com.example.tirtir_mcommerce.model.MarketingOverviewResponse;
 import com.example.tirtir_mcommerce.model.Product;
+import com.example.tirtir_mcommerce.model.RetentionStatsResponse;
+import com.example.tirtir_mcommerce.model.ChurnUser;
 import com.example.tirtir_mcommerce.model.ProductDetailResponse;
 import com.example.tirtir_mcommerce.model.ProductResponse;
 import com.example.tirtir_mcommerce.model.RegisterRequest;
@@ -270,6 +272,25 @@ public interface ApiService {
     // ADMIN MODULE
     // ===========================
 
+    @GET("api/v1/admin/vouchers/stats")
+    Call<ApiResponse<com.example.tirtir_mcommerce.model.AdminVoucherStats>> getAdminVoucherStats();
+
+    @GET("api/v1/admin/vouchers")
+    Call<com.example.tirtir_mcommerce.model.AdminVouchersResponse> getAdminVouchers();
+
+    @GET("api/v1/admin/vouchers/{id}")
+    Call<ApiResponse<com.example.tirtir_mcommerce.model.AdminVoucher>> getAdminVoucherById(@Path("id") String id);
+
+    @POST("api/v1/admin/vouchers")
+    Call<ApiResponse<com.example.tirtir_mcommerce.model.AdminVoucher>> createAdminVoucher(@Body java.util.Map<String, Object> body);
+
+    @PUT("api/v1/admin/vouchers/{id}")
+    Call<ApiResponse<com.example.tirtir_mcommerce.model.AdminVoucher>> updateAdminVoucher(@Path("id") String id, @Body java.util.Map<String, Object> body);
+
+    @DELETE("api/v1/admin/vouchers/{id}")
+    Call<ApiResponse<Object>> deleteAdminVoucher(@Path("id") String id);
+
+
     @retrofit2.http.Multipart
     @POST("api/v1/admin/products")
     Call<Product> createProduct(
@@ -330,8 +351,17 @@ public interface ApiService {
     @POST("api/v1/admin/marketing/campaigns")
     Call<ApiResponse<Map<String, Object>>> sendFlashSale(@Body Map<String, String> body);
 
+    @GET("api/v1/admin/retention/stats")
+    Call<ApiResponse<RetentionStatsResponse>> getRetentionAnalytics();
+
+    @GET("api/v1/admin/retention/users")
+    Call<ApiResponse<List<ChurnUser>>> getAtRiskUsers();
+
     @POST("api/v1/marketing/abandoned-cart-recovery")
     Call<ApiResponse<Map<String, Object>>> triggerCartRecovery();
+
+    @POST("api/v1/marketing/win-back")
+    Call<ApiResponse<Map<String, Object>>> sendWinBackPush();
 
     // ===========================
     // CART MODULE

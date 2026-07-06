@@ -252,12 +252,14 @@
 
             <!-- Create Form Section -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cvCreateForm"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
                 android:layout_marginBottom="48dp"
                 app:cardCornerRadius="16dp"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="#F6EEEE"
                 app:strokeColor="@color/tirtir_surface_variant"
                 app:strokeWidth="1dp"
                 app:cardElevation="2dp">
@@ -427,38 +429,33 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Bottom Navigation Mockup -->
-    <LinearLayout
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavAdmin"
+        style="@style/Widget.MaterialComponents.BottomNavigationView"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:orientation="horizontal"
-        android:background="#E6FFFFFF"
-        android:gravity="center"
-        android:elevation="8dp"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:backgroundTint="@android:color/white"
+        app:surfaceTint="@android:color/white"
+        app:itemIconTint="@color/admin_nav_color"
+        app:itemTextColor="@color/admin_nav_color"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/menu_admin_bottom_nav"
+        app:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-        
-        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
-            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_admin_dashboard" app:tint="@color/tirtir_text_secondary"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Dashboard" android:textSize="10sp" android:textColor="@color/tirtir_text_secondary" android:layout_marginTop="2dp"/>
-        </LinearLayout>
-        
-        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
-            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_admin_inventory" app:tint="@color/tirtir_text_secondary"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Products" android:textSize="10sp" android:textColor="@color/tirtir_text_secondary" android:layout_marginTop="2dp"/>
-        </LinearLayout>
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
-            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_cart" app:tint="@color/tirtir_text_secondary"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Orders" android:textSize="10sp" android:textColor="@color/tirtir_text_secondary" android:layout_marginTop="2dp"/>
-        </LinearLayout>
-
-        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
-            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_admin_campaign" app:tint="@color/tirtir_red_primary"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Marketing" android:textSize="10sp" android:textStyle="bold" android:textColor="@color/tirtir_red_primary" android:layout_marginTop="2dp"/>
-        </LinearLayout>
-    </LinearLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddFlashSale"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_plus"
+        app:backgroundTint="@color/tirtir_red_primary"
+        app:tint="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavAdmin"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

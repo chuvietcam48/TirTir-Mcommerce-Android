@@ -90,7 +90,6 @@
                 android:textSize="13sp" />
 
         </LinearLayout>
-
         <HorizontalScrollView
             android:id="@+id/layoutChatQuickPrompts"
             android:layout_width="match_parent"

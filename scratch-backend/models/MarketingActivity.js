@@ -6,4 +6,4 @@ const marketingActivitySchema = new mongoose.Schema({
     targetOrStatus: { type: String, required: true }
 }, { timestamps: true });
 
-module.exports = mongoose.model('MarketingActivity', marketingActivitySchema);
+module.exports = mongoose.models.MarketingActivity || mongoose.model('MarketingActivity', marketingActivitySchema);

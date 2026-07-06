@@ -45,6 +45,10 @@ router.patch('/orders/:id/status', updateOrderStatus);
 // GET /api/admin/metrics?range=7d|30d|3m — time-series revenue + order count
 router.get('/metrics', getMetrics);
 
+// ─── Marketing Overview ──────────────────────────────────
+const { getMarketingOverview } = require('../controllers/marketing.controller');
+router.get('/marketing/overview', getMarketingOverview);
+
 // ─── Review Moderation ───────────────────────────────────
 // GET  /api/v1/admin/reviews        List all reviews (paginated, ?rating=)
 router.get('/reviews', getAllReviewsAdmin);

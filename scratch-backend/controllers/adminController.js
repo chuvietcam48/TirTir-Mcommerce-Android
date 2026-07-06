@@ -469,3 +469,168 @@ exports.seedMarketingData = async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to seed data' });
     }
 };
+
+exports.getAdminVoucherStats = async (req, res) => {
+    try {
+        const Coupon = require('../backend/models/coupon.model');
+        const coupons = await Coupon.find();
+        
+        let total = coupons.length;
+        let active = 0;
+        let totalUsage = 0;
+        let totalDiscountValue = 0;
+        let percentCount = 0;
+        
+        coupons.forEach(c => {
+            const now = new Date();
+            if (c.active && c.validFrom <= now && c.validTo >= now && c.usedCount < c.usageLimit) {
+                active++;
+            }
+            totalUsage += c.usedCount;
+            if (c.discountType === 'percentage') {
+                percentCount++;
+                totalDiscountValue += c.discountValue;
+            } else if (c.discountType === 'fixed') {
+                totalDiscountValue += (c.discountValue / 1000); // Approximate normalization for stats
+            }
+        });
+        
+        let avgDiscountValue = percentCount > 0 ? (totalDiscountValue / percentCount) : 0;
+        
+        res.json({
+            success: true,
+            data: {
+                total,
+                active,
+                totalUsage,
+                totalDiscountValue,
+                avgDiscountValue
+            }
+        });
+    } catch (error) {
+        console.error('getAdminVoucherStats Error:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch voucher stats' });
+    }
+};
+
+exports.getAdminVouchers = async (req, res) => {
+    try {
+        const Coupon = require('../backend/models/coupon.model');
+        const coupons = await Coupon.find().sort({ createdAt: -1 });
+        res.json({ success: true, data: coupons });
+    } catch (error) {
+        console.error('getAdminVouchers Error:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch vouchers' });
+    }
+};
+
+exports.getAdminVoucherById = async (req, res) => {
+    try {
+        const Coupon = require('../backend/models/coupon.model');
+        const coupon = await Coupon.findById(req.params.id);
+        if (!coupon) return res.status(404).json({ success: false, message: 'Voucher not found' });
+        res.json({ success: true, data: coupon });
+    } catch (error) {
+        console.error('getAdminVoucherById Error:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch voucher' });
+    }
+};
+
+exports.createAdminVoucher = async (req, res) => {
+    try {
+        const Coupon = require('../backend/models/coupon.model');
+        const newCoupon = new Coupon(req.body);
+        await newCoupon.save();
+        res.status(201).json({ success: true, data: newCoupon, message: 'Voucher created successfully' });
+    } catch (error) {
+        console.error('createAdminVoucher Error:', error);
+        res.status(500).json({ success: false, message: error.message || 'Failed to create voucher' });
+    }
+};
+
+exports.updateAdminVoucher = async (req, res) => {
+    try {
+        const Coupon = require('../backend/models/coupon.model');
+        const updatedCoupon = await Coupon.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+        if (!updatedCoupon) return res.status(404).json({ success: false, message: 'Voucher not found' });
+        res.json({ success: true, data: updatedCoupon, message: 'Voucher updated successfully' });
+    } catch (error) {
+        console.error('updateAdminVoucher Error:', error);
+        res.status(500).json({ success: false, message: error.message || 'Failed to update voucher' });
+    }
+};
+
+exports.deleteAdminVoucher = async (req, res) => {
+    try {
+        const Coupon = require('../backend/models/coupon.model');
+        const deletedCoupon = await Coupon.findByIdAndDelete(req.params.id);
+        if (!deletedCoupon) return res.status(404).json({ success: false, message: 'Voucher not found' });
+        res.json({ success: true, message: 'Voucher deleted successfully' });
+    } catch (error) {
+        console.error('deleteAdminVoucher Error:', error);
+        res.status(500).json({ success: false, message: 'Failed to delete voucher' });
+    }
+};
+
+exports.getRetentionAnalytics = async (req, res) => {
+    try {
+        const User = require('../backend/models/user.model');
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        const activeUsers = await User.countDocuments({ lastActiveDate: { $gte: thirtyDaysAgo } });
+        const inactiveUsers = await User.countDocuments({ lastActiveDate: { $lt: thirtyDaysAgo } });
+        const totalUsers = activeUsers + inactiveUsers;
+        const rate = totalUsers > 0 ? ((activeUsers / totalUsers) * 100).toFixed(1) : 0;
+        
+        res.json({
+            success: true,
+            data: {
+                active: activeUsers,
+                inactive: inactiveUsers,
+                rate: rate + '%'
+            }
+        });
+    } catch (error) {
+        console.error('getRetentionAnalytics Error:', error);
+        res.status(500).json({ success: false, message: 'Failed to get analytics' });
+    }
+};
+
+exports.getAtRiskUsers = async (req, res) => {
+    try {
+        const User = require('../backend/models/user.model');
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const sixtyDaysAgo = new Date();
+        sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+        // Fetch users who are at risk (inactive for > 30 days but have purchased before)
+        const atRiskUsers = await User.find({
+            lastActiveDate: { $lt: thirtyDaysAgo },
+            totalSpent: { $gt: 0 }
+        }).sort({ totalSpent: -1 }).limit(20);
+
+        const formattedUsers = atRiskUsers.map(user => {
+            let status = 'High Risk';
+            if (user.lastActiveDate < sixtyDaysAgo) {
+                status = 'Slipping Away';
+            }
+            return {
+                id: user._id,
+                name: user.name,
+                avatar: user.avatar,
+                ltv: user.totalSpent,
+                status: status,
+                lastActiveStr: user.lastActiveDate ? user.lastActiveDate.toISOString() : null
+            };
+        });
+
+        res.json({ success: true, data: formattedUsers });
+    } catch (error) {
+        console.error('getAtRiskUsers Error:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch users' });
+    }
+};
+
+

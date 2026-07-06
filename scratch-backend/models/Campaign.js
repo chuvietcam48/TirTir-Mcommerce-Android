@@ -12,4 +12,4 @@ const campaignSchema = new mongoose.Schema({
     currentRevenue: { type: Number, default: 0 }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Campaign', campaignSchema);
+module.exports = mongoose.models.Campaign || mongoose.model('Campaign', campaignSchema);

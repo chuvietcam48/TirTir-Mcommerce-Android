@@ -31,7 +31,17 @@ public class AdminActivity extends AppCompatActivity {
         setupNavigation();
 
         if (savedInstanceState == null) {
-            bottomNav.setSelectedItemId(R.id.nav_admin_dashboard);
+            int navigateTo = getIntent().getIntExtra("navigate_to", R.id.nav_admin_dashboard);
+            bottomNav.setSelectedItemId(navigateTo);
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        if (intent.hasExtra("navigate_to")) {
+            bottomNav.setSelectedItemId(intent.getIntExtra("navigate_to", R.id.nav_admin_dashboard));
         }
     }
 

@@ -52,6 +52,12 @@ public class ChurnUserAdapter extends RecyclerView.Adapter<ChurnUserAdapter.View
         this.fcmListener = fcmListener;
     }
 
+    public void setUsers(List<ChurnUser> users) {
+        this.users.clear();
+        if (users != null) this.users.addAll(users);
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

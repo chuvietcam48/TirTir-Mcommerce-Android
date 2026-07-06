@@ -15,6 +15,7 @@
     <!-- BLACK / DARK (primary text, CTA buttons) — Stitch on-surface: #1A1C1C -->
     <color name="tirtir_black">#1A1C1C</color>
     <color name="tirtir_black_cover">#1A1A1A</color>
+    <color name="black">#000000</color>
 
     <!-- WHITE / BACKGROUND -->
     <color name="white">#FFFFFF</color>
@@ -22,6 +23,7 @@
     <color name="tirtir_white">#FFFFFF</color>
     <color name="tirtir_milk_white">#FFFFFF</color>
     <color name="tirtir_off_white">#F9F9F9</color>   <!-- Stitch background: slightly warm off-white -->
+    <color name="tirtir_surface">#FFFFFF</color>
     <color name="tirtir_bg_gray">#EEEEEE</color>     <!-- Stitch surface-container -->
     <!-- Stitch outline-variant: pinkish-rose border used on luxury product cards & inputs -->
     <color name="tirtir_rose_outline">#E3BEB8</color>

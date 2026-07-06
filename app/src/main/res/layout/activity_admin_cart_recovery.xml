@@ -140,4 +140,19 @@
         android:textColor="@android:color/white"
         android:textStyle="bold" />
 
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavAdmin"
+        style="@style/Widget.MaterialComponents.BottomNavigationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:backgroundTint="@android:color/white"
+        app:surfaceTint="@android:color/white"
+        app:itemIconTint="@color/admin_nav_color"
+        app:itemTextColor="@color/admin_nav_color"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/menu_admin_bottom_nav"
+        app:elevation="8dp" />
+
 </LinearLayout>

@@ -9,12 +9,21 @@ const couponSchema = new mongoose.Schema({
         trim: true,
         index: true // Fast lookup
     },
+    description: {
+        type: String,
+        trim: true
+    },
+    limitPerUser: {
+        type: Number,
+        default: 1,
+        min: [1, 'Limit per user must be at least 1']
+    },
     discountType: {
         type: String,
         required: [true, 'Discount type is required'],
         enum: {
-            values: ['percentage', 'fixed'],
-            message: 'Discount type must be either percentage or fixed'
+            values: ['percentage', 'fixed', 'free_ship'],
+            message: 'Discount type must be percentage, fixed, or free_ship'
         }
     },
     discountValue: {

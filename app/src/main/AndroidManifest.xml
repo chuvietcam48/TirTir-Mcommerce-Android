@@ -199,6 +199,15 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.activities.AdminVoucherActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.AdminVoucherDetailActivity"
+            android:exported="false" />
+
+
+        <activity
             android:name=".ui.activities.BarcodeScanActivity"
             android:exported="false" />
 

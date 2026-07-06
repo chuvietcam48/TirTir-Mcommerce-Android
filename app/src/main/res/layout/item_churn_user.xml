@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp">
 
@@ -16,40 +17,31 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/ivUserAvatar"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:scaleType="centerCrop"
-                app:shapeAppearanceOverlay="@style/CircleImage"
-                android:src="@android:drawable/ic_menu_gallery"
-                android:background="#EEEEEE" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="12dp">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvChurnUserName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="User Name"
-                    android:textStyle="bold"
-                    android:textSize="16sp" />
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tvChurnUserEmail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="user@example.com"
-                    android:textSize="12sp"
-                    android:textColor="#777777" />
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <com.google.android.material.chip.Chip
@@ -57,50 +49,91 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Segment"
-                android:textColor="#FFFFFF"
-                app:chipBackgroundColor="#4CAF50"
-                style="@style/Widget.MaterialComponents.Chip.Action" />
+                android:textColor="@color/white"
+                app:chipBackgroundColor="@color/tirtir_red_primary"
+                app:chipCornerRadius="16dp"
+                app:chipMinHeight="24dp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="@color/tirtir_surface_variant" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Recency"
+                    android:textSize="10sp"
+                    android:textColor="@color/tirtir_text_secondary"/>
+                <TextView
+                    android:id="@+id/tvScoreR"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="R: 0"
+                    android:textColor="@color/black"
+                    android:textSize="14sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Frequency"
+                    android:textSize="10sp"
+                    android:textColor="@color/tirtir_text_secondary"/>
+                <TextView
+                    android:id="@+id/tvScoreF"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="F: 0"
+                    android:textColor="@color/black"
+                    android:textSize="14sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Monetary"
+                    android:textSize="10sp"
+                    android:textColor="@color/tirtir_text_secondary"/>
+                <TextView
+                    android:id="@+id/tvScoreM"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="M: 0"
+                    android:textColor="@color/black"
+                    android:textSize="14sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="12dp"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/tvScoreR"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="R: 5"
-                android:textStyle="bold"
-                android:gravity="center" />
-
-            <TextView
-                android:id="@+id/tvScoreF"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="F: 5"
-                android:textStyle="bold"
-                android:gravity="center" />
-
-            <TextView
-                android:id="@+id/tvScoreM"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="M: 5"
-                android:textStyle="bold"
-                android:gravity="center" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
@@ -108,23 +141,23 @@
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                android:text="Send voucher"
+                android:text="Send Voucher"
                 android:textSize="12sp"
-                android:layout_marginEnd="4dp"
-                app:strokeColor="#E91E8C"
-                android:textColor="#E91E8C" />
+                app:cornerRadius="8dp"
+                app:strokeColor="@color/tirtir_red_primary" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSendFCM"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Send notification"
+                android:backgroundTint="@color/tirtir_red_primary"
+                android:text="Send Push"
+                android:textColor="@color/white"
                 android:textSize="12sp"
-                android:layout_marginStart="4dp"
-                android:backgroundTint="#111111" />
+                app:cornerRadius="8dp" />
         </LinearLayout>
-
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

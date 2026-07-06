@@ -2,11 +2,7 @@ package com.example.tirtir_mcommerce.ui.activities;
 
 import android.graphics.Bitmap;
 import android.content.Intent;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -202,21 +198,15 @@ public class ARTryOnActivity extends AppCompatActivity {
 
         switch (availability) {
             case SUPPORTED_INSTALLED:
-                // ARCore is ready — proceed
                 return true;
-
             case SUPPORTED_NOT_INSTALLED:
             case SUPPORTED_APK_TOO_OLD:
-                // Can install/update — prompt user
                 showInstallArCoreDialog();
                 return false;
-
             case UNKNOWN_CHECKING:
             case UNKNOWN_TIMED_OUT:
-                // Still checking — retry shortly
-                tvLoading.postDelayed(this::checkArCoreSupport, 500);
+                new Handler(Looper.getMainLooper()).postDelayed(this::checkArCoreSupport, 500);
                 return false;
-
             case UNSUPPORTED_DEVICE_NOT_CAPABLE:
             default:
                 showArNotSupportedDialog();
@@ -231,10 +221,8 @@ public class ARTryOnActivity extends AppCompatActivity {
                 .setMessage("This feature requires Google Play Services for AR. Would you like to install it?")
                 .setPositiveButton("Install", (dialog, which) -> {
                     try {
-                        // Request install via ARCore SDK
                         ArCoreApk.getInstance().requestInstall(this, true);
                     } catch (Exception e) {
-                        // Fallback: open Play Store directly
                         try {
                             startActivity(new Intent(Intent.ACTION_VIEW,
                                 android.net.Uri.parse("market://details?id=com.google.ar.core")));
@@ -266,7 +254,7 @@ public class ARTryOnActivity extends AppCompatActivity {
                 .commit();
 
         tvLoading.setText("Detecting face...");
-        tvLoading.postDelayed(() -> {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
             ArSceneView sceneView = arFragment.getArSceneView();
             if (sceneView != null) {
                 sceneView.getScene().addOnUpdateListener(frameTime -> {
@@ -302,7 +290,8 @@ public class ARTryOnActivity extends AppCompatActivity {
     }
 
     private void updateMaterialColor() {
-
+        if (activeShadeColors == null || activeShadeColors.length == 0) return;
+        
         int color = activeShadeColors[selectedIndex];
         int r = Color.red(color);
         int g = Color.green(color);
@@ -354,9 +343,9 @@ public class ARTryOnActivity extends AppCompatActivity {
 
     private void buildColorPicker() {
         layoutColors.removeAllViews();
+        if (activeShadeColors == null) return;
 
         for (int i = 0; i < activeShadeColors.length; i++) {
-
             ImageButton button = new ImageButton(this);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(44), dp(44));
             params.setMargins(dp(6), 0, dp(6), 0);
@@ -400,4 +389,3 @@ public class ARTryOnActivity extends AppCompatActivity {
         }
     }
 }
-
