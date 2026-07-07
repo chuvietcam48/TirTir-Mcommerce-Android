@@ -66,7 +66,7 @@ const _getTopProductsAgg = async (orderMatch, limit = 10) => {
 exports.getOverview = async (req, res) => {
     try {
         const { from, to } = parseRange(req.query);
-        
+
         // Calculate previous period for trends
         const duration = to.getTime() - from.getTime();
         const prevFrom = new Date(from.getTime() - duration);
@@ -112,7 +112,7 @@ exports.getOverview = async (req, res) => {
             acc[cur._id] = cur.count;
             return acc;
         }, {});
-        
+
         ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].forEach((s) => {
             if (orderStatusBreakdown[s] === undefined) orderStatusBreakdown[s] = 0;
         });
@@ -122,7 +122,7 @@ exports.getOverview = async (req, res) => {
             role: 'user',
             createdAt: { $gte: from, $lte: to }
         });
-        
+
         // Active Users (Unique Buyers) in current period
         const uniqueBuyersAgg = await Order.aggregate([
             { $match: orderMatch },
@@ -169,7 +169,7 @@ exports.getOverview = async (req, res) => {
 
         // Top Products
         const topProducts = await _getTopProductsAgg(orderMatch, 10);
-        
+
         // Low Stock
         const lowStockCount = await Product.countDocuments({ Stock_Quantity: { $lt: 10 } });
 
@@ -181,7 +181,7 @@ exports.getOverview = async (req, res) => {
 
         const conversionRate = totalViews > 0 ? parseFloat(((totalOrders / totalViews) * 100).toFixed(1)) : 0;
         const prevConversionRate = prevTotalViews > 0 ? parseFloat(((prevTotalOrders / prevTotalViews) * 100).toFixed(1)) : 0;
-        
+
         const targetProgress = totalRevenue > 0 ? Math.min(100, Math.round((totalRevenue / 50000000) * 100)) : 0; // Target: 50 million
 
         const trends = {
@@ -192,7 +192,7 @@ exports.getOverview = async (req, res) => {
         };
 
         const criticalAlerts = [];
-        
+
         // Real Alert: Low Stock
         if (lowStockCount > 0) {
             criticalAlerts.push({
@@ -201,7 +201,7 @@ exports.getOverview = async (req, res) => {
                 message: `Có ${lowStockCount} sản phẩm dưới mức tồn kho an toàn (10).`
             });
         }
-        
+
         // Real Alert: Pending Orders > 24 hours
         const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
         const overduePending = await Order.countDocuments({
@@ -327,7 +327,7 @@ exports.getMarketingOverview = async (req, res) => {
         // 1. Performance Insights
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        
+
         // Lấy danh sách những người ĐÃ mua hàng trong vòng 30 ngày qua
         const recentBuyersAgg = await Order.aggregate([
             { $match: { createdAt: { $gte: thirtyDaysAgo } } },
@@ -346,7 +346,7 @@ exports.getMarketingOverview = async (req, res) => {
         // Vouchers Used & Revenue Recovered
         const orders = await Order.find({ status: 'Delivered' });
         let vouchersUsed = 0;
-        let revenueRecovered = 0; 
+        let revenueRecovered = 0;
 
         for (const order of orders) {
             if (order.discount && order.discount > 0) {
@@ -393,7 +393,7 @@ exports.createCampaign = async (req, res) => {
     try {
         const { title, message, path, targetAudience, startDate, endDate } = req.body;
         const Campaign = require('../models/Campaign');
-        
+
         const newCampaign = new Campaign({
             title,
             message,
@@ -403,20 +403,20 @@ exports.createCampaign = async (req, res) => {
             endDate: endDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Default 1 week
             status: 'SCHEDULED'
         });
-        
+
         if (new Date(newCampaign.startDate) <= new Date()) {
             newCampaign.status = 'LIVE';
         }
-        
+
         await newCampaign.save();
-        
+
         const MarketingActivity = require('../models/MarketingActivity');
         await MarketingActivity.create({
             type: 'success', // Fixed enum type! It was NOTIFICATION_SENT before which is invalid!
             title: 'Flash Sale Notification Sent',
             targetOrStatus: `Target: ${targetAudience}`
         });
-        
+
         res.status(201).json({ success: true, message: 'Flash sale broadcasted successfully', data: newCampaign });
     } catch (error) {
         console.error('Create Campaign Error:', error);
@@ -428,10 +428,10 @@ exports.seedMarketingData = async (req, res) => {
     try {
         const Campaign = require('../models/Campaign');
         const MarketingActivity = require('../models/MarketingActivity');
-        
+
         await Campaign.deleteMany({});
         await MarketingActivity.deleteMany({});
-        
+
         await Campaign.insertMany([
             {
                 title: 'Lunar New Year Flash Sale',
@@ -474,13 +474,13 @@ exports.getAdminVoucherStats = async (req, res) => {
     try {
         const Coupon = require('../backend/models/coupon.model');
         const coupons = await Coupon.find();
-        
+
         let total = coupons.length;
         let active = 0;
         let totalUsage = 0;
         let totalDiscountValue = 0;
         let percentCount = 0;
-        
+
         coupons.forEach(c => {
             const now = new Date();
             if (c.active && c.validFrom <= now && c.validTo >= now && c.usedCount < c.usageLimit) {
@@ -494,9 +494,9 @@ exports.getAdminVoucherStats = async (req, res) => {
                 totalDiscountValue += (c.discountValue / 1000); // Approximate normalization for stats
             }
         });
-        
+
         let avgDiscountValue = percentCount > 0 ? (totalDiscountValue / percentCount) : 0;
-        
+
         res.json({
             success: true,
             data: {
@@ -574,15 +574,15 @@ exports.deleteAdminVoucher = async (req, res) => {
 
 exports.getRetentionAnalytics = async (req, res) => {
     try {
-        const User = require('../backend/models/user.model');
+        const User = require('../models/User');
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        
+
         const activeUsers = await User.countDocuments({ lastActiveDate: { $gte: thirtyDaysAgo } });
         const inactiveUsers = await User.countDocuments({ lastActiveDate: { $lt: thirtyDaysAgo } });
         const totalUsers = activeUsers + inactiveUsers;
         const rate = totalUsers > 0 ? ((activeUsers / totalUsers) * 100).toFixed(1) : 0;
-        
+
         res.json({
             success: true,
             data: {
@@ -599,7 +599,7 @@ exports.getRetentionAnalytics = async (req, res) => {
 
 exports.getAtRiskUsers = async (req, res) => {
     try {
-        const User = require('../backend/models/user.model');
+        const User = require('../models/User');
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         const sixtyDaysAgo = new Date();

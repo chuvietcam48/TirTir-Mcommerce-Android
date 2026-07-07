@@ -124,18 +124,24 @@ public class ChatRepository {
     // ── SSE streaming calls ───────────────────────────────────────────────────
 
     /** Send a free-text message. */
-    public void sendMessage(String message, StreamListener listener) {
+    public void sendMessage(String message, String productId, StreamListener listener) {
         JsonObject payload = new JsonObject();
         payload.addProperty("message", message);
+        if (productId != null && !productId.isEmpty()) {
+            payload.addProperty("productId", productId);
+        }
         sendRequest(payload, listener);
     }
 
     /** Send via intentCode: backend matches directly against the dataset, skipping text search. */
-    public void sendQuestion(String intentCode, String questionText, StreamListener listener) {
+    public void sendQuestion(String intentCode, String questionText, String productId, StreamListener listener) {
         JsonObject payload = new JsonObject();
         payload.addProperty("message", questionText);
         if (intentCode != null && !intentCode.isEmpty()) {
             payload.addProperty("intentCode", intentCode);
+        }
+        if (productId != null && !productId.isEmpty()) {
+            payload.addProperty("productId", productId);
         }
         sendRequest(payload, listener);
     }

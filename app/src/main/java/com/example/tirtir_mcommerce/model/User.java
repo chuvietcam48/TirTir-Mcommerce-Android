@@ -40,6 +40,44 @@ public class User implements Serializable {
     @SerializedName("addresses")
     private List<Address> addresses;
 
+    @SerializedName("skinProfile")
+    private SkinProfile skinProfile;
+
+    // ===== Nested Class =====
+    public static class SkinProfile implements Serializable {
+        @SerializedName("skinTone")
+        private String skinTone;
+        @SerializedName("undertone")
+        private String undertone;
+        @SerializedName("skinHex")
+        private String skinHex;
+        @SerializedName("ITA_category")
+        private String itaCategory;
+        @SerializedName("texture")
+        private String texture;
+        @SerializedName("pores")
+        private String pores;
+        @SerializedName("hydration")
+        private String hydration;
+        @SerializedName("skinType")
+        private String skinType;
+        @SerializedName("concerns")
+        private List<String> concerns;
+        @SerializedName("recommendations")
+        private List<String> recommendations;
+
+        public String getSkinTone() { return skinTone; }
+        public String getUndertone() { return undertone; }
+        public String getSkinHex() { return skinHex; }
+        public String getItaCategory() { return itaCategory; }
+        public String getTexture() { return texture; }
+        public String getPores() { return pores; }
+        public String getHydration() { return hydration; }
+        public String getSkinType() { return skinType; }
+        public List<String> getConcerns() { return concerns; }
+        public List<String> getRecommendations() { return recommendations; }
+    }
+
     // ===== Constructors =====
     public User() {}
 
@@ -61,6 +99,7 @@ public class User implements Serializable {
     public String getGender() { return gender; }
     public String getBirthDate() { return birthDate; }
     public List<Address> getAddresses() { return addresses; }
+    public SkinProfile getSkinProfile() { return skinProfile; }
 
     // ===== Setters =====
     public void setId(String id) { this.id = id; }
@@ -73,6 +112,7 @@ public class User implements Serializable {
     public void setGender(String gender) { this.gender = gender; }
     public void setBirthDate(String birthDate) { this.birthDate = birthDate; }
     public void setAddresses(List<Address> addresses) { this.addresses = addresses; }
+    public void setSkinProfile(SkinProfile skinProfile) { this.skinProfile = skinProfile; }
 
     // ===== Helpers =====
     public boolean isAdmin() { return "admin".equals(role); }

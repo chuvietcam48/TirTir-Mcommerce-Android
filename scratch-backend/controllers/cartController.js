@@ -94,6 +94,11 @@ exports.clearCartServer = async (req, res) => {
   const cart = await Cart.findOne({ userId: req.user.id });
   if (cart) {
     cart.items = [];
+    if (cart.recoveryState === 'notified') {
+      cart.recoveryState = 'recovered';
+    } else {
+      cart.recoveryState = 'pending';
+    }
     await cart.save();
   }
 

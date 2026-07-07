@@ -315,6 +315,29 @@ public class MainActivity extends AppCompatActivity {
             productIntent.putExtra("PRODUCT_ID", productId);
             startActivity(productIntent);
             return true;
+        } else if ("chat".equals(navigateTo)) {
+            // Navigate to Chat tab and pass auto-message extras via fragment arguments
+            setActiveTab(R.id.navTabChat);
+            android.os.Bundle args = new android.os.Bundle();
+            String autoMsg = intent.getStringExtra("CHAT_AUTO_MESSAGE");
+            String chatProductId = intent.getStringExtra("CHAT_PRODUCT_ID");
+            String chatProductName = intent.getStringExtra("CHAT_PRODUCT_NAME");
+            String chatProductImage = intent.getStringExtra("CHAT_PRODUCT_IMAGE");
+            String chatProductPrice = intent.getStringExtra("CHAT_PRODUCT_PRICE");
+            String chatProductRating = intent.getStringExtra("CHAT_PRODUCT_RATING");
+            if (autoMsg != null) args.putString("CHAT_AUTO_MESSAGE", autoMsg);
+            if (chatProductId != null) args.putString("CHAT_PRODUCT_ID", chatProductId);
+            if (chatProductName != null) args.putString("CHAT_PRODUCT_NAME", chatProductName);
+            if (chatProductImage != null) args.putString("CHAT_PRODUCT_IMAGE", chatProductImage);
+            if (chatProductPrice != null) args.putString("CHAT_PRODUCT_PRICE", chatProductPrice);
+            if (chatProductRating != null) args.putString("CHAT_PRODUCT_RATING", chatProductRating);
+            ChatFragment chatFrag = new ChatFragment();
+            chatFrag.setArguments(args);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, chatFrag)
+                    .addToBackStack(null)
+                    .commit();
+            return true;
         }
         return false;
     }

@@ -1,4 +1,4 @@
-const User = require('../backend/models/user.model');
+const User = require('../models/User');
 
 // Update Preferences (Theme, Language, Critical Alerts, 2FA)
 exports.updatePreferences = async (req, res) => {
@@ -34,7 +34,7 @@ exports.updatePreferences = async (req, res) => {
 exports.changePassword = async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
-        
+
         // Ensure user password is included
         const user = await User.findById(req.user.id).select('+password');
         if (!user) {

@@ -52,4 +52,4 @@ const ProductSchema = new mongoose.Schema({
 // Add Text Index for Advanced Search
 ProductSchema.index({ Name: 'text', Description_Short: 'text', Full_Description: 'text' });
 
-module.exports = mongoose.model('Product', ProductSchema);
+module.exports = mongoose.models.Product || mongoose.model('Product', ProductSchema);

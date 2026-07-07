@@ -41,4 +41,4 @@ const ShadeSchema = new mongoose.Schema(
   { collection: "shades" }
 );
 
-module.exports = mongoose.model("Shade", ShadeSchema);
+module.exports = mongoose.models.Shade || mongoose.model("Shade", ShadeSchema);

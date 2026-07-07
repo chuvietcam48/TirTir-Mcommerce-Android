@@ -1,5 +1,5 @@
-const Order = require('../backend/models/order.model');
-const Product = require('../backend/models/product.model');
+const Order = require('../models/Order');
+const Product = require('../models/Product');
 const { findConflicts } = require('../backend/controllers/ingredient.controller');
 const fcmService = require('./fcmService');
 

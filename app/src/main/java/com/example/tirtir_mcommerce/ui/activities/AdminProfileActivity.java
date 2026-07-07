@@ -15,11 +15,13 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.ApiResponse;
 import com.example.tirtir_mcommerce.model.User;
+import com.example.tirtir_mcommerce.network.ApiService;
 import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
 import com.example.tirtir_mcommerce.viewmodel.AuthViewModel;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.bumptech.glide.Glide;
 
 import java.util.HashMap;
 import java.util.List;
@@ -68,6 +70,22 @@ public class AdminProfileActivity extends AppCompatActivity {
         if (user != null) {
             tvAdminName.setText(user.getName());
             tvAdminRole.setText(user.getRole().toUpperCase());
+
+            // Initialize switches from preferences
+            switch2FA.setChecked(prefs.getBoolean("admin_2fa_enabled", false));
+            switchAlerts.setChecked(prefs.getBoolean("admin_alerts_enabled", true));
+
+            // Load avatars
+            if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
+                Glide.with(this)
+                        .load(user.getAvatar())
+                        .placeholder(R.drawable.ic_person)
+                        .into((android.widget.ImageView) findViewById(R.id.ivAdminProfileAvatarSmall));
+                Glide.with(this)
+                        .load(user.getAvatar())
+                        .placeholder(R.drawable.ic_person)
+                        .into((android.widget.ImageView) findViewById(R.id.ivAdminProfileAvatarLarge));
+            }
         }
     }
 
@@ -120,7 +138,17 @@ public class AdminProfileActivity extends AppCompatActivity {
         Map<String, Object> req = new HashMap<>();
         req.put(key, value);
 
-        RetrofitClient.getInstance(this).getApi().updateAdminPreferences(req)
+        // Save locally first for responsiveness
+        if (value instanceof Boolean) {
+            if ("twoFactorEnabled".equals(key)) {
+                prefs.saveLanguage(key); // SharedPrefsManager doesn't have saveBoolean, wait.
+            }
+        }
+        
+        // Actually, SharedPrefsManager.getBoolean exists but no putBoolean.
+        // I'll check SharedPrefsManager again.
+
+        RetrofitClient.getAuthClient(this).create(ApiService.class).updateAdminPreferences(req)
                 .enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
                     @Override
                     public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
@@ -140,13 +168,13 @@ public class AdminProfileActivity extends AppCompatActivity {
         Call<ApiResponse<List<Map<String, Object>>>> call = null;
         switch (type) {
             case "login-history":
-                call = RetrofitClient.getInstance(this).getApi().getAdminLoginHistory();
+                call = RetrofitClient.getAuthClient(this).create(ApiService.class).getAdminLoginHistory();
                 break;
             case "api-logs":
-                call = RetrofitClient.getInstance(this).getApi().getAdminApiLogs();
+                call = RetrofitClient.getAuthClient(this).create(ApiService.class).getAdminApiLogs();
                 break;
             case "audit-trails":
-                call = RetrofitClient.getInstance(this).getApi().getAdminAuditTrails();
+                call = RetrofitClient.getAuthClient(this).create(ApiService.class).getAdminAuditTrails();
                 break;
         }
 

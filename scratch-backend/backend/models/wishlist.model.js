@@ -33,4 +33,4 @@ const wishlistSchema = new mongoose.Schema({
 // Index để tìm kiếm nhanh, tránh duplicate product+shade trong code (dù logic controller đã handle)
 // wishlistSchema.index({ user: 1 }); // Removed duplicate index as user is unique: true
 
-module.exports = mongoose.model('Wishlist', wishlistSchema);
+module.exports = mongoose.models.Wishlist || mongoose.model('Wishlist', wishlistSchema);

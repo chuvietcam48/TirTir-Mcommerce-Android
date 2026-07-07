@@ -184,25 +184,25 @@ Updated: 2026-06-14
 
 ## Backend Requests
 
-| Priority | Backend request | Why frontend is blocked |
+| Priority | Backend request | Status |
 | --- | --- | --- |
-| P0 | Serve or replace all product `Thumbnail_Images`, gallery, and description asset URLs | Product API works, but deployed asset URLs return HTTP 404. |
-| P0 | Implement refresh-token rotation endpoint and interceptor contract | Access token defaults to 15 minutes while frontend session policy is 30 days for users and 8 hours for admins. |
-| P0 | Return authoritative checkout totals, shipping fee, tax, discounts, loyalty redemption, and payment status | Current order total only sums product subtotal; frontend must not invent financial values. |
-| P0 | Confirm payment initiation/deep-link flow for CARD, VNPAY, and MOMO; add COD only if supported | Create-order validation rejects COD and bank-transfer labels. |
-| P0 | Add Ingredient OCR/conflict-analysis endpoint accepting an image and returning ingredients plus severity conflicts | Existing ingredient API only saves and reads history. |
-| P0 | Extend skin analysis response with `skinHex`, ITA category, texture, pores, hydration, and ranked cushion/shade matches | Current response only contains tone, undertone, skin type, concerns, confidence, and LAB debug values. |
-| P1 | Add community routine list/apply/like and user routine save/update/delete/share APIs | Routine is currently local-only and Community has no data source. |
-| P1 | Add individual abandoned-cart list endpoint with user, cart items, value, last activity, and recovery state | Admin API currently provides aggregate recovery stats only. |
-| P1 | Add RFM/churn user list endpoint with segment, stable user ID, contact permission, and last activity | Admin cannot safely target voucher/FCM actions from aggregate data. |
-| P1 | Add invoice PDF endpoint or return `invoiceUrl` on order responses | Order routes have no invoice endpoint; frontend now hides the action when absent. |
-| P1 | Configure Android OAuth client in Firebase and define backend Google token exchange | `google-services.json` currently has an empty `oauth_client` array. |
-| P1 | Normalize server wishlist IDs or accept both Mongo `_id` and `Product_ID` | Wishlist controller currently uses `Product.findById`, unlike Cart which resolves both forms. |
-| P1 | Add order detail timeline, cancel, and reorder response contracts to API documentation | Routes exist but mobile detail UI still needs stable schemas. |
-| P1 | Return checkout loyalty multiplier explicitly when applicable | Loyalty summary has points/tier only; frontend promotional badge stays hidden. |
-| P2 | Add notification preference synchronization and define FCM payload deep-link keys | Current switches are intentionally local SharedPreferences. |
-| P2 | Provide AR SDK/model contract and shade asset metadata | Current AR screen cannot perform real face tracking or cosmetic rendering. |
-| P2 | Add Loyalty Wallet, barcode scan, and voucher wallet APIs/screens for SCR-25, SCR-26, and SCR-27 | These screens are listed in the project inventory but are absent from the current Android implementation. |
+| P0 | Serve or replace all product `Thumbnail_Images`, gallery, and description asset URLs | Pending |
+| P0 | Implement refresh-token rotation endpoint and interceptor contract | Pending |
+| P0 | Return authoritative checkout totals, shipping fee, tax, discounts, loyalty redemption, and payment status | **Completed** (Handled via `/api/v1/payments/arbitrate`) |
+| P0 | Confirm payment initiation/deep-link flow for CARD, VNPAY, and MOMO; add COD only if supported | **Completed** (VNPAY deep links integrated) |
+| P0 | Add Ingredient OCR/conflict-analysis endpoint accepting an image and returning ingredients plus severity conflicts | **Dropped** (Feature cancelled by user) |
+| P0 | Extend skin analysis response with `skinHex`, ITA category, texture, pores, hydration, and ranked cushion/shade matches | **Completed** (Frontend CameraX ML now handles texture/pores live) |
+| P1 | Add community routine list/apply/like and user routine save/update/delete/share APIs | **Completed** (Integrated via `/api/routines/...`) |
+| P1 | Add individual abandoned-cart list endpoint with user, cart items, value, last activity, and recovery state | **Completed** (Integrated via `/api/v1/admin/churn/abandoned-carts`) |
+| P1 | Add RFM/churn user list endpoint with segment, stable user ID, contact permission, and last activity | **Completed** |
+| P1 | Add invoice PDF endpoint or return `invoiceUrl` on order responses | **Completed** |
+| P1 | Configure Android OAuth client in Firebase and define backend Google token exchange | Pending |
+| P1 | Normalize server wishlist IDs or accept both Mongo `_id` and `Product_ID` | Pending |
+| P1 | Add order detail timeline, cancel, and reorder response contracts to API documentation | Pending |
+| P1 | Return checkout loyalty multiplier explicitly when applicable | Pending |
+| P2 | Add notification preference synchronization and define FCM payload deep-link keys | Pending |
+| P2 | Provide AR SDK/model contract and shade asset metadata | Pending |
+| P2 | Add Loyalty Wallet, barcode scan, and voucher wallet APIs/screens for SCR-25, SCR-26, and SCR-27 | Pending |
 
 ## Runtime Verification Note
 

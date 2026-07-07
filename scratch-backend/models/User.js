@@ -40,6 +40,21 @@ const userSchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true },
     resetPasswordOTP: { type: String, select: false },
     resetPasswordExpires: { type: Date, select: false },
+    // ===== SKIN PROFILE (Latest AI Analysis Snapshot) =====
+    skinProfile: {
+        skinTone:       { type: String, default: null },
+        undertone:      { type: String, default: null },
+        skinHex:        { type: String, default: null },
+        ITA_category:   { type: String, default: null },
+        texture:        { type: String, default: null },
+        pores:          { type: String, default: null },
+        hydration:      { type: String, default: null },
+        skinType:       { type: String, default: null },
+        concerns:       { type: [String], default: [] },
+        recommendations:{ type: [String], default: [] },
+        confidence:     { type: Number, default: null },
+        lastAnalyzedAt: { type: Date, default: null }
+    }
   },
   { timestamps: true }
 );
@@ -78,6 +93,7 @@ userSchema.methods.toClientJSON = function () {
     gender: this.gender,
     birthDate: this.birthDate,
     addresses: mappedAddresses,
+    skinProfile: this.skinProfile,
   };
 };
 

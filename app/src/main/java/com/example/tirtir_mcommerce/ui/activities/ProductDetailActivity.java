@@ -165,7 +165,8 @@ public class ProductDetailActivity extends AppCompatActivity {
         productHowToUse = getIntent().getStringExtra("PRODUCT_HOW_TO_USE");
         productFullDescription = getIntent().getStringExtra("PRODUCT_FULL_DESCRIPTION");
         selectedProductId = productId;
-        selectedShade = firstNonEmpty(productVolume, "Standard");
+        // Don't pre-select shade here. Wait for fetchShades to know if it has variants.
+        selectedShade = null;
         stockQuantity   = getIntent().getIntExtra("PRODUCT_STOCK", 100);
         String skinTypes        = getIntent().getStringExtra("PRODUCT_SKIN_TYPES");
         String isSkincareIntent = getIntent().getStringExtra("PRODUCT_IS_SKINCARE");
@@ -291,27 +292,40 @@ public class ProductDetailActivity extends AppCompatActivity {
             });
         }
 
+        // AR Try On: always hide initially — visibility controlled by renderInlineShades() after shades load
         if (btnARTryOn != null) {
-            btnARTryOn.setVisibility(isShadeProduct() ? View.VISIBLE : View.GONE);
-            btnARTryOn.setOnClickListener(v -> {
-                Intent intent = new Intent(this, ARTryOnActivity.class);
-                intent.putExtra("PRODUCT_ID", productId);
-                intent.putExtra("PRODUCT_NAME", productName);
-                if (availableShades != null && !availableShades.isEmpty()) {
-                    java.util.ArrayList<String> shadeNames = new java.util.ArrayList<>();
-                    java.util.ArrayList<String> shadeHexes = new java.util.ArrayList<>();
-                    for (java.util.Map<String, Object> shade : availableShades) {
-                        String name = String.valueOf(shade.get("Shade_Name") != null ? shade.get("Shade_Name") : (shade.get("Shade") != null ? shade.get("Shade") : ""));
-                        String hex = String.valueOf(shade.get("shade_color_hex") != null ? shade.get("shade_color_hex") : (shade.get("Shade_Color_Hex") != null ? shade.get("Shade_Color_Hex") : ""));
-                        if (!name.trim().isEmpty() && !hex.trim().isEmpty()) {
-                            shadeNames.add(name);
-                            shadeHexes.add(hex);
-                        }
-                    }
-                    intent.putStringArrayListExtra("SHADE_NAMES", shadeNames);
-                    intent.putStringArrayListExtra("SHADE_HEXES", shadeHexes);
+            btnARTryOn.setVisibility(View.GONE);
+        }
+
+        // Ask AI before buying → navigate to Chat tab with auto pre-filled message
+        MaterialButton btnAskAI = findViewById(R.id.btnAskAIBeforeBuying);
+        if (btnAskAI != null) {
+            btnAskAI.setOnClickListener(v -> {
+                // Build a smart auto-message about this product
+                com.example.tirtir_mcommerce.utils.SharedPrefsManager prefsManager =
+                        new com.example.tirtir_mcommerce.utils.SharedPrefsManager(this);
+                com.example.tirtir_mcommerce.model.User cachedUser = prefsManager.getCachedUser();
+                String skinTypeLabel = "";
+                if (cachedUser != null && cachedUser.getSkinProfile() != null
+                        && cachedUser.getSkinProfile().getSkinTone() != null
+                        && !cachedUser.getSkinProfile().getSkinTone().isEmpty()) {
+                    skinTypeLabel = cachedUser.getSkinProfile().getSkinTone() + " ";
                 }
-                startActivity(intent);
+                String autoMsg = "Sản phẩm " + (productName != null ? productName : "này")
+                        + " có phù hợp với loại da " + skinTypeLabel + "của mình không?";
+
+                // Navigate to MainActivity Chat tab with pre-filled message
+                Intent chatIntent = new Intent(this, com.example.tirtir_mcommerce.MainActivity.class);
+                chatIntent.putExtra("NAVIGATE_TO", "chat");
+                chatIntent.putExtra("CHAT_AUTO_MESSAGE", autoMsg);
+                chatIntent.putExtra("CHAT_PRODUCT_ID", productId);
+                chatIntent.putExtra("CHAT_PRODUCT_NAME", productName);
+                String absoluteImageUrl = productImage != null ? com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(productImage) : null;
+                chatIntent.putExtra("CHAT_PRODUCT_IMAGE", absoluteImageUrl);
+                chatIntent.putExtra("CHAT_PRODUCT_PRICE", String.format(java.util.Locale.US, "%,.0f", displayPriceVnd).replace(",", "."));
+                chatIntent.putExtra("CHAT_PRODUCT_RATING", tvProductRating != null ? tvProductRating.getText().toString() : "0.0");
+                chatIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(chatIntent);
             });
         }
 
@@ -337,10 +351,18 @@ public class ProductDetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Product is not ready", Toast.LENGTH_SHORT).show();
             return false;
         }
+        if (!availableShades.isEmpty() && (selectedShade == null || selectedShade.isEmpty())) {
+            Toast.makeText(this, "Please select a variant", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         String cartProductId = firstNonEmpty(selectedProductId, productId);
         String imageUrl = productImage != null ? productImage : "";
+        String finalShade = selectedShade;
+        if (availableShades.isEmpty()) {
+            finalShade = firstNonEmpty(productVolume, "Standard");
+        }
         CartItem item = new CartItem(cartProductId, productName, imageUrl, displayPriceVnd,
-                currentQuantity, firstNonEmpty(selectedShade, productVolume, "Standard"));
+                currentQuantity, finalShade);
         CartRepository repository = new CartRepository(this);
         repository.addToCartLocal(item);
         repository.syncItemToServer(item, null, error -> { });
@@ -553,15 +575,30 @@ public class ProductDetailActivity extends AppCompatActivity {
         View row = findViewById(R.id.layoutShadeSelection);
         if (row != null) row.setVisibility(showShade ? View.VISIBLE : View.GONE);
         
+        // AR Try On: only show if this product actually has shades loaded from the server
         if (btnARTryOn != null) {
-            btnARTryOn.setVisibility(!availableShades.isEmpty() ? View.VISIBLE : View.GONE);
             if (!availableShades.isEmpty()) {
+                btnARTryOn.setVisibility(View.VISIBLE);
                 btnARTryOn.setOnClickListener(v -> {
                     Intent intent = new Intent(this, ARTryOnActivity.class);
                     intent.putExtra("PRODUCT_ID", productId);
                     intent.putExtra("PRODUCT_NAME", productName);
+                    java.util.ArrayList<String> shadeNames = new java.util.ArrayList<>();
+                    java.util.ArrayList<String> shadeHexes = new java.util.ArrayList<>();
+                    for (java.util.Map<String, Object> shade : availableShades) {
+                        String name = String.valueOf(shade.get("Shade_Name") != null ? shade.get("Shade_Name") : (shade.get("Shade") != null ? shade.get("Shade") : ""));
+                        String hex = String.valueOf(shade.get("shade_color_hex") != null ? shade.get("shade_color_hex") : (shade.get("Shade_Color_Hex") != null ? shade.get("Shade_Color_Hex") : ""));
+                        if (!name.trim().isEmpty() && !hex.trim().isEmpty()) {
+                            shadeNames.add(name);
+                            shadeHexes.add(hex);
+                        }
+                    }
+                    intent.putStringArrayListExtra("SHADE_NAMES", shadeNames);
+                    intent.putStringArrayListExtra("SHADE_HEXES", shadeHexes);
                     startActivity(intent);
                 });
+            } else {
+                btnARTryOn.setVisibility(View.GONE);
             }
         }
 
@@ -576,15 +613,26 @@ public class ProductDetailActivity extends AppCompatActivity {
             
             android.widget.FrameLayout frame = new android.widget.FrameLayout(this);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                (int) (44 * density), (int) (44 * density));
-            lp.setMarginEnd((int) (8 * density));
+                (int) (56 * density), (int) (56 * density));
+            lp.setMarginEnd((int) (12 * density));
             frame.setLayoutParams(lp);
             
-            ImageView colorCircle = new ImageView(this);
+            // Inner Color Circle
+            android.widget.TextView colorCircle = new android.widget.TextView(this);
             android.widget.FrameLayout.LayoutParams ivLp = new android.widget.FrameLayout.LayoutParams(
-                (int) (36 * density), (int) (36 * density));
+                (int) (48 * density), (int) (48 * density));
             ivLp.gravity = android.view.Gravity.CENTER;
             colorCircle.setLayoutParams(ivLp);
+            colorCircle.setGravity(android.view.Gravity.CENTER);
+            colorCircle.setTextSize(10f);
+            colorCircle.setTypeface(null, android.graphics.Typeface.BOLD);
+            
+            String shortCode = shadeName;
+            if (shadeName.contains(" ")) {
+                shortCode = shadeName.substring(0, shadeName.indexOf(" "));
+            }
+            if (shortCode.length() > 4) shortCode = shortCode.substring(0, 4);
+            colorCircle.setText(shortCode);
             
             int color = android.graphics.Color.LTGRAY;
             if (hexCode != null && !hexCode.trim().isEmpty()) {
@@ -592,13 +640,20 @@ public class ProductDetailActivity extends AppCompatActivity {
                 try { color = android.graphics.Color.parseColor(hexCode); } catch (Exception ignored) {}
             }
             
+            double luminance = 0.2126 * android.graphics.Color.red(color) + 0.7152 * android.graphics.Color.green(color) + 0.0722 * android.graphics.Color.blue(color);
+            if (luminance > 128) {
+                colorCircle.setTextColor(android.graphics.Color.BLACK);
+            } else {
+                colorCircle.setTextColor(android.graphics.Color.WHITE);
+            }
+            
             android.graphics.drawable.GradientDrawable drawable = new android.graphics.drawable.GradientDrawable();
             drawable.setShape(android.graphics.drawable.GradientDrawable.OVAL);
             drawable.setColor(color);
-            drawable.setStroke((int)(1 * density), android.graphics.Color.LTGRAY);
-            colorCircle.setImageDrawable(drawable);
+            colorCircle.setBackground(drawable);
             frame.addView(colorCircle);
             
+            // Outer Ring
             ImageView ring = new ImageView(this);
             ring.setLayoutParams(new android.widget.FrameLayout.LayoutParams(
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT, 
@@ -608,18 +663,32 @@ public class ProductDetailActivity extends AppCompatActivity {
             ringDrawable.setColor(android.graphics.Color.TRANSPARENT);
             
             boolean isSelected = shadeName.equals(selectedShade);
-            if (isSelected || (selectedShade == null && i == 0)) {
-                if (selectedShade == null) {
-                    selectedShade = shadeName;
-                    selectedProductId = mapText(shade, "Product_ID", "Shade_ID", productId);
-                }
-                ringDrawable.setStroke((int) (2 * density), android.graphics.Color.parseColor("#A12E2B")); // Primary red
-                tvSelectedName.setText(shadeName);
+            if (isSelected) {
+                ringDrawable.setStroke((int) (2 * density), android.graphics.Color.parseColor("#A12E2B")); 
+                tvSelectedName.setText("Selected: " + shadeName);
             } else {
                 ringDrawable.setStroke(0, android.graphics.Color.TRANSPARENT);
             }
             ring.setImageDrawable(ringDrawable);
             frame.addView(ring);
+            
+            // Badge (Top Right)
+            ImageView badge = new ImageView(this);
+            android.widget.FrameLayout.LayoutParams badgeLp = new android.widget.FrameLayout.LayoutParams(
+                (int) (16 * density), (int) (16 * density));
+            badgeLp.gravity = android.view.Gravity.TOP | android.view.Gravity.END;
+            badgeLp.setMargins(0, (int) (2 * density), (int) (2 * density), 0);
+            badge.setLayoutParams(badgeLp);
+            
+            android.graphics.drawable.GradientDrawable badgeBg = new android.graphics.drawable.GradientDrawable();
+            badgeBg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+            badgeBg.setColor(android.graphics.Color.parseColor("#A12E2B"));
+            badge.setBackground(badgeBg);
+            badge.setImageResource(R.drawable.ic_check);
+            badge.setPadding((int)(3*density), (int)(3*density), (int)(3*density), (int)(3*density));
+            badge.setColorFilter(android.graphics.Color.WHITE);
+            badge.setVisibility(isSelected ? View.VISIBLE : View.GONE);
+            frame.addView(badge);
             
             frame.setOnClickListener(v -> {
                 selectedShade = shadeName;
@@ -680,7 +749,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         TextView label = sheet.findViewById(R.id.tvOptionVariantLabel);
         if (availableShades.isEmpty()) {
             label.setText("VARIANT");
-            Chip chip = buildOptionChip(firstNonEmpty(productVolume, "Standard"), null);
+            Chip chip = buildOptionChip(firstNonEmpty(productVolume, "Standard"), null, true);
             chip.setChecked(true);
             group.addView(chip);
         } else {
@@ -689,20 +758,18 @@ public class ProductDetailActivity extends AppCompatActivity {
                 java.util.Map<String, Object> shade = availableShades.get(index);
                 String shadeName = mapText(shade, "Shade_Name", "Shade_Code", "Shade");
                 String hexCode = mapText(shade, "Hex_Code", "", null);
-                Chip chip = buildOptionChip(shadeName, hexCode);
+                Chip chip = buildOptionChip(shadeName, hexCode, shadeName.equals(selectedShade));
                 chip.setTag(shade);
-                chip.setChecked(index == 0 && (selectedShade == null || selectedShade.equals(productVolume)));
-                if (shadeName.equals(selectedShade)) chip.setChecked(true);
+                chip.setChecked(shadeName.equals(selectedShade));
                 chip.setOnCheckedChangeListener((button, checked) -> {
+                    ((com.google.android.material.chip.Chip) button).setChipStrokeWidth(checked ? 4f : 2f);
                     if (!checked) return;
                     selectedShade = shadeName;
                     selectedProductId = mapText(shade, "Product_ID", "Shade_ID", productId);
                 });
                 group.addView(chip);
             }
-            if (group.getCheckedChipId() == View.NO_ID && group.getChildCount() > 0) {
-                ((Chip) group.getChildAt(0)).setChecked(true);
-            }
+            // Do not pre-select the first chip to force user selection
         }
 
         final int[] quantity = {Math.max(1, currentQuantity)};
@@ -736,15 +803,24 @@ public class ProductDetailActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private Chip buildOptionChip(String text, String hexCode) {
+    private Chip buildOptionChip(String text, String hexCode, boolean isSelected) {
         Chip chip = new Chip(this);
         chip.setId(View.generateViewId());
         chip.setText(text);
         chip.setCheckable(true);
-        chip.setChipBackgroundColorResource(R.color.chip_selector);
+        chip.setChipBackgroundColor(ColorStateList.valueOf(android.graphics.Color.WHITE));
         chip.setTextColor(getColor(R.color.tirtir_text_primary));
-        chip.setChipStrokeColorResource(R.color.chip_stroke_profile);
-        chip.setChipStrokeWidth(1f);
+        
+        int[][] states = new int[][] {
+            new int[] { android.R.attr.state_checked },
+            new int[] { -android.R.attr.state_checked }
+        };
+        int[] colors = new int[] {
+            getColor(R.color.tirtir_red_primary),
+            android.graphics.Color.parseColor("#4D000000") // 30% black
+        };
+        chip.setChipStrokeColor(new ColorStateList(states, colors));
+        chip.setChipStrokeWidth(isSelected ? 4f : 2f);
         
         if (hexCode != null && !hexCode.trim().isEmpty()) {
             if (!hexCode.startsWith("#")) hexCode = "#" + hexCode;

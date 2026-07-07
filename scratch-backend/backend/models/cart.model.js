@@ -81,4 +81,4 @@ const CartSchema = new mongoose.Schema({
 // Optimize query for abandoned carts cron
 CartSchema.index({ recoveryStatus: 1, lastAbandonedAt: -1 });
 
-module.exports = mongoose.model('Cart', CartSchema);
+module.exports = mongoose.models.Cart || mongoose.model('Cart', CartSchema);

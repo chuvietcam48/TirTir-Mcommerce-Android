@@ -190,10 +190,10 @@ public class ProfileFragment extends Fragment {
 
     private void loadSkinHistory() {
         if (tvScanHistoryStatus == null) return;
-        com.example.tirtir_mcommerce.model.SkinProfile profile = 
-            com.example.tirtir_mcommerce.database.DatabaseHelper.getInstance(requireContext()).getLatestSkinProfile();
-        if (profile != null && profile.getAnalysisResult() != null && profile.getAnalysisResult().getSkinTone() != null) {
-            tvScanHistoryStatus.setText("Tone " + profile.getAnalysisResult().getSkinTone());
+        
+        com.example.tirtir_mcommerce.model.User user = profileViewModel.userLiveData.getValue();
+        if (user != null && user.getSkinProfile() != null && user.getSkinProfile().getSkinTone() != null) {
+            tvScanHistoryStatus.setText("Tone " + user.getSkinProfile().getSkinTone());
             tvScanHistoryStatus.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.tirtir_red_primary));
         } else {
             tvScanHistoryStatus.setText("VIEW");
@@ -297,6 +297,11 @@ public class ProfileFragment extends Fragment {
                 progressAvatarUpload.setVisibility(isLoading ? View.VISIBLE : View.GONE);
             }
         });
+        
+        // Also observe userLiveData for updating skin history status
+        profileViewModel.userLiveData.observe(getViewLifecycleOwner(), user -> {
+            loadSkinHistory();
+        });
     }
 
     private void bindUserData(User user) {
@@ -398,16 +403,7 @@ public class ProfileFragment extends Fragment {
 
         if (layoutScanHistory != null) {
             layoutScanHistory.setOnClickListener(v -> {
-                com.example.tirtir_mcommerce.model.SkinProfile profile = 
-                    com.example.tirtir_mcommerce.database.DatabaseHelper.getInstance(requireContext()).getLatestSkinProfile();
-                if (profile != null && profile.getAnalysisResult() != null) {
-                    Intent intent = new Intent(requireContext(), com.example.tirtir_mcommerce.ui.activities.SkinResultActivity.class);
-                    intent.putExtra("SKIN_ANALYSIS_JSON", new com.google.gson.Gson().toJson(profile.getAnalysisResult()));
-                    intent.putExtra("SHADE_MATCHES_JSON", new com.google.gson.Gson().toJson(profile.getShadeMatches()));
-                    startActivity(intent);
-                } else {
-                    startActivity(new Intent(requireContext(), SkinAnalysisActivity.class));
-                }
+                startActivity(new Intent(requireContext(), com.example.tirtir_mcommerce.ui.activities.SkinScanHistoryActivity.class));
             });
         }
 

@@ -14,16 +14,17 @@
         android:elevation="4dp"
         android:paddingHorizontal="16dp">
 
-        <ImageButton
-            android:id="@+id/btnAdminProfileBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_back"
-            app:tint="#610000"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <ImageView
+                android:id="@+id/btnAdminProfileBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="12dp"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="#610000"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -37,15 +38,14 @@
             app:layout_constraintStart_toEndOf="@id/btnAdminProfileBack"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.imageview.ShapeableImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/ivAdminProfileAvatarSmall"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_profile_placeholder"
-            app:shapeAppearanceOverlay="@style/CircleImageView"
-            app:strokeColor="#e3beb8"
-            app:strokeWidth="1dp"
+            android:src="@drawable/ic_person"
+            app:civ_border_color="#e3beb8"
+            app:civ_border_width="1dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -71,15 +71,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp">
 
-                <com.google.android.material.imageview.ShapeableImageView
+                <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/ivAdminProfileAvatarLarge"
                     android:layout_width="120dp"
                     android:layout_height="120dp"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/ic_profile_placeholder"
-                    app:shapeAppearanceOverlay="@style/CircleImageView"
-                    app:strokeColor="#ffffff"
-                    app:strokeWidth="4dp"
+                    android:src="@drawable/ic_person"
+                    app:civ_border_color="#ffffff"
+                    app:civ_border_width="4dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -87,7 +86,7 @@
                 <View
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:background="@drawable/bg_dot_green"
+                    android:background="@drawable/bg_dot_success"
                     android:elevation="2dp"
                     app:layout_constraintBottom_toBottomOf="@id/ivAdminProfileAvatarLarge"
                     app:layout_constraintEnd_toEndOf="@id/ivAdminProfileAvatarLarge"
@@ -149,7 +148,7 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_lock"
+                            android:src="@drawable/ic_visibility"
                             app:tint="#8b0000" />
                         <TextView
                             android:layout_width="wrap_content"
@@ -171,7 +170,7 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_lock"
+                            android:src="@android:drawable/ic_lock_idle_lock"
                             app:tint="#5f5e5e" />
                         <TextView
                             android:layout_width="0dp"
@@ -184,7 +183,7 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_arrow_right"
+                            android:src="@drawable/ic_chevron_right"
                             app:tint="#8e706b" />
                     </LinearLayout>
 
@@ -196,7 +195,7 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_check_circle"
+                            android:src="@drawable/ic_plus"
                             app:tint="#5f5e5e" />
                         <TextView
                             android:layout_width="0dp"
@@ -222,7 +221,7 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_history"
+                            android:src="@drawable/ic_list"
                             app:tint="#5f5e5e" />
                         <TextView
                             android:layout_width="0dp"
@@ -235,7 +234,7 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_arrow_right"
+                            android:src="@drawable/ic_chevron_right"
                             app:tint="#8e706b" />
                     </LinearLayout>
                 </LinearLayout>
@@ -287,7 +286,7 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_info"
+                            android:src="@android:drawable/ic_menu_help"
                             app:tint="#5f5e5e" />
                         <TextView
                             android:layout_width="0dp"
@@ -300,7 +299,7 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_arrow_right"
+                            android:src="@drawable/ic_chevron_right"
                             app:tint="#8e706b" />
                     </LinearLayout>
 
@@ -314,7 +313,7 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_document"
+                            android:src="@drawable/ic_list"
                             app:tint="#5f5e5e" />
                         <TextView
                             android:layout_width="0dp"
@@ -327,7 +326,7 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_arrow_right"
+                            android:src="@drawable/ic_chevron_right"
                             app:tint="#8e706b" />
                     </LinearLayout>
                 </LinearLayout>
@@ -357,7 +356,7 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_settings"
+                            android:src="@drawable/ic_more_vert"
                             app:tint="#8b0000" />
                         <TextView
                             android:layout_width="wrap_content"
@@ -379,7 +378,7 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_globe"
+                            android:src="@android:drawable/ic_menu_myplaces"
                             app:tint="#5f5e5e" />
                         <TextView
                             android:layout_width="0dp"
@@ -422,8 +421,8 @@
                             android:id="@+id/btnAdminThemeToggle"
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:background="@drawable/bg_rounded_gray"
-                            android:src="@drawable/ic_sun"
+                            android:background="@drawable/bg_circle_white"
+                            android:src="@drawable/ic_visibility"
                             app:tint="#5f5e5e" />
                     </LinearLayout>
 
@@ -435,7 +434,7 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_notification"
+                            android:src="@drawable/ic_notifications"
                             app:tint="#5f5e5e" />
                         <TextView
                             android:layout_width="0dp"
@@ -462,7 +461,7 @@
                 android:layout_gravity="center_horizontal"
                 android:text="SIGN OUT"
                 android:textColor="#8b0000"
-                app:icon="@drawable/ic_logout"
+                app:icon="@drawable/ic_close"
                 app:iconTint="#8b0000"
                 app:strokeColor="#8b0000"
                 app:strokeWidth="2dp"

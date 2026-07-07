@@ -32,7 +32,7 @@
             android:id="@+id/ivTypeIcon"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/ic_sync"
+            android:src="@drawable/ic_notifications"
             app:tint="#454747"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -50,9 +49,23 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         
         holder.tvName.setText(cartItem.getProductName());
         holder.tvPrice.setText(PriceUtils.formatPriceUsd(cartItem.getPrice()));
+        
+        // Brand logic (hardcoded to TirTir as per request's HTML)
+        TextView tvBrand = holder.itemView.findViewById(R.id.tvCartBrand);
+        if (tvBrand != null) {
+            tvBrand.setText("TirTir");
+        }
+
         String variant = cartItem.getShade();
-        holder.tvVariant.setText((variant == null || variant.trim().isEmpty() ? "Standard" : variant) + "  ▾");
-        holder.tvVariant.setOnClickListener(v -> cartListener.onEditVariant(position));
+        if (holder.tvVariant != null) {
+            if (variant != null && !variant.trim().isEmpty()) {
+                holder.tvVariant.setText("Shade: " + variant + " ⌄");
+                holder.tvVariant.setVisibility(View.VISIBLE);
+                holder.tvVariant.setOnClickListener(v -> cartListener.onEditVariant(position));
+            } else {
+                holder.tvVariant.setVisibility(View.GONE);
+            }
+        }
         
         String imageUrl = ApiConfig.resolveMediaUrl(cartItem.getThumbnail());
         
@@ -102,9 +115,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         TextView tvPrice;
         TextView tvQuantity;
         TextView tvVariant;
-        ImageButton btnDecrease;
-        ImageButton btnIncrease;
-        ImageButton btnRemove;
+        View btnDecrease;
+        View btnIncrease;
+        View btnRemove;
 
         CartViewHolder(@NonNull View itemView) {
             super(itemView);

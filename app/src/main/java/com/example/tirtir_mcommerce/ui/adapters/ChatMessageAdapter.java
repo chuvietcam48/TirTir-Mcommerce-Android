@@ -7,6 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.ImageView;
+import com.bumptech.glide.Glide;
+import com.example.tirtir_mcommerce.network.ApiConfig;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -56,6 +59,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
+<<<<<<< Updated upstream
     /** Structured support-menu row: icon + title + description + chevron. */
     public static class MenuOption {
         public final String emoji;
@@ -65,6 +69,20 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.emoji = emoji;
             this.title = title;
             this.description = description;
+=======
+    public static class ProductContext {
+        public final String productId;
+        public final String name;
+        public final String image;
+        public final String price;
+        public final String rating;
+        public ProductContext(String id, String name, String image, String price, String rating) {
+            this.productId = id;
+            this.name = name;
+            this.image = image;
+            this.price = price;
+            this.rating = rating;
+>>>>>>> Stashed changes
         }
     }
 
@@ -77,9 +95,13 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         public final boolean isOptions;
         public final List<ChatAction> actions;
         public final List<String> options;
+<<<<<<< Updated upstream
         public final boolean isMenu;
         public final String menuHeader;
         public final List<MenuOption> menuOptions;
+=======
+        public final ProductContext productContext;
+>>>>>>> Stashed changes
 
         /** Normal user/bot message (no OOD actions). */
         public ChatMessage(boolean fromUser, String text, String timestamp,
@@ -87,10 +109,11 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this(fromUser, text, timestamp, recommendations, null);
         }
 
-        /** Normal user/bot message with optional OOD action chips. */
+        /** Normal user/bot message with optional OOD action chips and optional product context. */
         public ChatMessage(boolean fromUser, String text, String timestamp,
                            List<RecommendedProduct> recommendations,
-                           List<ChatAction> actions) {
+                           List<ChatAction> actions,
+                           ProductContext productContext) {
             this.fromUser = fromUser;
             this.text = text;
             this.timestamp = timestamp;
@@ -99,9 +122,19 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.isOptions = false;
             this.actions = actions != null ? actions : new ArrayList<>();
             this.options = new ArrayList<>();
+<<<<<<< Updated upstream
             this.isMenu = false;
             this.menuHeader = "";
             this.menuOptions = new ArrayList<>();
+=======
+            this.productContext = productContext;
+        }
+
+        public ChatMessage(boolean fromUser, String text, String timestamp,
+                           List<RecommendedProduct> recommendations,
+                           List<ChatAction> actions) {
+            this(fromUser, text, timestamp, recommendations, actions, null);
+>>>>>>> Stashed changes
         }
 
         /** System divider note (centered text). */
@@ -114,9 +147,13 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.isOptions = false;
             this.actions = new ArrayList<>();
             this.options = new ArrayList<>();
+<<<<<<< Updated upstream
             this.isMenu = false;
             this.menuHeader = "";
             this.menuOptions = new ArrayList<>();
+=======
+            this.productContext = null;
+>>>>>>> Stashed changes
         }
 
         /** Mode/guided options selection message. */
@@ -129,6 +166,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.isOptions = true;
             this.actions = new ArrayList<>();
             this.options = options != null ? new ArrayList<>(options) : new ArrayList<>();
+<<<<<<< Updated upstream
             this.isMenu = false;
             this.menuHeader = "";
             this.menuOptions = new ArrayList<>();
@@ -147,6 +185,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.isMenu = true;
             this.menuHeader = header != null ? header : "";
             this.menuOptions = menuOptions != null ? new ArrayList<>(menuOptions) : new ArrayList<>();
+=======
+            this.productContext = null;
+>>>>>>> Stashed changes
         }
 
         public static ChatMessage system(String text) {
@@ -286,14 +327,50 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     static class UserViewHolder extends RecyclerView.ViewHolder {
         private final TextView tvMessage;
         private final TextView tvTimestamp;
+        private final View layoutProductCard;
+        private final ImageView ivProductThumb;
+        private final TextView tvProductName;
+        private final TextView tvProductPrice;
+        private final TextView tvProductRating;
+
         UserViewHolder(@NonNull View itemView) {
             super(itemView);
             tvMessage   = itemView.findViewById(R.id.tvUserMessage);
             tvTimestamp = itemView.findViewById(R.id.tvUserTimestamp);
+            layoutProductCard = itemView.findViewById(R.id.layoutUserProductCard);
+            ivProductThumb    = itemView.findViewById(R.id.ivProductThumb);
+            tvProductName     = itemView.findViewById(R.id.tvProductName);
+            tvProductPrice    = itemView.findViewById(R.id.tvProductPrice);
+            tvProductRating   = itemView.findViewById(R.id.tvProductRating);
         }
         void bind(ChatMessage message) {
             tvMessage.setText(message.text);
             tvTimestamp.setText(message.timestamp);
+
+            if (layoutProductCard != null) {
+                if (message.productContext != null) {
+                    layoutProductCard.setVisibility(View.VISIBLE);
+                    if (tvProductName != null) tvProductName.setText(message.productContext.name);
+                    if (tvProductPrice != null) tvProductPrice.setText(message.productContext.price + " đ");
+                    if (tvProductRating != null) tvProductRating.setText(message.productContext.rating);
+                    if (ivProductThumb != null && message.productContext.image != null) {
+                        String primaryUrl = message.productContext.image;
+                        String fallbackUrl = ApiConfig.resolveMediaFallbackUrl(primaryUrl);
+                        
+                        Glide.with(itemView.getContext())
+                             .load(primaryUrl)
+                             .error(
+                                 Glide.with(itemView.getContext())
+                                      .load(fallbackUrl)
+                                      .placeholder(R.drawable.ic_tirtir_logo)
+                             )
+                             .placeholder(R.drawable.ic_tirtir_logo)
+                             .into(ivProductThumb);
+                    }
+                } else {
+                    layoutProductCard.setVisibility(View.GONE);
+                }
+            }
         }
     }
 

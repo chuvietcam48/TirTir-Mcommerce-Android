@@ -80,6 +80,7 @@ public class ChatFragment extends Fragment {
     private String botName                = "TIRTIR Beauty Advisor";
 
     private boolean sessionStarted = false;
+    private boolean postAnswerOptionsShown = false; // Only show once per session
 
     // Product context — set when Chat opened via "Ask AI Before Buying"
     private String ctxProductName        = "";
@@ -147,6 +148,33 @@ public class ChatFragment extends Fragment {
         bindProductContextIfAvailable();
         if (!sessionStarted) {
             startFreshSession();
+        }
+
+        // If launched from "Ask AI before buying" button, auto-send the pre-built question
+        android.os.Bundle args = getArguments();
+        if (args != null && args.containsKey("CHAT_AUTO_MESSAGE")) {
+            String autoMsg = args.getString("CHAT_AUTO_MESSAGE");
+            if (autoMsg != null && !autoMsg.isEmpty()) {
+                currentMode = ChatMode.BEAUTY_ADVISOR;
+                
+                String pId = args.getString("CHAT_PRODUCT_ID");
+                String pName = args.getString("CHAT_PRODUCT_NAME");
+                String pImage = args.getString("CHAT_PRODUCT_IMAGE");
+                String pPrice = args.getString("CHAT_PRODUCT_PRICE");
+                String pRating = args.getString("CHAT_PRODUCT_RATING");
+                
+                ChatMessageAdapter.ProductContext pCtx = null;
+                if (pId != null && pName != null) {
+                    pCtx = new ChatMessageAdapter.ProductContext(pId, pName, pImage, pPrice, pRating);
+                }
+                
+                final ChatMessageAdapter.ProductContext finalPCtx = pCtx;
+                // dispatchMessage (with intentCode=null) will add the user bubble + send
+                rvChatMessages.postDelayed(() -> {
+                    if (!isAdded()) return;
+                    dispatchMessage(autoMsg, null, finalPCtx);
+                }, 800);
+            }
         }
 
         // Load config in background to update hotline/botName if backend is available
@@ -528,7 +556,7 @@ public class ChatFragment extends Fragment {
         scrollToBottom();
 
         if (isLeaf && !intentCode.isEmpty()) {
-            dispatchMessage(title, intentCode);
+            dispatchMessage(title, intentCode, null);
         } else if (!isLeaf && !id.isEmpty()) {
             adapter.addMessage(new ChatMessageAdapter.ChatMessage(
                     false, "Choose a specific topic:",
@@ -656,7 +684,7 @@ public class ChatFragment extends Fragment {
             return;
         }
 
-        dispatchMessage(text, null);
+        dispatchMessage(text, null, null);
     }
 
     /**
@@ -664,13 +692,13 @@ public class ChatFragment extends Fragment {
      * @param text      Display text / user message
      * @param intentCode  If non-null, sent as selectedQuestionId to skip full-text matching
      */
-    private void dispatchMessage(String text, @Nullable String intentCode) {
+    private void dispatchMessage(String text, @Nullable String intentCode, @Nullable ChatMessageAdapter.ProductContext productContext) {
         if (TextUtils.isEmpty(text) && TextUtils.isEmpty(intentCode)) return;
 
         // Category-taps already added the user bubble; free-text sends add it here
         if (intentCode == null) {
             adapter.addMessage(new ChatMessageAdapter.ChatMessage(
-                    true, text, timeFormat.format(new Date()), new ArrayList<>()));
+                    true, text, timeFormat.format(new Date()), new ArrayList<>(), null, productContext));
             scrollToBottom();
         }
 
@@ -725,7 +753,6 @@ public class ChatFragment extends Fragment {
                     if (botPosition[0] < 0) botPosition[0] = adapter.addAndReturnPosition(msg);
                     else adapter.updateMessage(botPosition[0], msg);
 
-                    if (currentMode == ChatMode.BEAUTY_ADVISOR) showPostAnswerOptions();
                     finishRequest();
                 });
             }
@@ -745,10 +772,11 @@ public class ChatFragment extends Fragment {
             }
         };
 
+        String pId = productContext != null ? productContext.productId : null;
         if (intentCode != null && !intentCode.isEmpty()) {
-            chatRepository.sendQuestion(intentCode, text, listener);
+            chatRepository.sendQuestion(intentCode, text, pId, listener);
         } else {
-            chatRepository.sendMessage(text, listener);
+            chatRepository.sendMessage(text, pId, listener);
         }
     }
 

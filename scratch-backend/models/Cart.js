@@ -20,6 +20,12 @@ const cartSchema = new mongoose.Schema(
       index: true,
     },
     items: [cartItemSchema],
+    recoveryState: {
+      type: String,
+      enum: ['pending', 'notified', 'recovered'],
+      default: 'pending'
+    },
+    recoveryNotifiedAt: { type: Date, default: null }
   },
   { timestamps: true }
 );

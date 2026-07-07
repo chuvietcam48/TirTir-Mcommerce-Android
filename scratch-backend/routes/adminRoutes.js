@@ -65,13 +65,16 @@ router.get('/marketing/overview', getMarketingOverview);
 // POST /api/v1/admin/marketing/campaigns
 router.post('/marketing/campaigns', createCampaign);
 
-const { getCartRecoveryStats, getChurnList, sendVoucher } = require('../controllers/adminStatsController');
+const { getCartRecoveryStats, getChurnList, getAbandonedCarts, sendVoucher } = require('../controllers/adminStatsController');
 
 // GET /api/v1/admin/stats/cart-recovery
 router.get('/stats/cart-recovery', getCartRecoveryStats);
 
 // GET /api/v1/admin/churn
 router.get('/churn', getChurnList);
+
+// GET /api/v1/admin/churn/abandoned-carts
+router.get('/churn/abandoned-carts', getAbandonedCarts);
 
 // POST /api/v1/admin/churn/send-voucher
 router.post('/churn/send-voucher', sendVoucher);

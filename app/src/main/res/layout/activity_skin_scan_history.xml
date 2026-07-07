@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tirtir_white"
+    tools:context=".ui.activities.SkinScanHistoryActivity">
+
+    <!-- Top App Bar -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/appBar"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:background="@color/tirtir_white"
+        android:elevation="4dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/tirtir_red_primary"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="8dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SKIN REPORT"
+            android:textColor="@color/tirtir_red_primary"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.2"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <ImageButton
+            android:id="@+id/btnCart"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_cart"
+            app:tint="@color/tirtir_red_primary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="8dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/tirtir_gray_light"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingBottom="24dp"
+        app:layout_constraintTop_toBottomOf="@id/appBar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Empty State / Placeholder -->
+            <TextView
+                android:id="@+id/tvEmptyState"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No Skin Scan History found.\nPlease perform an AI Scan first."
+                android:textAlignment="center"
+                android:textColor="@color/tirtir_text_secondary"
+                android:textSize="16sp"
+                android:visibility="gone"
+                android:layout_marginTop="32dp"/>
+
+            <!-- Main Content Container -->
+            <LinearLayout
+                android:id="@+id/contentContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Summary Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="@color/tirtir_gray_light">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="12dp">
+
+                        <!-- Avatar Frame -->
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            app:cardCornerRadius="40dp"
+                            app:cardElevation="0dp"
+                            app:cardBackgroundColor="@color/tirtir_gray_light">
+                            <ImageView
+                                android:id="@+id/ivUserAvatar"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"/>
+                        </androidx.cardview.widget.CardView>
+
+                        <!-- Info Area -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal"
+                            android:layout_marginStart="16dp"
+                            android:baselineAligned="false">
+
+                            <!-- Shade Col -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="SKIN SHADE"
+                                    android:textSize="10sp"
+                                    android:textColor="@color/tirtir_text_secondary"
+                                    android:textStyle="bold"
+                                    android:letterSpacing="0.1"/>
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:gravity="center_vertical"
+                                    android:layout_marginTop="4dp">
+                                    <TextView
+                                        android:id="@+id/tvSkinShade"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="21N Ivory"
+                                        android:textColor="@color/tirtir_text_primary"
+                                        android:textSize="18sp"
+                                        android:fontFamily="serif"/>
+                                    <View
+                                        android:id="@+id/vSkinHex"
+                                        android:layout_width="16dp"
+                                        android:layout_height="16dp"
+                                        android:layout_marginStart="8dp"
+                                        android:background="@drawable/bg_circle_outline"
+                                        android:backgroundTint="#F2D6C1"/>
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="match_parent"
+                                android:background="@color/tirtir_gray_light"
+                                android:layout_marginHorizontal="12dp"/>
+
+                            <!-- Skin Type Col -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="SKIN TYPE"
+                                    android:textSize="10sp"
+                                    android:textColor="@color/tirtir_text_secondary"
+                                    android:textStyle="bold"
+                                    android:letterSpacing="0.1"/>
+
+                                <com.google.android.material.chip.ChipGroup
+                                    android:id="@+id/cgSkinTypes"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    app:chipSpacingVertical="4dp"
+                                    app:chipSpacingHorizontal="4dp">
+                                    <!-- Chips will be added dynamically -->
+                                </com.google.android.material.chip.ChipGroup>
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Technical Analysis -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="@color/tirtir_gray_light">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="TECHNICAL ANALYSIS"
+                            android:textSize="10sp"
+                            android:textColor="@color/tirtir_text_secondary"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.15"
+                            android:paddingBottom="8dp"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/tirtir_gray_light"
+                            android:layout_marginBottom="16dp"/>
+
+                        <GridLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:columnCount="3"
+                            android:rowCount="2"
+                            android:alignmentMode="alignBounds">
+
+                            <!-- Tone -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_columnWeight="1"
+                                android:orientation="vertical"
+                                android:layout_marginBottom="16dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="TONE"
+                                    android:textSize="9sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/tirtir_text_secondary"/>
+                                <TextView
+                                    android:id="@+id/tvTechTone"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Fair-Light"
+                                    android:textSize="13sp"
+                                    android:textColor="@color/tirtir_text_primary"
+                                    android:textStyle="bold"/>
+                            </LinearLayout>
+
+                            <!-- Undertone -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_columnWeight="1"
+                                android:orientation="vertical"
+                                android:layout_marginBottom="16dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="UNDERTONE"
+                                    android:textSize="9sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/tirtir_text_secondary"/>
+                                <TextView
+                                    android:id="@+id/tvTechUndertone"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Neutral"
+                                    android:textSize="13sp"
+                                    android:textColor="@color/tirtir_text_primary"
+                                    android:textStyle="bold"/>
+                            </LinearLayout>
+
+                            <!-- ITA -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_columnWeight="1"
+                                android:orientation="vertical"
+                                android:layout_marginBottom="16dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="ITA CATEGORY"
+                                    android:textSize="9sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/tirtir_text_secondary"/>
+                                <TextView
+                                    android:id="@+id/tvTechITA"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Light"
+                                    android:textSize="13sp"
+                                    android:textColor="@color/tirtir_text_primary"
+                                    android:textStyle="bold"/>
+                            </LinearLayout>
+
+                            <!-- Texture -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_columnWeight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="TEXTURE"
+                                    android:textSize="9sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/tirtir_text_secondary"/>
+                                <TextView
+                                    android:id="@+id/tvTechTexture"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Smooth"
+                                    android:textSize="13sp"
+                                    android:textColor="@color/tirtir_text_primary"
+                                    android:textStyle="bold"/>
+                            </LinearLayout>
+
+                            <!-- Pores -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_columnWeight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="PORES"
+                                    android:textSize="9sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/tirtir_text_secondary"/>
+                                <TextView
+                                    android:id="@+id/tvTechPores"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Small"
+                                    android:textSize="13sp"
+                                    android:textColor="@color/tirtir_text_primary"
+                                    android:textStyle="bold"/>
+                            </LinearLayout>
+
+                            <!-- Hydration -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_columnWeight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="HYDRATION"
+                                    android:textSize="9sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/tirtir_text_secondary"/>
+                                <TextView
+                                    android:id="@+id/tvTechHydration"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Moderate"
+                                    android:textSize="13sp"
+                                    android:textColor="@color/tirtir_text_primary"
+                                    android:textStyle="bold"/>
+                            </LinearLayout>
+                        </GridLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- AI Insights -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AI SKIN INSIGHTS"
+                    android:textSize="14sp"
+                    android:textColor="@color/tirtir_text_secondary"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginStart="4dp"/>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#F3F3F4"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#1A610000">
+
+                    <LinearLayout
+                        android:id="@+id/llInsightsContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+                        <!-- Items will be populated dynamically -->
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

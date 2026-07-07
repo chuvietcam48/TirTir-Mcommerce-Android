@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { protect, authorize } = require('../middleware/auth');
+const { protect, restrictTo } = require('../middleware/authMiddleware');
 const {
     updatePreferences,
     changePassword,
@@ -11,7 +11,7 @@ const {
 
 // All settings routes require admin privileges
 router.use(protect);
-router.use(authorize('admin'));
+router.use(restrictTo('admin'));
 
 router.put('/preferences', updatePreferences);
 router.put('/change-password', changePassword);

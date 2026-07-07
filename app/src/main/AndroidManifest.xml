@@ -216,6 +216,10 @@
 
 
         <activity
+            android:name=".ui.activities.SkinScanHistoryActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.activities.BarcodeScanActivity"
             android:exported="false" />
 

@@ -324,6 +324,21 @@
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal" />
                         </HorizontalScrollView>
+
+                        <!-- AR Try On: only visible when shade product -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnARTryOn"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="16dp"
+                            android:text="✨ AR Try On"
+                            android:textColor="@color/tirtir_red_primary"
+                            android:textSize="13sp"
+                            android:visibility="gone"
+                            app:cornerRadius="20dp"
+                            app:strokeColor="@color/tirtir_red_primary"
+                            app:strokeWidth="1dp" />
                     </LinearLayout>
 
                     <!-- Key Ingredients -->

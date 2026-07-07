@@ -28,6 +28,8 @@ const productSchema = new mongoose.Schema(
     Gallery_Images: [{ type: String }],
     slug: { type: String },
     shade_color_hex: { type: String },
+    Rating_Average: { type: Number, default: 0 },
+    Rating_Count: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

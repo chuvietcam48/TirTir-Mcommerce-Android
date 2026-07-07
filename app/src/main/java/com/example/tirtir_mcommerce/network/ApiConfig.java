@@ -9,7 +9,7 @@ import com.example.tirtir_mcommerce.BuildConfig;
  */
 public final class ApiConfig {
     public static final String BASE_URL = normalizeBaseUrl(BuildConfig.API_BASE_URL);
-    public static final String CHAT_URL = BASE_URL + "api/v1/chat";
+    public static final String CHAT_URL = "http://10.0.2.2:5000/api/v1/chat";
 
     private static final String[] LOCAL_BACKEND_PREFIXES = {
             "http://localhost:5001/",

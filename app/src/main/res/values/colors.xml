@@ -35,6 +35,7 @@
     <color name="tirtir_outline_variant">#E5E5E5</color>
     <color name="tirtir_surface_container">#F8F8F8</color>
     <color name="tirtir_surface_variant">#F2F2F2</color>
+    <color name="tirtir_gray_light">#E0E0E0</color>
     <color name="tirtir_red">#8B0000</color>
 
     <!-- GRAY SCALE (borders, dividers, secondary text) -->

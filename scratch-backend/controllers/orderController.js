@@ -24,7 +24,7 @@ exports.createOrder = async (req, res) => {
   // Idempotency check (simple implementation)
   const existingOrder = await Order.findOne({ idempotencyKey, userId: req.user.id });
   if (existingOrder && idempotencyKey) {
-     return res.status(200).json({ success: true, message: 'Đơn hàng đã được tạo trước đó.', data: existingOrder });
+    return res.status(200).json({ success: true, message: 'Đơn hàng đã được tạo trước đó.', data: existingOrder });
   }
 
   // Verify Quote
@@ -32,14 +32,14 @@ exports.createOrder = async (req, res) => {
   if (quoteId !== 'manual_quote') {
     const ShippingQuoteRepository = require('../shipping/ShippingQuoteRepository');
     const quoteData = ShippingQuoteRepository.get(quoteId);
-    
+
     if (!quoteData || quoteData.userId !== req.user.id) {
-       return res.status(409).json({ success: false, message: 'Báo giá vận chuyển đã hết hạn hoặc không hợp lệ. Vui lòng lấy lại phí ship.' });
+      return res.status(409).json({ success: false, message: 'Báo giá vận chuyển đã hết hạn hoặc không hợp lệ. Vui lòng lấy lại phí ship.' });
     }
-    
+
     const selectedQuote = quoteData.quotes.find(q => String(q.serviceId) === String(serviceId));
     if (!selectedQuote) {
-       return res.status(400).json({ success: false, message: 'Dịch vụ vận chuyển không khớp với báo giá.' });
+      return res.status(400).json({ success: false, message: 'Dịch vụ vận chuyển không khớp với báo giá.' });
     }
     shippingFee = selectedQuote.fee;
   }
@@ -224,14 +224,14 @@ exports.updateAdminOrderStatus = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
     order.status = status;
-    
+
     if (!order.history) order.history = [];
     order.history.push({
       status: status,
       timestamp: new Date(),
       note: req.body.note || 'Status updated by admin'
     });
-    
+
     await order.save();
 
     // Sync to Firestore
@@ -282,7 +282,7 @@ exports.updateShippingDetails = async (req, res) => {
     const { trackingNumber, carrier, estimatedDeliveryDate } = req.body;
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
-    
+
     order.shippingDetails = {
       trackingNumber: trackingNumber || order.shippingDetails?.trackingNumber,
       carrier: carrier || order.shippingDetails?.carrier,
@@ -300,10 +300,10 @@ exports.cancelOrderAdmin = async (req, res) => {
   try {
     const { cancellationReason } = req.body;
     if (!cancellationReason) return res.status(400).json({ success: false, message: 'Cancellation reason is required' });
-    
+
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
-    
+
     order.status = 'Cancelled';
     order.cancellationReason = cancellationReason;
     if (!order.history) order.history = [];
@@ -312,16 +312,16 @@ exports.cancelOrderAdmin = async (req, res) => {
       timestamp: new Date(),
       note: `Cancelled by admin. Reason: ${cancellationReason}`
     });
-    
+
     await order.save();
-    
+
     // Sync to Firestore
     try {
       const db = admin.firestore();
       const orderDocRef = db.collection('users').doc(String(order.userId)).collection('orders').doc(String(order._id));
       await orderDocRef.set({ status: 'Cancelled', updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
     } catch (err) { console.error('Error syncing order status update to Firestore:', err); }
-    
+
     res.status(200).json({ success: true, data: order });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error' });
@@ -333,7 +333,7 @@ exports.exportOrdersCsv = async (req, res) => {
   try {
     const orders = await Order.find({}).populate('userId', 'email').sort({ createdAt: -1 });
     let csv = 'Order ID,Date,User Email,Total Price,Payment Method,Status,Tracking Number,Carrier\n';
-    
+
     orders.forEach(order => {
       const id = order._id;
       const date = order.createdAt ? order.createdAt.toISOString() : '';
@@ -343,10 +343,10 @@ exports.exportOrdersCsv = async (req, res) => {
       const status = order.status;
       const tracking = (order.shippingDetails && order.shippingDetails.trackingNumber) ? order.shippingDetails.trackingNumber : '';
       const carrier = (order.shippingDetails && order.shippingDetails.carrier) ? order.shippingDetails.carrier : '';
-      
+
       csv += `${id},${date},${email},${total},${pm},${status},${tracking},${carrier}\n`;
     });
-    
+
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename="tirtir_orders_export.csv"');
     res.status(200).send(csv);
@@ -355,63 +355,15 @@ exports.exportOrdersCsv = async (req, res) => {
   }
 };
 
-// GET /api/v1/admin/orders/:id
-exports.getAdminOrderDetails = async (req, res) => {
+// GET /api/v1/admin/orders
+exports.getAdminOrders = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id)
+    const orders = await Order.find({})
       .populate('userId', 'email firstName lastName')
-      .populate('items.product', 'Name Category');
-    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
-    res.status(200).json({ success: true, data: order });
+      .sort({ createdAt: -1 });
+    res.status(200).json({ success: true, data: orders });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
-// PATCH /api/v1/admin/orders/:id/notes
-exports.updateAdminNotes = async (req, res) => {
-  try {
-    const { adminNotes } = req.body;
-    const order = await Order.findByIdAndUpdate(req.params.id, { adminNotes }, { new: true });
-    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
-    res.status(200).json({ success: true, data: order });
-  } catch (err) {
-    res.status(500).json({ success: false, message: 'Server error' });
-  }
-};
-
-// PATCH /api/v1/admin/orders/:id/shipping
-exports.updateShippingDetails = async (req, res) => {
-  try {
-    const { carrier, trackingNumber, estimatedDeliveryDate, status } = req.body;
-    const update = {};
-    if (carrier !== undefined) update['shippingDetails.carrier'] = carrier;
-    if (trackingNumber !== undefined) update['shippingDetails.trackingNumber'] = trackingNumber;
-    if (estimatedDeliveryDate !== undefined) update['shippingDetails.estimatedDeliveryDate'] = estimatedDeliveryDate;
-    if (status !== undefined) update.status = status;
-    
-    const order = await Order.findByIdAndUpdate(req.params.id, { $set: update }, { new: true });
-    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
-    res.status(200).json({ success: true, data: order });
-  } catch (err) {
-    res.status(500).json({ success: false, message: 'Server error' });
-  }
-};
-
-// POST /api/v1/admin/orders/:id/cancel
-exports.cancelOrderAdmin = async (req, res) => {
-  try {
-    const { cancellationReason } = req.body;
-    const order = await Order.findById(req.params.id);
-    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
-    
-    order.status = 'Cancelled';
-    order.cancellationReason = cancellationReason || 'No reason provided';
-    order.adminNotes = (order.adminNotes || '') + '\n[Cancelled by Admin]';
-    await order.save();
-    
-    res.status(200).json({ success: true, data: order });
-  } catch (err) {
-    res.status(500).json({ success: false, message: 'Server error' });
-  }
-};

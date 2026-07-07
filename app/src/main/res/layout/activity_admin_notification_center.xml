@@ -57,7 +57,7 @@
                     android:layout_height="36dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:padding="6dp"
-                    android:src="@drawable/ic_settings"
+                    android:src="@drawable/ic_more_vert"
                     app:tint="#5f5e5e"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -92,7 +92,7 @@
                 android:textSize="12sp"
                 app:backgroundTint="#ffdad4"
                 app:cornerRadius="24dp"
-                app:icon="@drawable/ic_done_all"
+                app:icon="@drawable/ic_star_filled"
                 app:iconSize="18dp"
                 app:iconTint="#610000" />
         </LinearLayout>
