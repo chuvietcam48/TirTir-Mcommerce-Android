@@ -496,11 +496,15 @@
             android:layout_height="56dp"
             android:layout_marginEnd="12dp"
             android:layout_weight="1"
+            android:maxLines="1"
+            android:paddingHorizontal="8dp"
             android:text="Add to Cart"
             android:textColor="#2B2D2D"
-            android:textSize="14sp"
+            android:textSize="13sp"
             app:cornerRadius="12dp"
             app:icon="@drawable/ic_cart"
+            app:iconPadding="6dp"
+            app:iconSize="18dp"
             app:iconTint="#2B2D2D"
             app:strokeColor="#2B2D2D" />
 

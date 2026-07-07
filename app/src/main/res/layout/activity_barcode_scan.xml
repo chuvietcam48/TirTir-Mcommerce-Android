@@ -22,7 +22,7 @@
         android:layout_height="48dp"
         android:layout_margin="12dp"
         android:background="#66000000"
-        android:src="@android:drawable/ic_menu_revert"
+        android:src="@drawable/ic_arrow_back"
         android:contentDescription="Back"
         android:padding="8dp"
         android:tint="#FFFFFF"

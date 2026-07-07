@@ -7,13 +7,12 @@
     android:orientation="horizontal"
     android:paddingVertical="6dp">
 
-    <de.hdodenhof.circleimageview.CircleImageView
+    <ImageView
         android:id="@+id/ivBotAvatar"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
-        android:src="@drawable/ic_tirtir_brand_circle"
-        app:civ_circle_background_color="#8B0000"
-        app:civ_border_width="0dp" />
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/ic_bot_avatar_premium"
+        android:contentDescription="TIRTIR Beauty Advisor" />
 
     <LinearLayout
         android:layout_width="wrap_content"

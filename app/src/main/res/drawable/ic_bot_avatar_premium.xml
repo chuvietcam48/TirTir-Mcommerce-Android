@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TIRTIR Beauty Advisor avatar: white face, burgundy ring, refined T mark + sparkle -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Outer burgundy ring -->
+    <path
+        android:fillColor="#7A1024"
+        android:pathData="M0,24 a24,24 0 1,0 48,0 a24,24 0 1,0 -48,0" />
+
+    <!-- Soft inner ring accent -->
+    <path
+        android:fillColor="#A64B5C"
+        android:pathData="M2.5,24 a21.5,21.5 0 1,0 43,0 a21.5,21.5 0 1,0 -43,0" />
+
+    <!-- White face -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M4,24 a20,20 0 1,0 40,0 a20,20 0 1,0 -40,0" />
+
+    <!-- Refined serif T mark -->
+    <path
+        android:fillColor="#7A1024"
+        android:pathData="M14.5,15.5 h19 v3.6 c-1.2,-1 -2.4,-1.2 -3.9,-1.2 h-2.7 v14.2 c0,1.2 0.35,1.8 1.6,2.1 v0.8 h-9 v-0.8 c1.25,-0.3 1.6,-0.9 1.6,-2.1 v-14.2 h-2.7 c-1.5,0 -2.7,0.2 -3.9,1.2 z" />
+
+    <!-- Sparkle motif (top-right) -->
+    <path
+        android:fillColor="#C4899A"
+        android:pathData="M35.4,10.2 l1.05,2.35 2.35,1.05 -2.35,1.05 -1.05,2.35 -1.05,-2.35 -2.35,-1.05 2.35,-1.05 z" />
+
+    <!-- Tiny secondary sparkle -->
+    <path
+        android:fillColor="#DBB3BD"
+        android:pathData="M31.6,8.4 l0.55,1.25 1.25,0.55 -1.25,0.55 -0.55,1.25 -0.55,-1.25 -1.25,-0.55 1.25,-0.55 z" />
+</vector>

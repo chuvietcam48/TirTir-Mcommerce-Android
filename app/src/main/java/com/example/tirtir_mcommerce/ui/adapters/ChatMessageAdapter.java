@@ -56,6 +56,18 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
+    /** Structured support-menu row: icon + title + description + chevron. */
+    public static class MenuOption {
+        public final String emoji;
+        public final String title;
+        public final String description;
+        public MenuOption(String emoji, String title, String description) {
+            this.emoji = emoji;
+            this.title = title;
+            this.description = description;
+        }
+    }
+
     public static class ChatMessage {
         public final boolean fromUser;
         public final String text;
@@ -65,6 +77,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         public final boolean isOptions;
         public final List<ChatAction> actions;
         public final List<String> options;
+        public final boolean isMenu;
+        public final String menuHeader;
+        public final List<MenuOption> menuOptions;
 
         /** Normal user/bot message (no OOD actions). */
         public ChatMessage(boolean fromUser, String text, String timestamp,
@@ -84,6 +99,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.isOptions = false;
             this.actions = actions != null ? actions : new ArrayList<>();
             this.options = new ArrayList<>();
+            this.isMenu = false;
+            this.menuHeader = "";
+            this.menuOptions = new ArrayList<>();
         }
 
         /** System divider note (centered text). */
@@ -96,6 +114,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.isOptions = false;
             this.actions = new ArrayList<>();
             this.options = new ArrayList<>();
+            this.isMenu = false;
+            this.menuHeader = "";
+            this.menuOptions = new ArrayList<>();
         }
 
         /** Mode/guided options selection message. */
@@ -108,6 +129,24 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.isOptions = true;
             this.actions = new ArrayList<>();
             this.options = options != null ? new ArrayList<>(options) : new ArrayList<>();
+            this.isMenu = false;
+            this.menuHeader = "";
+            this.menuOptions = new ArrayList<>();
+        }
+
+        /** Structured support menu message. */
+        private ChatMessage(String header, List<MenuOption> menuOptions) {
+            this.fromUser = false;
+            this.text = "";
+            this.timestamp = "";
+            this.recommendations = new ArrayList<>();
+            this.isSystem = false;
+            this.isOptions = false;
+            this.actions = new ArrayList<>();
+            this.options = new ArrayList<>();
+            this.isMenu = true;
+            this.menuHeader = header != null ? header : "";
+            this.menuOptions = menuOptions != null ? new ArrayList<>(menuOptions) : new ArrayList<>();
         }
 
         public static ChatMessage system(String text) {
@@ -117,6 +156,10 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         public static ChatMessage options(List<String> opts) {
             return new ChatMessage(opts);
         }
+
+        public static ChatMessage menu(String header, List<MenuOption> items) {
+            return new ChatMessage(header, items);
+        }
     }
 
     // ── View type constants ───────────────────────────────────────────────────
@@ -125,6 +168,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private static final int TYPE_USER    = 1;
     private static final int TYPE_BOT     = 2;
     private static final int TYPE_OPTIONS = 3;
+    private static final int TYPE_MENU    = 4;
 
     // ── Adapter state ─────────────────────────────────────────────────────────
 
@@ -189,6 +233,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public int getItemViewType(int position) {
         ChatMessage m = messages.get(position);
         if (m.isSystem)  return TYPE_SYSTEM;
+        if (m.isMenu)    return TYPE_MENU;
         if (m.isOptions) return TYPE_OPTIONS;
         if (m.fromUser)  return TYPE_USER;
         return TYPE_BOT;
@@ -205,6 +250,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 return new SystemViewHolder(inf.inflate(R.layout.item_bubble_system, parent, false));
             case TYPE_OPTIONS:
                 return new OptionsViewHolder(inf.inflate(R.layout.item_options_message, parent, false));
+            case TYPE_MENU:
+                return new MenuViewHolder(inf.inflate(R.layout.item_menu_message, parent, false));
             default:
                 return new BotViewHolder(inf.inflate(R.layout.item_bubble_bot, parent, false));
         }
@@ -213,7 +260,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ChatMessage message = messages.get(position);
-        if      (holder instanceof OptionsViewHolder) ((OptionsViewHolder) holder).bind(message);
+        if      (holder instanceof MenuViewHolder)    ((MenuViewHolder) holder).bind(message);
+        else if (holder instanceof OptionsViewHolder) ((OptionsViewHolder) holder).bind(message);
         else if (holder instanceof UserViewHolder)    ((UserViewHolder) holder).bind(message);
         else if (holder instanceof SystemViewHolder)  ((SystemViewHolder) holder).bind(message);
         else                                           ((BotViewHolder) holder).bind(message);
@@ -297,6 +345,119 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         private float dpToPx(float dp) {
             return dp * itemView.getContext().getResources().getDisplayMetrics().density;
+        }
+    }
+
+    /** Shopee/TikTok-style structured support menu: card with icon+title+description rows. */
+    class MenuViewHolder extends RecyclerView.ViewHolder {
+        private final TextView tvMenuHeader;
+        private final LinearLayout llMenuContainer;
+
+        MenuViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvMenuHeader    = itemView.findViewById(R.id.tvMenuHeader);
+            llMenuContainer = itemView.findViewById(R.id.llMenuContainer);
+        }
+
+        void bind(ChatMessage message) {
+            if (message.menuHeader.isEmpty()) {
+                tvMenuHeader.setVisibility(View.GONE);
+            } else {
+                tvMenuHeader.setVisibility(View.VISIBLE);
+                tvMenuHeader.setText(message.menuHeader);
+            }
+
+            // Card background: white, rounded, soft burgundy-tinted stroke
+            GradientDrawable card = new GradientDrawable();
+            card.setShape(GradientDrawable.RECTANGLE);
+            card.setCornerRadius(dp(16));
+            card.setColor(0xFFFFFFFF);
+            card.setStroke((int) dp(1), 0xFFEBDCDF);
+            llMenuContainer.setBackground(card);
+            llMenuContainer.setElevation(dp(1));
+            llMenuContainer.removeAllViews();
+
+            android.content.Context ctx = itemView.getContext();
+            for (int i = 0; i < message.menuOptions.size(); i++) {
+                MenuOption item = message.menuOptions.get(i);
+
+                LinearLayout row = new LinearLayout(ctx);
+                row.setOrientation(LinearLayout.HORIZONTAL);
+                row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                row.setPadding((int) dp(14), (int) dp(12), (int) dp(12), (int) dp(12));
+                android.util.TypedValue tv = new android.util.TypedValue();
+                ctx.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, tv, true);
+                row.setForeground(ContextCompat.getDrawable(ctx, tv.resourceId));
+
+                // Leading icon
+                TextView tvIcon = new TextView(ctx);
+                tvIcon.setText(item.emoji);
+                tvIcon.setTextSize(17f);
+                LinearLayout.LayoutParams iconLp = new LinearLayout.LayoutParams(
+                        (int) dp(30), ViewGroup.LayoutParams.WRAP_CONTENT);
+                tvIcon.setLayoutParams(iconLp);
+                row.addView(tvIcon);
+
+                // Title + description
+                LinearLayout colText = new LinearLayout(ctx);
+                colText.setOrientation(LinearLayout.VERTICAL);
+                LinearLayout.LayoutParams textLp = new LinearLayout.LayoutParams(
+                        0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+                textLp.setMarginStart((int) dp(4));
+                colText.setLayoutParams(textLp);
+
+                TextView tvTitle = new TextView(ctx);
+                tvTitle.setText(item.title);
+                tvTitle.setTextColor(0xFF2B2D2D);
+                tvTitle.setTextSize(14.5f);
+                tvTitle.setTypeface(null, android.graphics.Typeface.BOLD);
+                colText.addView(tvTitle);
+
+                if (item.description != null && !item.description.isEmpty()) {
+                    TextView tvDesc = new TextView(ctx);
+                    tvDesc.setText(item.description);
+                    tvDesc.setTextColor(0xFF9B8E90);
+                    tvDesc.setTextSize(12f);
+                    LinearLayout.LayoutParams descLp = new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    descLp.topMargin = (int) dp(1.5f);
+                    tvDesc.setLayoutParams(descLp);
+                    colText.addView(tvDesc);
+                }
+                row.addView(colText);
+
+                // Trailing chevron
+                TextView tvChevron = new TextView(ctx);
+                tvChevron.setText("›");
+                tvChevron.setTextColor(0xFFC4B2B6);
+                tvChevron.setTextSize(20f);
+                tvChevron.setPadding((int) dp(6), 0, 0, 0);
+                row.addView(tvChevron);
+
+                final String title = item.title;
+                row.setOnClickListener(v -> {
+                    int pos = getAdapterPosition();
+                    if (pos != RecyclerView.NO_POSITION && optionClickListener != null) {
+                        optionClickListener.onOptionClick(pos, title);
+                    }
+                });
+                llMenuContainer.addView(row);
+
+                // Subtle divider between rows
+                if (i < message.menuOptions.size() - 1) {
+                    View divider = new View(ctx);
+                    LinearLayout.LayoutParams dLp = new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT, (int) dp(1));
+                    dLp.setMarginStart((int) dp(48));
+                    divider.setLayoutParams(dLp);
+                    divider.setBackgroundColor(0xFFF3EAEC);
+                    llMenuContainer.addView(divider);
+                }
+            }
+        }
+
+        private float dp(float v) {
+            return v * itemView.getContext().getResources().getDisplayMetrics().density;
         }
     }
 

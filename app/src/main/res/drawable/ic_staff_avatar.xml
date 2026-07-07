@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TIRTIR human staff avatar: support person with headset on soft blush circle -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Soft blush face with burgundy ring -->
+    <path
+        android:fillColor="#7A1024"
+        android:pathData="M0,24 a24,24 0 1,0 48,0 a24,24 0 1,0 -48,0" />
+    <path
+        android:fillColor="#F7E9EC"
+        android:pathData="M2.5,24 a21.5,21.5 0 1,0 43,0 a21.5,21.5 0 1,0 -43,0" />
+
+    <!-- Head -->
+    <path
+        android:fillColor="#7A1024"
+        android:pathData="M18.5,20 a5.5,5.5 0 1,0 11,0 a5.5,5.5 0 1,0 -11,0" />
+
+    <!-- Shoulders -->
+    <path
+        android:fillColor="#7A1024"
+        android:pathData="M24,27.5 c-6.2,0 -10.5,3.6 -10.5,8.2 v0.8 h21 v-0.8 c0,-4.6 -4.3,-8.2 -10.5,-8.2 z" />
+
+    <!-- Headset band -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#A64B5C"
+        android:strokeWidth="1.8"
+        android:pathData="M16.2,20.5 v-1 a7.8,7.8 0 0,1 15.6,0 v1" />
+
+    <!-- Headset earpieces -->
+    <path
+        android:fillColor="#A64B5C"
+        android:pathData="M15,19.5 h2.4 v4.2 h-2.4 a1.2,1.2 0 0,1 -1.2,-1.2 v-1.8 a1.2,1.2 0 0,1 1.2,-1.2 z" />
+    <path
+        android:fillColor="#A64B5C"
+        android:pathData="M33,19.5 h-2.4 v4.2 h2.4 a1.2,1.2 0 0,0 1.2,-1.2 v-1.8 a1.2,1.2 0 0,0 -1.2,-1.2 z" />
+
+    <!-- Mic boom -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#A64B5C"
+        android:strokeWidth="1.6"
+        android:strokeLineCap="round"
+        android:pathData="M31.8,23.7 c0,2.6 -2.2,4.3 -4.8,4.5" />
+    <path
+        android:fillColor="#A64B5C"
+        android:pathData="M25.6,27 a1.4,1.4 0 1,0 2.8,0 a1.4,1.4 0 1,0 -2.8,0" />
+</vector>

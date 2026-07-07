@@ -315,7 +315,21 @@ public class ProductDetailActivity extends AppCompatActivity {
             });
         }
 
-        // Ask AI access → CHAT tab in bottom navigation
+        // Ask AI Before Buying → open Chat with this product's context + DB info
+        View btnAskAI = findViewById(R.id.btnAskAIBeforeBuying);
+        if (btnAskAI != null) {
+            btnAskAI.setOnClickListener(v -> {
+                Intent chatIntent = new Intent(this, ChatActivity.class);
+                chatIntent.putExtra("PRODUCT_ID", productId);
+                chatIntent.putExtra("PRODUCT_NAME", productName);
+                chatIntent.putExtra("PRODUCT_INGREDIENTS", productIngredients);
+                chatIntent.putExtra("PRODUCT_SKIN_TYPES", getIntent().getStringExtra("PRODUCT_SKIN_TYPES"));
+                chatIntent.putExtra("PRODUCT_HOW_TO_USE", productHowToUse);
+                chatIntent.putExtra("PRODUCT_DESCRIPTION", firstNonEmpty(productFullDescription,
+                        getIntent().getStringExtra("PRODUCT_DESCRIPTION"), ""));
+                startActivity(chatIntent);
+            });
+        }
     }
 
     private boolean addCurrentProductToCart() {
