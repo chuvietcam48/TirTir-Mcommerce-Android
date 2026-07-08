@@ -16,6 +16,8 @@ import com.example.tirtir_mcommerce.network.RetrofitClient;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
 
@@ -125,21 +127,12 @@ public class OrderRepository {
                     for (java.util.Map<String, Object> map : remoteMaps) {
                         remote.add(mapToOrderResponse(map));
                     }
-                    for (OrderResponse r : remote) {
-                        boolean exists = false;
-                        for (OrderResponse l : merged) {
-                            if (l.getId() != null && l.getId().equals(r.getId())) {
-                                exists = true;
-                                break;
-                            }
-                        }
-                        if (!exists) {
-                            merged.add(r);
-                        }
-                    }
+                    mergeUnique(merged, remote);
+                    sortNewestFirst(merged);
                     onSuccess.accept(merged);
                 } else {
                     if (!merged.isEmpty()) {
+                        sortNewestFirst(merged);
                         onSuccess.accept(merged);
                     } else {
                         onError.accept("Unable to load order history.");
@@ -151,6 +144,7 @@ public class OrderRepository {
             public void onFailure(Call<ApiResponse<List<java.util.Map<String, Object>>>> call, Throwable t) {
                 List<OrderResponse> local = new SharedPrefsManager(context).getLocalOrders();
                 if (!local.isEmpty()) {
+                    sortNewestFirst(local);
                     onSuccess.accept(local);
                 } else {
                     onError.accept("Connection error. Please try again.");
@@ -161,23 +155,58 @@ public class OrderRepository {
 
     private OrderResponse mapToOrderResponse(java.util.Map<String, Object> map) {
         OrderResponse o = new OrderResponse();
-        o.setId(String.valueOf(map.get("_id")));
-        o.setStatus(String.valueOf(map.get("status")));
-        o.setCreatedAt(String.valueOf(map.get("createdAt")));
-        o.setPaymentMethod(String.valueOf(map.get("paymentMethod")));
-        o.setInvoiceUrl(String.valueOf(map.get("invoiceUrl")));
+        o.setId(text(map.get("_id")));
+        o.setStatus(text(map.get("status")));
+        o.setCreatedAt(text(map.get("createdAt")));
+        o.setPaymentMethod(text(map.get("paymentMethod")));
+        o.setInvoiceUrl(text(map.get("invoiceUrl")));
         
         Object total = map.get("totalPrice");
         if (total == null) total = map.get("totalAmount");
-        if (total instanceof Number) o.setTotalPrice(((Number) total).doubleValue());
-        else if (total instanceof String) {
-            try { o.setTotalPrice(Double.parseDouble((String) total)); } catch (Exception ignored) {}
-        }
+        o.setTotalPrice(number(total));
+        o.setSubtotal(number(map.get("subtotal")));
+        o.setShippingFee(number(map.get("shippingFee")));
+        o.setTax(number(map.get("tax")));
+        o.setDiscount(number(map.get("discount")));
         
         Object paid = map.get("isPaid");
         if (paid instanceof Boolean) o.setPaid((Boolean) paid);
         
         return o;
+    }
+
+    private void mergeUnique(List<OrderResponse> target, List<OrderResponse> incoming) {
+        Set<String> ids = new HashSet<>();
+        for (OrderResponse order : target) {
+            if (order.getId() != null) ids.add(order.getId());
+        }
+        for (OrderResponse order : incoming) {
+            if (order.getId() == null || ids.add(order.getId())) {
+                target.add(order);
+            }
+        }
+    }
+
+    private void sortNewestFirst(List<OrderResponse> orders) {
+        orders.sort((a, b) -> safeText(b.getCreatedAt()).compareTo(safeText(a.getCreatedAt())));
+    }
+
+    private String text(Object value) {
+        if (value == null) return "";
+        String text = String.valueOf(value);
+        return "null".equalsIgnoreCase(text) ? "" : text;
+    }
+
+    private String safeText(String value) {
+        return value == null ? "" : value;
+    }
+
+    private double number(Object obj) {
+        if (obj instanceof Number) return ((Number) obj).doubleValue();
+        if (obj instanceof String) {
+            try { return Double.parseDouble((String) obj); } catch (Exception ignored) {}
+        }
+        return 0;
     }
 
     // ===========================

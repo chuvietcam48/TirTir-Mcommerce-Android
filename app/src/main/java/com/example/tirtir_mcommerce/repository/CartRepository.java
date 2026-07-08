@@ -246,14 +246,75 @@ public class CartRepository {
                     }
                     if (onSuccess != null) onSuccess.run();
                 } else {
-                    if (onError != null) onError.accept("HTTP " + response.code());
+                    Log.w(TAG, "Bulk cart sync failed (HTTP " + response.code() + "), falling back to item sync");
+                    syncItemsIndividually(localItems, onSuccess, onError);
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponse<List<CartItem>>> call, Throwable t) {
-                if (onError != null) onError.accept(t.getMessage());
+                Log.w(TAG, "Bulk cart sync failed, falling back to item sync: " + t.getMessage());
+                syncItemsIndividually(localItems, onSuccess, onError);
             }
         });
+    }
+
+    private void syncItemsIndividually(List<CartItem> localItems, Runnable onSuccess, Consumer<String> onError) {
+        if (localItems == null || localItems.isEmpty()) {
+            if (onSuccess != null) onSuccess.run();
+            return;
+        }
+
+        ApiService apiService = RetrofitClient.getAuthClient(context).create(ApiService.class);
+        apiService.clearCartServer().enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (!response.isSuccessful()) {
+                    if (onError != null) onError.accept("Cart reset failed (HTTP " + response.code() + ")");
+                    return;
+                }
+                addItemsOneByOne(apiService, localItems, onSuccess, onError);
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                if (onError != null) onError.accept("Cart reset failed: " + t.getMessage());
+            }
+        });
+    }
+
+    private void addItemsOneByOne(ApiService apiService, List<CartItem> localItems, Runnable onSuccess, Consumer<String> onError) {
+        AtomicInteger remaining = new AtomicInteger(localItems.size());
+        AtomicBoolean failed = new AtomicBoolean(false);
+
+        for (CartItem item : localItems) {
+            Map<String, Object> body = new HashMap<>();
+            body.put("productId", item.getProductId());
+            body.put("quantity", item.getQuantity());
+            body.put("shade", item.getShade() != null ? item.getShade() : "");
+
+            apiService.addToCartServer(body).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (!response.isSuccessful()) {
+                        if (failed.compareAndSet(false, true) && onError != null) {
+                            onError.accept("Cart item sync failed (HTTP " + response.code() + ")");
+                        }
+                        return;
+                    }
+                    dbHelper.markCartItemSynced(item.getProductId());
+                    if (remaining.decrementAndGet() == 0 && !failed.get() && onSuccess != null) {
+                        onSuccess.run();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    if (failed.compareAndSet(false, true) && onError != null) {
+                        onError.accept(t.getMessage());
+                    }
+                }
+            });
+        }
     }
 }

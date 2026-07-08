@@ -15,9 +15,12 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.example.tirtir_mcommerce.R;
+import com.example.tirtir_mcommerce.model.OrderResponse;
+import com.example.tirtir_mcommerce.model.ShippingAddress;
 import com.example.tirtir_mcommerce.network.ApiService;
 import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.example.tirtir_mcommerce.utils.PriceUtils;
+import com.example.tirtir_mcommerce.utils.SharedPrefsManager;
 
 import java.util.Locale;
 
@@ -46,6 +49,12 @@ public class OrderDetailActivity extends AppCompatActivity {
             finish();
             return;
         }
+        OrderResponse localOrder = findLocalOrder(orderId);
+        if (localOrder != null && orderId.startsWith("ORD-LOCAL-")) {
+            loading.setVisibility(View.GONE);
+            renderLocalOrder(localOrder);
+            return;
+        }
         RetrofitClient.getAuthClient(this).create(ApiService.class).getOrderById(orderId)
                 .enqueue(new Callback<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>>() {
                     @Override public void onResponse(Call<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>> call, Response<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>> response) {
@@ -53,12 +62,12 @@ public class OrderDetailActivity extends AppCompatActivity {
                         if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
                             renderMap(response.body().getData());
                         } else {
-                            showError();
+                            renderLocalOrError(orderId);
                         }
                     }
                     @Override public void onFailure(Call<com.example.tirtir_mcommerce.model.ApiResponse<java.util.Map<String, Object>>> call, Throwable t) {
                         loading.setVisibility(View.GONE);
-                        showError();
+                        renderLocalOrError(orderId);
                     }
                 });
     }
@@ -94,14 +103,16 @@ public class OrderDetailActivity extends AppCompatActivity {
         
         double total = number(order.get("totalPrice"));
         double shippingFee = number(order.get("shippingFee"));
-        double discount = number(order.get("discount")); // Assuming discount might exist later
+        double tax = number(order.get("tax"));
+        double discount = number(order.get("discount"));
         
         if (total == 0) total = number(order.get("totalAmount"));
-        
-        double subtotal = total - shippingFee + discount;
+        double subtotal = number(order.get("subtotal"));
+        if (subtotal == 0) subtotal = Math.max(0, total - shippingFee - tax + discount);
 
         ((TextView) findViewById(R.id.tvOrderDetailSubtotal)).setText(PriceUtils.formatPriceUsd(subtotal));
         ((TextView) findViewById(R.id.tvOrderDetailShipping)).setText(PriceUtils.formatPriceUsd(shippingFee));
+        ((TextView) findViewById(R.id.tvOrderDetailTax)).setText(PriceUtils.formatPriceUsd(tax));
         ((TextView) findViewById(R.id.tvOrderDetailDiscount)).setText("-" + PriceUtils.formatPriceUsd(discount));
         ((TextView) findViewById(R.id.tvOrderDetailTotal)).setText(PriceUtils.formatPriceUsd(total));
 
@@ -198,6 +209,115 @@ public class OrderDetailActivity extends AppCompatActivity {
         if ("Shipped".equalsIgnoreCase(status) || "Shipping".equalsIgnoreCase(status)) return 2;
         if ("Processing".equalsIgnoreCase(status) || "Confirmed".equalsIgnoreCase(status)) return 1;
         return 0; // Placed / Pending
+    }
+
+    private void renderLocalOrError(String orderId) {
+        OrderResponse localOrder = findLocalOrder(orderId);
+        if (localOrder != null) {
+            renderLocalOrder(localOrder);
+        } else {
+            showError();
+        }
+    }
+
+    private OrderResponse findLocalOrder(String orderId) {
+        for (OrderResponse order : new SharedPrefsManager(this).getLocalOrders()) {
+            if (order.getId() != null && order.getId().equals(orderId)) {
+                return order;
+            }
+        }
+        return null;
+    }
+
+    private void renderLocalOrder(OrderResponse order) {
+        String id = text(order.getId());
+        String shortId = id.startsWith("ORD-LOCAL-")
+                ? id.substring("ORD-LOCAL-".length())
+                : (id.length() > 10 ? id.substring(id.length() - 10).toUpperCase(Locale.ENGLISH) : id);
+        ((TextView) findViewById(R.id.tvOrderDetailCode)).setText("#TR-" + shortId);
+
+        String status = text(order.getStatus());
+        if (status.isEmpty()) status = "Confirmed";
+        ((TextView) findViewById(R.id.tvOrderDetailStatus)).setText(status);
+        ((TextView) findViewById(R.id.tvOrderDetailDate)).setText("Placed on " + formatOrderDate(order.getCreatedAt()));
+        ((TextView) findViewById(R.id.tvOrderDetailPayment)).setText(formatPayment(order.getPaymentMethod()));
+
+        ((TextView) findViewById(R.id.tvOrderDetailSubtotal)).setText(PriceUtils.formatPriceUsd(order.getSubtotal()));
+        ((TextView) findViewById(R.id.tvOrderDetailShipping)).setText(PriceUtils.formatPriceUsd(order.getShippingFee()));
+        ((TextView) findViewById(R.id.tvOrderDetailTax)).setText(PriceUtils.formatPriceUsd(order.getTax()));
+        ((TextView) findViewById(R.id.tvOrderDetailDiscount)).setText("-" + PriceUtils.formatPriceUsd(order.getDiscount()));
+        ((TextView) findViewById(R.id.tvOrderDetailTotal)).setText(PriceUtils.formatPriceUsd(order.getTotalPrice()));
+
+        ShippingAddress address = order.getShippingAddress();
+        String addressText = "Delivery address unavailable";
+        if (address != null) {
+            addressText = text(address.getFullName()) + "\n"
+                    + text(address.getPhone()) + "\n"
+                    + text(address.getAddress()) + ", " + text(address.getCity());
+        }
+        ((TextView) findViewById(R.id.tvOrderDetailAddress)).setText(addressText);
+        updateTimeline(status);
+
+        items.removeAllViews();
+        if (order.getItems() == null || order.getItems().isEmpty()) {
+            addSimpleOrderItem("TIRTIR order", "", 1, order.getSubtotal());
+            return;
+        }
+        for (OrderResponse.OrderItemResponse item : order.getItems()) {
+            addSimpleOrderItem(text(item.getName()), text(item.getShade()), item.getQuantity(), item.getPrice());
+        }
+    }
+
+    private void updateTimeline(String status) {
+        int progress = statusProgress(status);
+        ((ProgressBar) findViewById(R.id.progressOrderTimeline)).setProgress(progress);
+        int activeNode = R.drawable.bg_timeline_node_active;
+        int inactiveNode = R.drawable.bg_timeline_node_inactive;
+        ImageView[] ivs = {
+                findViewById(R.id.ivStep1), findViewById(R.id.ivStep2),
+                findViewById(R.id.ivStep3), findViewById(R.id.ivStep4)
+        };
+        TextView[] tvs = {
+                findViewById(R.id.tvStepPlaced), findViewById(R.id.tvStepProcessing),
+                findViewById(R.id.tvStepShipped), findViewById(R.id.tvStepDelivered)
+        };
+        int activeColor = getColor(R.color.tirtir_red_primary);
+        int inactiveColor = getColor(R.color.tirtir_text_secondary);
+        for (int i = 0; i < 4; i++) {
+            boolean isActive = i <= progress;
+            ivs[i].setBackgroundResource(isActive ? activeNode : inactiveNode);
+            ivs[i].setImageResource(isActive ? R.drawable.ic_check : 0);
+            tvs[i].setTextColor(isActive ? activeColor : inactiveColor);
+            tvs[i].setTypeface(null, isActive ? Typeface.BOLD : Typeface.NORMAL);
+        }
+    }
+
+    private void addSimpleOrderItem(String name, String shade, int quantity, double price) {
+        View row = LayoutInflater.from(this).inflate(R.layout.item_order_detail, items, false);
+        ((TextView) row.findViewById(R.id.tvItemName)).setText(name.isEmpty() ? "TIRTIR product" : name);
+        TextView tvVariant = row.findViewById(R.id.tvItemVariant);
+        if (shade.isEmpty()) {
+            tvVariant.setVisibility(View.GONE);
+        } else {
+            tvVariant.setText("Variant: " + shade);
+            tvVariant.setVisibility(View.VISIBLE);
+        }
+        ((TextView) row.findViewById(R.id.tvItemQty)).setText("Qty: " + Math.max(1, quantity));
+        ((TextView) row.findViewById(R.id.tvItemPrice)).setText(PriceUtils.formatPriceUsd(price));
+        items.addView(row);
+    }
+
+    private String formatPayment(String method) {
+        if (method == null || method.trim().isEmpty()) return "Pending";
+        if ("CARD".equalsIgnoreCase(method)) return "Card";
+        if ("VNPAY".equalsIgnoreCase(method)) return "VNPAY";
+        if ("MOMO".equalsIgnoreCase(method)) return "MoMo";
+        return method;
+    }
+
+    private String formatOrderDate(String value) {
+        if (value == null || value.trim().isEmpty()) return "Date unavailable";
+        return value.replace("T", " ").replace("Z", "");
     }
 
     private void showError() { Toast.makeText(this, "Unable to load order details", Toast.LENGTH_LONG).show(); }

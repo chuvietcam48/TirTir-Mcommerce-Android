@@ -33,8 +33,8 @@ android {
 
     buildTypes {
         debug {
-            // Dùng backend Local cho lúc chạy thử nghiệm (Emulator)
-            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:5000/\"")
+            // Dùng backend Render để emulator demo/login không phụ thuộc local server.
+            buildConfigField("String", "API_BASE_URL", "\"https://tirtir-project.onrender.com/\"")
         }
         release {
             // Dùng backend Render cho bản phát hành thật (APK release)

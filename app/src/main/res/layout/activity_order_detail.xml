@@ -385,6 +385,27 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Tax"
+                            android:textColor="@color/tirtir_text_secondary"
+                            android:textSize="14sp" />
+                        <TextView
+                            android:id="@+id/tvOrderDetailTax"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/tirtir_text_secondary"
+                            android:textSize="14sp"
+                            tools:text="$7.80" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
                         android:layout_marginBottom="16dp">
                         <TextView
                             android:layout_width="0dp"

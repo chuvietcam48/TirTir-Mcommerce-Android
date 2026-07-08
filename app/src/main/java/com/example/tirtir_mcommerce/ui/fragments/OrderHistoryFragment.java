@@ -36,7 +36,7 @@ public class OrderHistoryFragment extends Fragment {
     private RecyclerView rvOrderHistory;
     private LinearLayout layoutEmptyOrders;
     private ProgressBar progressOrders;
-    private TextView tvEmptyOrdersMessage;
+    private TextView tvEmptyOrdersMessage, tvOrderHistorySummary;
     private Button btnRetryOrders;
 
     private OrderRepository orderRepository;
@@ -64,6 +64,7 @@ public class OrderHistoryFragment extends Fragment {
         layoutEmptyOrders    = view.findViewById(R.id.layoutEmptyOrders);
         progressOrders       = view.findViewById(R.id.progressOrders);
         tvEmptyOrdersMessage = view.findViewById(R.id.tvEmptyOrdersMessage);
+        tvOrderHistorySummary = view.findViewById(R.id.tvOrderHistorySummary);
         btnRetryOrders       = view.findViewById(R.id.btnRetryOrders);
 
         Toolbar toolbar = view.findViewById(R.id.toolbarOrderHistory);
@@ -170,7 +171,7 @@ public class OrderHistoryFragment extends Fragment {
             if (!isAdded()) return;
             requireActivity().runOnUiThread(() -> {
                 showLoading(false);
-                btnRetryOrders.setVisibility(View.VISIBLE);
+                if (btnRetryOrders != null) btnRetryOrders.setVisibility(View.VISIBLE);
                 showEmptyState(error);
             });
         });
@@ -215,9 +216,12 @@ public class OrderHistoryFragment extends Fragment {
                 filtered.add(order);
             }
         }
-        btnRetryOrders.setVisibility(View.GONE);
+        if (btnRetryOrders != null) btnRetryOrders.setVisibility(View.GONE);
+        updateSummary(filtered.size());
         if (filtered.isEmpty()) {
-            showEmptyState("No orders match this status yet.");
+            showEmptyState("All".equals(status)
+                    ? "Your TIRTIR orders will appear here after checkout."
+                    : "No orders match this status yet.");
             return;
         }
         adapter.setOrders(filtered);
@@ -230,6 +234,22 @@ public class OrderHistoryFragment extends Fragment {
         if ("Shipping".equals(filter)) {
             return "Shipping".equalsIgnoreCase(value) || "Shipped".equalsIgnoreCase(value);
         }
+        if ("Pending".equals(filter)) {
+            return "Pending".equalsIgnoreCase(value)
+                    || "Processing".equalsIgnoreCase(value)
+                    || "Confirmed".equalsIgnoreCase(value);
+        }
         return filter.equalsIgnoreCase(value);
+    }
+
+    private void updateSummary(int count) {
+        if (tvOrderHistorySummary == null) return;
+        if (count == 0) {
+            tvOrderHistorySummary.setText("Your recent TIRTIR orders");
+        } else if (count == 1) {
+            tvOrderHistorySummary.setText("1 order in your history");
+        } else {
+            tvOrderHistorySummary.setText(count + " orders in your history");
+        }
     }
 }

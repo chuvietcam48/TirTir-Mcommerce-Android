@@ -5,204 +5,184 @@
     android:layout_height="match_parent"
     android:background="@color/tirtir_white">
 
-    <!-- Success icon — ic_check_circle (Material checkmark) -->
-    <ImageView
-        android:id="@+id/ivSuccessIcon"
-        android:layout_width="96dp"
-        android:layout_height="96dp"
-        android:layout_marginTop="80dp"
-        android:src="@android:drawable/ic_dialog_info"
-        android:contentDescription="@string/order_success_icon_desc"
-        app:tint="@color/tirtir_success"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Lottie Confetti — confetti.json in res/raw plays falling rectangles animation -->
-    <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/lottieConfetti"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:lottie_rawRes="@raw/confetti"
-        app:lottie_autoPlay="true"
-        app:lottie_loop="false"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:elevation="10dp"
-        android:importantForAccessibility="no" />
-
-    <!-- ✅ checkmark emoji fallback displayed in foreground via TextView -->
-    <TextView
-        android:id="@+id/tvSuccessCheck"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="✓"
-        android:textSize="48sp"
-        android:textColor="@color/tirtir_white"
-        android:textStyle="bold"
-        android:gravity="center"
-        app:layout_constraintTop_toTopOf="@id/ivSuccessIcon"
-        app:layout_constraintBottom_toBottomOf="@id/ivSuccessIcon"
-        app:layout_constraintStart_toStartOf="@id/ivSuccessIcon"
-        app:layout_constraintEnd_toEndOf="@id/ivSuccessIcon" />
-
-    <TextView
-        android:id="@+id/tvSuccessTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/order_success_title"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        android:textColor="@color/tirtir_text_primary"
-        app:layout_constraintTop_toBottomOf="@id/ivSuccessIcon"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <TextView
-        android:id="@+id/tvSuccessSubtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/order_success_subtitle"
-        android:textSize="15sp"
-        android:textColor="@color/tirtir_text_secondary"
-        app:layout_constraintTop_toBottomOf="@id/tvSuccessTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Order detail card -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardOrderDetail"
+    <ScrollView
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="32dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        app:strokeWidth="0dp"
-        app:cardBackgroundColor="@color/tirtir_off_white"
-        app:layout_constraintTop_toBottomOf="@id/tvSuccessSubtitle"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingHorizontal="24dp"
+            android:paddingTop="72dp"
+            android:paddingBottom="36dp">
 
-            <LinearLayout
+            <FrameLayout
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:background="@drawable/bg_order_success_badge"
+                android:contentDescription="@string/order_success_icon_desc">
+
+                <ImageView
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_check"
+                    app:tint="@color/tirtir_red_primary" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvSuccessTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:gravity="center"
+                android:text="@string/order_success_title"
+                android:textColor="@color/tirtir_text_primary"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvSuccessSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/order_success_subtitle"
+                android:textColor="@color/tirtir_text_secondary"
+                android:textSize="16sp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardOrderDetail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/order_code_label"
-                    android:textSize="14sp"
-                    android:textColor="@color/tirtir_text_secondary" />
-                <TextView
-                    android:id="@+id/tvOrderCode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/order_code_placeholder"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/tirtir_text_primary" />
-            </LinearLayout>
+                android:layout_marginTop="34dp"
+                app:cardBackgroundColor="@color/tirtir_surface_container"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/tirtir_outline_variant"
+                app:strokeWidth="1dp">
 
-            <LinearLayout
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:letterSpacing="0.08"
+                        android:text="@string/order_code_label"
+                        android:textAllCaps="true"
+                        android:textColor="@color/tirtir_text_secondary"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvOrderCode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:ellipsize="middle"
+                        android:maxLines="1"
+                        android:text="@string/order_code_placeholder"
+                        android:textColor="@color/tirtir_text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="18dp"
+                        android:background="@color/tirtir_border_gray" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/order_status_label"
+                            android:textColor="@color/tirtir_text_secondary"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tvOrderStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_order_success_status"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="6dp"
+                            android:text="@string/order_status_confirmed"
+                            android:textColor="@color/tirtir_red_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/order_total_paid_label"
+                            android:textColor="@color/tirtir_text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvOrderTotal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/order_total_placeholder"
+                            android:textColor="@color/tirtir_red_primary"
+                            android:textSize="22sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnViewOrder"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/order_status_label"
-                    android:textSize="14sp"
-                    android:textColor="@color/tirtir_text_secondary" />
-                <TextView
-                    android:id="@+id/tvOrderStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/order_status_confirmed"
-                    android:textSize="14sp"
-                    android:textColor="@color/tirtir_success"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                android:layout_height="56dp"
+                android:layout_marginTop="28dp"
+                android:text="@string/btn_view_order_history"
+                android:textAllCaps="true"
+                android:textColor="@color/tirtir_black"
+                android:textSize="14sp"
+                app:cornerRadius="10dp"
+                app:strokeColor="@color/tirtir_black"
+                app:strokeWidth="1dp" />
 
-            <View
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBackHome"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/tirtir_border_gray"
-                android:layout_marginBottom="12dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/order_total_paid_label"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/tirtir_text_primary" />
-                <TextView
-                    android:id="@+id/tvOrderTotal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/order_total_placeholder"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/tirtir_text_primary" />
-            </LinearLayout>
-
+                android:layout_height="56dp"
+                android:layout_marginTop="12dp"
+                android:text="@string/btn_back_home"
+                android:textAllCaps="true"
+                android:textColor="@color/tirtir_white"
+                android:textSize="14sp"
+                app:backgroundTint="@color/tirtir_red_primary"
+                app:cornerRadius="10dp" />
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- View Order History — outline button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnViewOrder"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="24dp"
-        android:text="@string/btn_view_order_history"
-        android:textSize="15sp"
-        android:paddingVertical="12dp"
-        app:cornerRadius="12dp"
-        app:strokeColor="@color/tirtir_black"
-        app:strokeWidth="1dp"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:textColor="@color/tirtir_black"
-        app:layout_constraintTop_toBottomOf="@id/cardOrderDetail"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Back to Home — filled brand button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnBackHome"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="12dp"
-        android:text="@string/btn_back_home"
-        android:textSize="15sp"
-        android:textColor="@color/tirtir_white"
-        android:paddingVertical="12dp"
-        app:backgroundTint="@color/tirtir_red_primary"
-        app:cornerRadius="12dp"
-        app:layout_constraintTop_toBottomOf="@id/btnViewOrder"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

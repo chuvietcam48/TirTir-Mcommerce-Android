@@ -56,19 +56,21 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         OrderResponse order = orders.get(position);
         String id = order.getId() == null ? "Pending ID" : order.getId();
-        String shortId = id.length() > 10 ? id.substring(id.length() - 10).toUpperCase(Locale.ENGLISH) : id;
-        holder.tvOrderCode.setText("Order #" + shortId);
+        holder.tvOrderCode.setText("Order #" + displayOrderId(id));
         holder.tvOrderStatus.setText(localizeStatus(order.getStatus()));
         holder.tvOrderDate.setText(formatDate(order.getCreatedAt()));
         holder.tvOrderTotal.setText(PriceUtils.formatPriceUsd(order.getTotalPrice()));
+        holder.tvOrderPayment.setText(formatPayment(order.getPaymentMethod()));
         boolean hasInvoice = order.getInvoiceUrl() != null && !order.getInvoiceUrl().trim().isEmpty();
         holder.btnDownloadPdf.setVisibility(hasInvoice ? View.VISIBLE : View.GONE);
         holder.btnDownloadPdf.setOnClickListener(v -> {
             if (listener != null) listener.onDownloadInvoice(order);
         });
-        holder.itemView.setOnClickListener(v -> {
+        View.OnClickListener openClick = v -> {
             if (openListener != null) openListener.accept(order);
-        });
+        };
+        holder.itemView.setOnClickListener(openClick);
+        holder.btnViewDetails.setOnClickListener(openClick);
     }
 
     @Override
@@ -78,6 +80,9 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
 
     private String localizeStatus(String status) {
         if (status == null) return "Processing";
+        if ("Confirmed".equalsIgnoreCase(status)) {
+            return "Confirmed";
+        }
         if ("Pending".equalsIgnoreCase(status) || "Processing".equalsIgnoreCase(status)) {
             return "Processing";
         }
@@ -88,6 +93,22 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
             return "Delivered";
         }
         return status;
+    }
+
+    private String displayOrderId(String id) {
+        if (id == null || id.trim().isEmpty()) return "Pending";
+        if (id.startsWith("ORD-LOCAL-")) {
+            return id.substring("ORD-LOCAL-".length());
+        }
+        return id.length() > 12 ? id.substring(id.length() - 12).toUpperCase(Locale.ENGLISH) : id;
+    }
+
+    private String formatPayment(String method) {
+        if (method == null || method.trim().isEmpty()) return "Pending";
+        if ("CARD".equalsIgnoreCase(method)) return "Card";
+        if ("VNPAY".equalsIgnoreCase(method)) return "VNPAY";
+        if ("MOMO".equalsIgnoreCase(method)) return "MoMo";
+        return method;
     }
 
     private String formatDate(String value) {
@@ -112,8 +133,8 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
     }
 
     static class OrderViewHolder extends RecyclerView.ViewHolder {
-        TextView tvOrderCode, tvOrderStatus, tvOrderDate, tvOrderTotal;
-        com.google.android.material.button.MaterialButton btnDownloadPdf;
+        TextView tvOrderCode, tvOrderStatus, tvOrderDate, tvOrderTotal, tvOrderPayment;
+        com.google.android.material.button.MaterialButton btnDownloadPdf, btnViewDetails;
 
         OrderViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -121,7 +142,9 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
             tvOrderStatus = itemView.findViewById(R.id.tvOrderStatus);
             tvOrderDate = itemView.findViewById(R.id.tvOrderDate);
             tvOrderTotal = itemView.findViewById(R.id.tvOrderTotal);
+            tvOrderPayment = itemView.findViewById(R.id.tvOrderPayment);
             btnDownloadPdf = itemView.findViewById(R.id.btnDownloadPDF);
+            btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
         }
     }
 }
