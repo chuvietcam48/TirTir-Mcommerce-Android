@@ -41,6 +41,8 @@ const Order = require('../models/Order');
 
 const { GoogleGenAI } = require('@google/genai');
 
+const { generateAiRoutine } = require('../services/geminiService');
+
 // POST /api/v1/ai/recommend-routine
 exports.recommendRoutine = async (req, res) => {
   try {
@@ -58,66 +60,15 @@ exports.recommendRoutine = async (req, res) => {
         return res.status(404).json({ success: false, message: 'No products available for routine generation.' });
     }
 
-    // Prepare catalog for Gemini (shrink data to save tokens)
-    const catalog = products.map(p => ({
-        id: p._id.toString(),
-        name: p.Name,
-        category: p.Category,
-        target: p.Skin_Type_Target || '',
-        concern: p.Main_Concern || '',
-        ingredients: p.Key_Ingredients || ''
-    }));
+    const wantsSunscreen = concerns && concerns.includes('sun_protection');
 
-    const prompt = `You are an expert dermatologist AI for the brand TirTir.
-A user needs a skincare routine.
-Skin Type: ${skinType || 'Unknown'}
-Concerns: ${concerns ? concerns.join(', ') : 'None specified'}
-
-Here is the catalog of available products (in JSON format):
-${JSON.stringify(catalog)}
-
-You MUST tailor the recommendations SPECIFICALLY to the user's Skin Type and Concerns!
-Do NOT just pick the most popular products. Choose the absolute BEST match for their specific skin type.
-For example:
-- If Skin Type is Oily/Acne: pick lightweight products, BHA, Niacinamide, oil-free cream.
-- If Skin Type is Dry: pick hydrating, ceramide, rich cream, hyaluronic acid.
-- If Skin Type is Sensitive: pick soothing, centella, mild products.
-
-Select exactly ONE product for each of the following 5 steps:
-1. Cleanser
-2. Toner
-3. Serum
-4. Cream
-5. Sunscreen
-
-Return a raw JSON array of 5 objects (do NOT wrap in markdown code blocks like \`\`\`json). Each object must have:
-- "step": String (the step name, e.g., "Cleanser")
-- "id": String (the exact id of the selected product from the catalog)
-- "hydrationBoost": Number (estimated hydration improvement percentage, e.g., 15)
-- "textureBoost": Number (estimated texture improvement percentage, e.g., 10)`;
-
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: {
-            temperature: 0.7,
-            topK: 40,
-        }
-    });
-
-    let jsonString = response.text;
-    if (jsonString.startsWith('```json')) {
-        jsonString = jsonString.replace(/```json\n?/, '').replace(/\n?```$/, '');
-    } else if (jsonString.startsWith('```')) {
-        jsonString = jsonString.replace(/```\n?/, '').replace(/\n?```$/, '');
-    }
-    const aiRoutine = JSON.parse(jsonString.trim());
+    // Call geminiService which handles retries and fallbacks
+    const aiRoutine = await generateAiRoutine(skinType || 'Normal', products, concerns || []);
 
     // Map AI result to product details
     const routine = [];
     for (const item of aiRoutine) {
-        const prod = products.find(p => p._id.toString() === item.id);
+        const prod = products.find(p => String(p.Product_ID) === String(item.productId) || String(p._id) === String(item.productId));
         if (prod) {
             let thumbUrl = '';
             if (Array.isArray(prod.Thumbnail_Images) && prod.Thumbnail_Images.length > 0) {
@@ -130,15 +81,40 @@ Return a raw JSON array of 5 objects (do NOT wrap in markdown code blocks like \
                     thumbUrl = prod.Thumbnail_Images;
                 }
             }
+            
+            const productData = prod.toObject ? prod.toObject() : { ...prod };
+            
+            // Explicitly set BOTH possible ID fields for Android's SerializedName
+            productData._id = String(prod._id);
+            productData.id = String(prod._id); // Just in case Android Gson expects 'id'
+            productData.Product_ID = String(prod.Product_ID || prod._id);
+            productData.productId = String(prod.Product_ID || prod._id);
+            
+            // Fix CDN URLs directly here so Android doesn't have to guess
+            const cdnBase = process.env.CDN_BASE_URL || 'https://tirtir-project.onrender.com/';
+            if (thumbUrl && !thumbUrl.startsWith('http')) {
+                // Remove leading slash if present
+                let cleanPath = thumbUrl.startsWith('/') ? thumbUrl.substring(1) : thumbUrl;
+                
+                // Automatically fix missing subfolders for products
+                if (cleanPath.startsWith('assets/images/products/')) {
+                    const afterPrefix = cleanPath.substring('assets/images/products/'.length);
+                    const segments = afterPrefix.split('/');
+                    if (segments.length === 2) {
+                        cleanPath = `assets/images/products/${segments[0]}/Main-Images/${segments[1]}`;
+                    }
+                }
+                thumbUrl = cdnBase + cleanPath;
+            }
+            productData.Thumbnail_Images = thumbUrl; // Replace raw JSON array with clean ABSOLUTE url
+
             routine.push({
                 step: item.step,
-                hydrationBoost: item.hydrationBoost,
-                textureBoost: item.textureBoost,
-                product: {
-                    ...(prod.toObject ? prod.toObject() : prod),
-                    imageUrl: thumbUrl,
-                    productId: String(prod.Product_ID || prod._id),
-                }
+                stepName: item.stepName,
+                description: item.description,
+                hydrationBoost: item.hydrationBoost || 5,
+                textureBoost: item.textureBoost || 5,
+                product: productData
             });
         }
     }

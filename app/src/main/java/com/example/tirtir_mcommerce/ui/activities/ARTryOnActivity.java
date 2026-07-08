@@ -78,6 +78,17 @@ public class ARTryOnActivity extends AppCompatActivity {
 
         findViewById(R.id.btnCloseAr).setOnClickListener(v -> finish());
         findViewById(R.id.fabArCapture).setOnClickListener(v -> takeArScreenshot());
+        
+        View btnForceDemo = findViewById(R.id.btnForceDemo);
+        if (btnForceDemo != null) {
+            btnForceDemo.setOnClickListener(v -> {
+                isDemoMode = true;
+                setupDemoMode();
+                if (arFragment != null && arFragment.getArSceneView() != null) {
+                    arFragment.getArSceneView().pause();
+                }
+            });
+        }
 
         ArrayList<String> namesExtra = getIntent().getStringArrayListExtra("SHADE_NAMES");
         ArrayList<String> hexesExtra = getIntent().getStringArrayListExtra("SHADE_HEXES");
@@ -214,11 +225,13 @@ public class ARTryOnActivity extends AppCompatActivity {
         }
     }
 
+    private boolean isDemoMode = false;
+
     private void showInstallArCoreDialog() {
         tvLoading.setVisibility(View.GONE);
         new AlertDialog.Builder(this)
                 .setTitle("AR Services Required")
-                .setMessage("This feature requires Google Play Services for AR. Would you like to install it?")
+                .setMessage("This feature requires Google Play Services for AR. Would you like to install it? (If you are on an emulator, you can use Demo Mode).")
                 .setPositiveButton("Install", (dialog, which) -> {
                     try {
                         ArCoreApk.getInstance().requestInstall(this, true);
@@ -232,7 +245,11 @@ public class ARTryOnActivity extends AppCompatActivity {
                         }
                     }
                 })
-                .setNegativeButton("Not Now", (dialog, which) -> finish())
+                .setNeutralButton("Demo Mode", (dialog, which) -> {
+                    isDemoMode = true;
+                    setupDemoMode();
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> finish())
                 .setCancelable(false)
                 .show();
     }
@@ -241,13 +258,30 @@ public class ARTryOnActivity extends AppCompatActivity {
         tvLoading.setVisibility(View.GONE);
         new AlertDialog.Builder(this)
                 .setTitle("AR Not Supported")
-                .setMessage("Your device does not support AR Try-On. If you're on an emulator, please test on a real device.")
-                .setPositiveButton("OK", (dialog, which) -> finish())
+                .setMessage("Your device does not support AR Try-On. You can proceed in Demo Mode.")
+                .setPositiveButton("Demo Mode", (dialog, which) -> {
+                    isDemoMode = true;
+                    setupDemoMode();
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> finish())
                 .setCancelable(false)
                 .show();
     }
 
+    private void setupDemoMode() {
+        tvLoading.setVisibility(View.GONE);
+        ImageView ivDemo = findViewById(R.id.ivDemoAr);
+        View vTint = findViewById(R.id.vDemoTint);
+        if (ivDemo != null) ivDemo.setVisibility(View.VISIBLE);
+        if (vTint != null) vTint.setVisibility(View.VISIBLE);
+        updateMaterialColor();
+    }
+
     private void setupAr() {
+        if (isDemoMode) {
+            setupDemoMode();
+            return;
+        }
         arFragment = new ArFrontFacingFragment();
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.arFragmentContainer, arFragment)
@@ -297,6 +331,16 @@ public class ARTryOnActivity extends AppCompatActivity {
         int g = Color.green(color);
         int b = Color.blue(color);
         int alphaColor = Color.argb(100, r, g, b); // ~0.4 alpha
+        
+        if (isDemoMode) {
+            View vTint = findViewById(R.id.vDemoTint);
+            if (vTint != null) {
+                // Apply a translucent overlay to the demo image
+                vTint.setBackgroundColor(Color.argb(150, r, g, b));
+            }
+            return;
+        }
+
         com.google.ar.sceneform.rendering.MaterialFactory.makeTransparentWithColor(this, new com.google.ar.sceneform.rendering.Color(alphaColor))
                 .thenAccept(material -> {
                     for (AugmentedFaceNode node : faceNodeMap.values()) {
@@ -311,34 +355,48 @@ public class ARTryOnActivity extends AppCompatActivity {
     }
 
     private void takeArScreenshot() {
+        if (isDemoMode) {
+            View view = findViewById(R.id.arFragmentContainer);
+            if (view == null) return;
+            Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+            android.graphics.Canvas canvas = new android.graphics.Canvas(bitmap);
+            view.draw(canvas);
+            shareScreenshot(bitmap);
+            return;
+        }
+
         if (arFragment == null || arFragment.getArSceneView() == null) return;
         ArSceneView view = arFragment.getArSceneView();
         
         Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
         PixelCopy.request(view, bitmap, copyResult -> {
             if (copyResult == PixelCopy.SUCCESS) {
-                try {
-                    File dir = getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES);
-                    if (dir != null && !dir.exists()) dir.mkdirs();
-                    File file = new File(dir, "ar_tryon_" + System.currentTimeMillis() + ".png");
-                    FileOutputStream fos = new FileOutputStream(file);
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                    fos.flush();
-                    fos.close();
-                    
-                    android.net.Uri uri = androidx.core.content.FileProvider.getUriForFile(this, "com.example.tirtir_mcommerce.fileprovider", file);
-                    android.content.Intent shareIntent = new android.content.Intent(android.content.Intent.ACTION_SEND);
-                    shareIntent.setType("image/png");
-                    shareIntent.putExtra(android.content.Intent.EXTRA_STREAM, uri);
-                    shareIntent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(android.content.Intent.createChooser(shareIntent, "Share Try-On"));
-                } catch (Exception e) {
-                    Toast.makeText(this, "Failed to save screenshot", Toast.LENGTH_SHORT).show();
-                }
+                shareScreenshot(bitmap);
             } else {
                 Toast.makeText(this, "Failed to capture AR view", Toast.LENGTH_SHORT).show();
             }
         }, new Handler(Looper.getMainLooper()));
+    }
+
+    private void shareScreenshot(Bitmap bitmap) {
+        try {
+            File dir = getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES);
+            if (dir != null && !dir.exists()) dir.mkdirs();
+            File file = new File(dir, "ar_tryon_" + System.currentTimeMillis() + ".png");
+            FileOutputStream fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.flush();
+            fos.close();
+            
+            android.net.Uri uri = androidx.core.content.FileProvider.getUriForFile(this, "com.example.tirtir_mcommerce.fileprovider", file);
+            android.content.Intent shareIntent = new android.content.Intent(android.content.Intent.ACTION_SEND);
+            shareIntent.setType("image/png");
+            shareIntent.putExtra(android.content.Intent.EXTRA_STREAM, uri);
+            shareIntent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(android.content.Intent.createChooser(shareIntent, "Share Try-On"));
+        } catch (Exception e) {
+            Toast.makeText(this, "Failed to save screenshot", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void buildColorPicker() {

@@ -35,10 +35,37 @@ exports.getProducts = async (req, res) => {
   
   // Fix CDN URLs
   const cdnBase = process.env.CDN_BASE_URL || 'https://tirtir-project.onrender.com/';
+  
+  const fixThumbUrl = (thumbStr) => {
+      if (!thumbStr) return thumbStr;
+      let url = thumbStr;
+      if (Array.isArray(thumbStr) && thumbStr.length > 0) {
+          url = thumbStr[0];
+      } else if (typeof thumbStr === 'string' && thumbStr.startsWith('[')) {
+          try {
+              const parsed = JSON.parse(thumbStr);
+              url = Array.isArray(parsed) ? (parsed[0] || '') : thumbStr;
+          } catch {
+              url = thumbStr;
+          }
+      }
+      if (url && !url.startsWith('http')) {
+          let cleanPath = url.startsWith('/') ? url.substring(1) : url;
+          // Automatically fix missing subfolders for products
+          if (cleanPath.startsWith('assets/images/products/')) {
+              const afterPrefix = cleanPath.substring('assets/images/products/'.length);
+              const segments = afterPrefix.split('/');
+              if (segments.length === 2) {
+                  cleanPath = `assets/images/products/${segments[0]}/Main-Images/${segments[1]}`;
+              }
+          }
+          url = cdnBase + cleanPath;
+      }
+      return url;
+  };
+
   products = products.map(p => {
-    if (p.Thumbnail_Images && !p.Thumbnail_Images.startsWith('http')) {
-      p.Thumbnail_Images = cdnBase + (p.Thumbnail_Images.startsWith('/') ? p.Thumbnail_Images.substring(1) : p.Thumbnail_Images);
-    }
+    p.Thumbnail_Images = fixThumbUrl(p.Thumbnail_Images);
     if (p.Description_Images && Array.isArray(p.Description_Images)) {
       p.Description_Images = p.Description_Images.map(img => img.startsWith('http') ? img : cdnBase + (img.startsWith('/') ? img.substring(1) : img));
     }
@@ -74,11 +101,38 @@ exports.getProductById = async (req, res) => {
     return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm.' });
   }
 
-  // Fix CDN URLs for single product
   const cdnBase = process.env.CDN_BASE_URL || 'https://tirtir-project.onrender.com/';
-  if (product.Thumbnail_Images && !product.Thumbnail_Images.startsWith('http')) {
-    product.Thumbnail_Images = cdnBase + (product.Thumbnail_Images.startsWith('/') ? product.Thumbnail_Images.substring(1) : product.Thumbnail_Images);
-  }
+  const fixThumbUrl = (thumbStr) => {
+      if (!thumbStr) return thumbStr;
+      let url = thumbStr;
+      if (Array.isArray(thumbStr) && thumbStr.length > 0) {
+          url = thumbStr[0];
+      } else if (typeof thumbStr === 'string' && thumbStr.startsWith('[')) {
+          try {
+              const parsed = JSON.parse(thumbStr);
+              url = Array.isArray(parsed) ? (parsed[0] || '') : thumbStr;
+          } catch {
+              url = thumbStr;
+          }
+      }
+      if (url && !url.startsWith('http')) {
+          let cleanPath = url.startsWith('/') ? url.substring(1) : url;
+          // Automatically fix missing subfolders for products
+          if (cleanPath.startsWith('assets/images/products/')) {
+              const afterPrefix = cleanPath.substring('assets/images/products/'.length);
+              const segments = afterPrefix.split('/');
+              if (segments.length === 2) {
+                  cleanPath = `assets/images/products/${segments[0]}/Main-Images/${segments[1]}`;
+              }
+          }
+          url = cdnBase + cleanPath;
+      }
+      return url;
+  };
+
+  // Fix CDN URLs for single product
+  product.Thumbnail_Images = fixThumbUrl(product.Thumbnail_Images);
+  
   if (product.Description_Images && Array.isArray(product.Description_Images)) {
     product.Description_Images = product.Description_Images.map(img => img.startsWith('http') ? img : cdnBase + (img.startsWith('/') ? img.substring(1) : img));
   }

@@ -19,12 +19,13 @@ import java.util.Set;
 public class RoutineManager {
 
     private static final String PREFS      = "tirtir_routine_v2";
-    private static final String KEY_DONE   = "quiz_done";
-    static final String KEY_SKIN_TYPE      = "skin_type";
-    static final String KEY_CONCERNS       = "concerns";
-    static final String KEY_GOALS          = "goals";
-    static final String KEY_CURRENT        = "current_routine";
-    static final String KEY_LEVEL          = "routine_level";
+    private static final String KEY_DONE       = "quiz_done";
+    private static final String KEY_AI_RESULT  = "ai_routine_json";
+    static final String KEY_SKIN_TYPE           = "skin_type";
+    static final String KEY_CONCERNS            = "concerns";
+    static final String KEY_GOALS               = "goals";
+    static final String KEY_CURRENT             = "current_routine";
+    static final String KEY_LEVEL               = "routine_level";
 
     private final SharedPreferences prefs;
 
@@ -44,6 +45,14 @@ public class RoutineManager {
                 .putString(KEY_CURRENT, currentRoutine)
                 .putString(KEY_LEVEL, routineLevel)
                 .apply();
+    }
+
+    public void saveAiRoutineResult(String jsonString) {
+        prefs.edit().putString(KEY_AI_RESULT, jsonString).apply();
+    }
+
+    public String getSavedAiRoutineResult() {
+        return prefs.getString(KEY_AI_RESULT, null);
     }
 
     public void resetQuiz() {

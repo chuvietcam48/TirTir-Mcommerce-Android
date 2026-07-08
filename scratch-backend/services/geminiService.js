@@ -289,19 +289,20 @@ async function generateGeminiResponse(systemInstruction, userMessage, productNam
 /**
  * Generate an AI Routine based on skin profile and catalog.
  */
-async function generateAiRoutine(skinType, catalog, wantsSunscreen) {
+async function generateAiRoutine(skinType, catalog, concerns = []) {
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-  const isKeyValid = apiKey && !apiKey.includes('your_') && apiKey.includes('AIza') && apiKey !== 'AIzaSyDummyKeyForLocalTesting123';
+  const isKeyValid = apiKey && !apiKey.includes('your_') && apiKey.length > 20 && apiKey !== 'AIzaSyDummyKeyForLocalTesting123';
+  const wantsSunscreen = concerns && concerns.includes('sun_protection');
 
   if (!isKeyValid) {
     console.warn('[GEMINI] API key not configured for Routine Generation — using catalog fallback');
-    return generateFallbackRoutine(skinType, catalog, wantsSunscreen);
+    return generateFallbackRoutine(skinType, catalog, concerns);
   }
 
   try {
     const ai = new GoogleGenAI({ apiKey, apiVersion: 'v1' });
     const systemInstruction = `Bạn là một AI phân tích da liễu.
-Nhiệm vụ của bạn là lấy các sản phẩm từ danh sách dưới đây để tạo ra một chu trình dưỡng da (skincare routine) phù hợp nhất với da: ${skinType}.
+Nhiệm vụ của bạn là lấy các sản phẩm từ danh sách dưới đây để tạo ra một chu trình dưỡng da (skincare routine) phù hợp nhất với da: ${skinType} và các vấn đề: ${concerns.join(', ')}.
 ${wantsSunscreen ? 'BẮT BUỘC chèn 1 sản phẩm chống nắng (Sunscreen) vào bước cuối cùng.' : 'KHÔNG đưa vào sản phẩm chống nắng (Sunscreen) và Makeup (Cushion).'}
 
 DANH SÁCH SẢN PHẨM:
@@ -345,12 +346,45 @@ CHỈ TRẢ VỀ JSON HỢP LỆ (Không có markdown, không có \`\`\`json).
 
   } catch (err) {
     console.error('[GEMINI] generateAiRoutine failed:', err.message);
-    return generateFallbackRoutine(skinType, catalog, wantsSunscreen);
+    return generateFallbackRoutine(skinType, catalog, concerns);
   }
 }
 
-function generateFallbackRoutine(skinType, catalog, wantsSunscreen) {
-  // Simple heuristic fallback picking from catalog
+function scoreProduct(prod, skinType, concerns) {
+  let score = 0;
+  const target = (prod.Skin_Type_Target || prod.target || '').toLowerCase();
+  const mainConcern = (prod.Main_Concern || prod.concern || '').toLowerCase();
+  const ingredients = (prod.Key_Ingredients || prod.ingredients || '').toLowerCase();
+  const sType = (skinType || '').toLowerCase();
+  
+  if (target.includes(sType)) score += 3;
+  if (target.includes('all skin') || target.includes('all types')) score += 1;
+  
+  const cList = Array.isArray(concerns) ? concerns : [];
+  for (const c of cList) {
+    const cl = c.toLowerCase();
+    if (cl.includes('acne') || cl.includes('mụn')) {
+      if (mainConcern.includes('acne') || ingredients.includes('salicylic') || ingredients.includes('niacinamide')) score += 2;
+    }
+    if (cl.includes('dark_spots') || cl.includes('thâm')) {
+      if (mainConcern.includes('bright') || mainConcern.includes('dark') || ingredients.includes('vitamin c') || ingredients.includes('niacinamide')) score += 2;
+    }
+    if (cl.includes('dry') || cl.includes('khô')) {
+      if (mainConcern.includes('hydrat') || ingredients.includes('hyaluronic') || ingredients.includes('ceramide')) score += 2;
+    }
+    if (cl.includes('aging') || cl.includes('lão hóa')) {
+      if (mainConcern.includes('aging') || mainConcern.includes('firm') || ingredients.includes('retinol') || ingredients.includes('peptide')) score += 2;
+    }
+    if (cl.includes('irritation') || cl.includes('nhạy cảm')) {
+      if (mainConcern.includes('sooth') || mainConcern.includes('calm') || ingredients.includes('centella') || ingredients.includes('cica')) score += 2;
+    }
+  }
+  return score;
+}
+
+function generateFallbackRoutine(skinType, catalog, concerns = []) {
+  console.log('[FALLBACK] Running intelligent fallback algorithm for', skinType, concerns);
+  const wantsSunscreen = concerns && concerns.includes('sun_protection');
   const routine = [];
   let stepIdx = 1;
   
@@ -358,23 +392,41 @@ function generateFallbackRoutine(skinType, catalog, wantsSunscreen) {
   if (wantsSunscreen) categories.push('Sunscreen');
 
   for (const cat of categories) {
-    // Try to find a product in category matching skinType if possible, or just first one
-    let prod = catalog.find(p => p.Category && p.Category.toLowerCase() === cat.toLowerCase());
-    if (!prod) {
-      // Fuzzy match
-      prod = catalog.find(p => p.Category && p.Category.toLowerCase().includes(cat.toLowerCase()));
+    const matchingProds = catalog.filter(p => p.Category && p.Category.toLowerCase().includes(cat.toLowerCase()));
+    
+    let bestProd = null;
+    let bestScore = -1;
+    
+    for (const prod of matchingProds) {
+      const score = scoreProduct(prod, skinType, concerns);
+      if (score > bestScore) {
+        bestScore = score;
+        bestProd = prod;
+      }
     }
     
-    if (prod) {
+    // If no exact category match, fallback to fuzzy name match
+    if (!bestProd) {
+      const fuzzyProds = catalog.filter(p => p.Name && p.Name.toLowerCase().includes(cat.toLowerCase()));
+      for (const prod of fuzzyProds) {
+        const score = scoreProduct(prod, skinType, concerns);
+        if (score > bestScore) {
+          bestScore = score;
+          bestProd = prod;
+        }
+      }
+    }
+    
+    if (bestProd) {
       routine.push({
         step: stepIdx++,
         stepName: cat,
-        productId: prod.Product_ID,
-        productName: prod.Name,
-        description: `Recommended for your ${skinType} skin to keep it healthy.`,
+        productId: bestProd.Product_ID || bestProd.id,
+        productName: bestProd.Name || bestProd.name,
+        description: `Selected based on your ${skinType} skin type and concerns.`,
         hydrationBoost: Math.floor(Math.random() * 5) + 5,
         textureBoost: Math.floor(Math.random() * 5) + 4,
-        price: prod.Price || 20.0
+        price: bestProd.Price || bestProd.price || 20.0
       });
     }
   }

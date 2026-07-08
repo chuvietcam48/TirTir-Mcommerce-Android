@@ -26,6 +26,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.WishlistContentProvider;
 import com.example.tirtir_mcommerce.model.CartItem;
@@ -95,6 +97,7 @@ public class RoutineFragment extends Fragment {
 
     // ── Data ─────────────────────────────────────────────────────────────────
     private List<Product> allProducts = new ArrayList<>();
+    private boolean viewInitialized = false;
 
     @Nullable
     @Override
@@ -173,6 +176,8 @@ public class RoutineFragment extends Fragment {
     // ── Entry point logic ─────────────────────────────────────────────────────
 
     private void decideInitialView() {
+        if (viewInitialized) return; // Only decide once per Fragment view lifecycle
+        viewInitialized = true;
         if (routineManager.isQuizDone()) {
             showResultScreen();
         } else {
@@ -181,6 +186,18 @@ public class RoutineFragment extends Fragment {
     }
 
     private void showResultScreen() {
+        // Try to restore cached AI result first
+        String cached = routineManager.getSavedAiRoutineResult();
+        if (cached != null) {
+            try {
+                Gson gson = new Gson();
+                Map<String, Object> aiData = gson.fromJson(cached, new TypeToken<Map<String, Object>>(){}.getType());
+                showResultScreenWithAi(aiData);
+                return;
+            } catch (Exception e) {
+                // ignore parse error, fall through to local
+            }
+        }
         showResultScreenWithAi(null);
     }
 
@@ -624,7 +641,13 @@ public class RoutineFragment extends Fragment {
             public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
                 loadingOverlay.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    showResultScreenWithAi(response.body().getData());
+                    Map<String, Object> aiData = response.body().getData();
+                    // Cache to disk so it survives app restarts
+                    try {
+                        String json = new Gson().toJson(aiData);
+                        routineManager.saveAiRoutineResult(json);
+                    } catch (Exception ignored) {}
+                    showResultScreenWithAi(aiData);
                 } else {
                     Toast.makeText(requireContext(), "Lỗi kết nối AI, hiển thị cơ bản", Toast.LENGTH_SHORT).show();
                     showResultScreenWithAi(null);
@@ -641,6 +664,8 @@ public class RoutineFragment extends Fragment {
     }
 
     private void showResultScreenWithAi(Map<String, Object> aiData) {
+        quizContainer.setVisibility(View.GONE);
+        if (loadingOverlay != null) loadingOverlay.setVisibility(View.GONE);
         resultContainer.setVisibility(View.VISIBLE);
 
         String skinType = routineManager.getSkinType();
@@ -718,6 +743,14 @@ public class RoutineFragment extends Fragment {
                 String pId = String.valueOf(pMap.get("Product_ID"));
                 if (pId == null || pId.equals("null")) pId = String.valueOf(pMap.get("productId"));
                 p.setProductId(pId);
+                
+                String realId = String.valueOf(pMap.get("_id"));
+                if (realId == null || realId.equals("null")) realId = String.valueOf(pMap.get("id"));
+                if (realId != null && !realId.equals("null")) {
+                    p.setId(realId);
+                } else {
+                    p.setId(pId); // fallback
+                }
                 
                 String pName = String.valueOf(pMap.get("Name"));
                 if (pName == null || pName.equals("null")) pName = String.valueOf(map.get("productName"));
