@@ -1,0 +1,53 @@
+{
+  "p1": {
+    "_id": "696b48215bfaa09989483363",
+    "Product_ID": "PRD-MK-AURA",
+    "Parent_ID": "DE",
+    "Category": "Cushion",
+    "Category_Slug": "cushion",
+    "Name": "Tirtir Mask Fit Aura Cushion",
+    "Product_Slug": "mask-fit-aura-cushion",
+    "Price": 35,
+    "Sale_Price": 24,
+    "Volume_Size": "18g",
+    "Is_Skincare": false,
+    "Skin_Type_Target": "Dry, Normal",
+    "Main_Concern": "Glow, Dewy Finish",
+    "Key_Ingredients": "Hyaluronic Acid, Birch Sap",
+    "Description_Short": "Creates a breathable, water-glow Dewy finish. Deeply hydrates dry skin for a radiant look.",
+    "How_To_Use": "Apply generously for a glass-skin effect. Can be layered without looking cakey.",
+    "Status": "In Stock",
+    "Stock_Quantity": 9999,
+    "Full_Description": "A glow-boosting cushion that creates a breathable, water-glow Dewy finish. Infused with White Hyaluronic Acid and Birch Sap to deeply hydrate dry skin from within. Provides natural coverage that looks like healthy, radiant skin.",
+    "Description_Images": [
+      "assets/images/products/PRD-MK-AURA/Description-Images/1.webp",
+      "assets/images/products/PRD-MK-AURA/Description-Images/2.webp",
+      "assets/images/products/PRD-MK-AURA/Description-Images/3.webp",
+      "assets/images/products/PRD-MK-AURA/Description-Images/4.webp",
+      "assets/images/products/PRD-MK-AURA/Description-Images/5.webp",
+      "assets/images/products/PRD-MK-AURA/Description-Images/6.webp"
+    ],
+    "Thumbnail_Images": "assets/images/products/PRD-MK-AURA/Main-Images/thumb.webp",
+    "Gallery_Images": [
+      "assets/images/products/PRD-MK-AURA/Main-Images/1.webp",
+      "assets/images/products/PRD-MK-AURA/Main-Images/2.webp",
+      "assets/images/products/PRD-MK-AURA/Main-Images/3.webp",
+      "assets/images/products/PRD-MK-AURA/Main-Images/4.webp",
+      "assets/images/products/PRD-MK-AURA/Main-Images/5.webp",
+      "assets/images/products/PRD-MK-AURA/Main-Images/6.webp",
+      "assets/images/products/PRD-MK-AURA/Main-Images/7.webp"
+    ],
+    "slug": "mask-fit-aura-cushion",
+    "updatedAt": "2026-06-15T13:15:48.767Z",
+    "Stock_Reserved": 0,
+    "__v": 2,
+    "Is_Best_Seller": false,
+    "Rating_Average": 0,
+    "Rating_Count": 0,
+    "Sold_Quantity": 0,
+    "brand": "",
+    "isActive": true,
+    "shade_color_hex": "#F4D8C8",
+    "views": 0
+  }
+}

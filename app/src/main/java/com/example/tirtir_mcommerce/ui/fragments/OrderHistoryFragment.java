@@ -36,13 +36,13 @@ public class OrderHistoryFragment extends Fragment {
     private RecyclerView rvOrderHistory;
     private LinearLayout layoutEmptyOrders;
     private ProgressBar progressOrders;
-    private TextView tvEmptyOrdersMessage, tvOrderHistorySummary;
-    private Button btnRetryOrders;
+    private TextView tvEmptyOrdersMessage;
+    private androidx.swiperefreshlayout.widget.SwipeRefreshLayout swipeRefreshOrders;
 
     private OrderRepository orderRepository;
     private com.example.tirtir_mcommerce.ui.adapters.OrderHistoryAdapter adapter;
     private List<OrderResponse> allOrders = new ArrayList<>();
-    private String currentFilterStatus = "All";
+    private String currentFilterStatus = "Active";
     
     private FirebaseFirestore firestore;
     private ListenerRegistration ordersListener;
@@ -64,25 +64,28 @@ public class OrderHistoryFragment extends Fragment {
         layoutEmptyOrders    = view.findViewById(R.id.layoutEmptyOrders);
         progressOrders       = view.findViewById(R.id.progressOrders);
         tvEmptyOrdersMessage = view.findViewById(R.id.tvEmptyOrdersMessage);
-        tvOrderHistorySummary = view.findViewById(R.id.tvOrderHistorySummary);
-        btnRetryOrders       = view.findViewById(R.id.btnRetryOrders);
+        swipeRefreshOrders   = view.findViewById(R.id.swipeRefreshOrders);
 
-        Toolbar toolbar = view.findViewById(R.id.toolbarOrderHistory);
-        if (toolbar != null) {
-            toolbar.setNavigationOnClickListener(v -> {
+        View btnBack = view.findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> {
                 if (getActivity() != null) {
                     getActivity().getSupportFragmentManager().popBackStack();
                 }
             });
         }
 
+        if (swipeRefreshOrders != null) {
+            swipeRefreshOrders.setOnRefreshListener(() -> {
+                // Force network load instead of cache
+                allOrders.clear();
+                loadOrders(currentFilterStatus);
+            });
+        }
+
         orderRepository = new OrderRepository(requireContext());
         firestore = FirebaseFirestore.getInstance();
         prefsManager = new SharedPrefsManager(requireContext());
-
-        if (btnRetryOrders != null) {
-            btnRetryOrders.setOnClickListener(v -> loadOrders(currentFilterStatus));
-        }
 
         adapter = new com.example.tirtir_mcommerce.ui.adapters.OrderHistoryAdapter(
                 new ArrayList<>(),
@@ -115,17 +118,30 @@ public class OrderHistoryFragment extends Fragment {
     }
 
     private void setupFilters(View view) {
-        com.google.android.material.chip.ChipGroup chipGroup = view.findViewById(R.id.chipGroupOrderStatus);
-        if (chipGroup != null) {
-            chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
-                if (checkedIds.isEmpty()) return;
-                int id = checkedIds.get(0);
-                String status = "All";
-                if (id == R.id.chipPending) status = "Pending";
-                else if (id == R.id.chipShipping) status = "Shipping";
-                else if (id == R.id.chipDelivered) status = "Delivered";
-                currentFilterStatus = status;
-                loadOrders(status);
+        com.google.android.material.tabs.TabLayout tabLayout = view.findViewById(R.id.tabLayoutOrders);
+        if (tabLayout != null) {
+            tabLayout.addOnTabSelectedListener(new com.google.android.material.tabs.TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(com.google.android.material.tabs.TabLayout.Tab tab) {
+                    switch (tab.getPosition()) {
+                        case 0:
+                            currentFilterStatus = "Active";
+                            break;
+                        case 1:
+                            currentFilterStatus = "Completed";
+                            break;
+                        case 2:
+                            currentFilterStatus = "Canceled";
+                            break;
+                    }
+                    loadOrders(currentFilterStatus);
+                }
+
+                @Override
+                public void onTabUnselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
+
+                @Override
+                public void onTabReselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
             });
         }
     }
@@ -137,6 +153,9 @@ public class OrderHistoryFragment extends Fragment {
     private void showLoading(boolean loading) {
         if (progressOrders != null) {
             progressOrders.setVisibility(loading ? View.VISIBLE : View.GONE);
+        }
+        if (!loading && swipeRefreshOrders != null) {
+            swipeRefreshOrders.setRefreshing(false);
         }
         if (loading) {
             rvOrderHistory.setVisibility(View.GONE);
@@ -153,8 +172,11 @@ public class OrderHistoryFragment extends Fragment {
     }
 
     private void loadOrders(String status) {
-        if (!"All".equals(status) && !allOrders.isEmpty()) {
+        if (!allOrders.isEmpty()) {
             displayFilteredOrders(status);
+            // We can optionally refresh from server here if needed, but returning uses cache
+            // Let's just return for faster tab switching
+            if (swipeRefreshOrders != null) swipeRefreshOrders.setRefreshing(false);
             return;
         }
 
@@ -171,7 +193,6 @@ public class OrderHistoryFragment extends Fragment {
             if (!isAdded()) return;
             requireActivity().runOnUiThread(() -> {
                 showLoading(false);
-                if (btnRetryOrders != null) btnRetryOrders.setVisibility(View.VISIBLE);
                 showEmptyState(error);
             });
         });
@@ -212,16 +233,13 @@ public class OrderHistoryFragment extends Fragment {
     private void displayFilteredOrders(String status) {
         List<OrderResponse> filtered = new ArrayList<>();
         for (OrderResponse order : allOrders) {
-            if ("All".equals(status) || statusMatches(status, order.getStatus())) {
+            if (statusMatches(status, order.getStatus())) {
                 filtered.add(order);
             }
         }
-        if (btnRetryOrders != null) btnRetryOrders.setVisibility(View.GONE);
-        updateSummary(filtered.size());
+        
         if (filtered.isEmpty()) {
-            showEmptyState("All".equals(status)
-                    ? "Your TIRTIR orders will appear here after checkout."
-                    : "No orders match this status yet.");
+            showEmptyState("No orders match this status yet.");
             return;
         }
         adapter.setOrders(filtered);
@@ -231,25 +249,20 @@ public class OrderHistoryFragment extends Fragment {
 
     private boolean statusMatches(String filter, String value) {
         if (value == null) return false;
-        if ("Shipping".equals(filter)) {
-            return "Shipping".equalsIgnoreCase(value) || "Shipped".equalsIgnoreCase(value);
-        }
-        if ("Pending".equals(filter)) {
+        if ("Active".equals(filter)) {
             return "Pending".equalsIgnoreCase(value)
                     || "Processing".equalsIgnoreCase(value)
-                    || "Confirmed".equalsIgnoreCase(value);
+                    || "Confirmed".equalsIgnoreCase(value)
+                    || "Shipping".equalsIgnoreCase(value)
+                    || "Shipped".equalsIgnoreCase(value);
+        }
+        if ("Completed".equals(filter)) {
+            return "Delivered".equalsIgnoreCase(value);
+        }
+        if ("Canceled".equals(filter)) {
+            return "Cancelled".equalsIgnoreCase(value) || "Canceled".equalsIgnoreCase(value);
         }
         return filter.equalsIgnoreCase(value);
     }
 
-    private void updateSummary(int count) {
-        if (tvOrderHistorySummary == null) return;
-        if (count == 0) {
-            tvOrderHistorySummary.setText("Your recent TIRTIR orders");
-        } else if (count == 1) {
-            tvOrderHistorySummary.setText("1 order in your history");
-        } else {
-            tvOrderHistorySummary.setText(count + " orders in your history");
-        }
-    }
 }

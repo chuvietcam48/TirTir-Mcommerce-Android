@@ -53,6 +53,11 @@ public class AdminNotificationCenterActivity extends AppCompatActivity {
 
         btnMarkAllRead.setOnClickListener(v -> markAllAsRead());
         
+        android.view.View btnAdminBack = findViewById(R.id.btnAdminBack);
+        if (btnAdminBack != null) {
+            btnAdminBack.setOnClickListener(v -> finish());
+        }
+        
         findViewById(R.id.btnAdminNotifSettings).setOnClickListener(v -> {
             Toast.makeText(this, "Settings coming soon", Toast.LENGTH_SHORT).show();
         });

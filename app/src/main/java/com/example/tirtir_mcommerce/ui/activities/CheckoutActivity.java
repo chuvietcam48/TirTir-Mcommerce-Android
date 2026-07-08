@@ -166,25 +166,26 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     private void setupPaymentMethods() {
-        cvPaymentCard.setOnClickListener(v -> updatePaymentSelection("CARD"));
+        cvPaymentCard.setOnClickListener(v -> updatePaymentSelection("COD"));
         cvPaymentVnpay.setOnClickListener(v -> updatePaymentSelection("VNPAY"));
         cvPaymentMomo.setOnClickListener(v -> updatePaymentSelection("MOMO"));
-        rbCOD.setOnClickListener(v -> updatePaymentSelection("CARD"));
+        rbCOD.setOnClickListener(v -> updatePaymentSelection("COD"));
         rbBankTransfer.setOnClickListener(v -> updatePaymentSelection("VNPAY"));
         rbMomo.setOnClickListener(v -> updatePaymentSelection("MOMO"));
         
-        updatePaymentSelection("CARD"); // Default
+        updatePaymentSelection("COD"); // Default
     }
 
     private void updatePaymentSelection(String method) {
         selectedPaymentMethod = method;
+        android.util.Log.d("Checkout", "Payment method selected: " + method);
         
         int activeColor = getResources().getColor(R.color.tirtir_red_primary);
         int inactiveColor = Color.parseColor("#10000000");
 
-        cvPaymentCard.setStrokeColor(method.equals("CARD") ? activeColor : inactiveColor);
-        cvPaymentCard.setStrokeWidth(method.equals("CARD") ? dpToPx(2) : dpToPx(1));
-        rbCOD.setChecked(method.equals("CARD"));
+        cvPaymentCard.setStrokeColor(method.equals("COD") ? activeColor : inactiveColor);
+        cvPaymentCard.setStrokeWidth(method.equals("COD") ? dpToPx(2) : dpToPx(1));
+        rbCOD.setChecked(method.equals("COD"));
         
         cvPaymentVnpay.setStrokeColor(method.equals("VNPAY") ? activeColor : inactiveColor);
         cvPaymentVnpay.setStrokeWidth(method.equals("VNPAY") ? dpToPx(2) : dpToPx(1));

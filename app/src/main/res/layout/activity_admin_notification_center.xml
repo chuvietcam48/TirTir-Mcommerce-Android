@@ -4,12 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f9f9f9">
+    android:background="#FFFFFF">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#f9f9f9"
+        android:background="#FFFFFF"
         app:elevation="0dp">
 
         <androidx.appcompat.widget.Toolbar
@@ -27,13 +27,13 @@
                 android:paddingHorizontal="16dp">
 
                 <ImageView
-                    android:id="@+id/ivAdminAvatar"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="@drawable/bg_rounded_primary"
-                    android:backgroundTint="#e2dfde"
-                    android:src="@drawable/ic_person"
-                    app:tint="#5f5e5e"
+                    android:id="@+id/btnAdminBack"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_arrow_back"
+                    app:tint="@color/tirtir_red_primary"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -42,13 +42,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
-                    android:fontFamily="serif"
-                    android:text="System Notifications"
-                    android:textColor="#610000"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Notifications"
+                    android:textColor="@color/tirtir_black"
+                    android:textSize="18sp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/ivAdminAvatar"
+                    app:layout_constraintStart_toEndOf="@id/btnAdminBack"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
@@ -88,13 +87,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Mark all as read"
-                android:textColor="#610000"
+                android:textColor="@color/tirtir_red_primary"
                 android:textSize="12sp"
-                app:backgroundTint="#ffdad4"
+                app:backgroundTint="#FFFFFF"
+                app:strokeColor="#E0E0E0"
+                app:strokeWidth="1dp"
                 app:cornerRadius="24dp"
-                app:icon="@drawable/ic_star_filled"
+                app:icon="@drawable/ic_check"
                 app:iconSize="18dp"
-                app:iconTint="#610000" />
+                app:iconTint="@color/tirtir_red_primary" />
         </LinearLayout>
 
         <!-- Category Header -->

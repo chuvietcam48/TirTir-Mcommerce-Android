@@ -116,17 +116,13 @@ public class OrderRepository {
     public void getMyOrders(Consumer<List<OrderResponse>> onSuccess, Consumer<String> onError) {
         ApiService apiService = RetrofitClient.getAuthClient(context).create(ApiService.class);
 
-        apiService.getMyOrders().enqueue(new Callback<ApiResponse<List<java.util.Map<String, Object>>>>() {
+        apiService.getMyOrders().enqueue(new Callback<ApiResponse<List<OrderResponse>>>() {
             @Override
-            public void onResponse(Call<ApiResponse<List<java.util.Map<String, Object>>>> call,
-                                   Response<ApiResponse<List<java.util.Map<String, Object>>>> response) {
+            public void onResponse(Call<ApiResponse<List<OrderResponse>>> call,
+                                   Response<ApiResponse<List<OrderResponse>>> response) {
                 List<OrderResponse> merged = new ArrayList<>(new SharedPrefsManager(context).getLocalOrders());
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    List<java.util.Map<String, Object>> remoteMaps = response.body().getData();
-                    List<OrderResponse> remote = new ArrayList<>();
-                    for (java.util.Map<String, Object> map : remoteMaps) {
-                        remote.add(mapToOrderResponse(map));
-                    }
+                    List<OrderResponse> remote = response.body().getData();
                     mergeUnique(merged, remote);
                     sortNewestFirst(merged);
                     onSuccess.accept(merged);
@@ -141,7 +137,7 @@ public class OrderRepository {
             }
 
             @Override
-            public void onFailure(Call<ApiResponse<List<java.util.Map<String, Object>>>> call, Throwable t) {
+            public void onFailure(Call<ApiResponse<List<OrderResponse>>> call, Throwable t) {
                 List<OrderResponse> local = new SharedPrefsManager(context).getLocalOrders();
                 if (!local.isEmpty()) {
                     sortNewestFirst(local);

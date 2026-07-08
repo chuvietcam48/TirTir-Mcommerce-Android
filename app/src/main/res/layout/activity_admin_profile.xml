@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f9f9f9"
+    android:background="#FFFFFF"
     android:orientation="vertical">
 
     <!-- TopAppBar -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#ffffff"
+        android:background="#FFFFFF"
         android:elevation="4dp"
         android:paddingHorizontal="16dp">
 
@@ -21,7 +21,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="12dp"
                 android:src="@drawable/ic_arrow_back"
-                app:tint="#610000"
+                app:tint="@color/tirtir_red_primary"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Admin Settings"
-            android:textColor="#610000"
+            android:textColor="@color/tirtir_red_primary"
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginStart="8dp"
@@ -44,7 +44,7 @@
             android:layout_height="40dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_person"
-            app:civ_border_color="#e3beb8"
+            app:civ_border_color="#e2dfde"
             app:civ_border_width="1dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -129,16 +129,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="#ffffff"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#E0E0E0">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="24dp">
+                    android:padding="20dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -148,14 +149,14 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_visibility"
-                            app:tint="#8b0000" />
+                            android:src="@drawable/ic_check"
+                            app:tint="@color/tirtir_red_primary" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Account Security"
-                            android:textColor="#1a1c1c"
-                            android:textSize="20sp"
+                            android:textColor="@color/tirtir_black"
+                            android:textSize="18sp"
                             android:textStyle="bold"
                             android:layout_marginStart="12dp" />
                     </LinearLayout>
@@ -245,16 +246,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="#ffffff"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#E0E0E0">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="24dp">
+                    android:padding="20dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -265,13 +267,13 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_profile"
-                            app:tint="#8b0000" />
+                            app:tint="@color/tirtir_red_primary" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Admin Controls"
-                            android:textColor="#1a1c1c"
-                            android:textSize="20sp"
+                            android:textColor="@color/tirtir_black"
+                            android:textSize="18sp"
                             android:textStyle="bold"
                             android:layout_marginStart="12dp" />
                     </LinearLayout>
@@ -337,16 +339,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="32dp"
-                app:cardBackgroundColor="#ffffff"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#E0E0E0">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="24dp">
+                    android:padding="20dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -357,13 +360,13 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_more_vert"
-                            app:tint="#8b0000" />
+                            app:tint="@color/tirtir_red_primary" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="System Preferences"
-                            android:textColor="#1a1c1c"
-                            android:textSize="20sp"
+                            android:textColor="@color/tirtir_black"
+                            android:textSize="18sp"
                             android:textStyle="bold"
                             android:layout_marginStart="12dp" />
                     </LinearLayout>
@@ -460,10 +463,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="SIGN OUT"
-                android:textColor="#8b0000"
+                android:textColor="@color/tirtir_red_primary"
                 app:icon="@drawable/ic_close"
-                app:iconTint="#8b0000"
-                app:strokeColor="#8b0000"
+                app:iconTint="@color/tirtir_red_primary"
+                app:strokeColor="@color/tirtir_red_primary"
                 app:strokeWidth="2dp"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:paddingHorizontal="32dp"

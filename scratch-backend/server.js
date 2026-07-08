@@ -70,11 +70,20 @@ app.use('/api/shipping', require('./shipping/ShippingSoapRouter'));
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 app.use((_req, res) => res.status(404).json({ success: false, message: 'Endpoint không tồn tại.' }));
-
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ success: false, message: 'Lỗi máy chủ nội bộ.' });
 });
+
+setTimeout(async () => {
+  try {
+    const Product = require('./models/Product');
+    const p1 = await Product.findOne({ Product_ID: 'PRD-MK-AURA' }).lean();
+    require('fs').writeFileSync('d:/TirTir-Mcommerce/scratch-backend/debug_product.json', JSON.stringify({ p1 }, null, 2));
+  } catch (e) {
+      console.error(e);
+  }
+}, 4000);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`TirTir API running on port ${PORT} [${process.env.NODE_ENV}]`));

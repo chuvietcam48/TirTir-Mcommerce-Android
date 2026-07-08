@@ -1,92 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
-    app:cardBackgroundColor="@color/tirtir_white">
+    android:layout_margin="8dp"
+    app:cardBackgroundColor="@color/tirtir_surface"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="12dp"
-        android:gravity="center_vertical">
+        android:orientation="vertical">
 
-        <!-- Product Image with Restock Badge overlay -->
-        <FrameLayout
-            android:layout_width="72dp"
-            android:layout_height="72dp">
+        <!-- Image Container -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/tirtir_surface_container_low">
 
+            <!-- 3:4 Aspect Ratio Image -->
             <ImageView
-                android:id="@+id/imgWishlistProduct"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
+                android:id="@+id/ivProductImage"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="3:4"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:scaleType="centerCrop"
-                android:background="@color/tirtir_off_white"
                 android:src="@drawable/ic_product_placeholder" />
 
-            <!-- Restock Alert badge — GONE by default, PM sets VISIBLE on FCM restock payload -->
-            <TextView
-                android:id="@+id/tvRestockBadge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|start"
-                android:background="@color/tirtir_success"
-                android:paddingHorizontal="5dp"
-                android:paddingVertical="2dp"
-                android:text="Back in stock"
-                android:textColor="@color/tirtir_white"
-                android:textSize="9sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
+            <!-- Remove Button -->
+            <ImageButton
+                android:id="@+id/btnRemove"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/bg_circle_white_alpha"
+                android:src="@drawable/ic_close"
+                app:tint="@color/tirtir_secondary"
+                android:padding="8dp"
+                android:scaleType="fitCenter" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </FrameLayout>
-
-        <!-- Product Info -->
+        <!-- Product Details -->
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:orientation="vertical"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="8dp">
+            android:paddingTop="12dp"
+            android:paddingBottom="16dp">
 
             <TextView
-                android:id="@+id/tvWishlistProductName"
+                android:id="@+id/tvProductName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Product name"
-                android:textSize="15sp"
+                android:textColor="@color/tirtir_on_surface"
+                android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="@color/tirtir_black"
-                android:maxLines="2"
                 android:ellipsize="end"
-                android:layout_marginBottom="6dp" />
+                android:maxLines="2"
+                android:text="Mask Fit Red Cushion"
+                android:lineSpacingExtra="2dp" />
 
             <TextView
-                android:id="@+id/tvWishlistProductPrice"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvProductSubtitle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="$0.00"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="@color/tirtir_red_primary" />
+                android:layout_marginTop="4dp"
+                android:textColor="@color/tirtir_secondary"
+                android:textSize="16sp"
+                android:text="Long-lasting Glow"
+                android:maxLines="1" />
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp">
+
+                <TextView
+                    android:id="@+id/tvProductPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:textColor="@color/tirtir_red_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05"
+                    android:text="$28.00" />
+
+                <ImageButton
+                    android:id="@+id/btnAddToCart"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/bg_circle_white"
+                    app:backgroundTint="@color/tirtir_tertiary"
+                    android:src="@drawable/ic_plus"
+                    app:tint="@color/tirtir_on_tertiary"
+                    android:padding="8dp"
+                    android:scaleType="fitCenter" />
+            </RelativeLayout>
         </LinearLayout>
-
-        <!-- Delete Button -->
-        <ImageButton
-            android:id="@+id/btnRemoveWishlist"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_delete"
-            app:tint="@color/tirtir_text_secondary"
-            android:contentDescription="Remove from wishlist" />
-
     </LinearLayout>
-
 </androidx.cardview.widget.CardView>

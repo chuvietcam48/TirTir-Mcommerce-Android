@@ -91,60 +91,71 @@ exports.updateCartServer = async (req, res) => {
 
 // DELETE /api/v1/cart/clear (Xóa sạch giỏ hàng)
 exports.clearCartServer = async (req, res) => {
-  const cart = await Cart.findOne({ userId: req.user.id });
-  if (cart) {
-    cart.items = [];
-    if (cart.recoveryState === 'notified') {
-      cart.recoveryState = 'recovered';
-    } else {
-      cart.recoveryState = 'pending';
-    }
-    await cart.save();
-  }
-
   try {
-    const admin = require('firebase-admin');
-    await admin.firestore().collection('carts').doc(String(req.user.id)).set({
-      userId: String(req.user.id),
-      items: [],
-      status: 'completed',
-      lastUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-  } catch (err) {
-    console.error('Error syncing cart clear to Firestore:', err);
+    const cart = await Cart.findOne({ userId: req.user.id });
+    if (cart) {
+      cart.items = [];
+      if (cart.recoveryState === 'notified') {
+        cart.recoveryState = 'recovered';
+      } else {
+        cart.recoveryState = 'pending';
+      }
+      await cart.save();
+    }
+
+    try {
+      const admin = require('firebase-admin');
+      await admin.firestore().collection('carts').doc(String(req.user.id)).set({
+        userId: String(req.user.id),
+        items: [],
+        status: 'completed',
+        lastUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    } catch (err) {
+      console.error('Error syncing cart clear to Firestore:', err);
+    }
+    res.status(200).json({ success: true, message: 'Đã xóa sạch giỏ hàng.' });
+  } catch (error) {
+    console.error('[clearCartServer] Error:', error);
+    res.status(500).json({ success: false, message: 'Lỗi xóa giỏ hàng', error: error.message });
   }
-  res.status(200).json({ success: true, message: 'Đã xóa sạch giỏ hàng.' });
 };
 
 // POST /api/v1/cart/sync (Đồng bộ giỏ hàng)
 // Body: { items: [{ productId, quantity, shade }] }
 // Strategy: Client-wins (overwrite server state with local SQLite state)
 exports.syncCart = async (req, res) => {
-  const { items } = req.body;
-  if (!Array.isArray(items)) {
-    return res.status(400).json({ success: false, message: 'Danh sách sản phẩm không hợp lệ' });
-  }
-
-  let cart = await Cart.findOne({ userId: req.user.id });
-  if (!cart) {
-    cart = new Cart({ userId: req.user.id, items: [] });
-  }
-
-  // Overwrite existing items with local items (Client-wins)
-  cart.items = items;
-  await cart.save();
-
   try {
-    const admin = require('firebase-admin');
-    await admin.firestore().collection('carts').doc(String(req.user.id)).set({
-      userId: String(req.user.id),
-      items: cart.items,
-      status: cart.items.length > 0 ? 'active' : 'completed',
-      lastUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-  } catch (err) {
-    console.error('Error syncing cart sync to Firestore:', err);
-  }
+    const { items } = req.body;
+    if (!Array.isArray(items)) {
+      return res.status(400).json({ success: false, message: 'Danh sách sản phẩm không hợp lệ' });
+    }
 
-  res.status(200).json({ success: true, data: cart.items });
+    let cart = await Cart.findOne({ userId: req.user.id });
+    if (!cart) {
+      cart = new Cart({ userId: req.user.id, items: [] });
+    }
+
+    // Overwrite existing items with local items (Client-wins)
+    cart.items = items;
+    await cart.save();
+
+    try {
+      const admin = require('firebase-admin');
+      await admin.firestore().collection('carts').doc(String(req.user.id)).set({
+        userId: String(req.user.id),
+        items: cart.items,
+        status: cart.items.length > 0 ? 'active' : 'completed',
+        lastUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    } catch (err) {
+      console.error('Error syncing cart sync to Firestore:', err);
+    }
+
+    res.status(200).json({ success: true, data: cart.items });
+  } catch (error) {
+    console.error('[syncCart] Error:', error);
+    require('fs').appendFileSync('sync-error.log', new Date().toISOString() + ' - ' + error.stack + '\n');
+    res.status(500).json({ success: false, message: 'Lỗi đồng bộ giỏ hàng', error: error.message });
+  }
 };

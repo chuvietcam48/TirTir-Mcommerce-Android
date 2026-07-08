@@ -95,9 +95,13 @@ public class SkinScanHistoryActivity extends AppCompatActivity {
         contentContainer.setVisibility(View.VISIBLE);
         tvEmptyState.setVisibility(View.GONE);
 
-        // Avatar
-        if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
-            Glide.with(this).load(user.getAvatar()).circleCrop().into(ivUserAvatar);
+        // Avatar -> Replaced with Skin Hex Color
+        if (profile.getSkinHex() != null && !profile.getSkinHex().isEmpty()) {
+            try {
+                ivUserAvatar.setImageDrawable(new android.graphics.drawable.ColorDrawable(Color.parseColor(profile.getSkinHex())));
+            } catch (Exception e) {
+                ivUserAvatar.setImageResource(R.drawable.ic_person); // fallback
+            }
         } else {
             ivUserAvatar.setImageResource(R.drawable.ic_person); // fallback
         }

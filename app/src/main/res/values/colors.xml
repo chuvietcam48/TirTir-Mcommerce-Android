@@ -22,9 +22,9 @@
     <color name="transparent">#00000000</color>
     <color name="tirtir_white">#FFFFFF</color>
     <color name="tirtir_milk_white">#FFFFFF</color>
-    <color name="tirtir_off_white">#F9F9F9</color>   <!-- Stitch background: slightly warm off-white -->
+    <color name="tirtir_off_white">#FFFFFF</color>   <!-- Changed from #F9F9F9 to pure white -->
     <color name="tirtir_surface">#FFFFFF</color>
-    <color name="tirtir_bg_gray">#EEEEEE</color>     <!-- Stitch surface-container -->
+    <color name="tirtir_bg_gray">#F5F5F5</color>     <!-- Neutral light gray -->
     <!-- Stitch outline-variant: pinkish-rose border used on luxury product cards & inputs -->
     <color name="tirtir_rose_outline">#E3BEB8</color>
     <color name="tirtir_auth_input_bg">#F2F2F2</color>
@@ -33,10 +33,17 @@
     <color name="tirtir_divider">#E0E0E0</color>
     <color name="tirtir_primary">#111111</color>
     <color name="tirtir_outline_variant">#E5E5E5</color>
-    <color name="tirtir_surface_container">#F8F8F8</color>
-    <color name="tirtir_surface_variant">#F2F2F2</color>
-    <color name="tirtir_gray_light">#E0E0E0</color>
+    <color name="tirtir_surface_container">#FFFFFF</color>
+    <color name="tirtir_surface_variant">#F5F5F5</color>
+    <color name="tirtir_gray_light">#EEEEEE</color>
     <color name="tirtir_red">#8B0000</color>
+    <color name="tirtir_outline">#E3BEB8</color>
+    <color name="tirtir_on_surface">#1A1C1C</color>
+    <color name="tirtir_secondary">#5A403C</color>
+    <color name="tirtir_tertiary">#292929</color>
+    <color name="tirtir_on_tertiary">#FFFFFF</color>
+    <color name="tirtir_surface_container_low">#F8F8F8</color>
+    <color name="tirtir_surface_container_high">#E0E0E0</color>
 
     <!-- GRAY SCALE (borders, dividers, secondary text) -->
     <color name="tirtir_border_gray">#E0E0E0</color>  <!-- Neutral divider -->

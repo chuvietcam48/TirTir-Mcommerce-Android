@@ -270,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
      * Updates icon tint and label color for all tabs.
      * Active tab → tirtir_red_primary, inactive → tirtir_text_secondary.
      */
-    private void setActiveTab(int tabId) {
+    public void setActiveTab(int tabId) {
         activeTabId = tabId;
 
         int[][] tabData = {
@@ -386,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } else if ("chat".equals(navigateTo)) {
             // Navigate to Chat tab and pass auto-message extras via fragment arguments
-            setActiveTab(R.id.navTabChat);
+            setActiveTab(R.id.navTabHome); // Fallback to Home if navTabChat is missing
             android.os.Bundle args = new android.os.Bundle();
             String autoMsg = intent.getStringExtra("CHAT_AUTO_MESSAGE");
             String chatProductId = intent.getStringExtra("CHAT_PRODUCT_ID");

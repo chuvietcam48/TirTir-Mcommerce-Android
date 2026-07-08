@@ -33,8 +33,8 @@ android {
 
     buildTypes {
         debug {
-            // Dùng backend Render để emulator demo/login không phụ thuộc local server.
-            buildConfigField("String", "API_BASE_URL", "\"https://tirtir-project.onrender.com/\"")
+            // Dùng backend local scratch-backend để test VNPay/MoMo
+            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:5000/\"")
         }
         release {
             // Dùng backend Render cho bản phát hành thật (APK release)
@@ -91,6 +91,7 @@ dependencies {
     // Lottie
     implementation("com.airbnb.android:lottie:6.4.0")
     implementation("com.facebook.shimmer:shimmer:0.5.0")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     // Phase 3 frontend widgets
     implementation("androidx.camera:camera-camera2:1.4.2")

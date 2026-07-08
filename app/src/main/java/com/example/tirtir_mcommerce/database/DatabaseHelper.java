@@ -25,7 +25,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // v4: thêm bảng cart_items cho Offline Cart
     // v5: thêm bảng skin_profiles cho Offline Skin Analysis (Phase 3)
     // v6: extend products table with rating, review_count, is_vegan_formula, is_dermatologist_tested
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     private static final Gson GSON = new Gson();
 
@@ -112,6 +112,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         createIngredientConflictsTable(db);
         createCartTable(db);
         createSkinProfilesTable(db);
+        createWishlistTable(db);
     }
 
     private void createCartTable(SQLiteDatabase db) {
@@ -126,6 +127,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             CART_COL_SHADE + " TEXT DEFAULT '', " +
             CART_COL_SYNCED + " INTEGER DEFAULT 0, " +
             CART_COL_ADDED_AT + " INTEGER DEFAULT (strftime('%s','now'))" +
+            ")"
+        );
+    }
+
+    private void createWishlistTable(SQLiteDatabase db) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS wishlist_items (" +
+            "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            "product_id TEXT UNIQUE NOT NULL, " +
+            "product_name TEXT, " +
+            "thumbnail TEXT, " +
+            "price REAL, " +
+            "synced INTEGER DEFAULT 0, " +
+            "added_at INTEGER DEFAULT (strftime('%s','now'))" +
             ")"
         );
     }
@@ -191,6 +206,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             try { db.execSQL("ALTER TABLE " + TABLE_PRODUCT + " ADD COLUMN " + COLUMN_REVIEW_COUNT + " INTEGER DEFAULT 0"); } catch (Exception ignored) {}
             try { db.execSQL("ALTER TABLE " + TABLE_PRODUCT + " ADD COLUMN " + COLUMN_IS_VEGAN + " INTEGER DEFAULT 0"); } catch (Exception ignored) {}
             try { db.execSQL("ALTER TABLE " + TABLE_PRODUCT + " ADD COLUMN " + COLUMN_IS_DERMA + " INTEGER DEFAULT 0"); } catch (Exception ignored) {}
+        }
+        if (oldVersion < 7) {
+            createWishlistTable(db);
         }
     }
 

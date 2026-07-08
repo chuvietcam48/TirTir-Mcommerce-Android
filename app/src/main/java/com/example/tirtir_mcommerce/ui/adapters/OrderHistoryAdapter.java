@@ -1,13 +1,17 @@
 package com.example.tirtir_mcommerce.ui.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.tirtir_mcommerce.R;
 import com.example.tirtir_mcommerce.model.OrderResponse;
 import com.example.tirtir_mcommerce.utils.PriceUtils;
@@ -29,7 +33,7 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
     private final Listener listener;
     private java.util.function.Consumer<OrderResponse> openListener;
     private final SimpleDateFormat displayDateFormat =
-            new SimpleDateFormat("MMM d, yyyy • HH:mm", Locale.ENGLISH);
+            new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
 
     public OrderHistoryAdapter(List<OrderResponse> orders, Listener listener) {
         this.orders = orders;
@@ -55,22 +59,69 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
     @Override
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         OrderResponse order = orders.get(position);
+        Context context = holder.itemView.getContext();
+
         String id = order.getId() == null ? "Pending ID" : order.getId();
         holder.tvOrderCode.setText("Order #" + displayOrderId(id));
         holder.tvOrderStatus.setText(localizeStatus(order.getStatus()));
         holder.tvOrderDate.setText(formatDate(order.getCreatedAt()));
         holder.tvOrderTotal.setText(PriceUtils.formatPriceUsd(order.getTotalPrice()));
-        holder.tvOrderPayment.setText(formatPayment(order.getPaymentMethod()));
-        boolean hasInvoice = order.getInvoiceUrl() != null && !order.getInvoiceUrl().trim().isEmpty();
-        holder.btnDownloadPdf.setVisibility(hasInvoice ? View.VISIBLE : View.GONE);
-        holder.btnDownloadPdf.setOnClickListener(v -> {
-            if (listener != null) listener.onDownloadInvoice(order);
-        });
+
+        // Populate inner items
+        holder.layoutOrderItems.removeAllViews();
+        List<OrderResponse.OrderItemResponse> items = order.getItems();
+        if (items != null && !items.isEmpty()) {
+            int displayCount = Math.min(items.size(), 2);
+            for (int i = 0; i < displayCount; i++) {
+                OrderResponse.OrderItemResponse item = items.get(i);
+                View productView = LayoutInflater.from(context).inflate(R.layout.item_order_history_product, holder.layoutOrderItems, false);
+                
+                ImageView ivProductImage = productView.findViewById(R.id.ivProductImage);
+                TextView tvProductName = productView.findViewById(R.id.tvProductName);
+                TextView tvProductSubtitle = productView.findViewById(R.id.tvProductSubtitle);
+                TextView tvQuantity = productView.findViewById(R.id.tvQuantity);
+
+                tvProductName.setText(item.getName() != null ? item.getName() : "Unknown Product");
+                tvProductSubtitle.setText(item.getSubtitle() != null && !item.getSubtitle().isEmpty() ? item.getSubtitle() : "Original");
+                tvQuantity.setText("x" + item.getQuantity());
+
+                if (item.getThumbnail() != null && !item.getThumbnail().isEmpty()) {
+                    String primaryUrl = com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(item.getThumbnail());
+                    String fallbackUrl = com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaFallbackUrl(item.getThumbnail());
+                    
+                    android.util.Log.d("TirTirImg", "[OrderAdapter] " + item.getName() + " -> Primary: " + primaryUrl + " | Fallback: " + fallbackUrl);
+
+                    if (!fallbackUrl.isEmpty()) {
+                        Glide.with(context)
+                                .load(primaryUrl)
+                                .placeholder(R.drawable.ic_product_placeholder)
+                                .error(Glide.with(context).load(fallbackUrl).placeholder(R.drawable.ic_product_placeholder))
+                                .into(ivProductImage);
+                    } else {
+                        Glide.with(context)
+                                .load(primaryUrl)
+                                .placeholder(R.drawable.ic_product_placeholder)
+                                .into(ivProductImage);
+                    }
+                }
+
+                holder.layoutOrderItems.addView(productView);
+            }
+
+            if (items.size() > 2) {
+                holder.layoutMoreItems.setVisibility(View.VISIBLE);
+                holder.tvMoreItemsCount.setText("+" + (items.size() - 2) + " MORE ITEM" + (items.size() - 2 > 1 ? "S" : ""));
+            } else {
+                holder.layoutMoreItems.setVisibility(View.GONE);
+            }
+        } else {
+            holder.layoutMoreItems.setVisibility(View.GONE);
+        }
+
         View.OnClickListener openClick = v -> {
             if (openListener != null) openListener.accept(order);
         };
         holder.itemView.setOnClickListener(openClick);
-        holder.btnViewDetails.setOnClickListener(openClick);
     }
 
     @Override
@@ -92,6 +143,9 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
         if ("Delivered".equalsIgnoreCase(status)) {
             return "Delivered";
         }
+        if ("Cancelled".equalsIgnoreCase(status) || "Canceled".equalsIgnoreCase(status)) {
+            return "Canceled";
+        }
         return status;
     }
 
@@ -101,14 +155,6 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
             return id.substring("ORD-LOCAL-".length());
         }
         return id.length() > 12 ? id.substring(id.length() - 12).toUpperCase(Locale.ENGLISH) : id;
-    }
-
-    private String formatPayment(String method) {
-        if (method == null || method.trim().isEmpty()) return "Pending";
-        if ("CARD".equalsIgnoreCase(method)) return "Card";
-        if ("VNPAY".equalsIgnoreCase(method)) return "VNPAY";
-        if ("MOMO".equalsIgnoreCase(method)) return "MoMo";
-        return method;
     }
 
     private String formatDate(String value) {
@@ -126,15 +172,16 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
                 Date parsed = parser.parse(value);
                 if (parsed != null) return displayDateFormat.format(parsed);
             } catch (ParseException ignored) {
-                // Try the next supported API date format.
             }
         }
         return value;
     }
 
     static class OrderViewHolder extends RecyclerView.ViewHolder {
-        TextView tvOrderCode, tvOrderStatus, tvOrderDate, tvOrderTotal, tvOrderPayment;
-        com.google.android.material.button.MaterialButton btnDownloadPdf, btnViewDetails;
+        TextView tvOrderCode, tvOrderStatus, tvOrderDate, tvOrderTotal;
+        LinearLayout layoutOrderItems;
+        LinearLayout layoutMoreItems;
+        TextView tvMoreItemsCount;
 
         OrderViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -142,9 +189,9 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
             tvOrderStatus = itemView.findViewById(R.id.tvOrderStatus);
             tvOrderDate = itemView.findViewById(R.id.tvOrderDate);
             tvOrderTotal = itemView.findViewById(R.id.tvOrderTotal);
-            tvOrderPayment = itemView.findViewById(R.id.tvOrderPayment);
-            btnDownloadPdf = itemView.findViewById(R.id.btnDownloadPDF);
-            btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
+            layoutOrderItems = itemView.findViewById(R.id.layoutOrderItems);
+            layoutMoreItems = itemView.findViewById(R.id.layoutMoreItems);
+            tvMoreItemsCount = itemView.findViewById(R.id.tvMoreItemsCount);
         }
     }
 }

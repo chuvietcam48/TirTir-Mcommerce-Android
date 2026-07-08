@@ -1,0 +1,740 @@
+[
+  {
+    "_id": "6a4de1e579474742ee1ca15a",
+    "userId": "6982b531907ce740387af9ef",
+    "status": "Pending",
+    "totalPrice": 32.8,
+    "shippingFee": 0,
+    "paymentMethod": "VNPAY",
+    "isPaid": false,
+    "shippingAddress": {
+      "fullName": "Người dùng TirTir",
+      "phone": "0909976498",
+      "address": "232/23 Võ Thị Sáu",
+      "city": "Ho Chi Minh City",
+      "districtId": "Quận 3",
+      "wardCode": "Phường Võ Thị Sáu"
+    },
+    "items": [
+      {
+        "product": "PRD-SK-MILK-02",
+        "name": "Ceramic Milk Ampoule",
+        "quantity": 1,
+        "price": 28,
+        "shade": "30ml",
+        "thumbnail": "assets/images/products/PRD-SK-MILK-02/Main-Images/thumb.webp",
+        "subtitle": "Skincare | Dry, Dull"
+      }
+    ],
+    "invoiceUrl": "http://10.0.2.2:5000/api/v1/orders/6a4de1e579474742ee1ca15a/invoice",
+    "adminNotes": "",
+    "cancellationReason": "",
+    "shippingDetails": {
+      "trackingNumber": "",
+      "carrier": ""
+    },
+    "history": [],
+    "createdAt": "2026-07-08T05:36:37.832Z",
+    "updatedAt": "2026-07-08T05:36:37.922Z",
+    "__v": 0,
+    "cancelable": true,
+    "reorderable": true,
+    "timeline": [
+      {
+        "title": "Order Placed",
+        "time": "2026-07-08T05:36:37.832Z",
+        "completed": true
+      },
+      {
+        "title": "Processing",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Shipped",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Delivered",
+        "time": null,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "_id": "6a4d76a69711707f6575b2dd",
+    "userId": "6982b531907ce740387af9ef",
+    "status": "Pending",
+    "totalPrice": 76.8,
+    "shippingFee": 0,
+    "paymentMethod": "CARD",
+    "isPaid": false,
+    "shippingAddress": {
+      "fullName": "Người dùng TirTir",
+      "phone": "0909976498",
+      "address": "232/23 Võ Thị Sáu, Phường Võ Thị Sáu, Quận 3",
+      "city": "Hồ Chí Minh"
+    },
+    "items": [
+      {
+        "product": "PRD-MK-AURA",
+        "name": "Tirtir Mask Fit Aura Cushion",
+        "quantity": 1,
+        "price": 24,
+        "shade": "French Vanilla",
+        "thumbnail": "assets/images/products/PRD-MK-AURA/Main-Images/thumb.webp",
+        "subtitle": "Cushion | Dry, Normal"
+      },
+      {
+        "product": "PRD-MK-FIXER",
+        "name": "Mask Fit Make Up Fixer",
+        "quantity": 1,
+        "price": 16,
+        "shade": "80ml (Full)",
+        "thumbnail": "assets/images/products/PRD-MK-FIXER/Main-Images/thumb.webp",
+        "subtitle": "Setting Spray | All Skin Types"
+      },
+      {
+        "product": "PRD-SK-MILK-02",
+        "name": "Ceramic Milk Ampoule",
+        "quantity": 1,
+        "price": 28,
+        "shade": "30ml",
+        "thumbnail": "assets/images/products/PRD-SK-MILK-02/Main-Images/thumb.webp",
+        "subtitle": "Skincare | Dry, Dull"
+      }
+    ],
+    "invoiceUrl": "http://10.0.2.2:5000/api/v1/orders/6a4d76a69711707f6575b2dd/invoice",
+    "adminNotes": "",
+    "cancellationReason": "",
+    "shippingDetails": {
+      "trackingNumber": "",
+      "carrier": ""
+    },
+    "history": [],
+    "createdAt": "2026-07-07T21:59:02.685Z",
+    "updatedAt": "2026-07-07T21:59:02.796Z",
+    "__v": 0,
+    "cancelable": true,
+    "reorderable": true,
+    "timeline": [
+      {
+        "title": "Order Placed",
+        "time": "2026-07-07T21:59:02.685Z",
+        "completed": true
+      },
+      {
+        "title": "Processing",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Shipped",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Delivered",
+        "time": null,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "_id": "6a4d6fb98d69b382a7c40798",
+    "userId": "6982b531907ce740387af9ef",
+    "status": "Pending",
+    "totalPrice": 46,
+    "shippingFee": 0,
+    "paymentMethod": "CARD",
+    "isPaid": false,
+    "shippingAddress": {
+      "fullName": "Người dùng TirTir",
+      "phone": "0909976498",
+      "address": "232/23 Võ Thị Sáu, Phường Võ Thị Sáu, Quận 3",
+      "city": "Hồ Chí Minh"
+    },
+    "items": [
+      {
+        "product": "PRD-MK-AURA",
+        "name": "Tirtir Mask Fit Aura Cushion",
+        "quantity": 1,
+        "price": 24,
+        "shade": "Fair Porcelain",
+        "thumbnail": "assets/images/products/PRD-MK-AURA/Main-Images/thumb.webp",
+        "subtitle": "Cushion | Dry, Normal"
+      },
+      {
+        "product": "PRD-MK-FIXER",
+        "name": "Mask Fit Make Up Fixer",
+        "quantity": 1,
+        "price": 16,
+        "shade": "80ml (Full)",
+        "thumbnail": "assets/images/products/PRD-MK-FIXER/Main-Images/thumb.webp",
+        "subtitle": "Setting Spray | All Skin Types"
+      }
+    ],
+    "invoiceUrl": "http://10.0.2.2:5000/api/v1/orders/6a4d6fb98d69b382a7c40798/invoice",
+    "adminNotes": "",
+    "cancellationReason": "",
+    "shippingDetails": {
+      "trackingNumber": "",
+      "carrier": ""
+    },
+    "history": [],
+    "createdAt": "2026-07-07T21:29:29.675Z",
+    "updatedAt": "2026-07-07T21:29:29.742Z",
+    "__v": 0,
+    "cancelable": true,
+    "reorderable": true,
+    "timeline": [
+      {
+        "title": "Order Placed",
+        "time": "2026-07-07T21:29:29.675Z",
+        "completed": true
+      },
+      {
+        "title": "Processing",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Shipped",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Delivered",
+        "time": null,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "_id": "6a4d6f2d8d69b382a7c4078b",
+    "userId": "6982b531907ce740387af9ef",
+    "status": "Pending",
+    "totalPrice": 42.425,
+    "shippingFee": 0,
+    "paymentMethod": "CARD",
+    "isPaid": false,
+    "shippingAddress": {
+      "fullName": "Người dùng TirTir",
+      "phone": "0909976498",
+      "address": "232/23 Võ Thị Sáu, Phường Võ Thị Sáu, Quận 3",
+      "city": "Hồ Chí Minh"
+    },
+    "items": [
+      {
+        "product": "PRD-MK-AURA",
+        "name": "Tirtir Mask Fit Aura Cushion",
+        "quantity": 1,
+        "price": 24,
+        "shade": "Ivory",
+        "thumbnail": "assets/images/products/PRD-MK-AURA/Main-Images/thumb.webp",
+        "subtitle": "Cushion | Dry, Normal"
+      },
+      {
+        "product": "PRD-MK-BALM-01",
+        "name": "Waterism Glow Melting Balm",
+        "quantity": 1,
+        "price": 12.75,
+        "shade": "Scotch Shot Pearls",
+        "thumbnail": "assets/images/products/PRD-MK-BALM-01/Main-Images/thumb.webp",
+        "subtitle": "Balm | All Skin Types"
+      }
+    ],
+    "invoiceUrl": "http://10.0.2.2:5000/api/v1/orders/6a4d6f2d8d69b382a7c4078b/invoice",
+    "adminNotes": "",
+    "cancellationReason": "",
+    "shippingDetails": {
+      "trackingNumber": "",
+      "carrier": ""
+    },
+    "history": [],
+    "createdAt": "2026-07-07T21:27:09.762Z",
+    "updatedAt": "2026-07-07T21:27:09.832Z",
+    "__v": 0,
+    "cancelable": true,
+    "reorderable": true,
+    "timeline": [
+      {
+        "title": "Order Placed",
+        "time": "2026-07-07T21:27:09.762Z",
+        "completed": true
+      },
+      {
+        "title": "Processing",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Shipped",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Delivered",
+        "time": null,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "_id": "6a4d4b6c092d5e2a01a93068",
+    "userId": "6982b531907ce740387af9ef",
+    "status": "Pending",
+    "totalPrice": 47.1,
+    "shippingFee": 0,
+    "paymentMethod": "CARD",
+    "isPaid": false,
+    "shippingAddress": {
+      "fullName": "Người dùng TirTir",
+      "phone": "0909976498",
+      "address": "123 Đường Láng, Láng Thượng, Đống Đa",
+      "city": "Hồ Chí Minh"
+    },
+    "items": [
+      {
+        "product": "PRD-SK-SOS-01",
+        "name": "SOS Serum",
+        "quantity": 1,
+        "price": 25,
+        "shade": "50ml",
+        "thumbnail": "assets/images/products/PRD-SK-SOS-01/Main-Images/thumb.webp",
+        "subtitle": "Skincare | Sensitive, Acne-Prone"
+      },
+      {
+        "product": "PRD-MK-FIXER",
+        "name": "Mask Fit Make Up Fixer",
+        "quantity": 1,
+        "price": 16,
+        "shade": "80ml (Full)",
+        "thumbnail": "assets/images/products/PRD-MK-FIXER/Main-Images/thumb.webp",
+        "subtitle": "Setting Spray | All Skin Types"
+      }
+    ],
+    "invoiceUrl": "http://10.0.2.2:5000/api/v1/orders/6a4d4b6c092d5e2a01a93068/invoice",
+    "adminNotes": "",
+    "cancellationReason": "",
+    "shippingDetails": {
+      "trackingNumber": "",
+      "carrier": ""
+    },
+    "history": [],
+    "createdAt": "2026-07-07T18:54:36.630Z",
+    "updatedAt": "2026-07-07T18:54:36.699Z",
+    "__v": 0,
+    "cancelable": true,
+    "reorderable": true,
+    "timeline": [
+      {
+        "title": "Order Placed",
+        "time": "2026-07-07T18:54:36.630Z",
+        "completed": true
+      },
+      {
+        "title": "Processing",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Shipped",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Delivered",
+        "time": null,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "_id": "6a4d4af9f6776573bfd52537",
+    "userId": "6982b531907ce740387af9ef",
+    "status": "Pending",
+    "totalPrice": 35,
+    "shippingFee": 0,
+    "paymentMethod": "VNPAY",
+    "isPaid": false,
+    "shippingAddress": {
+      "fullName": "Người dùng TirTir",
+      "phone": "0909976498",
+      "address": "232/23 Võ Thị Sáu, Phường Võ Thị Sáu, Quận 3",
+      "city": "Hồ Chí Minh"
+    },
+    "items": [
+      {
+        "product": "PRD-MK-FIXER",
+        "name": "Mask Fit Make Up Fixer",
+        "quantity": 1,
+        "price": 16,
+        "shade": "80ml",
+        "thumbnail": "assets/images/products/PRD-MK-FIXER/Main-Images/thumb.webp",
+        "subtitle": "Setting Spray | All Skin Types"
+      },
+      {
+        "product": "PRD-SK-MILK-03",
+        "name": "Milk Creamy Foam Cleanser",
+        "quantity": 1,
+        "price": 14,
+        "shade": "150ml",
+        "thumbnail": "assets/images/products/PRD-SK-MILK-03/Main-Images/thumb.webp",
+        "subtitle": "Skincare | Dry, Sensitive, All"
+      }
+    ],
+    "invoiceUrl": "http://10.0.2.2:5000/api/v1/orders/6a4d4af9f6776573bfd52537/invoice",
+    "adminNotes": "",
+    "cancellationReason": "",
+    "shippingDetails": {
+      "trackingNumber": "",
+      "carrier": ""
+    },
+    "history": [],
+    "createdAt": "2026-07-07T18:52:41.136Z",
+    "updatedAt": "2026-07-07T18:52:41.204Z",
+    "__v": 0,
+    "cancelable": true,
+    "reorderable": true,
+    "timeline": [
+      {
+        "title": "Order Placed",
+        "time": "2026-07-07T18:52:41.136Z",
+        "completed": true
+      },
+      {
+        "title": "Processing",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Shipped",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Delivered",
+        "time": null,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "_id": "6a4d4822f6776573bfd5251a",
+    "userId": "6982b531907ce740387af9ef",
+    "status": "Pending",
+    "totalPrice": 65.8,
+    "shippingFee": 0,
+    "paymentMethod": "VNPAY",
+    "isPaid": false,
+    "shippingAddress": {
+      "fullName": "Người dùng TirTir",
+      "phone": "0909976498",
+      "address": "232/23 Võ Thị Sáu, Phường Võ Thị Sáu, Quận 3",
+      "city": "Hồ Chí Minh"
+    },
+    "items": [
+      {
+        "product": "PRD-MK-TINT-02",
+        "name": "Mini Waterism Glow Tint",
+        "quantity": 1,
+        "price": 8,
+        "shade": "Classic Plum",
+        "thumbnail": "assets/images/products/PRD-MK-TINT-01/Main-Images/thumb.webp",
+        "subtitle": "Tint | All Skin Types"
+      },
+      {
+        "product": "PRD-SET-MATCHA-01",
+        "name": "Matcha Calming Duo Set",
+        "quantity": 1,
+        "price": 40,
+        "shade": "Duo Set",
+        "thumbnail": "assets/images/products/PRD-SET-MATCHA-01/Main-Images/thumb.webp",
+        "subtitle": "Skincare | Oily, Acne"
+      },
+      {
+        "product": "PRD-MK-GLOSS-01",
+        "name": "Glowy Jelly Tint",
+        "quantity": 1,
+        "price": 10,
+        "shade": "Pinkush",
+        "thumbnail": "assets/images/products/PRD-MK-GLOSS-01/Main-Images/thumb.webp",
+        "subtitle": "Makeup"
+      }
+    ],
+    "invoiceUrl": "http://10.0.2.2:5000/api/v1/orders/6a4d4822f6776573bfd5251a/invoice",
+    "adminNotes": "",
+    "cancellationReason": "",
+    "shippingDetails": {
+      "trackingNumber": "",
+      "carrier": ""
+    },
+    "history": [],
+    "createdAt": "2026-07-07T18:40:34.942Z",
+    "updatedAt": "2026-07-07T18:40:35.024Z",
+    "__v": 0,
+    "cancelable": true,
+    "reorderable": true,
+    "timeline": [
+      {
+        "title": "Order Placed",
+        "time": "2026-07-07T18:40:34.942Z",
+        "completed": true
+      },
+      {
+        "title": "Processing",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Shipped",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Delivered",
+        "time": null,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "_id": "6a4d461e3773d076e91d543b",
+    "userId": "6982b531907ce740387af9ef",
+    "status": "Pending",
+    "totalPrice": 65.8,
+    "shippingFee": 0,
+    "paymentMethod": "CARD",
+    "isPaid": false,
+    "shippingAddress": {
+      "fullName": "Người dùng TirTir",
+      "phone": "0909976498",
+      "address": "232/23 Võ Thị Sáu, Phường Võ Thị Sáu, Quận 3",
+      "city": "Hồ Chí Minh"
+    },
+    "items": [
+      {
+        "product": "PRD-MK-TINT-02",
+        "name": "Mini Waterism Glow Tint",
+        "quantity": 1,
+        "price": 8,
+        "shade": "Classic Plum",
+        "thumbnail": "assets/images/products/PRD-MK-TINT-01/Main-Images/thumb.webp",
+        "subtitle": "Tint | All Skin Types"
+      },
+      {
+        "product": "PRD-SET-MATCHA-01",
+        "name": "Matcha Calming Duo Set",
+        "quantity": 1,
+        "price": 40,
+        "shade": "Duo Set",
+        "thumbnail": "assets/images/products/PRD-SET-MATCHA-01/Main-Images/thumb.webp",
+        "subtitle": "Skincare | Oily, Acne"
+      },
+      {
+        "product": "PRD-MK-GLOSS-01",
+        "name": "Glowy Jelly Tint",
+        "quantity": 1,
+        "price": 10,
+        "shade": "Pinkush",
+        "thumbnail": "assets/images/products/PRD-MK-GLOSS-01/Main-Images/thumb.webp",
+        "subtitle": "Makeup"
+      }
+    ],
+    "invoiceUrl": "http://10.0.2.2:5000/api/v1/orders/6a4d461e3773d076e91d543b/invoice",
+    "adminNotes": "",
+    "cancellationReason": "",
+    "shippingDetails": {
+      "trackingNumber": "",
+      "carrier": ""
+    },
+    "history": [],
+    "createdAt": "2026-07-07T18:31:58.564Z",
+    "updatedAt": "2026-07-07T18:31:58.635Z",
+    "__v": 0,
+    "cancelable": true,
+    "reorderable": true,
+    "timeline": [
+      {
+        "title": "Order Placed",
+        "time": "2026-07-07T18:31:58.564Z",
+        "completed": true
+      },
+      {
+        "title": "Processing",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Shipped",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Delivered",
+        "time": null,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "_id": "6a4d45ef3773d076e91d5438",
+    "userId": "6982b531907ce740387af9ef",
+    "status": "Pending",
+    "totalPrice": 65.8,
+    "shippingFee": 0,
+    "paymentMethod": "VNPAY",
+    "isPaid": false,
+    "shippingAddress": {
+      "fullName": "Người dùng TirTir",
+      "phone": "0909976498",
+      "address": "232/23 Võ Thị Sáu, Phường Võ Thị Sáu, Quận 3",
+      "city": "Hồ Chí Minh"
+    },
+    "items": [
+      {
+        "product": "PRD-MK-TINT-02",
+        "name": "Mini Waterism Glow Tint",
+        "quantity": 1,
+        "price": 8,
+        "shade": "Classic Plum",
+        "thumbnail": "assets/images/products/PRD-MK-TINT-01/Main-Images/thumb.webp",
+        "subtitle": "Tint | All Skin Types"
+      },
+      {
+        "product": "PRD-SET-MATCHA-01",
+        "name": "Matcha Calming Duo Set",
+        "quantity": 1,
+        "price": 40,
+        "shade": "Duo Set",
+        "thumbnail": "assets/images/products/PRD-SET-MATCHA-01/Main-Images/thumb.webp",
+        "subtitle": "Skincare | Oily, Acne"
+      },
+      {
+        "product": "PRD-MK-GLOSS-01",
+        "name": "Glowy Jelly Tint",
+        "quantity": 1,
+        "price": 10,
+        "shade": "Pinkush",
+        "thumbnail": "assets/images/products/PRD-MK-GLOSS-01/Main-Images/thumb.webp",
+        "subtitle": "Makeup"
+      }
+    ],
+    "invoiceUrl": "http://10.0.2.2:5000/api/v1/orders/6a4d45ef3773d076e91d5438/invoice",
+    "adminNotes": "",
+    "cancellationReason": "",
+    "shippingDetails": {
+      "trackingNumber": "",
+      "carrier": ""
+    },
+    "history": [],
+    "createdAt": "2026-07-07T18:31:11.251Z",
+    "updatedAt": "2026-07-07T18:31:11.333Z",
+    "__v": 0,
+    "cancelable": true,
+    "reorderable": true,
+    "timeline": [
+      {
+        "title": "Order Placed",
+        "time": "2026-07-07T18:31:11.251Z",
+        "completed": true
+      },
+      {
+        "title": "Processing",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Shipped",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Delivered",
+        "time": null,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "_id": "6a4d449a3773d076e91d5435",
+    "userId": "6982b531907ce740387af9ef",
+    "status": "Pending",
+    "totalPrice": 65.8,
+    "shippingFee": 0,
+    "paymentMethod": "VNPAY",
+    "isPaid": false,
+    "shippingAddress": {
+      "fullName": "Người dùng TirTir",
+      "phone": "0909976498",
+      "address": "232/23 Võ Thị Sáu, Phường Võ Thị Sáu, Quận 3",
+      "city": "Hồ Chí Minh"
+    },
+    "items": [
+      {
+        "product": "PRD-MK-TINT-02",
+        "name": "Mini Waterism Glow Tint",
+        "quantity": 1,
+        "price": 8,
+        "shade": "Classic Plum",
+        "thumbnail": "assets/images/products/PRD-MK-TINT-01/Main-Images/thumb.webp",
+        "subtitle": "Tint | All Skin Types"
+      },
+      {
+        "product": "PRD-SET-MATCHA-01",
+        "name": "Matcha Calming Duo Set",
+        "quantity": 1,
+        "price": 40,
+        "shade": "Duo Set",
+        "thumbnail": "assets/images/products/PRD-SET-MATCHA-01/Main-Images/thumb.webp",
+        "subtitle": "Skincare | Oily, Acne"
+      },
+      {
+        "product": "PRD-MK-GLOSS-01",
+        "name": "Glowy Jelly Tint",
+        "quantity": 1,
+        "price": 10,
+        "shade": "Pinkush",
+        "thumbnail": "assets/images/products/PRD-MK-GLOSS-01/Main-Images/thumb.webp",
+        "subtitle": "Makeup"
+      }
+    ],
+    "invoiceUrl": "http://10.0.2.2:5000/api/v1/orders/6a4d449a3773d076e91d5435/invoice",
+    "adminNotes": "",
+    "cancellationReason": "",
+    "shippingDetails": {
+      "trackingNumber": "",
+      "carrier": ""
+    },
+    "history": [],
+    "createdAt": "2026-07-07T18:25:30.449Z",
+    "updatedAt": "2026-07-07T18:25:30.541Z",
+    "__v": 0,
+    "cancelable": true,
+    "reorderable": true,
+    "timeline": [
+      {
+        "title": "Order Placed",
+        "time": "2026-07-07T18:25:30.449Z",
+        "completed": true
+      },
+      {
+        "title": "Processing",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Shipped",
+        "time": null,
+        "completed": false
+      },
+      {
+        "title": "Delivered",
+        "time": null,
+        "completed": false
+      }
+    ]
+  }
+]

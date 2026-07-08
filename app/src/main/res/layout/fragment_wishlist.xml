@@ -1,94 +1,149 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/tirtir_off_white">
+    android:background="@color/tirtir_surface">
 
-    <!-- Toolbar -->
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@color/tirtir_white"
-        android:paddingHorizontal="8dp"
-        android:elevation="4dp">
+        android:layout_height="wrap_content"
+        android:background="@color/tirtir_surface"
+        app:elevation="0dp">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_arrow_back"
-            android:contentDescription="@string/back" />
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbarWishlist"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:contentInsetStart="0dp"
+            app:contentInsetStartWithNavigation="0dp">
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/nav_wishlist"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/tirtir_black"
-            android:layout_marginStart="8dp" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingHorizontal="16dp">
 
-        <TextView
-            android:id="@+id/tvWishlistCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0 products"
-            android:textSize="13sp"
-            android:textColor="@color/tirtir_text_secondary"
-            android:layout_marginEnd="8dp" />
+                <ImageButton
+                    android:id="@+id/btnBack"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_arrow_back"
+                    app:tint="@color/tirtir_red_primary"
+                    android:contentDescription="Back" />
 
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/tvWishlistTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="Wishlist"
+                    android:textColor="@color/tirtir_red_primary"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="-0.02" />
 
-    <!-- Empty State -->
-    <LinearLayout
-        android:id="@+id/layoutEmptyWishlist"
+                <ImageButton
+                    android:id="@+id/btnCart"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_cart"
+                    app:tint="@color/tirtir_red_primary"
+                    android:contentDescription="Shopping Cart" />
+            </RelativeLayout>
+        </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Main Content -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:visibility="gone">
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <ImageView
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:src="@drawable/ic_wishlist"
-            app:tint="@color/tirtir_silver_gray"
-            android:layout_marginBottom="16dp"
-            android:contentDescription="@null" />
+        <!-- Swipe Refresh Layout for pull-to-refresh -->
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshWishlist"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <TextView
-            android:layout_width="wrap_content"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvWishlist"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="100dp"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="2"
+                tools:listitem="@layout/item_wishlist" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <!-- Empty State -->
+        <LinearLayout
+            android:id="@+id/layoutEmptyState"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="No wishlist items yet"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/tirtir_black"
-            android:layout_marginBottom="8dp" />
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="32dp"
+            android:visibility="gone">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Save your favorite TirTir products to find them here"
-            android:textSize="14sp"
-            android:textColor="@color/tirtir_text_secondary"
-            android:gravity="center" />
+            <FrameLayout
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_marginBottom="32dp"
+                android:background="@drawable/bg_circle_surface_container">
 
-    </LinearLayout>
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_wishlist_outline"
+                    app:tint="@color/tirtir_outline" />
+            </FrameLayout>
 
-    <!-- Wishlist RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerWishlist"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="12dp"
-        android:clipToPadding="false" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Your collection is empty"
+                android:textColor="@color/tirtir_on_surface"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:gravity="center" />
 
-</LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp"
+                android:text="Save your favorite radiance essentials here for quick access later."
+                android:textColor="@color/tirtir_secondary"
+                android:textSize="18sp"
+                android:gravity="center" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnStartShopping"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="START SHOPPING"
+                android:textColor="@color/tirtir_on_tertiary"
+                android:textStyle="bold"
+                android:letterSpacing="0.05"
+                android:paddingHorizontal="48dp"
+                android:paddingVertical="16dp"
+                app:backgroundTint="@color/tirtir_tertiary"
+                app:cornerRadius="0dp"
+                app:rippleColor="@color/tirtir_primary" />
+        </LinearLayout>
+
+    </FrameLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

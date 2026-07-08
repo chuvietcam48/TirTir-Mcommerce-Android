@@ -1,6 +1,7 @@
 package com.example.tirtir_mcommerce.ui.adapters;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,71 +13,43 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.tirtir_mcommerce.R;
+import com.example.tirtir_mcommerce.model.WishlistItem;
 import com.example.tirtir_mcommerce.utils.PriceUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * WishlistAdapter - RecyclerView Adapter cho danh sách Wishlist.
- *
- * Mỗi item được load từ SQLite thông qua WishlistContentProvider.
- * Dữ liệu được truyền vào dưới dạng List<WishlistItem>.
- *
- * Sprint 1.1 - Task: SQLite Logic / Wishlist DB (ContentProvider)
- */
 public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.WishlistViewHolder> {
 
-    // ===========================
-    // DATA MODEL
-    // ===========================
+    private final Context context;
+    private List<WishlistItem> items = new ArrayList<>();
+    private final OnItemClickListener listener;
 
-    /**
-     * Model đơn giản cho một item Wishlist.
-     * Mapping trực tiếp từ cột SQLite trong WishlistContentProvider.
-     */
-    public static class WishlistItem {
-        public final long id;
-        public final String productId;
-        public final String productName;
-        public final String productImage;
-        public final double productPrice;
+    public interface OnItemClickListener {
+        void onRemoveClick(WishlistItem item, int position);
+        void onAddToCartClick(WishlistItem item);
+        void onProductClick(WishlistItem item);
+    }
 
-        public WishlistItem(long id, String productId, String productName,
-                            String productImage, double productPrice) {
-            this.id = id;
-            this.productId = productId;
-            this.productName = productName;
-            this.productImage = productImage;
-            this.productPrice = productPrice;
+    public WishlistAdapter(Context context, OnItemClickListener listener) {
+        this.context = context;
+        this.listener = listener;
+    }
+
+    public void setItems(List<WishlistItem> items) {
+        this.items = items;
+        notifyDataSetChanged();
+    }
+
+    public void removeItem(int position) {
+        if (position >= 0 && position < items.size()) {
+            items.remove(position);
+            notifyItemRemoved(position);
         }
     }
-
-    // ===========================
-    // CALLBACK INTERFACE
-    // ===========================
-
-    public interface OnRemoveClickListener {
-        void onRemove(WishlistItem item, int position);
-    }
-
-    // ===========================
-    // FIELDS
-    // ===========================
-
-    private final Context context;
-    private final List<WishlistItem> items;
-    private final OnRemoveClickListener removeListener;
-    public WishlistAdapter(Context context, List<WishlistItem> items, OnRemoveClickListener removeListener) {
-        this.context = context;
-        this.items = new ArrayList<>(items);
-        this.removeListener = removeListener;
-    }
-
-    // ===========================
-    // RECYCLERVIEW METHODS
-    // ===========================
 
     @NonNull
     @Override
@@ -88,7 +61,33 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.Wishli
     @Override
     public void onBindViewHolder(@NonNull WishlistViewHolder holder, int position) {
         WishlistItem item = items.get(position);
-        holder.bind(item, position);
+        holder.tvProductName.setText(item.getProductName());
+        holder.tvProductSubtitle.setText(item.getSubtitle());
+        holder.tvProductPrice.setText(PriceUtils.formatPriceUsd(item.getPrice()));
+
+        Glide.with(context)
+                .load(item.getThumbnail())
+                .apply(new RequestOptions().transform(new CenterCrop()))
+                .placeholder(R.drawable.ic_product_placeholder)
+                .into(holder.ivProductImage);
+
+        holder.btnRemove.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onRemoveClick(item, position);
+            }
+        });
+
+        holder.btnAddToCart.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onAddToCartClick(item);
+            }
+        });
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onProductClick(item);
+            }
+        });
     }
 
     @Override
@@ -96,104 +95,22 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.Wishli
         return items.size();
     }
 
-    /**
-     * Xóa item khỏi danh sách UI (sau khi đã xóa qua ContentProvider).
-     */
-    public void removeItem(int position) {
-        if (position >= 0 && position < items.size()) {
-            items.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, items.size());
-        }
-    }
+    static class WishlistViewHolder extends RecyclerView.ViewHolder {
+        ImageView ivProductImage;
+        ImageButton btnRemove;
+        TextView tvProductName;
+        TextView tvProductSubtitle;
+        TextView tvProductPrice;
+        ImageButton btnAddToCart;
 
-    public List<WishlistItem> getItems() {
-        return items;
-    }
-
-    /**
-     * SCR-1B: Toggle the green "Về hàng" (Restock) badge for a specific item.
-     * Called by FCM receiver when a restock notification is received for a product.
-     * Layout badge is GONE by default; this sets it VISIBLE when back in stock.
-     *
-     * @param productId  The product ID that came back in stock.
-     * @param inStock    true → show badge, false → hide badge.
-     */
-    public void setRestockBadge(String productId, boolean inStock) {
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).productId != null && items.get(i).productId.equals(productId)) {
-                notifyItemChanged(i, "restock_" + inStock);
-                break;
-            }
-        }
-    }
-
-    // ===========================
-    // VIEW HOLDER
-    // ===========================
-
-    class WishlistViewHolder extends RecyclerView.ViewHolder {
-
-        private final ImageView imgProduct;
-        private final TextView tvName;
-        private final TextView tvPrice;
-        private final ImageButton btnRemove;
-        /** Restock alert badge — GONE by default, toggled by FCM restock payload. */
-        final TextView tvRestockBadge;
-
-        WishlistViewHolder(@NonNull View itemView) {
+        public WishlistViewHolder(@NonNull View itemView) {
             super(itemView);
-            imgProduct = itemView.findViewById(R.id.imgWishlistProduct);
-            tvName = itemView.findViewById(R.id.tvWishlistProductName);
-            tvPrice = itemView.findViewById(R.id.tvWishlistProductPrice);
-            btnRemove = itemView.findViewById(R.id.btnRemoveWishlist);
-            tvRestockBadge = itemView.findViewById(R.id.tvRestockBadge);
-        }
-
-        void bind(WishlistItem item, int position) {
-            tvName.setText(item.productName != null ? item.productName : "TirTir product");
-
-            // Format giá tiền
-            tvPrice.setText(PriceUtils.formatPriceUsd(item.productPrice));
-
-            String nameLower = (item.productName == null ? "" : item.productName).toLowerCase(java.util.Locale.ENGLISH);
-            Object imageSource;
-            int fallbackDrawable = R.drawable.ic_product_placeholder;
-
-            if (nameLower.contains("gift card")) {
-                imageSource = R.drawable.giftcard;
-                fallbackDrawable = R.drawable.giftcard;
-            } else if (nameLower.contains("matcha calming cream")) {
-                imageSource = R.drawable.matcha_cream;
-                fallbackDrawable = R.drawable.matcha_cream;
-            } else if (nameLower.contains("hydro uv shield sunscreen") || nameLower.contains("hydro uv") || nameLower.contains("sunscreen")) {
-                imageSource = R.drawable.hydrosuncreen;
-                fallbackDrawable = R.drawable.hydrosuncreen;
-            } else {
-                imageSource = (item.productImage != null && !item.productImage.isEmpty()) ? resolveImageUrl(item.productImage) : null;
-            }
-
-            // Load ảnh bằng Glide
-            if (imageSource != null) {
-                Glide.with(context)
-                        .load(imageSource)
-                        .placeholder(fallbackDrawable)
-                        .error(fallbackDrawable)
-                        .into(imgProduct);
-            } else {
-                imgProduct.setImageResource(fallbackDrawable);
-            }
-
-            // Xóa item
-            btnRemove.setOnClickListener(v -> {
-                if (removeListener != null) {
-                    removeListener.onRemove(item, getAdapterPosition());
-                }
-            });
-        }
-
-        private String resolveImageUrl(String path) {
-            return com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(path);
+            ivProductImage = itemView.findViewById(R.id.ivProductImage);
+            btnRemove = itemView.findViewById(R.id.btnRemove);
+            tvProductName = itemView.findViewById(R.id.tvProductName);
+            tvProductSubtitle = itemView.findViewById(R.id.tvProductSubtitle);
+            tvProductPrice = itemView.findViewById(R.id.tvProductPrice);
+            btnAddToCart = itemView.findViewById(R.id.btnAddToCart);
         }
     }
 }

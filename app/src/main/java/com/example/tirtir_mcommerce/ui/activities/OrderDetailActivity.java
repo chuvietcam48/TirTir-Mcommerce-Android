@@ -194,9 +194,20 @@ public class OrderDetailActivity extends AppCompatActivity {
             tvPrice.setText(PriceUtils.formatPriceUsd(price));
             
             if (!imageUrl.isEmpty()) {
-                Glide.with(this).load(imageUrl).into(ivImage);
+                String primaryUrl = com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaUrl(imageUrl);
+                String fallbackUrl = com.example.tirtir_mcommerce.network.ApiConfig.resolveMediaFallbackUrl(imageUrl);
+                
+                if (!fallbackUrl.isEmpty()) {
+                    Glide.with(this)
+                            .load(primaryUrl)
+                            .placeholder(R.drawable.ic_product_placeholder)
+                            .error(Glide.with(this).load(fallbackUrl).placeholder(R.drawable.ic_product_placeholder))
+                            .into(ivImage);
+                } else {
+                    Glide.with(this).load(primaryUrl).placeholder(R.drawable.ic_product_placeholder).into(ivImage);
+                }
             } else {
-                // Try product map fallback if needed or just leave default
+                ivImage.setImageResource(R.drawable.ic_product_placeholder);
             }
             
             items.addView(row);

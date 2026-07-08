@@ -67,6 +67,7 @@
         android:text="Force Demo"
         android:textSize="12sp"
         android:elevation="10dp"
+        android:visibility="gone"
         app:backgroundTint="@color/tirtir_red_primary"
         app:cornerRadius="8dp"
         app:layout_constraintEnd_toEndOf="parent"

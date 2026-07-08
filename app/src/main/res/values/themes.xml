@@ -6,15 +6,13 @@
         <item name="colorPrimary">@color/tirtir_red_primary</item>
         <item name="colorPrimaryDark">@color/tirtir_red_dark</item>
         <item name="colorPrimaryContainer">#FFFFFF</item>
-
-        <!-- Black for text on primary backgrounds -->
         <item name="colorOnPrimary">@color/tirtir_white</item>
         <item name="colorOnPrimaryContainer">@color/tirtir_red_primary</item>
 
         <!-- Secondary = black (main CTA buttons) -->
         <item name="colorSecondary">@color/tirtir_black</item>
         <item name="colorOnSecondary">@color/tirtir_white</item>
-        <item name="colorSecondaryContainer">#F8F8F8</item>
+        <item name="colorSecondaryContainer">#FFFFFF</item>
         <item name="colorOnSecondaryContainer">@color/tirtir_red_primary</item>
 
         <!-- Surfaces: white + off-white -->
@@ -29,6 +27,11 @@
 
         <!-- Error state -->
         <item name="colorError">@color/tirtir_error</item>
+    </style>
+
+    <style name="TextAppearance.TirTir.Tab" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">false</item>
     </style>
 
     <style name="Theme.TirTirMCommerce" parent="Base.Theme.TirTirMCommerce" />

@@ -427,6 +427,16 @@ public interface ApiService {
     Call<ApiResponse<List<CartItem>>> syncCart(@Body Map<String, Object> body);
 
     // ===========================
+    // WISHLIST MODULE
+    // ===========================
+
+    @GET("api/v1/wishlist")
+    Call<ApiResponse<List<Product>>> getWishlist();
+
+    @POST("api/v1/wishlist/sync")
+    Call<ApiResponse<Void>> syncWishlist(@Body Map<String, Object> body);
+
+    // ===========================
     // ORDER MODULE
     // ===========================
 
@@ -446,7 +456,7 @@ public interface ApiService {
      * Dùng cho SCR-18 OrderHistoryFragment
      */
     @GET("api/v1/orders/my-orders")
-    Call<ApiResponse<List<java.util.Map<String, Object>>>> getMyOrders();
+    Call<ApiResponse<List<OrderResponse>>> getMyOrders();
 
     /**
      * Xem chi tiết đơn hàng - GET /api/v1/orders/{id}

@@ -5,26 +5,27 @@
     android:id="@+id/cardAdminNotification"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
-    app:cardBackgroundColor="#ffffff"
-    app:cardCornerRadius="8dp"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardBackgroundColor="#FFFFFF"
+    app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
-    app:strokeColor="#e3beb8"
-    app:strokeWidth="1dp">
+    app:strokeWidth="1dp"
+    app:strokeColor="#E0E0E0">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:padding="16dp">
 
         <!-- Dot Indicator -->
         <View
             android:id="@+id/viewTypeDot"
-            android:layout_width="6dp"
-            android:layout_height="6dp"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
             android:layout_marginTop="8dp"
             android:background="@drawable/bg_rounded_primary"
-            android:backgroundTint="#610000"
+            android:backgroundTint="@color/tirtir_red_primary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -45,7 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_rounded_primary"
-            android:backgroundTint="#ffdad4"
+            android:backgroundTint="#f0f0f0"
             android:paddingHorizontal="6dp"
             android:paddingVertical="2dp"
             android:text="INVENTORY"

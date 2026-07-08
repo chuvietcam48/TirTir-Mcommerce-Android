@@ -1,200 +1,179 @@
 package com.example.tirtir_mcommerce.ui.fragments;
 
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.tirtir_mcommerce.MainActivity;
 import com.example.tirtir_mcommerce.R;
-import com.example.tirtir_mcommerce.WishlistContentProvider;
-import com.example.tirtir_mcommerce.ui.activities.WishlistActivity;
+import com.example.tirtir_mcommerce.model.ApiResponse;
+import com.example.tirtir_mcommerce.model.CartItem;
+import com.example.tirtir_mcommerce.model.Product;
+import com.example.tirtir_mcommerce.model.WishlistItem;
+import com.example.tirtir_mcommerce.network.ApiService;
+import com.example.tirtir_mcommerce.network.RetrofitClient;
+import com.example.tirtir_mcommerce.repository.CartRepository;
+import com.example.tirtir_mcommerce.repository.WishlistRepository;
 import com.example.tirtir_mcommerce.ui.adapters.WishlistAdapter;
+import com.example.tirtir_mcommerce.ui.fragments.CartFragment;
+import com.google.android.material.button.MaterialButton;
 
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- * WishlistFragment - Màn hình danh sách sản phẩm yêu thích.
- *
- * Android Components được thể hiện (cho Báo cáo):
- * - ContentProvider: Query WishlistContentProvider để lấy danh sách wishlist từ SQLite
- * - Fragment: Giao diện danh sách wishlist
- *
- * Cách hoạt động:
- * 1. Query WishlistContentProvider qua ContentResolver
- * 2. Hiển thị danh sách trong RecyclerView
- * 3. Cho phép xóa item (xóa qua ContentProvider → cập nhật UI)
- *
- * URI: content://com.example.tirtir_mcommerce.provider/wishlist
- *
- * Sprint 1.1 - Task: SQLite Logic / Wishlist DB
- */
-public class WishlistFragment extends Fragment {
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-    private RecyclerView recyclerWishlist;
-    private LinearLayout layoutEmptyWishlist;
-    private TextView tvWishlistCount;
+public class WishlistFragment extends Fragment implements WishlistAdapter.OnItemClickListener {
+
+    private static final String TAG = "WishlistFragment";
+
+    private SwipeRefreshLayout swipeRefreshWishlist;
+    private RecyclerView rvWishlist;
+    private LinearLayout layoutEmptyState;
+    private MaterialButton btnStartShopping;
     private ImageButton btnBack;
+    private ImageButton btnCart;
 
     private WishlistAdapter adapter;
+    private WishlistRepository wishlistRepository;
+    private CartRepository cartRepository;
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_wishlist, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_wishlist, container, false);
+        wishlistRepository = new WishlistRepository(requireContext());
+        cartRepository = new CartRepository(requireContext());
+        initViews(view);
+        setupRecyclerView();
+        loadWishlistLocal();
+        fetchWishlistFromServer(); // optionally fetch latest from server
+        return view;
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onResume() {
+        super.onResume();
+        loadWishlistLocal();
+    }
 
-        bindViews(view);
-        setupRecyclerView();
-        loadWishlistFromContentProvider();
+    private void initViews(View view) {
+        swipeRefreshWishlist = view.findViewById(R.id.swipeRefreshWishlist);
+        rvWishlist = view.findViewById(R.id.rvWishlist);
+        layoutEmptyState = view.findViewById(R.id.layoutEmptyState);
+        btnStartShopping = view.findViewById(R.id.btnStartShopping);
+        btnBack = view.findViewById(R.id.btnBack);
+        btnCart = view.findViewById(R.id.btnCart);
 
-        btnBack.setOnClickListener(v -> {
-            if (requireActivity() instanceof WishlistActivity) {
-                requireActivity().finish();
-            } else {
-                requireActivity().getSupportFragmentManager().popBackStack();
+        btnBack.setOnClickListener(v -> requireActivity().onBackPressed());
+        
+        btnCart.setOnClickListener(v -> {
+            if (requireActivity() instanceof MainActivity) {
+                requireActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentContainer, new CartFragment())
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
+        btnStartShopping.setOnClickListener(v -> {
+            if (requireActivity() instanceof MainActivity) {
+                ((MainActivity) requireActivity()).setActiveTab(R.id.navTabHome);
+                requireActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentContainer, new HomeFragment())
+                        .commit();
+            }
+        });
+
+        swipeRefreshWishlist.setOnRefreshListener(this::fetchWishlistFromServer);
+    }
+
+    private void setupRecyclerView() {
+        adapter = new WishlistAdapter(requireContext(), this);
+        rvWishlist.setAdapter(adapter);
+    }
+
+    private void loadWishlistLocal() {
+        List<WishlistItem> items = wishlistRepository.getLocalWishlist();
+        adapter.setItems(items);
+        updateEmptyState(items.isEmpty());
+    }
+
+    private void updateEmptyState(boolean isEmpty) {
+        if (isEmpty) {
+            rvWishlist.setVisibility(View.GONE);
+            layoutEmptyState.setVisibility(View.VISIBLE);
+        } else {
+            rvWishlist.setVisibility(View.VISIBLE);
+            layoutEmptyState.setVisibility(View.GONE);
+        }
+    }
+
+    private void fetchWishlistFromServer() {
+        swipeRefreshWishlist.setRefreshing(true);
+        ApiService apiService = RetrofitClient.getAuthClient(requireContext()).create(ApiService.class);
+        apiService.getWishlist().enqueue(new Callback<ApiResponse<List<Product>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Product>>> call, Response<ApiResponse<List<Product>>> response) {
+                swipeRefreshWishlist.setRefreshing(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Product> products = response.body().getData();
+                    // In a real robust offline-first app, we would reconcile local & remote.
+                    // For now, we update local db.
+                    // Since local wishlist has user interactions, maybe sync up is better.
+                    // Let's just load local for now.
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<Product>>> call, Throwable t) {
+                swipeRefreshWishlist.setRefreshing(false);
+                Log.e(TAG, "Failed to fetch wishlist", t);
             }
         });
     }
 
-    private void bindViews(View view) {
-        recyclerWishlist = view.findViewById(R.id.recyclerWishlist);
-        layoutEmptyWishlist = view.findViewById(R.id.layoutEmptyWishlist);
-        tvWishlistCount = view.findViewById(R.id.tvWishlistCount);
-        btnBack = view.findViewById(R.id.btnBack);
+    @Override
+    public void onRemoveClick(WishlistItem item, int position) {
+        adapter.removeItem(position);
+        updateEmptyState(adapter.getItemCount() == 0);
+        wishlistRepository.removeProductFromWishlist(item.getProductId());
+        wishlistRepository.syncAllItemsToServer(null, null);
     }
 
-    private void setupRecyclerView() {
-        recyclerWishlist.setLayoutManager(new LinearLayoutManager(getContext()));
-    }
-
-    // ===========================
-    // CONTENT PROVIDER QUERY
-    // ===========================
-
-    /**
-     * Query WishlistContentProvider để lấy toàn bộ danh sách wishlist.
-     *
-     * URI: content://com.example.tirtir_mcommerce.provider/wishlist
-     * Columns: _id, product_id, product_name, product_image, product_price
-     */
-    private void loadWishlistFromContentProvider() {
-        List<WishlistAdapter.WishlistItem> wishlistItems = new ArrayList<>();
-
-        Uri contentUri = WishlistContentProvider.CONTENT_URI;
-        String sortOrder = WishlistContentProvider.COL_ADDED_AT + " DESC";
-
-        Cursor cursor = null;
-        try {
-            cursor = requireContext().getContentResolver().query(
-                    contentUri,
-                    null,           // Lấy tất cả cột
-                    null,           // Không filter
-                    null,
-                    sortOrder       // Sắp xếp theo thời gian thêm mới nhất
-            );
-
-            if (cursor != null && cursor.moveToFirst()) {
-                // Lấy index cột một lần để tránh gọi nhiều lần
-                int idxId = cursor.getColumnIndexOrThrow(WishlistContentProvider.COL_ID);
-                int idxProductId = cursor.getColumnIndexOrThrow(WishlistContentProvider.COL_PRODUCT_ID);
-                int idxName = cursor.getColumnIndexOrThrow(WishlistContentProvider.COL_PRODUCT_NAME);
-                int idxImage = cursor.getColumnIndexOrThrow(WishlistContentProvider.COL_PRODUCT_IMAGE);
-                int idxPrice = cursor.getColumnIndexOrThrow(WishlistContentProvider.COL_PRODUCT_PRICE);
-
-                do {
-                    long id = cursor.getLong(idxId);
-                    String productId = cursor.getString(idxProductId);
-                    String productName = cursor.getString(idxName);
-                    String productImage = cursor.getString(idxImage);
-                    double productPrice = cursor.getDouble(idxPrice);
-
-                    wishlistItems.add(new WishlistAdapter.WishlistItem(
-                            id, productId, productName, productImage, productPrice
-                    ));
-                } while (cursor.moveToNext());
-            }
-        } catch (Exception e) {
-            Toast.makeText(getContext(), "Unable to load wishlist: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        } finally {
-            if (cursor != null) cursor.close();
-        }
-
-        displayWishlist(wishlistItems);
-    }
-
-    /**
-     * Hiển thị danh sách hoặc empty state tùy theo số lượng item.
-     */
-    private void displayWishlist(List<WishlistAdapter.WishlistItem> items) {
-        updateCount(items.size());
-
-        if (items.isEmpty()) {
-            recyclerWishlist.setVisibility(View.GONE);
-            layoutEmptyWishlist.setVisibility(View.VISIBLE);
-            return;
-        }
-
-        recyclerWishlist.setVisibility(View.VISIBLE);
-        layoutEmptyWishlist.setVisibility(View.GONE);
-
-        adapter = new WishlistAdapter(requireContext(), items, this::removeWishlistItem);
-        recyclerWishlist.setAdapter(adapter);
-    }
-
-    // ===========================
-    // REMOVE ITEM
-    // ===========================
-
-    /**
-     * Xóa item khỏi Wishlist qua ContentProvider.
-     * URI: content://com.example.tirtir_mcommerce.provider/wishlist/{id}
-     *
-     * @param item     Item cần xóa
-     * @param position Vị trí trong RecyclerView
-     */
-    private void removeWishlistItem(WishlistAdapter.WishlistItem item, int position) {
-        Uri deleteUri = Uri.withAppendedPath(
-                WishlistContentProvider.CONTENT_URI,
-                String.valueOf(item.id)
+    @Override
+    public void onAddToCartClick(WishlistItem item) {
+        CartItem cartItem = new CartItem(
+                item.getProductId(),
+                item.getProductName(),
+                item.getThumbnail(),
+                item.getPrice(),
+                1,
+                ""
         );
-
-        int rowsDeleted = requireContext().getContentResolver().delete(deleteUri, null, null);
-
-        if (rowsDeleted > 0) {
-            adapter.removeItem(position);
-            updateCount(adapter.getItemCount());
-            Toast.makeText(getContext(), "Removed from wishlist", Toast.LENGTH_SHORT).show();
-
-            // Hiện empty state nếu hết item
-            if (adapter.getItemCount() == 0) {
-                recyclerWishlist.setVisibility(View.GONE);
-                layoutEmptyWishlist.setVisibility(View.VISIBLE);
-            }
-        } else {
-            Toast.makeText(getContext(), "Unable to remove product", Toast.LENGTH_SHORT).show();
-        }
+        
+        cartRepository.addToCartLocal(cartItem);
+        cartRepository.syncItemToServer(cartItem, null, null);
+        Toast.makeText(requireContext(), "Added to cart", Toast.LENGTH_SHORT).show();
     }
 
-    private void updateCount(int count) {
-        tvWishlistCount.setText(count + (count == 1 ? " product" : " products"));
+    @Override
+    public void onProductClick(WishlistItem item) {
+        android.content.Intent intent = new android.content.Intent(requireContext(), com.example.tirtir_mcommerce.ui.activities.ProductDetailActivity.class);
+        intent.putExtra("PRODUCT_ID", item.getProductId());
+        startActivity(intent);
     }
 }

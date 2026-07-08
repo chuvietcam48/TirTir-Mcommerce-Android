@@ -90,6 +90,18 @@ exports.createOrder = async (req, res) => {
       ? (product.Sale_Price > 0 ? product.Sale_Price : product.Price)
       : 0;
     const name = product ? product.Name : 'Sản phẩm không xác định';
+    let thumbnail = '';
+    let subtitle = '';
+    
+    if (product) {
+      if (product.Thumbnail_Images && product.Thumbnail_Images.length > 0) {
+        thumbnail = product.Thumbnail_Images[0];
+      }
+      if (product.Category) subtitle = product.Category;
+      if (product.Skin_Type_Target) {
+        subtitle = subtitle ? `${subtitle} | ${product.Skin_Type_Target}` : product.Skin_Type_Target;
+      }
+    }
 
     orderItems.push({
       product: cartItem.productId,
@@ -97,6 +109,8 @@ exports.createOrder = async (req, res) => {
       quantity: cartItem.quantity,
       price: unitPrice,
       shade: cartItem.shade || '',
+      thumbnail,
+      subtitle
     });
 
     totalPrice += unitPrice * cartItem.quantity;
@@ -181,7 +195,51 @@ const enhanceOrder = (order) => {
 // Response: ApiResponse<List<OrderResponse>> { success, data: [...] }
 exports.getMyOrders = async (req, res) => {
   const orders = await Order.find({ userId: req.user.id }).sort({ createdAt: -1 }).lean();
+  
+  // Backfill missing thumbnails and subtitles
+  for (let order of orders) {
+    if (order.items && Array.isArray(order.items)) {
+      for (let item of order.items) {
+        if (!item.thumbnail || !item.subtitle || item.thumbnail.length === 1) {
+          const product = await Product.findOne({ Product_ID: item.product }).lean();
+          if (product) {
+            if (!item.thumbnail || item.thumbnail.length === 1) {
+              let thumb = product.Thumbnail_Images || '';
+              // If it's a stringified JSON array, parse it
+              if (thumb.startsWith('["')) {
+                  try {
+                      let parsed = JSON.parse(thumb);
+                      if (parsed && parsed.length > 0) thumb = parsed[0];
+                  } catch (e) {}
+              }
+              // Force insert Main-Images subfolder if it's missing (e.g. assets/images/products/.../thumb.webp)
+              if (thumb.includes('assets/images/products/') && !thumb.includes('Main-Images')) {
+                  const parts = thumb.split('/');
+                  if (parts.length > 1) {
+                      const filename = parts.pop();
+                      thumb = parts.join('/') + '/Main-Images/' + filename;
+                  }
+              }
+              item.thumbnail = thumb;
+            }
+            if (!item.subtitle) {
+              let sub = '';
+              if (product.Category) sub = product.Category;
+              if (product.Skin_Type_Target) {
+                sub = sub ? `${sub} | ${product.Skin_Type_Target}` : product.Skin_Type_Target;
+              }
+              item.subtitle = sub;
+            }
+          }
+        }
+      }
+    }
+  }
+
   const enhancedOrders = orders.map(enhanceOrder);
+  try {
+    require('fs').writeFileSync('d:/TirTir-Mcommerce/scratch-backend/debug_orders.json', JSON.stringify(enhancedOrders, null, 2));
+  } catch (err) {}
   res.status(200).json({ success: true, data: enhancedOrders });
 };
 

@@ -200,6 +200,7 @@ exports.arbitrate = async (req, res) => {
     });
   } catch (err) {
     console.error('[arbitrate] Error:', err);
+    require('fs').appendFileSync('sync-error.log', new Date().toISOString() + ' - [arbitrate] ' + err.stack + '\n');
     res.status(500).json({ success: false, message: 'Lỗi máy chủ nội bộ.' });
   }
 };

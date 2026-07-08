@@ -55,36 +55,37 @@ public class AdminNotificationAdapter extends RecyclerView.Adapter<AdminNotifica
 
         switch (notif.getType()) {
             case INVENTORY:
-                dotBg.setColor(Color.parseColor("#610000")); // Primary
-                tagBg.setColor(Color.parseColor("#ffdad4")); // Primary Fixed
-                holder.tvCategoryTag.setTextColor(Color.parseColor("#610000"));
+                dotBg.setColor(holder.itemView.getContext().getColor(R.color.tirtir_red_primary));
+                tagBg.setColor(Color.parseColor("#F5F5F5")); 
+                holder.tvCategoryTag.setTextColor(holder.itemView.getContext().getColor(R.color.tirtir_red_primary));
                 if (notif.getPrimaryAction() != null) {
                     holder.btnPrimaryAction.setVisibility(View.VISIBLE);
                     holder.btnPrimaryAction.setText(notif.getPrimaryAction());
-                    holder.btnPrimaryAction.setBackgroundColor(Color.parseColor("#610000"));
+                    holder.btnPrimaryAction.setBackgroundColor(holder.itemView.getContext().getColor(R.color.tirtir_red_primary));
                     holder.btnPrimaryAction.setTextColor(Color.WHITE);
                 }
                 break;
             case SALES:
                 holder.viewTypeDot.setVisibility(View.GONE);
-                tagBg.setColor(Color.parseColor("#e2dfde")); // Secondary Container
-                holder.tvCategoryTag.setTextColor(Color.parseColor("#636262"));
+                tagBg.setColor(Color.parseColor("#EEEEEE"));
+                holder.tvCategoryTag.setTextColor(Color.parseColor("#424242"));
                 if (notif.getPrimaryAction() != null) {
                     holder.btnPrimaryAction.setVisibility(View.VISIBLE);
                     holder.btnPrimaryAction.setText(notif.getPrimaryAction());
                     holder.btnPrimaryAction.setBackgroundColor(Color.TRANSPARENT);
-                    holder.btnPrimaryAction.setTextColor(Color.parseColor("#610000"));
-                    holder.btnPrimaryAction.setStrokeColorResource(R.color.tirtir_red_dark);
+                    holder.btnPrimaryAction.setTextColor(holder.itemView.getContext().getColor(R.color.tirtir_red_primary));
+                    holder.btnPrimaryAction.setStrokeColorResource(R.color.tirtir_red_primary);
                     holder.btnPrimaryAction.setStrokeWidth(2);
                 }
                 break;
             case SECURITY:
-                dotBg.setColor(Color.parseColor("#ba1a1a")); // Error
-                tagBg.setColor(Color.parseColor("#ffdad6"));
-                holder.tvCategoryTag.setTextColor(Color.parseColor("#ba1a1a"));
+                dotBg.setColor(holder.itemView.getContext().getColor(R.color.tirtir_error));
+                tagBg.setColor(Color.parseColor("#F5F5F5"));
+                holder.tvCategoryTag.setTextColor(holder.itemView.getContext().getColor(R.color.tirtir_error));
                 if (notif.getPrimaryAction() != null) {
                     holder.btnTextLinkAction.setVisibility(View.VISIBLE);
                     holder.btnTextLinkAction.setText(notif.getPrimaryAction());
+                    holder.btnTextLinkAction.setTextColor(holder.itemView.getContext().getColor(R.color.tirtir_error));
                 }
                 if (notif.getSecondaryAction() != null) {
                     holder.btnSecondaryAction.setVisibility(View.VISIBLE);
@@ -92,12 +93,13 @@ public class AdminNotificationAdapter extends RecyclerView.Adapter<AdminNotifica
                 }
                 break;
             case FEEDBACK:
-                dotBg.setColor(Color.parseColor("#5f5e5e")); // Secondary
-                tagBg.setColor(Color.parseColor("#eeeeee"));
-                holder.tvCategoryTag.setTextColor(Color.parseColor("#5f5e5e"));
+                dotBg.setColor(Color.parseColor("#757575"));
+                tagBg.setColor(Color.parseColor("#F5F5F5"));
+                holder.tvCategoryTag.setTextColor(Color.parseColor("#757575"));
                 if (notif.getPrimaryAction() != null) {
                     holder.btnTextLinkAction.setVisibility(View.VISIBLE);
                     holder.btnTextLinkAction.setText(notif.getPrimaryAction());
+                    holder.btnTextLinkAction.setTextColor(holder.itemView.getContext().getColor(R.color.tirtir_red_primary));
                 }
                 if (notif.getSecondaryAction() != null) {
                     holder.btnSecondaryAction.setVisibility(View.VISIBLE);
@@ -107,8 +109,8 @@ public class AdminNotificationAdapter extends RecyclerView.Adapter<AdminNotifica
             case SYSTEM:
                 holder.viewTypeDot.setVisibility(View.GONE);
                 holder.ivTypeIcon.setVisibility(View.VISIBLE);
-                tagBg.setColor(Color.parseColor("#414343"));
-                holder.tvCategoryTag.setTextColor(Color.parseColor("#afafb0"));
+                tagBg.setColor(Color.parseColor("#F5F5F5"));
+                holder.tvCategoryTag.setTextColor(Color.parseColor("#9E9E9E"));
                 holder.btnCloseSystemNotif.setVisibility(View.VISIBLE);
                 break;
         }

@@ -12,6 +12,37 @@ exports.getProfile = async (req, res) => {
   if (!user) {
     return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản.' });
   }
+
+  // Inject mock skin profile or patch missing fields
+  if (!user.skinProfile) {
+    user.skinProfile = {};
+  }
+  let isUpdated = false;
+  
+  if (!user.skinProfile.skinTone) { user.skinProfile.skinTone = '21N'; isUpdated = true; }
+  if (!user.skinProfile.undertone) { user.skinProfile.undertone = 'Neutral'; isUpdated = true; }
+  if (!user.skinProfile.skinHex) { user.skinProfile.skinHex = '#E2C2A4'; isUpdated = true; }
+  if (!user.skinProfile.ITA_category) { user.skinProfile.ITA_category = 'Light Medium'; isUpdated = true; }
+  if (!user.skinProfile.texture) { user.skinProfile.texture = 'Smooth'; isUpdated = true; }
+  if (!user.skinProfile.pores) { user.skinProfile.pores = 'Normal'; isUpdated = true; }
+  if (!user.skinProfile.hydration) { user.skinProfile.hydration = 'Well Hydrated'; isUpdated = true; }
+  if (!user.skinProfile.skinType) { user.skinProfile.skinType = 'Combination'; isUpdated = true; }
+  if (!user.skinProfile.concerns || user.skinProfile.concerns.length === 0) { 
+      user.skinProfile.concerns = ['Dryness', 'Sensitivity']; isUpdated = true; 
+  }
+  if (!user.skinProfile.recommendations || user.skinProfile.recommendations.length === 0) {
+      user.skinProfile.recommendations = [
+        "Your skin barrier is healthy, but maintain hydration during the day.",
+        "Consider using a gentle exfoliator once a week to improve texture.",
+        "A lightweight water-based moisturizer would work best for your combination skin."
+      ];
+      isUpdated = true;
+  }
+
+  if (isUpdated) {
+    await User.findByIdAndUpdate(req.user.id, { $set: { skinProfile: user.skinProfile } });
+  }
+
   res.status(200).json({ success: true, data: toClient(user) });
 };
 

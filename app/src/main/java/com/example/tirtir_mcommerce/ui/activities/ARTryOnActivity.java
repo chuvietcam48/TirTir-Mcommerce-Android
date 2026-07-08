@@ -26,6 +26,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.AugmentedFace;
 import com.google.ar.core.TrackingState;
+import com.google.ar.core.exceptions.UnavailableException;
 import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.rendering.Material;
 import com.google.ar.sceneform.rendering.Texture;
@@ -59,6 +60,31 @@ public class ARTryOnActivity extends AppCompatActivity {
     private ArFrontFacingFragment arFragment;
     private androidx.activity.result.ActivityResultLauncher<String> cameraPermissionLauncher;
 
+    /**
+     * Named static class to avoid IllegalStateException during fragment recreation.
+     */
+    public static class SafeArFragment extends ArFrontFacingFragment {
+        @Override
+        public void onResume() {
+            try {
+                super.onResume();
+            } catch (Exception e) {
+                android.util.Log.e("ARTryOnActivity", "SafeArFragment onResume error: " + e.getClass().getName() + " - " + e.getMessage());
+                if (getActivity() instanceof ARTryOnActivity) {
+                    ((ARTryOnActivity) getActivity()).handleArFailure(e);
+                }
+            }
+        }
+
+        @Override
+        public void onArUnavailableException(UnavailableException exception) {
+            android.util.Log.e("ARTryOnActivity", "onArUnavailableException: " + exception.getClass().getName());
+            if (getActivity() instanceof ARTryOnActivity) {
+                ((ARTryOnActivity) getActivity()).handleArFailure(exception);
+            }
+        }
+    }
+
     private static final int[] SHADE_COLORS = {
             Color.parseColor("#E9B5A5"),
             Color.parseColor("#D48F78"),
@@ -81,13 +107,7 @@ public class ARTryOnActivity extends AppCompatActivity {
         
         View btnForceDemo = findViewById(R.id.btnForceDemo);
         if (btnForceDemo != null) {
-            btnForceDemo.setOnClickListener(v -> {
-                isDemoMode = true;
-                setupDemoMode();
-                if (arFragment != null && arFragment.getArSceneView() != null) {
-                    arFragment.getArSceneView().pause();
-                }
-            });
+            btnForceDemo.setVisibility(View.GONE);
         }
 
         ArrayList<String> namesExtra = getIntent().getStringArrayListExtra("SHADE_NAMES");
@@ -122,18 +142,15 @@ public class ARTryOnActivity extends AppCompatActivity {
                 new androidx.activity.result.contract.ActivityResultContracts.RequestPermission(),
                 isGranted -> {
                     if (isGranted) {
-                        if (checkArCoreSupport()) {
-                            setupAr();
-                        }
+                        checkArAndStart();
                     } else {
-                        showArNotSupportedDialog();
+                        Toast.makeText(this, "Quyền Camera là bắt buộc để sử dụng AR", Toast.LENGTH_LONG).show();
+                        finish();
                     }
                 });
 
         if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            if (checkArCoreSupport()) {
-                setupAr();
-            }
+            checkArAndStart();
         } else {
             cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA);
         }
@@ -203,36 +220,67 @@ public class ARTryOnActivity extends AppCompatActivity {
         });
     }
 
-    private boolean checkArCoreSupport() {
-        ArCoreApk.Availability availability = ArCoreApk.getInstance().checkAvailability(this);
-        android.util.Log.d("ARTryOnActivity", "ARCore availability: " + availability.name());
+    private void checkArAndStart() {
+        // Log camera info for debugging
+        try {
+            android.hardware.camera2.CameraManager manager = (android.hardware.camera2.CameraManager) getSystemService(android.content.Context.CAMERA_SERVICE);
+            String[] ids = manager.getCameraIdList();
+            android.util.Log.d("ARTryOnActivity", "Available cameras: " + ids.length);
+            
+            boolean hasFrontCamera = false;
+            for (String id : ids) {
+                try {
+                    android.hardware.camera2.CameraCharacteristics characteristics = manager.getCameraCharacteristics(id);
+                    Integer facing = characteristics.get(android.hardware.camera2.CameraCharacteristics.LENS_FACING);
+                    String facingStr = (facing != null && facing == android.hardware.camera2.CameraCharacteristics.LENS_FACING_FRONT) ? "FRONT" : "BACK/OTHER";
+                    android.util.Log.d("ARTryOnActivity", "Camera ID: " + id + " | Facing: " + facingStr);
 
-        switch (availability) {
-            case SUPPORTED_INSTALLED:
-                return true;
-            case SUPPORTED_NOT_INSTALLED:
-            case SUPPORTED_APK_TOO_OLD:
-                showInstallArCoreDialog();
-                return false;
-            case UNKNOWN_CHECKING:
-            case UNKNOWN_TIMED_OUT:
-                new Handler(Looper.getMainLooper()).postDelayed(this::checkArCoreSupport, 500);
-                return false;
-            case UNSUPPORTED_DEVICE_NOT_CAPABLE:
-            default:
-                showArNotSupportedDialog();
-                return false;
+                    if (facing != null && facing == android.hardware.camera2.CameraCharacteristics.LENS_FACING_FRONT) {
+                        hasFrontCamera = true;
+                        android.util.Log.d("ARTryOnActivity", "Found Front Camera: ID " + id);
+                    }
+                } catch (Exception e) {
+                    android.util.Log.w("ARTryOnActivity", "Could not get characteristics for camera " + id);
+                }
+            }
+
+            if (ids.length == 0) {
+                Toast.makeText(this, "Lỗi: Không tìm thấy bất kỳ Camera nào trên thiết bị!", Toast.LENGTH_LONG).show();
+            } else if (!hasFrontCamera) {
+                new AlertDialog.Builder(this)
+                        .setTitle("Thiếu Camera Trước")
+                        .setMessage("Tính năng Thử Đồ AR yêu cầu Camera trước (Front Camera). Nếu bạn dùng máy ảo, hãy vào cài đặt máy ảo và bật 'Front Camera'.")
+                        .setPositiveButton("Đóng", (dialog, which) -> finish())
+                        .setCancelable(false)
+                        .show();
+                return;
+            }
+        } catch (Exception e) {
+            android.util.Log.e("ARTryOnActivity", "Error checking cameras", e);
+        }
+
+        ArCoreApk.Availability availability = ArCoreApk.getInstance().checkAvailability(this);
+        if (availability.isTransient()) {
+            new Handler(Looper.getMainLooper()).postDelayed(this::checkArAndStart, 200);
+            return;
+        }
+
+        if (availability == ArCoreApk.Availability.SUPPORTED_INSTALLED) {
+            setupAr();
+        } else if (availability == ArCoreApk.Availability.SUPPORTED_APK_TOO_OLD || 
+                   availability == ArCoreApk.Availability.SUPPORTED_NOT_INSTALLED) {
+            showInstallArCoreDialog();
+        } else {
+            showArNotSupportedDialog();
         }
     }
-
-    private boolean isDemoMode = false;
 
     private void showInstallArCoreDialog() {
         tvLoading.setVisibility(View.GONE);
         new AlertDialog.Builder(this)
-                .setTitle("AR Services Required")
-                .setMessage("This feature requires Google Play Services for AR. Would you like to install it? (If you are on an emulator, you can use Demo Mode).")
-                .setPositiveButton("Install", (dialog, which) -> {
+                .setTitle("Cần cập nhật ARCore")
+                .setMessage("Tính năng AR yêu cầu 'Google Play Services for AR'. Vui lòng cài đặt hoặc cập nhật để tiếp tục.")
+                .setPositiveButton("Cài đặt/Cập nhật", (dialog, which) -> {
                     try {
                         ArCoreApk.getInstance().requestInstall(this, true);
                     } catch (Exception e) {
@@ -245,11 +293,7 @@ public class ARTryOnActivity extends AppCompatActivity {
                         }
                     }
                 })
-                .setNeutralButton("Demo Mode", (dialog, which) -> {
-                    isDemoMode = true;
-                    setupDemoMode();
-                })
-                .setNegativeButton("Cancel", (dialog, which) -> finish())
+                .setNegativeButton("Thoát", (dialog, which) -> finish())
                 .setCancelable(false)
                 .show();
     }
@@ -257,70 +301,87 @@ public class ARTryOnActivity extends AppCompatActivity {
     private void showArNotSupportedDialog() {
         tvLoading.setVisibility(View.GONE);
         new AlertDialog.Builder(this)
-                .setTitle("AR Not Supported")
-                .setMessage("Your device does not support AR Try-On. You can proceed in Demo Mode.")
-                .setPositiveButton("Demo Mode", (dialog, which) -> {
-                    isDemoMode = true;
-                    setupDemoMode();
-                })
-                .setNegativeButton("Cancel", (dialog, which) -> finish())
+                .setTitle("Thiết bị không hỗ trợ AR")
+                .setMessage("Rất tiếc, thiết bị của bạn không hỗ trợ tính năng AR Core cần thiết để trải nghiệm thử sản phẩm.")
+                .setPositiveButton("Đóng", (dialog, which) -> finish())
                 .setCancelable(false)
                 .show();
     }
 
-    private void setupDemoMode() {
-        tvLoading.setVisibility(View.GONE);
-        ImageView ivDemo = findViewById(R.id.ivDemoAr);
-        View vTint = findViewById(R.id.vDemoTint);
-        if (ivDemo != null) ivDemo.setVisibility(View.VISIBLE);
-        if (vTint != null) vTint.setVisibility(View.VISIBLE);
-        updateMaterialColor();
+    public void handleArFailure(Exception e) {
+        runOnUiThread(() -> {
+            String message = e.getLocalizedMessage();
+            if (message != null && message.contains("Camera")) {
+                message = "Không thể truy cập Camera. Nếu bạn dùng máy ảo, hãy bật 'Front Camera' trong settings máy ảo.";
+            } else if (e instanceof com.google.ar.core.exceptions.UnavailableException) {
+                message = "Thiết bị không hỗ trợ hoặc chưa sẵn sàng cho AR: " + e.getClass().getSimpleName();
+            }
+            
+            new AlertDialog.Builder(this)
+                    .setTitle("Lỗi AR")
+                    .setMessage("Không thể khởi tạo phiên làm việc AR: " + message)
+                    .setPositiveButton("Đóng", (dialog, which) -> finish())
+                    .setCancelable(false)
+                    .show();
+        });
     }
 
     private void setupAr() {
-        if (isDemoMode) {
-            setupDemoMode();
-            return;
-        }
-        arFragment = new ArFrontFacingFragment();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.arFragmentContainer, arFragment)
-                .commit();
+        if (isFinishing()) return;
+        try {
+            arFragment = new SafeArFragment();
 
-        tvLoading.setText("Detecting face...");
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            ArSceneView sceneView = arFragment.getArSceneView();
-            if (sceneView != null) {
-                sceneView.getScene().addOnUpdateListener(frameTime -> {
-                    if (sceneView.getSession() == null) return;
-                    Collection<AugmentedFace> faceList = sceneView.getSession().getAllTrackables(AugmentedFace.class);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.arFragmentContainer, arFragment)
+                    .commitAllowingStateLoss();
 
-                    for (Map.Entry<AugmentedFace, AugmentedFaceNode> entry : new HashMap<>(faceNodeMap).entrySet()) {
-                        AugmentedFace face = entry.getKey();
-                        if (face.getTrackingState() == TrackingState.STOPPED) {
-                            AugmentedFaceNode node = entry.getValue();
-                            node.setParent(null);
-                            faceNodeMap.remove(face);
-                        }
+            tvLoading.setText("Đang khởi tạo Camera AR...");
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                if (isFinishing() || arFragment == null) return;
+                try {
+                    ArSceneView sceneView = arFragment.getArSceneView();
+                    if (sceneView == null) {
+                        android.util.Log.e("ARTryOnActivity", "ArSceneView is null after delay");
+                        return;
                     }
+                    
+                    sceneView.getScene().addOnUpdateListener(frameTime -> {
+                        if (sceneView.getSession() == null) return;
+                        Collection<AugmentedFace> faceList = sceneView.getSession().getAllTrackables(AugmentedFace.class);
 
-                    for (AugmentedFace face : faceList) {
-                        if (!faceNodeMap.containsKey(face)) {
-                            AugmentedFaceNode faceNode = new AugmentedFaceNode(face);
-                            faceNode.setParent(sceneView.getScene());
-                            if (lipsTexture != null) {
-                                faceNode.setFaceMeshTexture(lipsTexture);
-                                setFaceMeshMaterial(faceNode, null);
+                        for (Map.Entry<AugmentedFace, AugmentedFaceNode> entry : new HashMap<>(faceNodeMap).entrySet()) {
+                            AugmentedFace face = entry.getKey();
+                            if (face.getTrackingState() == TrackingState.STOPPED) {
+                                AugmentedFaceNode node = entry.getValue();
+                                node.setParent(null);
+                                faceNodeMap.remove(face);
                             }
-                            faceNodeMap.put(face, faceNode);
                         }
-                    }
-                    if (!faceList.isEmpty()) {
-                        tvLoading.setVisibility(View.GONE);
-                    }
-                });
-            }
-        }, 1000);
+
+                        for (AugmentedFace face : faceList) {
+                            if (!faceNodeMap.containsKey(face)) {
+                                AugmentedFaceNode faceNode = new AugmentedFaceNode(face);
+                                faceNode.setParent(sceneView.getScene());
+                                if (lipsTexture != null) {
+                                    faceNode.setFaceMeshTexture(lipsTexture);
+                                    setFaceMeshMaterial(faceNode, null);
+                                }
+                                faceNodeMap.put(face, faceNode);
+                            }
+                        }
+                        if (!faceList.isEmpty()) {
+                            tvLoading.setVisibility(View.GONE);
+                        }
+                    });
+                } catch (Exception e) {
+                    android.util.Log.e("ARTryOnActivity", "Scene setup error: " + e.getMessage());
+                    handleArFailure(e);
+                }
+            }, 2000);
+        } catch (Exception e) {
+            android.util.Log.e("ARTryOnActivity", "setupAr failed: " + e.getMessage());
+            handleArFailure(e);
+        }
     }
 
     private void updateMaterialColor() {
@@ -332,15 +393,6 @@ public class ARTryOnActivity extends AppCompatActivity {
         int b = Color.blue(color);
         int alphaColor = Color.argb(100, r, g, b); // ~0.4 alpha
         
-        if (isDemoMode) {
-            View vTint = findViewById(R.id.vDemoTint);
-            if (vTint != null) {
-                // Apply a translucent overlay to the demo image
-                vTint.setBackgroundColor(Color.argb(150, r, g, b));
-            }
-            return;
-        }
-
         com.google.ar.sceneform.rendering.MaterialFactory.makeTransparentWithColor(this, new com.google.ar.sceneform.rendering.Color(alphaColor))
                 .thenAccept(material -> {
                     for (AugmentedFaceNode node : faceNodeMap.values()) {
@@ -349,22 +401,12 @@ public class ARTryOnActivity extends AppCompatActivity {
                     }
                 })
                 .exceptionally(throwable -> {
-                    Toast.makeText(this, "Failed to create material", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Không thể tạo chất liệu màu", Toast.LENGTH_SHORT).show();
                     return null;
                 });
     }
 
     private void takeArScreenshot() {
-        if (isDemoMode) {
-            View view = findViewById(R.id.arFragmentContainer);
-            if (view == null) return;
-            Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
-            android.graphics.Canvas canvas = new android.graphics.Canvas(bitmap);
-            view.draw(canvas);
-            shareScreenshot(bitmap);
-            return;
-        }
-
         if (arFragment == null || arFragment.getArSceneView() == null) return;
         ArSceneView view = arFragment.getArSceneView();
         
@@ -373,7 +415,7 @@ public class ARTryOnActivity extends AppCompatActivity {
             if (copyResult == PixelCopy.SUCCESS) {
                 shareScreenshot(bitmap);
             } else {
-                Toast.makeText(this, "Failed to capture AR view", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Không thể chụp ảnh AR", Toast.LENGTH_SHORT).show();
             }
         }, new Handler(Looper.getMainLooper()));
     }

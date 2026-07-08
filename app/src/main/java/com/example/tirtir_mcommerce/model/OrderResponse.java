@@ -73,6 +73,12 @@ public class OrderResponse {
         @SerializedName("shade")
         private String shade;
 
+        @SerializedName("thumbnail")
+        private String thumbnail;
+
+        @SerializedName("subtitle")
+        private String subtitle;
+
         public String getProductId() { return productId; }
         public void setProductId(String productId) { this.productId = productId; }
         public String getName() { return name; }
@@ -83,6 +89,10 @@ public class OrderResponse {
         public void setPrice(double price) { this.price = price; }
         public String getShade() { return shade; }
         public void setShade(String shade) { this.shade = shade; }
+        public String getThumbnail() { return thumbnail; }
+        public void setThumbnail(String thumbnail) { this.thumbnail = thumbnail; }
+        public String getSubtitle() { return subtitle; }
+        public void setSubtitle(String subtitle) { this.subtitle = subtitle; }
     }
 
     // ===========================
