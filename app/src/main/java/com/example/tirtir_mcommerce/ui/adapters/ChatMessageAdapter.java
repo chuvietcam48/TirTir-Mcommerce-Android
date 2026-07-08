@@ -59,7 +59,6 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
-<<<<<<< Updated upstream
     /** Structured support-menu row: icon + title + description + chevron. */
     public static class MenuOption {
         public final String emoji;
@@ -69,7 +68,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.emoji = emoji;
             this.title = title;
             this.description = description;
-=======
+        }
+    }
+
     public static class ProductContext {
         public final String productId;
         public final String name;
@@ -82,7 +83,6 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.image = image;
             this.price = price;
             this.rating = rating;
->>>>>>> Stashed changes
         }
     }
 
@@ -95,18 +95,21 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         public final boolean isOptions;
         public final List<ChatAction> actions;
         public final List<String> options;
-<<<<<<< Updated upstream
         public final boolean isMenu;
         public final String menuHeader;
         public final List<MenuOption> menuOptions;
-=======
         public final ProductContext productContext;
->>>>>>> Stashed changes
 
         /** Normal user/bot message (no OOD actions). */
         public ChatMessage(boolean fromUser, String text, String timestamp,
                            List<RecommendedProduct> recommendations) {
             this(fromUser, text, timestamp, recommendations, null);
+        }
+
+        public ChatMessage(boolean fromUser, String text, String timestamp,
+                           List<RecommendedProduct> recommendations,
+                           List<ChatAction> actions) {
+            this(fromUser, text, timestamp, recommendations, actions, null);
         }
 
         /** Normal user/bot message with optional OOD action chips and optional product context. */
@@ -122,19 +125,10 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.isOptions = false;
             this.actions = actions != null ? actions : new ArrayList<>();
             this.options = new ArrayList<>();
-<<<<<<< Updated upstream
             this.isMenu = false;
             this.menuHeader = "";
             this.menuOptions = new ArrayList<>();
-=======
             this.productContext = productContext;
-        }
-
-        public ChatMessage(boolean fromUser, String text, String timestamp,
-                           List<RecommendedProduct> recommendations,
-                           List<ChatAction> actions) {
-            this(fromUser, text, timestamp, recommendations, actions, null);
->>>>>>> Stashed changes
         }
 
         /** System divider note (centered text). */
@@ -147,13 +141,10 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.isOptions = false;
             this.actions = new ArrayList<>();
             this.options = new ArrayList<>();
-<<<<<<< Updated upstream
             this.isMenu = false;
             this.menuHeader = "";
             this.menuOptions = new ArrayList<>();
-=======
             this.productContext = null;
->>>>>>> Stashed changes
         }
 
         /** Mode/guided options selection message. */
@@ -166,10 +157,10 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.isOptions = true;
             this.actions = new ArrayList<>();
             this.options = options != null ? new ArrayList<>(options) : new ArrayList<>();
-<<<<<<< Updated upstream
             this.isMenu = false;
             this.menuHeader = "";
             this.menuOptions = new ArrayList<>();
+            this.productContext = null;
         }
 
         /** Structured support menu message. */
@@ -185,9 +176,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.isMenu = true;
             this.menuHeader = header != null ? header : "";
             this.menuOptions = menuOptions != null ? new ArrayList<>(menuOptions) : new ArrayList<>();
-=======
             this.productContext = null;
->>>>>>> Stashed changes
         }
 
         public static ChatMessage system(String text) {

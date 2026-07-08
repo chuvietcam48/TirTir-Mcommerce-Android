@@ -58,6 +58,7 @@ app.use('/api/v1/tracking', require('./routes/trackingRoutes'));
 app.use('/api/v1/routines', require('./routes/routineRoutes'));
 app.use('/api/routines', require('./routes/routineRoutes'));
 app.use('/api/v1/shades', require('./backend/routes/shade.routes'));
+app.use('/api/v1/notifications', require('./routes/notificationRoutes'));
 
 app.use('/api/v1/loyalty', require('./routes/loyaltyRoutes'));
 app.use('/api/loyalty', require('./routes/loyaltyRoutes'));

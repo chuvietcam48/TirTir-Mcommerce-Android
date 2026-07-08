@@ -298,8 +298,38 @@ public class SkinResultActivity extends AppCompatActivity {
                 prefs.setPendingSkinProfileSync(true);
                 Log.i(TAG, "Skin profile saved offline (row " + rowId + ") for later sync");
             }
+        } else {
+            saveOnlineIfLoggedIn();
         }
-        // Nếu đã đăng nhập → API backend tự lưu, không cần làm gì thêm
+    }
+
+    private void saveOnlineIfLoggedIn() {
+        if (analysisResult == null) return;
+        com.example.tirtir_mcommerce.model.User.SkinProfile profile = new com.example.tirtir_mcommerce.model.User.SkinProfile();
+        profile.setSkinTone(analysisResult.getSkinTone());
+        profile.setUndertone(analysisResult.getUndertone());
+        profile.setSkinHex(analysisResult.getSkinHex());
+        profile.setSkinType(analysisResult.getSkinType());
+        profile.setConcerns(analysisResult.getConcerns());
+        
+        // ITA, texture, pores, hydration can be added if available in analysisResult
+        
+        ApiService apiService = RetrofitClient.getAuthClient(this).create(ApiService.class);
+        apiService.updateSkinProfile(profile).enqueue(new Callback<ApiResponse<com.example.tirtir_mcommerce.model.User>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<com.example.tirtir_mcommerce.model.User>> call, Response<ApiResponse<com.example.tirtir_mcommerce.model.User>> response) {
+                if (response.isSuccessful()) {
+                    Log.i(TAG, "Skin profile saved online successfully");
+                } else {
+                    Log.e(TAG, "Failed to save skin profile online: HTTP " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<com.example.tirtir_mcommerce.model.User>> call, Throwable t) {
+                Log.e(TAG, "Network error saving skin profile online", t);
+            }
+        });
     }
 
     // ===========================
@@ -547,15 +577,16 @@ public class SkinResultActivity extends AppCompatActivity {
     // ===========================
 
     private void loadDemoData() {
+        showLoading(true, "Building your AI routine...", "Connecting to backend...");
         analysisResult = buildDemoAnalysisResult();
         shadeResults   = buildClientSideShadeMatches();
-        List<RoutineStep> routine = buildDemoRoutineSteps("Combination");
 
         shadeFinderFragment.updateData(shadeResults, analysisResult.getSkinHex());
         skinReportFragment.updateData(analysisResult, 76, 68, 72, 25,
                 analysisResult.computeItaAngle());
-        aiRoutineFragment.updateData(routine);
-        showLoading(false, null, null);
+        
+        // Instead of hardcoding, call the backend API (which uses AI or DB fallback)
+        callRecommendRoutineApi();
     }
 
     // ===========================

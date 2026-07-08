@@ -121,6 +121,12 @@ public interface ApiService {
     @PUT("api/v1/users/profile")
     Call<ApiResponse<User>> updateProfile(@Body Map<String, String> body);
 
+    /**
+     * Cập nhật skin profile - PUT /api/v1/users/skin-profile
+     */
+    @PUT("api/v1/users/skin-profile")
+    Call<ApiResponse<User>> updateSkinProfile(@Body User.SkinProfile profile);
+
     // ===========================
     // ADDRESS MODULE
     // ===========================
@@ -335,7 +341,7 @@ public interface ApiService {
     Call<Map<String, Object>> getAdminOverview(@Query("range") String range);
 
     @GET("api/v1/admin/orders")
-    Call<List<Map<String, Object>>> getAdminOrders(@Query("limit") int limit);
+    Call<ApiResponse<List<Map<String, Object>>>> getAdminOrders(@Query("limit") int limit);
 
     @PATCH("api/v1/orders/{id}/status")
     Call<Map<String, Object>> updateAdminOrderStatus(
@@ -440,7 +446,7 @@ public interface ApiService {
      * Dùng cho SCR-18 OrderHistoryFragment
      */
     @GET("api/v1/orders/my-orders")
-    Call<ApiResponse<List<OrderResponse>>> getMyOrders();
+    Call<ApiResponse<List<java.util.Map<String, Object>>>> getMyOrders();
 
     /**
      * Xem chi tiết đơn hàng - GET /api/v1/orders/{id}
@@ -448,7 +454,7 @@ public interface ApiService {
      * Dùng cho SCR-17 OrderSuccessActivity
      */
     @GET("api/v1/orders/{id}")
-    Call<OrderResponse> getOrderById(@Path("id") String orderId);
+    Call<ApiResponse<Map<String, Object>>> getOrderById(@Path("id") String orderId);
 
     /**
      * Đăng ký FCM Token lên backend - POST /api/v1/notifications/fcm-token

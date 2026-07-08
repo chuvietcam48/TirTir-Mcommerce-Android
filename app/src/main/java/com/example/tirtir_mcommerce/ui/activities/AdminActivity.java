@@ -28,6 +28,8 @@ public class AdminActivity extends AppCompatActivity {
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
         bottomNav = findViewById(R.id.bottomNavAdmin);
+        bottomNav.setBackgroundResource(R.drawable.bg_bottom_nav_admin);
+        bottomNav.setBackgroundTintList(null); // Disable M3 auto-tinting
         setupNavigation();
 
         if (savedInstanceState == null) {

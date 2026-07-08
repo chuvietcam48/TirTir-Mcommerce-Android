@@ -1,3 +1,4 @@
+// Force nodemon restart to pick up .env changes
 const crypto = require('crypto');
 const qs = require('querystring');
 
@@ -42,13 +43,12 @@ function buildVnpayUrl(orderId, amount, ipAddr, orderInfo) {
     vnp_ExpireDate:  expire,
   };
 
-  // Sort alphabetically and build the raw hash string
-  const sorted = Object.keys(params).sort().reduce((acc, k) => {
-    acc[k] = params[k];
-    return acc;
-  }, {});
-
-  const signData  = qs.stringify(sorted, { encode: false });
+  const sortedKeys = Object.keys(params).sort();
+  const signDataArr = [];
+  for (const k of sortedKeys) {
+    signDataArr.push(`${k}=${encodeURIComponent(String(params[k])).replace(/%20/g, "+")}`);
+  }
+  const signData = signDataArr.join('&');
   const signature = crypto.createHmac('sha512', VNP_HASH_SECRET)
                           .update(Buffer.from(signData, 'utf-8'))
                           .digest('hex');
@@ -67,12 +67,12 @@ function verifyVnpayCallback(query) {
   delete params.vnp_SecureHash;
   delete params.vnp_SecureHashType;
 
-  const sorted = Object.keys(params).sort().reduce((acc, k) => {
-    acc[k] = params[k];
-    return acc;
-  }, {});
-
-  const signData  = qs.stringify(sorted, { encode: false });
+  const sortedKeys = Object.keys(params).sort();
+  const signDataArr = [];
+  for (const k of sortedKeys) {
+    signDataArr.push(`${k}=${encodeURIComponent(String(params[k])).replace(/%20/g, "+")}`);
+  }
+  const signData = signDataArr.join('&');
   const expected  = crypto.createHmac('sha512', VNP_HASH_SECRET)
                           .update(Buffer.from(signData, 'utf-8'))
                           .digest('hex');

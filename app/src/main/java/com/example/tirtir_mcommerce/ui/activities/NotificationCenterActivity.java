@@ -193,21 +193,13 @@ public class NotificationCenterActivity extends AppCompatActivity {
 
     private void buildRows(List<Map<String, Object>> notifications) {
         rows.clear();
-        Map<String, List<Map<String, Object>>> groups = new LinkedHashMap<>();
-        groups.put("Orders", new ArrayList<>());
-        groups.put("Skincare rituals", new ArrayList<>());
-        groups.put("Promotions", new ArrayList<>());
-        groups.put("Account", new ArrayList<>());
-        if (notifications != null) {
-            for (Map<String, Object> notification : notifications) {
-                groups.get(sectionFor(notification)).add(notification);
+        
+        if (notifications != null && !notifications.isEmpty()) {
+            for (Map<String, Object> value : notifications) {
+                rows.add(Row.notification(value));
             }
         }
-        for (Map.Entry<String, List<Map<String, Object>>> entry : groups.entrySet()) {
-            if (entry.getValue().isEmpty()) continue;
-            rows.add(Row.header(entry.getKey(), unreadCount(entry.getValue())));
-            for (Map<String, Object> value : entry.getValue()) rows.add(Row.notification(value));
-        }
+        
         adapter.notifyDataSetChanged();
         if (rows.isEmpty()) showEmpty("You are all caught up.");
         else empty.setVisibility(View.GONE);

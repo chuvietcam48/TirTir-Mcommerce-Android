@@ -54,7 +54,9 @@ async function fetchViettelShipping(fromProvince, toProvince, weightGrams, total
  * Returns { fee, isEstimated }.
  */
 async function getShippingFee({ toProvince, weightGrams = 300, totalPrice = 0 }) {
-  return { fee: 2.00, isEstimated: false };
+  // Mock random shipping fee between 15,000 and 50,000 VND, rounded to thousands
+  const randomFee = Math.floor(Math.random() * (50 - 15 + 1) + 15) * 1000;
+  return { fee: randomFee, isEstimated: true };
 }
 
 module.exports = { getShippingFee };

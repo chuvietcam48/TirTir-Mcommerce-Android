@@ -82,13 +82,13 @@ public final class ApiConfig {
     private static String buildAbsoluteUrl(String cleaned) {
         for (String prefix : LOCAL_BACKEND_PREFIXES) {
             if (cleaned.startsWith(prefix)) {
-                return BASE_URL + cleaned.substring(prefix.length());
+                return "https://tirtir-project.onrender.com/" + cleaned.substring(prefix.length());
             }
         }
         if (cleaned.startsWith("https://") || cleaned.startsWith("http://")) {
             return cleaned;
         }
         String clean = cleaned.startsWith("/") ? cleaned.substring(1) : cleaned;
-        return Uri.parse(BASE_URL).buildUpon().appendEncodedPath(clean).build().toString();
+        return Uri.parse("https://tirtir-project.onrender.com/").buildUpon().appendEncodedPath(clean).build().toString();
     }
 }

@@ -32,12 +32,21 @@ import com.example.tirtir_mcommerce.model.CartItem;
 import com.example.tirtir_mcommerce.model.Product;
 import com.example.tirtir_mcommerce.network.ApiConfig;
 import com.example.tirtir_mcommerce.repository.CartRepository;
+import com.example.tirtir_mcommerce.network.ApiService;
+import com.example.tirtir_mcommerce.network.RetrofitClient;
+import com.example.tirtir_mcommerce.model.ApiResponse;
+import com.example.tirtir_mcommerce.model.RoutineRecommendRequest;
 import com.example.tirtir_mcommerce.ui.activities.ProductDetailActivity;
 import com.example.tirtir_mcommerce.utils.HeaderHelper;
 import com.example.tirtir_mcommerce.utils.RoutineManager;
 import com.example.tirtir_mcommerce.viewmodel.ProductViewModel;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+
+import java.util.Map;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -169,6 +178,10 @@ public class RoutineFragment extends Fragment {
         } else {
             showQuizScreen();
         }
+    }
+
+    private void showResultScreen() {
+        showResultScreenWithAi(null);
     }
 
     // ── Quiz flow ─────────────────────────────────────────────────────────────
@@ -575,10 +588,15 @@ public class RoutineFragment extends Fragment {
         stepContentContainer.addView(card, lp);
     }
 
+    private View loadingOverlay;
+    private ApiService apiService;
+
     // ── Quiz completion ───────────────────────────────────────────────────────
 
     private void finishQuiz() {
         if (selectedCurrentRoutine.isEmpty()) selectedCurrentRoutine = "none";
+        
+        // Save locally first
         routineManager.saveQuizResult(
                 selectedSkinType.isEmpty() ? "Normal" : capitalize(selectedSkinType),
                 selectedConcerns,
@@ -586,23 +604,43 @@ public class RoutineFragment extends Fragment {
                 selectedCurrentRoutine,
                 selectedLevel
         );
-        showResultScreen();
-    }
-
-    private void retakeQuiz() {
-        routineManager.resetQuiz();
-        selectedSkinType = "";
-        selectedConcerns.clear();
-        selectedGoals.clear();
-        selectedCurrentRoutine = "";
-        selectedLevel = "";
-        showQuizScreen();
-    }
-
-    // ── Result screen ─────────────────────────────────────────────────────────
-
-    private void showResultScreen() {
+        
+        // Setup loading
+        if (loadingOverlay == null) {
+            loadingOverlay = requireView().findViewById(R.id.loadingOverlay);
+            apiService = RetrofitClient.getAuthClient(requireContext()).create(ApiService.class);
+        }
+        
         quizContainer.setVisibility(View.GONE);
+        loadingOverlay.setVisibility(View.VISIBLE);
+        
+        // Call AI API
+        RoutineRecommendRequest req = new RoutineRecommendRequest();
+        req.setSkinType(routineManager.getSkinType());
+        req.setConcerns(new ArrayList<>(routineManager.getConcerns()));
+        
+        apiService.recommendRoutine(req).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
+                loadingOverlay.setVisibility(View.GONE);
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    showResultScreenWithAi(response.body().getData());
+                } else {
+                    Toast.makeText(requireContext(), "Lỗi kết nối AI, hiển thị cơ bản", Toast.LENGTH_SHORT).show();
+                    showResultScreenWithAi(null);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
+                loadingOverlay.setVisibility(View.GONE);
+                Toast.makeText(requireContext(), "Không thể kết nối máy chủ", Toast.LENGTH_SHORT).show();
+                showResultScreenWithAi(null);
+            }
+        });
+    }
+
+    private void showResultScreenWithAi(Map<String, Object> aiData) {
         resultContainer.setVisibility(View.VISIBLE);
 
         String skinType = routineManager.getSkinType();
@@ -618,7 +656,109 @@ public class RoutineFragment extends Fragment {
         }
         tvSkinProfileLabel.setText(profile.toString());
 
-        buildResultUI();
+        if (aiData != null) {
+            buildAiResultUI(aiData);
+        } else {
+            buildResultUI(); // Fallback to local
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void buildAiResultUI(Map<String, Object> data) {
+        amProductsContainer.removeAllViews();
+        pmProductsContainer.removeAllViews();
+        comboProductsContainer.removeAllViews();
+        comboSection.setVisibility(View.GONE);
+
+        Object routineObj = data.get("routine");
+        if (!(routineObj instanceof List)) {
+            routineEmptyState.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        List<?> list = (List<?>) routineObj;
+        if (list.isEmpty()) {
+            routineEmptyState.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        routineEmptyState.setVisibility(View.GONE);
+        
+        // Hide PM section and change AM section title
+        View pmSection = requireView().findViewById(R.id.pmSection);
+        if (pmSection != null) pmSection.setVisibility(View.GONE);
+        
+        TextView amTitle = requireView().findViewById(R.id.tvAmTitle);
+        if (amTitle != null) {
+            amTitle.setText("YOUR AI ROUTINE");
+        }
+        
+        int stepIndex = 1;
+        for (Object item : list) {
+            if (!(item instanceof Map)) continue;
+            Map<String, Object> map = (Map<String, Object>) item;
+            
+            String sName = String.valueOf(map.get("step"));
+            if (sName == null || sName.equals("null") || sName.isEmpty()) {
+                sName = String.valueOf(map.get("stepName"));
+            }
+            
+            RoutineManager.RoutineStep step = new RoutineManager.RoutineStep("", sName, stepIndex++);
+            
+            step.reason = String.valueOf(map.get("reason"));
+            if (step.reason == null || step.reason.equals("null") || step.reason.isEmpty()) {
+                step.reason = String.valueOf(map.get("description"));
+            }
+            
+            Object productObj = map.get("product");
+            if (productObj instanceof Map) {
+                Map<String, Object> pMap = (Map<String, Object>) productObj;
+                Product p = new Product();
+                
+                String pId = String.valueOf(pMap.get("Product_ID"));
+                if (pId == null || pId.equals("null")) pId = String.valueOf(pMap.get("productId"));
+                p.setProductId(pId);
+                
+                String pName = String.valueOf(pMap.get("Name"));
+                if (pName == null || pName.equals("null")) pName = String.valueOf(map.get("productName"));
+                p.setName(pName);
+                
+                Object priceObj = pMap.get("Price");
+                if (priceObj instanceof Number) p.setPrice(((Number) priceObj).doubleValue());
+                else if (map.get("price") instanceof Number) p.setPrice(((Number) map.get("price")).doubleValue());
+                
+                String imgUrl = String.valueOf(pMap.get("imageUrl"));
+                if (imgUrl == null || imgUrl.equals("null")) {
+                    imgUrl = String.valueOf(pMap.get("Thumbnail_Images"));
+                }
+                
+                if (imgUrl != null && !imgUrl.equals("null")) {
+                    if (imgUrl.startsWith("[")) {
+                        imgUrl = imgUrl.replaceAll("^\\[\"?|\"?\\]$|\"", "").split(",")[0].trim();
+                    }
+                    if (!imgUrl.startsWith("http") && !imgUrl.startsWith("android.resource://")) {
+                        imgUrl = ApiConfig.BASE_URL + (imgUrl.startsWith("/") ? imgUrl.substring(1) : imgUrl);
+                    }
+                    p.setThumbnailImages(imgUrl);
+                }
+                
+                step.product = p;
+            }
+            
+            View card = buildProductCard(step, step.order);
+            // Put all AI steps into AM container to form a single unified list
+            amProductsContainer.addView(card);
+        }
+    }
+
+    private void retakeQuiz() {
+        routineManager.resetQuiz();
+        selectedSkinType = "";
+        selectedConcerns.clear();
+        selectedGoals.clear();
+        selectedCurrentRoutine = "";
+        selectedLevel = "";
+        showQuizScreen();
     }
 
     private void buildResultUI() {

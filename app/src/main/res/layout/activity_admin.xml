@@ -114,16 +114,16 @@
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavAdmin"
-        style="@style/Widget.MaterialComponents.BottomNavigationView"
+        style="@style/Widget.TirTir.AdminBottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@android:color/white"
-        app:backgroundTint="@android:color/white"
+        android:background="@drawable/bg_bottom_nav_admin"
+        app:backgroundTint="@null"
+        app:itemRippleColor="@color/tirtir_outline_variant"
         app:itemIconTint="@color/admin_nav_color"
         app:itemTextColor="@color/admin_nav_color"
         app:labelVisibilityMode="labeled"
-        app:menu="@menu/menu_admin_bottom_nav"
-        app:elevation="8dp" />
+        app:menu="@menu/menu_admin_bottom_nav" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -85,7 +85,6 @@
             android:name=".ui.activities.RegisterActivity"
             android:exported="false" />
 
-        <!-- SCR-12: MainActivity (bottom nav host) -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -97,12 +96,26 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="tirtir" android:host="payment" />
             </intent-filter>
+            
+            <!-- Intercept VNP_RETURN_URL directly to avoid Chrome 'website not found' error -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" android:host="10.0.2.2" android:port="5000" android:pathPrefix="/api/v1/payments/vnpay-return" />
+            </intent-filter>
         </activity>
 
         <!-- SCR-14: ProductDetailActivity -->
         <activity
             android:name=".ui.activities.ProductDetailActivity"
             android:exported="false" />
+
+        <!-- VNPAY in-app WebView (avoids Chrome "site not found" on localhost) -->
+        <activity
+            android:name=".ui.activities.VNPAYWebViewActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TirTirMCommerce" />
 
         <!-- PHASE 3: AI / ML + deploy-ready frontend flows -->
         <activity

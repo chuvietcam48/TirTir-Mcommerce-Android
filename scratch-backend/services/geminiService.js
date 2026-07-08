@@ -96,10 +96,43 @@ async function processChatbotMessage({ userId, message, productId }) {
     }
   }
 
+  // 2.5 Fetch product catalog to recommend from (with ingredients)
+  let productCatalogContext = null;
+  try {
+    const products = await Product.find({
+      Status: { $ne: 'inactive' },
+      Stock_Quantity: { $gt: 0 }
+    })
+      .select('Name Category Price Sale_Price Skin_Type_Target Key_Ingredients Product_ID')
+      .limit(30)
+      .lean();
+
+    if (products.length > 0) {
+      // Sort: exact skin type matches first
+      const sorted = products.sort((a, b) => {
+        const aMatch = (a.Skin_Type_Target || '').toLowerCase().includes(skinType) ? 0 : 1;
+        const bMatch = (b.Skin_Type_Target || '').toLowerCase().includes(skinType) ? 0 : 1;
+        return aMatch - bMatch;
+      });
+
+      const top10 = sorted.slice(0, 10);
+      const productList = top10.map(p => {
+        const price = p.Sale_Price > 0 ? p.Sale_Price : p.Price;
+        const ingredients = p.Key_Ingredients || 'Không rõ thành phần';
+        return `- Tên: ${p.Name}\n  Phân loại: ${p.Category || 'Skincare'}\n  Loại da khuyên dùng: ${p.Skin_Type_Target || 'Mọi loại da'}\n  Thành phần chính: ${ingredients}`;
+      }).join('\n\n');
+
+      productCatalogContext = `\n\n[DANH SÁCH SẢN PHẨM DATABASE HIỆN CÓ]:\nBẠN BẮT BUỘC CHỈ ĐƯỢC PHÉP RECOMMEND TỪ DANH SÁCH DƯỚI ĐÂY. KHÔNG ĐƯỢC BỊA RA SẢN PHẨM BÊN NGOÀI. KHI GỢI Ý, PHẢI DỰA VÀO "THÀNH PHẦN CHÍNH" ĐỂ GIẢI THÍCH LÝ DO TẠI SAO PHÙ HỢP VỚI LOẠI DA CỦA KHÁCH:\n\n${productList}`;
+    }
+  } catch (err) {
+    console.error('[GEMINI] Catalog fetch error:', err.message);
+  }
+
   // 3. Build dynamic systemInstruction
   const { systemInstruction } = buildChatbotPrompt({
     userProfile: { skinType, knownAllergies },
     productContext,
+    productCatalogContext,
     message: message.trim()
   });
 
@@ -180,8 +213,8 @@ function generateSmartFallback(message, skinType, productName) {
   const msgLower = message.toLowerCase();
 
   // Keyword: Product mentioned in context
-  if (productName && (msgLower.includes('sản phẩm này') || msgLower.includes('dùng sao') || msgLower.includes('tốt không'))) {
-    return `${productName} là một sản phẩm tuyệt vời của TirTir! Đối với làn da ${skinType} của bạn, hãy sử dụng theo hướng dẫn và thử một vùng nhỏ trước nhé. Bạn có muốn biết thêm cách kết hợp sản phẩm này vào chu trình dưỡng da không?`;
+  if (productName && (msgLower.includes('sản phẩm này') || msgLower.includes('dùng sao') || msgLower.includes('tốt không') || msgLower.includes('hợp') || msgLower.includes('phù hợp'))) {
+    return `${productName} là một sản phẩm rất tuyệt vời của TirTir! Đối với làn da ${skinType} của bạn, sản phẩm này hoàn toàn có thể sử dụng được. Tuy nhiên, bạn nên thoa thử một vùng nhỏ trước nhé. Bạn có cần mình hướng dẫn cách kết hợp sản phẩm này vào chu trình dưỡng da không?`;
   }
 
   // Keyword: Recommend, gợi ý, tư vấn sản phẩm
@@ -253,7 +286,103 @@ async function generateGeminiResponse(systemInstruction, userMessage, productNam
   }
 }
 
+/**
+ * Generate an AI Routine based on skin profile and catalog.
+ */
+async function generateAiRoutine(skinType, catalog, wantsSunscreen) {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  const isKeyValid = apiKey && !apiKey.includes('your_') && apiKey.includes('AIza') && apiKey !== 'AIzaSyDummyKeyForLocalTesting123';
+
+  if (!isKeyValid) {
+    console.warn('[GEMINI] API key not configured for Routine Generation — using catalog fallback');
+    return generateFallbackRoutine(skinType, catalog, wantsSunscreen);
+  }
+
+  try {
+    const ai = new GoogleGenAI({ apiKey, apiVersion: 'v1' });
+    const systemInstruction = `Bạn là một AI phân tích da liễu.
+Nhiệm vụ của bạn là lấy các sản phẩm từ danh sách dưới đây để tạo ra một chu trình dưỡng da (skincare routine) phù hợp nhất với da: ${skinType}.
+${wantsSunscreen ? 'BẮT BUỘC chèn 1 sản phẩm chống nắng (Sunscreen) vào bước cuối cùng.' : 'KHÔNG đưa vào sản phẩm chống nắng (Sunscreen) và Makeup (Cushion).'}
+
+DANH SÁCH SẢN PHẨM:
+${JSON.stringify(catalog.map(p => ({
+  id: p.Product_ID,
+  name: p.Name,
+  category: p.Category,
+  price: p.Price
+})))}
+
+YÊU CẦU ĐẦU RA (OUTPUT FORMAT):
+CHỈ TRẢ VỀ JSON HỢP LỆ (Không có markdown, không có \`\`\`json).
+Định dạng JSON là một mảng (array) chứa tối đa 5 bước (steps). Mỗi object gồm:
+{
+  "step": 1,
+  "stepName": "Cleanser",
+  "productId": "id_sản_phẩm",
+  "productName": "tên sản phẩm",
+  "description": "Lý do ngắn gọn (1 câu Tiếng Anh) vì sao sản phẩm này hợp với da ${skinType}.",
+  "hydrationBoost": 5, // Điểm cấp ẩm (1-10)
+  "textureBoost": 4, // Điểm cải thiện bề mặt da (1-10)
+  "price": 25.0
+}`;
+
+    const contents = [{ role: 'user', parts: [{ text: "Hãy tạo chu trình dưỡng da." }] }];
+    
+    // Config specifically for JSON output
+    const config = {
+      systemInstruction: systemInstruction,
+      responseMimeType: "application/json",
+      temperature: 0.1
+    };
+
+    const response = await callGeminiWithRetry(ai, 'gemini-2.5-flash', contents, config);
+    let text = response.text;
+    
+    // Clean potential markdown just in case
+    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    
+    return JSON.parse(text);
+
+  } catch (err) {
+    console.error('[GEMINI] generateAiRoutine failed:', err.message);
+    return generateFallbackRoutine(skinType, catalog, wantsSunscreen);
+  }
+}
+
+function generateFallbackRoutine(skinType, catalog, wantsSunscreen) {
+  // Simple heuristic fallback picking from catalog
+  const routine = [];
+  let stepIdx = 1;
+  
+  const categories = ['Cleanser', 'Toner', 'Serum', 'Cream'];
+  if (wantsSunscreen) categories.push('Sunscreen');
+
+  for (const cat of categories) {
+    // Try to find a product in category matching skinType if possible, or just first one
+    let prod = catalog.find(p => p.Category && p.Category.toLowerCase() === cat.toLowerCase());
+    if (!prod) {
+      // Fuzzy match
+      prod = catalog.find(p => p.Category && p.Category.toLowerCase().includes(cat.toLowerCase()));
+    }
+    
+    if (prod) {
+      routine.push({
+        step: stepIdx++,
+        stepName: cat,
+        productId: prod.Product_ID,
+        productName: prod.Name,
+        description: `Recommended for your ${skinType} skin to keep it healthy.`,
+        hydrationBoost: Math.floor(Math.random() * 5) + 5,
+        textureBoost: Math.floor(Math.random() * 5) + 4,
+        price: prod.Price || 20.0
+      });
+    }
+  }
+  return routine;
+}
+
 module.exports = {
   processChatbotMessage,
   generateGeminiResponse,
+  generateAiRoutine
 };

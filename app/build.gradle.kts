@@ -20,7 +20,6 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "API_BASE_URL", "\"$tirtirApiBaseUrl\"")
     }
 
     signingConfigs {
@@ -33,7 +32,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Dùng backend Local cho lúc chạy thử nghiệm (Emulator)
+            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:5000/\"")
+        }
         release {
+            // Dùng backend Render cho bản phát hành thật (APK release)
+            buildConfigField("String", "API_BASE_URL", "\"https://tirtir-project.onrender.com/\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

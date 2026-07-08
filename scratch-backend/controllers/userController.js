@@ -46,7 +46,7 @@ exports.updateProfile = async (req, res) => {
   }
 
   const user = await User.findByIdAndUpdate(req.user.id, update, {
-    new: true,
+    returnDocument: 'after',
     runValidators: true,
   });
 
@@ -55,6 +55,45 @@ exports.updateProfile = async (req, res) => {
   }
 
   res.status(200).json({ success: true, data: toClient(user) });
+};
+
+// ─────────────────────────────────────
+// PUT /api/v1/users/skin-profile (protected)
+// Body: { skinTone, undertone, skinHex, ITA_category, texture, pores, hydration, skinType, concerns, recommendations, confidence }
+// ─────────────────────────────────────
+exports.updateSkinProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản.' });
+    }
+
+    const {
+      skinTone, undertone, skinHex, ITA_category, texture, pores, hydration,
+      skinType, concerns, recommendations, confidence
+    } = req.body;
+
+    user.skinProfile = {
+      skinTone,
+      undertone,
+      skinHex,
+      ITA_category,
+      texture,
+      pores,
+      hydration,
+      skinType,
+      concerns: Array.isArray(concerns) ? concerns : [],
+      recommendations: Array.isArray(recommendations) ? recommendations : [],
+      confidence,
+      lastAnalyzedAt: new Date()
+    };
+
+    await user.save();
+    res.status(200).json({ success: true, data: toClient(user) });
+  } catch (error) {
+    console.error('Update Skin Profile error:', error);
+    res.status(500).json({ success: false, message: 'Lỗi khi lưu kết quả scan.' });
+  }
 };
 
 // ─────────────────────────────────────

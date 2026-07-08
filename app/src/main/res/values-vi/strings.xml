@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">TirTir</string>
+    <string name="app_tagline">Sắc Đẹp Thông Minh</string>
+
+    <!-- ===== PROFILE ===== -->
+    <string name="profile_title">Tài Khoản</string>
+    <string name="profile_my_orders">Đơn hàng của tôi</string>
+    <string name="profile_my_addresses">Địa chỉ giao hàng</string>
+    <string name="profile_my_wishlist">Yêu thích</string>
+    <string name="profile_settings">Cài đặt</string>
+    <string name="profile_language">Ngôn ngữ</string>
+    <string name="profile_edit">Chỉnh sửa hồ sơ</string>
+    <string name="profile_change_avatar">Đổi ảnh đại diện</string>
+    <string name="profile_update">Cập nhật</string>
+
+    <!-- ===== BOTTOM NAV ===== -->
+    <string name="nav_home">TRANG CHỦ</string>
+    <string name="nav_scan">QUÉT AI</string>
+    <string name="nav_chat">HỖ TRỢ</string>
+    <string name="nav_shop">Cửa hàng</string>
+    <string name="nav_routine">CHU TRÌNH</string>
+    <string name="nav_profile">TÀI KHOẢN</string>
+    <string name="nav_cart">Giỏ hàng</string>
+    <string name="nav_wishlist">Yêu thích</string>
+
+    <!-- ===== GENERAL ===== -->
+    <string name="loading">Đang tải...</string>
+    <string name="retry">Thử lại</string>
+    <string name="empty_state">Không có dữ liệu</string>
+    <string name="back">Quay lại</string>
+    <string name="btn_confirm">Xác nhận</string>
+    <string name="btn_cancel">Hủy</string>
+</resources>

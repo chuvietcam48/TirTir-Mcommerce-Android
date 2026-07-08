@@ -52,9 +52,33 @@ exports.createOrder = async (req, res) => {
 
   // Look up product details (name, price) for each cart item
   const productIds = cart.items.map((i) => i.productId);
-  const products = await Product.find({ _id: { $in: productIds } }).lean();
+  
+  // Separate ObjectIds and custom String IDs (e.g., TR-001)
+  const mongoose = require('mongoose');
+  const objectIds = [];
+  const customIds = [];
+  
+  productIds.forEach(id => {
+    if (mongoose.Types.ObjectId.isValid(id) && String(new mongoose.Types.ObjectId(id)) === String(id)) {
+      objectIds.push(id);
+    } else {
+      customIds.push(id);
+    }
+  });
+
+  const products = await Product.find({
+    $or: [
+      { _id: { $in: objectIds } },
+      { Product_ID: { $in: customIds } },
+      { Product_ID: { $in: objectIds } }
+    ]
+  }).lean();
+  
   const productMap = {};
-  products.forEach((p) => { productMap[String(p._id)] = p; });
+  products.forEach((p) => { 
+    productMap[String(p._id)] = p; 
+    if (p.Product_ID) productMap[p.Product_ID] = p;
+  });
 
   const orderItems = [];
   let totalPrice = 0;

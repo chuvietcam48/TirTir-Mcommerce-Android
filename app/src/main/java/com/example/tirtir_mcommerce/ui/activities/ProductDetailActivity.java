@@ -307,9 +307,9 @@ public class ProductDetailActivity extends AppCompatActivity {
                 com.example.tirtir_mcommerce.model.User cachedUser = prefsManager.getCachedUser();
                 String skinTypeLabel = "";
                 if (cachedUser != null && cachedUser.getSkinProfile() != null
-                        && cachedUser.getSkinProfile().getSkinTone() != null
-                        && !cachedUser.getSkinProfile().getSkinTone().isEmpty()) {
-                    skinTypeLabel = cachedUser.getSkinProfile().getSkinTone() + " ";
+                        && cachedUser.getSkinProfile().getSkinType() != null
+                        && !cachedUser.getSkinProfile().getSkinType().isEmpty()) {
+                    skinTypeLabel = cachedUser.getSkinProfile().getSkinType() + " ";
                 }
                 String autoMsg = "Sản phẩm " + (productName != null ? productName : "này")
                         + " có phù hợp với loại da " + skinTypeLabel + "của mình không?";
@@ -325,22 +325,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                 chatIntent.putExtra("CHAT_PRODUCT_PRICE", String.format(java.util.Locale.US, "%,.0f", displayPriceVnd).replace(",", "."));
                 chatIntent.putExtra("CHAT_PRODUCT_RATING", tvProductRating != null ? tvProductRating.getText().toString() : "0.0");
                 chatIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(chatIntent);
-            });
-        }
-
-        // Ask AI Before Buying → open Chat with this product's context + DB info
-        View btnAskAI = findViewById(R.id.btnAskAIBeforeBuying);
-        if (btnAskAI != null) {
-            btnAskAI.setOnClickListener(v -> {
-                Intent chatIntent = new Intent(this, ChatActivity.class);
-                chatIntent.putExtra("PRODUCT_ID", productId);
-                chatIntent.putExtra("PRODUCT_NAME", productName);
-                chatIntent.putExtra("PRODUCT_INGREDIENTS", productIngredients);
-                chatIntent.putExtra("PRODUCT_SKIN_TYPES", getIntent().getStringExtra("PRODUCT_SKIN_TYPES"));
-                chatIntent.putExtra("PRODUCT_HOW_TO_USE", productHowToUse);
-                chatIntent.putExtra("PRODUCT_DESCRIPTION", firstNonEmpty(productFullDescription,
-                        getIntent().getStringExtra("PRODUCT_DESCRIPTION"), ""));
                 startActivity(chatIntent);
             });
         }

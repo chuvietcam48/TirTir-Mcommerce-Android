@@ -47,8 +47,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     public void onBindViewHolder(@NonNull CartViewHolder holder, int position) {
         CartItem cartItem = cartItems.get(position);
         
-        holder.tvName.setText(cartItem.getProductName());
-        holder.tvPrice.setText(PriceUtils.formatPriceUsd(cartItem.getPrice()));
+        double displayPrice = cartItem.getPrice() * cartItem.getQuantity();
+        holder.tvPrice.setText(PriceUtils.formatPriceUsd(displayPrice));
         
         // Brand logic (hardcoded to TirTir as per request's HTML)
         TextView tvBrand = holder.itemView.findViewById(R.id.tvCartBrand);

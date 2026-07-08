@@ -39,105 +39,108 @@ exports.analyzeFace = async (req, res) => {
 const Product = require('../models/Product');
 const Order = require('../models/Order');
 
+const { GoogleGenAI } = require('@google/genai');
+
 // POST /api/v1/ai/recommend-routine
 exports.recommendRoutine = async (req, res) => {
   try {
     const { skinType, concerns } = req.body;
-    // Assuming auth middleware is used, userId might be available.
-    // Since the app didn't pass userId in body, let's just check if it's in req.user
-    const userId = req.user ? req.user.id : null;
     
-    let baseKeyword = "";
-    
-    if (userId) {
-      // Find past valid orders for this user
-      const pastOrders = await Order.find({ userId: userId, status: { $ne: 'Cancelled' } });
-      if (pastOrders && pastOrders.length > 0) {
-        // Extract keywords from their purchased products (e.g. Matcha, Milk, SOS)
-        for (const order of pastOrders) {
-           for (const item of order.items) {
-              if (item.name) {
-                 if (item.name.toLowerCase().includes('matcha')) baseKeyword = "Matcha";
-                 else if (item.name.toLowerCase().includes('milk')) baseKeyword = "Milk";
-                 else if (item.name.toLowerCase().includes('sos')) baseKeyword = "SOS";
-              }
-           }
-        }
-      }
-    }
-    
-    // If we have a base keyword from order, try to build routine around it, otherwise use concerns/skinType
-    const primaryConcern = (concerns && concerns.length > 0) ? concerns[0] : (skinType || "Hydration");
-    const searchRegex = baseKeyword ? new RegExp(baseKeyword, 'i') : new RegExp(primaryConcern, 'i');
-    
-    // Helper to get a product for a step, excluding makeup
-    const getProductForStep = async (stepName, categoryKeywords) => {
-      let query = {
-         Status: { $ne: 'inactive' },
-         Stock_Quantity: { $gt: 0 },
-         $and: [
-            {
-               $or: [
-                  { Category: { $regex: categoryKeywords, $options: 'i' } },
-                  { Name: { $regex: categoryKeywords, $options: 'i' } }
-               ]
-            },
-            { Category: { $not: /makeup|cushion|foundation|concealer/i } },
-            { Name: { $not: /cushion|foundation|concealer|setting spray/i } }
-         ]
-      };
-      
-      // Try finding one matching the user's baseKeyword or concern first
-      let product = await Product.findOne({
-          ...query,
-          $or: [
-              { Skin_Type_Target: { $regex: searchRegex } },
-              { Name: { $regex: searchRegex } }
-          ]
-      }).select('Name Category Thumbnail_Images Product_ID Price Sale_Price');
-      
-      // Fallback if not found
-      if (!product) {
-         product = await Product.findOne(query).select('Name Category Thumbnail_Images Product_ID Price Sale_Price');
-      }
-      return product;
-    };
+    // Fetch all active skincare products excluding makeup
+    const products = await Product.find({
+        Status: { $ne: 'inactive' },
+        Stock_Quantity: { $gt: 0 },
+        Category: { $not: /makeup|cushion|foundation|concealer/i },
+        Name: { $not: /cushion|foundation|concealer|setting spray/i }
+    }).select('Name Category Skin_Type_Target Main_Concern Key_Ingredients Thumbnail_Images Product_ID Price Sale_Price');
 
-    const steps = [
-       { name: 'Cleanser', keywords: 'Cleanser|Wash' },
-       { name: 'Toner', keywords: 'Toner' },
-       { name: 'Serum', keywords: 'Serum|Ampoule' },
-       { name: 'Cream', keywords: 'Cream|Moisturizer' },
-       { name: 'Sunscreen', keywords: 'Sunscreen|SPF|UV Shield' }
-    ];
-    
+    if (!products || products.length === 0) {
+        return res.status(404).json({ success: false, message: 'No products available for routine generation.' });
+    }
+
+    // Prepare catalog for Gemini (shrink data to save tokens)
+    const catalog = products.map(p => ({
+        id: p._id.toString(),
+        name: p.Name,
+        category: p.Category,
+        target: p.Skin_Type_Target || '',
+        concern: p.Main_Concern || '',
+        ingredients: p.Key_Ingredients || ''
+    }));
+
+    const prompt = `You are an expert dermatologist AI for the brand TirTir.
+A user needs a skincare routine.
+Skin Type: ${skinType || 'Unknown'}
+Concerns: ${concerns ? concerns.join(', ') : 'None specified'}
+
+Here is the catalog of available products (in JSON format):
+${JSON.stringify(catalog)}
+
+You MUST tailor the recommendations SPECIFICALLY to the user's Skin Type and Concerns!
+Do NOT just pick the most popular products. Choose the absolute BEST match for their specific skin type.
+For example:
+- If Skin Type is Oily/Acne: pick lightweight products, BHA, Niacinamide, oil-free cream.
+- If Skin Type is Dry: pick hydrating, ceramide, rich cream, hyaluronic acid.
+- If Skin Type is Sensitive: pick soothing, centella, mild products.
+
+Select exactly ONE product for each of the following 5 steps:
+1. Cleanser
+2. Toner
+3. Serum
+4. Cream
+5. Sunscreen
+
+Return a raw JSON array of 5 objects (do NOT wrap in markdown code blocks like \`\`\`json). Each object must have:
+- "step": String (the step name, e.g., "Cleanser")
+- "id": String (the exact id of the selected product from the catalog)
+- "hydrationBoost": Number (estimated hydration improvement percentage, e.g., 15)
+- "textureBoost": Number (estimated texture improvement percentage, e.g., 10)`;
+
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+        config: {
+            temperature: 0.7,
+            topK: 40,
+        }
+    });
+
+    let jsonString = response.text;
+    if (jsonString.startsWith('```json')) {
+        jsonString = jsonString.replace(/```json\n?/, '').replace(/\n?```$/, '');
+    } else if (jsonString.startsWith('```')) {
+        jsonString = jsonString.replace(/```\n?/, '').replace(/\n?```$/, '');
+    }
+    const aiRoutine = JSON.parse(jsonString.trim());
+
+    // Map AI result to product details
     const routine = [];
-    
-    for (const step of steps) {
-       const prod = await getProductForStep(step.name, step.keywords);
-       if (prod) {
-          // Extract the first thumbnail URL (Thumbnail_Images can be array or string)
-          let thumbUrl = '';
-          if (Array.isArray(prod.Thumbnail_Images) && prod.Thumbnail_Images.length > 0) {
-            thumbUrl = prod.Thumbnail_Images[0];
-          } else if (typeof prod.Thumbnail_Images === 'string' && prod.Thumbnail_Images) {
-            // Could be JSON stringified array
-            try {
-              const parsed = JSON.parse(prod.Thumbnail_Images);
-              thumbUrl = Array.isArray(parsed) ? (parsed[0] || '') : prod.Thumbnail_Images;
-            } catch {
-              thumbUrl = prod.Thumbnail_Images;
+    for (const item of aiRoutine) {
+        const prod = products.find(p => p._id.toString() === item.id);
+        if (prod) {
+            let thumbUrl = '';
+            if (Array.isArray(prod.Thumbnail_Images) && prod.Thumbnail_Images.length > 0) {
+                thumbUrl = prod.Thumbnail_Images[0];
+            } else if (typeof prod.Thumbnail_Images === 'string' && prod.Thumbnail_Images) {
+                try {
+                    const parsed = JSON.parse(prod.Thumbnail_Images);
+                    thumbUrl = Array.isArray(parsed) ? (parsed[0] || '') : prod.Thumbnail_Images;
+                } catch {
+                    thumbUrl = prod.Thumbnail_Images;
+                }
             }
-          }
-          routine.push({
-             step: step.name,
-             product: {
-               ...prod.toObject ? prod.toObject() : prod,
-               imageUrl: thumbUrl,
-               productId: String(prod.Product_ID || prod._id),
-             }
-          });
-       }
+            routine.push({
+                step: item.step,
+                hydrationBoost: item.hydrationBoost,
+                textureBoost: item.textureBoost,
+                product: {
+                    ...(prod.toObject ? prod.toObject() : prod),
+                    imageUrl: thumbUrl,
+                    productId: String(prod.Product_ID || prod._id),
+                }
+            });
+        }
     }
 
     res.status(200).json({

@@ -33,11 +33,17 @@ public class PriceUtils {
     }
 
     /**
-     * Formats a raw price into USD string, e.g. "$32.00".
+     * Formats a raw price dynamically based on the current Locale setting.
+     * If Locale is Vietnamese ("vi"), formats as VND. Otherwise, formats as USD.
      */
-    public static String formatPriceUsd(double displayPrice) {
-        // Assume displayPrice might have been normalized to VND by buildDisplayPrice
-        double usdPrice = displayPrice > 1000 ? displayPrice / 25000.0 : displayPrice;
-        return String.format(Locale.US, "$%.2f", usdPrice);
+    public static String formatPriceUsd(double rawPrice) {
+        String lang = Locale.getDefault().getLanguage();
+        if ("vi".equals(lang)) {
+            return formatVnd(rawPrice);
+        } else {
+            // Assume displayPrice might have been normalized to VND by buildDisplayPrice
+            double usdPrice = rawPrice > 1000 ? rawPrice / 25000.0 : rawPrice;
+            return String.format(Locale.US, "$%.2f", usdPrice);
+        }
     }
 }

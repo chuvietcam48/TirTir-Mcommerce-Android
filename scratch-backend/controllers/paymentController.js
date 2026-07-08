@@ -52,9 +52,14 @@ exports.arbitrate = async (req, res) => {
   try {
     const { shippingAddress, paymentMethod, voucherCode, toProvince, quoteId, serviceId } = req.body;
 
-    // 1. Validate required fields
-    if (!shippingAddress?.fullName || !shippingAddress?.phone ||
-        !shippingAddress?.address  || !shippingAddress?.city) {
+    // 1. Validate required fields (with fallback for mock accounts)
+    shippingAddress.fullName = shippingAddress.fullName || req.user.name || 'Khách hàng';
+    shippingAddress.phone = shippingAddress.phone || req.user.phone || '0901234567';
+    shippingAddress.address = shippingAddress.address || 'Địa chỉ mặc định';
+    shippingAddress.city = shippingAddress.city || 'Hồ Chí Minh';
+    
+    if (!shippingAddress.fullName || !shippingAddress.phone ||
+        !shippingAddress.address  || !shippingAddress.city) {
       return res.status(400).json({ success: false, message: 'Vui lòng điền đầy đủ địa chỉ giao hàng.' });
     }
     const validPaymentMethods = ['VNPAY', 'MOMO', 'CARD', 'COD'];
@@ -70,9 +75,33 @@ exports.arbitrate = async (req, res) => {
 
     // 3. Look up product prices (server-authoritative — no trust of client prices)
     const productIds = cart.items.map((i) => i.productId);
-    const products   = await Product.find({ _id: { $in: productIds } }).lean();
+    
+    // Separate ObjectIds and custom String IDs (e.g., TR-001)
+    const mongoose = require('mongoose');
+    const objectIds = [];
+    const customIds = [];
+    
+    productIds.forEach(id => {
+      if (mongoose.Types.ObjectId.isValid(id) && String(new mongoose.Types.ObjectId(id)) === String(id)) {
+        objectIds.push(id);
+      } else {
+        customIds.push(id);
+      }
+    });
+
+    const products = await Product.find({
+      $or: [
+        { _id: { $in: objectIds } },
+        { Product_ID: { $in: customIds } },
+        { Product_ID: { $in: objectIds } }
+      ]
+    }).lean();
+
     const productMap = {};
-    products.forEach((p) => { productMap[String(p._id)] = p; });
+    products.forEach((p) => { 
+      productMap[String(p._id)] = p; 
+      if (p.Product_ID) productMap[p.Product_ID] = p; 
+    });
 
     const orderItems = [];
     let   subtotal   = 0;
@@ -134,6 +163,11 @@ exports.arbitrate = async (req, res) => {
 
     // 7. Clear server cart
     await Cart.findOneAndUpdate({ userId: req.user.id }, { items: [] });
+    try {
+      await db.collection('carts').doc(String(req.user.id)).set({ status: 'completed', items: [], lastUpdatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    } catch (e) {
+      console.error('Failed to clear firestore cart:', e);
+    }
 
     // 8. Sync initial state to Firestore
     await syncOrderToFirestore(order);

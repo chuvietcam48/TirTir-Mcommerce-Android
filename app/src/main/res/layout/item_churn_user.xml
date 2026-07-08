@@ -5,8 +5,11 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
+    app:cardBackgroundColor="#FFFFFF"
     app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    app:cardElevation="0dp"
+    app:strokeColor="#E0E0E0"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,7 +36,9 @@
                     android:text="User Name"
                     android:textColor="@color/black"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
 
                 <TextView
                     android:id="@+id/tvChurnUserEmail"

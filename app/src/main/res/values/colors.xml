@@ -10,7 +10,7 @@
     <color name="tirtir_red_dark">#610000</color>      <!-- Stitch primary: darkest red for auth buttons -->
     <color name="tirtir_red_accent">#B52619</color>    <!-- Stitch surface-tint: mid-red for active chips -->
     <color name="tirtir_red_light">#E86B6B</color>
-    <color name="tirtir_red_surface">#FFF4F3</color>
+    <color name="tirtir_red_surface">#FFFFFF</color>
 
     <!-- BLACK / DARK (primary text, CTA buttons) — Stitch on-surface: #1A1C1C -->
     <color name="tirtir_black">#1A1C1C</color>

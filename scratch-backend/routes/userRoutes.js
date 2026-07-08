@@ -8,6 +8,7 @@ const {
   updateAddress,
   deleteAddress,
   setDefaultAddress,
+  updateSkinProfile,
 } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -19,6 +20,7 @@ router.use(protect);
 // PUT  /api/v1/users/profile       → ApiService.updateProfile()
 router.get('/profile', getProfile);
 router.put('/profile', updateProfile);
+router.put('/skin-profile', updateSkinProfile);
 
 // ── Addresses ────────────────────────────
 // GET    /api/v1/users/addresses          → ApiService.getAddresses()

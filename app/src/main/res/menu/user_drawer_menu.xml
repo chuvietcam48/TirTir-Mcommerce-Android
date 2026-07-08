@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
-        <item android:id="@+id/nav_drawer_home" android:icon="@drawable/ic_home" android:title="Home" />
-        <item android:id="@+id/nav_drawer_shop" android:icon="@drawable/ic_category_moisturizer" android:title="Shop all products" />
-        <item android:id="@+id/nav_drawer_cart" android:icon="@drawable/ic_cart" android:title="My cart" />
-        <item android:id="@+id/nav_drawer_wishlist" android:icon="@drawable/ic_wishlist" android:title="Wishlist" />
-        <item android:id="@+id/nav_drawer_orders" android:icon="@drawable/ic_list" android:title="Order history" />
+        <item android:id="@+id/nav_drawer_home" android:icon="@drawable/ic_home" android:title="@string/nav_home" />
+        <item android:id="@+id/nav_drawer_shop" android:icon="@drawable/ic_category_moisturizer" android:title="@string/nav_shop" />
+        <item android:id="@+id/nav_drawer_cart" android:icon="@drawable/ic_cart" android:title="@string/nav_cart" />
+        <item android:id="@+id/nav_drawer_wishlist" android:icon="@drawable/ic_wishlist" android:title="@string/nav_wishlist" />
+        <item android:id="@+id/nav_drawer_orders" android:icon="@drawable/ic_list" android:title="@string/profile_my_orders" />
         <item android:id="@+id/nav_drawer_loyalty" android:icon="@drawable/ic_badge_premium" android:title="Rewards &amp; loyalty" />
         <item android:id="@+id/nav_drawer_vouchers" android:icon="@drawable/ic_link" android:title="Voucher wallet" />
     </group>
 
-    <item android:title="Account">
+    <item android:title="@string/profile_title">
         <menu>
+            <item android:id="@+id/nav_drawer_language" android:icon="@drawable/ic_edit" android:title="@string/profile_language" />
             <item android:id="@+id/nav_drawer_notifications" android:icon="@drawable/ic_notifications" android:title="Notifications" />
             <item android:id="@+id/nav_drawer_settings" android:icon="@drawable/ic_edit" android:title="Notification settings" />
-            <item android:id="@+id/nav_drawer_logout" android:icon="@drawable/ic_error" android:title="Sign out" />
+            <item android:id="@+id/nav_drawer_logout" android:icon="@drawable/ic_error" android:title="@string/btn_logout" />
         </menu>
     </item>
 </menu>

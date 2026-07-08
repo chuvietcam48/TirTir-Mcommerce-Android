@@ -62,8 +62,6 @@ public class CheckoutActivity extends AppCompatActivity {
     
     // New UI Elements
     private TextView tvAddressSummary, tvAddressTitle;
-    private ImageView ivProductPreviewImage;
-    private TextView tvProductName, tvProductInfo, tvProductPrice, tvCheckoutQuantity;
     private MaterialCardView cvPaymentCard, cvPaymentVnpay, cvPaymentMomo;
     private android.widget.RadioButton rbCOD, rbBankTransfer, rbMomo;
     private String selectedPaymentMethod = "CARD";
@@ -112,11 +110,6 @@ public class CheckoutActivity extends AppCompatActivity {
     private void bindViews() {
         tvAddressTitle = findViewById(R.id.tvAddressTitle);
         tvAddressSummary = findViewById(R.id.tvAddressSummary);
-        ivProductPreviewImage = findViewById(R.id.ivProductPreviewImage);
-        tvProductName = findViewById(R.id.tvProductName);
-        tvProductInfo = findViewById(R.id.tvProductInfo);
-        tvProductPrice = findViewById(R.id.tvProductPrice);
-        tvCheckoutQuantity = findViewById(R.id.tvCheckoutQuantity);
         
         cvPaymentCard = findViewById(R.id.cvPaymentCard);
         cvPaymentVnpay = findViewById(R.id.cvPaymentVnpay);
@@ -190,22 +183,35 @@ public class CheckoutActivity extends AppCompatActivity {
         checkoutItems = databaseHelper.getCartItems();
         cartSubtotal = 0;
         
-        if (!checkoutItems.isEmpty()) {
-            CartItem firstItem = checkoutItems.get(0);
-            tvProductName.setText(firstItem.getProductName());
-            tvProductPrice.setText(PriceUtils.formatPriceUsd(firstItem.getPrice()));
-            tvCheckoutQuantity.setText(String.valueOf(firstItem.getQuantity()));
-            String shade = firstItem.getShade() != null && !firstItem.getShade().isEmpty() ? firstItem.getShade() : "Standard";
-            tvProductInfo.setText("Shade: " + shade + " ⌄");
-            tvProductInfo.setOnClickListener(v -> showEditVariantDialog(firstItem));
-            
-            Glide.with(this)
-                .load(ApiConfig.resolveMediaUrl(firstItem.getThumbnail()))
-                .placeholder(R.drawable.ic_product_placeholder)
-                .into(ivProductPreviewImage);
+        android.widget.LinearLayout llCheckoutProducts = findViewById(R.id.llCheckoutProducts);
+        if (llCheckoutProducts != null) llCheckoutProducts.removeAllViews();
 
+        if (!checkoutItems.isEmpty()) {
             for (CartItem item : checkoutItems) {
                 cartSubtotal += item.getPrice() * item.getQuantity();
+
+                if (llCheckoutProducts != null) {
+                    View itemView = android.view.LayoutInflater.from(this).inflate(R.layout.item_checkout_product, llCheckoutProducts, false);
+                    
+                    TextView tvName = itemView.findViewById(R.id.tvProductName);
+                    TextView tvPrice = itemView.findViewById(R.id.tvProductPrice);
+                    TextView tvQuantity = itemView.findViewById(R.id.tvCheckoutQuantity);
+                    TextView tvInfo = itemView.findViewById(R.id.tvProductInfo);
+                    ImageView ivImage = itemView.findViewById(R.id.ivProductPreviewImage);
+
+                    tvName.setText(item.getProductName());
+                    tvPrice.setText(PriceUtils.formatPriceUsd(item.getPrice() * item.getQuantity()));
+                    tvQuantity.setText("x" + item.getQuantity());
+                    String shade = item.getShade() != null && !item.getShade().isEmpty() ? item.getShade() : "Standard";
+                    tvInfo.setText("Shade: " + shade);
+                    
+                    Glide.with(this)
+                        .load(ApiConfig.resolveMediaUrl(item.getThumbnail()))
+                        .placeholder(R.drawable.ic_product_placeholder)
+                        .into(ivImage);
+                        
+                    llCheckoutProducts.addView(itemView);
+                }
             }
         }
         updateTotalsUI();
@@ -331,9 +337,16 @@ public class CheckoutActivity extends AppCompatActivity {
                         orderSubmitting = false;
                         showLoading(false);
                         if (response.isSuccessful() && response.body() != null) {
+                            cartRepository.clearCart();
                             String paymentUrl = response.body().getData().getPaymentUrl();
+                            String orderId    = response.body().getData().getOrderId();
                             if (paymentUrl != null && !paymentUrl.isEmpty()) {
-                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(paymentUrl)));
+                                // Open VNPAY inside an in-app WebView so we can intercept
+                                // the return URL (http://10.0.2.2:5000) without Chrome failing
+                                Intent webIntent = new Intent(CheckoutActivity.this, VNPAYWebViewActivity.class);
+                                webIntent.putExtra(VNPAYWebViewActivity.EXTRA_PAYMENT_URL, paymentUrl);
+                                webIntent.putExtra(VNPAYWebViewActivity.EXTRA_ORDER_ID, orderId);
+                                startActivity(webIntent);
                                 finish();
                             } else {
                                 goToOrderSuccess(response.body().getData().getOrderId(), response.body().getData().getTotals().getFinalTotal());
@@ -439,8 +452,6 @@ public class CheckoutActivity extends AppCompatActivity {
             item.setShade(selected[0]);
             item.setQuantity(quantity[0]);
             cartRepository.updateShade(item.getProductId(), selected[0], quantity[0]);
-            tvProductInfo.setText("Shade: " + selected[0] + " ⌄");
-            tvCheckoutQuantity.setText(String.valueOf(quantity[0]));
             loadCartTotals(); // Recalculate totals
             dialog.dismiss();
         });

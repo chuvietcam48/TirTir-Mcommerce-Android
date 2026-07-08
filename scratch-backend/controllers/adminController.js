@@ -309,9 +309,9 @@ exports.getAdminOrders = async (req, res) => {
             .populate('userId', 'firstName lastName email')
             .sort({ createdAt: -1 })
             .limit(limit);
-        res.json(orders);
+        res.json({ success: true, data: orders });
     } catch (error) {
-        res.status(500).json({ message: 'Lỗi khi lấy danh sách đơn hàng' });
+        res.status(500).json({ success: false, message: 'Lỗi khi lấy danh sách đơn hàng' });
     }
 };
 
@@ -618,7 +618,7 @@ exports.getAtRiskUsers = async (req, res) => {
             }
             return {
                 id: user._id,
-                name: user.name,
+                name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
                 avatar: user.avatar,
                 ltv: user.totalSpent,
                 status: status,

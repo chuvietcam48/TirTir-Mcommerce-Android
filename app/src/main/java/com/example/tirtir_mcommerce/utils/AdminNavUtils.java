@@ -13,6 +13,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class AdminNavUtils {
 
     public static void setupBottomNav(Activity activity, BottomNavigationView bottomNav, int currentItemId) {
+        // Force white background and no tint for Admin Bottom Nav
+        bottomNav.setBackgroundResource(R.drawable.bg_bottom_nav_admin);
+        bottomNav.setBackgroundTintList(null);
+
         bottomNav.setSelectedItemId(currentItemId);
         bottomNav.setLabelVisibilityMode(BottomNavigationView.LABEL_VISIBILITY_SELECTED);
 

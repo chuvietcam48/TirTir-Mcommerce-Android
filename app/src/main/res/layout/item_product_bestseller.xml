@@ -6,14 +6,16 @@
     android:layout_marginEnd="16dp"
     android:layout_marginBottom="8dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="1dp"
-    app:cardBackgroundColor="@color/tirtir_white"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@android:color/white"
     app:strokeWidth="1dp"
-    app:strokeColor="@color/tirtir_border_gray">
+    app:strokeColor="@color/tirtir_border_gray"
+    app:backgroundTint="@android:color/white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@android:color/white">
 
         <!-- Product Image -->
         <ImageView
@@ -22,7 +24,7 @@
             android:layout_height="0dp"
             app:layout_constraintDimensionRatio="1:1"
             android:scaleType="centerCrop"
-            android:background="@color/tirtir_bg_gray"
+            android:background="@android:color/white"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -88,6 +90,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="12dp"
+            android:background="@android:color/white"
             app:layout_constraintTop_toBottomOf="@id/ivProductImage">
 
             <TextView

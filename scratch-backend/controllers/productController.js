@@ -34,16 +34,16 @@ exports.getProducts = async (req, res) => {
   let products = await Product.find(filter).sort(sortQuery).skip(skip).limit(limit).lean();
   
   // Fix CDN URLs
-  const cdnBase = process.env.CDN_BASE_URL || 'https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product';
+  const cdnBase = process.env.CDN_BASE_URL || 'https://tirtir-project.onrender.com/';
   products = products.map(p => {
     if (p.Thumbnail_Images && !p.Thumbnail_Images.startsWith('http')) {
-      p.Thumbnail_Images = cdnBase;
+      p.Thumbnail_Images = cdnBase + (p.Thumbnail_Images.startsWith('/') ? p.Thumbnail_Images.substring(1) : p.Thumbnail_Images);
     }
     if (p.Description_Images && Array.isArray(p.Description_Images)) {
-      p.Description_Images = p.Description_Images.map(img => img.startsWith('http') ? img : cdnBase);
+      p.Description_Images = p.Description_Images.map(img => img.startsWith('http') ? img : cdnBase + (img.startsWith('/') ? img.substring(1) : img));
     }
     if (p.Gallery_Images && Array.isArray(p.Gallery_Images)) {
-      p.Gallery_Images = p.Gallery_Images.map(img => img.startsWith('http') ? img : cdnBase);
+      p.Gallery_Images = p.Gallery_Images.map(img => img.startsWith('http') ? img : cdnBase + (img.startsWith('/') ? img.substring(1) : img));
     }
     return p;
   });
@@ -67,20 +67,23 @@ exports.getProducts = async (req, res) => {
 
 // GET /api/v1/products/:id
 exports.getProductById = async (req, res) => {
-  const product = await Product.findById(req.params.id).lean();
+  const id = req.params.id;
+  const query = mongoose.Types.ObjectId.isValid(id) ? { _id: id } : { Product_ID: id };
+  const product = await Product.findOne(query).lean();
   if (!product) {
     return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm.' });
   }
 
-  const cdnBase = process.env.CDN_BASE_URL || 'https://placehold.co/400x400/E50000/FFFFFF.png?text=TirTir+Product';
+  // Fix CDN URLs for single product
+  const cdnBase = process.env.CDN_BASE_URL || 'https://tirtir-project.onrender.com/';
   if (product.Thumbnail_Images && !product.Thumbnail_Images.startsWith('http')) {
-    product.Thumbnail_Images = cdnBase;
+    product.Thumbnail_Images = cdnBase + (product.Thumbnail_Images.startsWith('/') ? product.Thumbnail_Images.substring(1) : product.Thumbnail_Images);
   }
   if (product.Description_Images && Array.isArray(product.Description_Images)) {
-    product.Description_Images = product.Description_Images.map(img => img.startsWith('http') ? img : cdnBase);
+    product.Description_Images = product.Description_Images.map(img => img.startsWith('http') ? img : cdnBase + (img.startsWith('/') ? img.substring(1) : img));
   }
   if (product.Gallery_Images && Array.isArray(product.Gallery_Images)) {
-    product.Gallery_Images = product.Gallery_Images.map(img => img.startsWith('http') ? img : cdnBase);
+    product.Gallery_Images = product.Gallery_Images.map(img => img.startsWith('http') ? img : cdnBase + (img.startsWith('/') ? img.substring(1) : img));
   }
 
   res.status(200).json({ success: true, data: product });

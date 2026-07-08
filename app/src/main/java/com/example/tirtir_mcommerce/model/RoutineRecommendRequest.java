@@ -21,7 +21,14 @@ public class RoutineRecommendRequest {
             this.Product_ID = productId;
             this.Shade_Name = shadeName;
         }
+
+        public String getProduct_ID() { return Product_ID; }
+        public void setProduct_ID(String product_ID) { Product_ID = product_ID; }
+        public String getShade_Name() { return Shade_Name; }
+        public void setShade_Name(String shade_Name) { Shade_Name = shade_Name; }
     }
+
+    public RoutineRecommendRequest() {}
 
     public RoutineRecommendRequest(String skinType, String skinTone, String undertone,
                                     List<String> concerns, String productId, String shadeName) {
@@ -29,11 +36,19 @@ public class RoutineRecommendRequest {
         this.skinTone = skinTone;
         this.undertone = undertone;
         this.concerns = concerns;
-        this.shadeMatchProduct = new ShadeProduct(productId, shadeName);
+        if (productId != null) {
+            this.shadeMatchProduct = new ShadeProduct(productId, shadeName);
+        }
     }
 
     public String getSkinType() { return skinType; }
+    public void setSkinType(String skinType) { this.skinType = skinType; }
     public String getSkinTone() { return skinTone; }
+    public void setSkinTone(String skinTone) { this.skinTone = skinTone; }
     public String getUndertone() { return undertone; }
+    public void setUndertone(String undertone) { this.undertone = undertone; }
     public List<String> getConcerns() { return concerns; }
+    public void setConcerns(List<String> concerns) { this.concerns = concerns; }
+    public ShadeProduct getShadeMatchProduct() { return shadeMatchProduct; }
+    public void setShadeMatchProduct(ShadeProduct shadeMatchProduct) { this.shadeMatchProduct = shadeMatchProduct; }
 }

@@ -6,15 +6,7 @@ const { generateGeminiResponse } = require('../services/geminiService');
 const mongoose = require('mongoose');
 const { parseAndValidateDetectedSkinType, saveChatHistory } = require('../services/chatHistoryService');
 
-// Simple intent detector for "recommend product"
-function isRecommendIntent(message) {
-  const lower = message.toLowerCase();
-  const keywords = [
-    'recommend', 'gợi ý', 'tư vấn', 'sản phẩm nào', 'nên dùng', 'phù hợp',
-    'suggest', 'product', 'sản phẩm', 'mua gì', 'chọn gì'
-  ];
-  return keywords.some(kw => lower.includes(kw));
-}
+// Removed isRecommendIntent since we will always fetch catalog
 
 // POST /api/chatbot/message and /api/v1/chatbot/message
 exports.handleChatbotMessage = async (req, res) => {
@@ -81,9 +73,9 @@ exports.handleChatbotMessage = async (req, res) => {
       }
     }
 
-    // 4. If user is asking for recommendations, fetch real product catalog & inject into context
+    // 4. Always fetch real product catalog & inject into context so Gemini knows the products
     let productCatalogContext = '';
-    if (!productId && isRecommendIntent(message.trim())) {
+    if (true) {
       try {
         const skinType = (userProfile.skinType || 'combination').toLowerCase();
 
@@ -91,7 +83,7 @@ exports.handleChatbotMessage = async (req, res) => {
           Status: { $ne: 'inactive' },
           Stock_Quantity: { $gt: 0 }
         })
-          .select('Name Category Price Sale_Price Skin_Type_Target Main_Concern Description_Short Product_ID')
+          .select('Name Category Price Sale_Price Skin_Type_Target Main_Concern Description_Short Key_Ingredients Product_ID')
           .limit(30)
           .lean();
 
@@ -106,10 +98,11 @@ exports.handleChatbotMessage = async (req, res) => {
           const top10 = sorted.slice(0, 10);
           const productList = top10.map(p => {
             const price = p.Sale_Price > 0 ? p.Sale_Price : p.Price;
-            return `- ${p.Name} (${p.Category || 'Skincare'}) — ${price?.toLocaleString('vi-VN')}đ — Phù hợp: ${p.Skin_Type_Target || 'Mọi loại da'}`;
+            const ingredients = p.Key_Ingredients ? p.Key_Ingredients : (p.Description_Short || 'Không rõ');
+            return `- ${p.Name} (${p.Category || 'Skincare'}) — ${price?.toLocaleString('vi-VN')}đ — Phù hợp: ${p.Skin_Type_Target || 'Mọi loại da'}\n  Thành phần: ${ingredients}`;
           }).join('\n');
 
-          productCatalogContext = `\n\nDanh mục sản phẩm TirTir hiện có (PHẢI gợi ý từ danh sách này, dùng đúng tên thật):\n${productList}`;
+          productCatalogContext = `\n\nDanh mục sản phẩm TirTir hiện có (BẮT BUỘC CHỈ gợi ý từ danh sách này, dựa trên thành phần của sản phẩm, tuyệt đối KHÔNG tự bịa tên hay thành phần):\n${productList}`;
         }
       } catch (catErr) {
         console.error('[CHATBOT_CTRL] Catalog fetch error:', catErr.message);

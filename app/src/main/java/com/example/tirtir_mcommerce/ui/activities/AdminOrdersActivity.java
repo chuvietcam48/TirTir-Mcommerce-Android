@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tirtir_mcommerce.R;
+import com.example.tirtir_mcommerce.model.ApiResponse;
 import com.example.tirtir_mcommerce.network.ApiService;
 import com.example.tirtir_mcommerce.network.RetrofitClient;
 import com.example.tirtir_mcommerce.ui.adapters.AdminOrderAdapter;
@@ -58,21 +59,24 @@ public class AdminOrdersActivity extends AppCompatActivity implements AdminOrder
     private void loadOrders() {
         progress.setVisibility(View.VISIBLE);
         empty.setVisibility(View.GONE);
-        api.getAdminOrders(100).enqueue(new Callback<List<Map<String, Object>>>() {
+        api.getAdminOrders(100).enqueue(new Callback<ApiResponse<List<Map<String, Object>>>>() {
             @Override
-            public void onResponse(Call<List<Map<String, Object>>> call,
-                                   Response<List<Map<String, Object>>> response) {
+            public void onResponse(Call<ApiResponse<List<Map<String, Object>>>> call,
+                                   Response<ApiResponse<List<Map<String, Object>>>> response) {
                 progress.setVisibility(View.GONE);
                 orders.clear();
-                if (response.isSuccessful() && response.body() != null) {
-                    for (Map<String, Object> row : response.body()) orders.add(mapOrder(row));
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    List<Map<String, Object>> data = response.body().getData();
+                    if (data != null) {
+                        for (Map<String, Object> row : data) orders.add(mapOrder(row));
+                    }
                 }
                 adapter.notifyDataSetChanged();
                 empty.setVisibility(orders.isEmpty() ? View.VISIBLE : View.GONE);
             }
 
             @Override
-            public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) {
+            public void onFailure(Call<ApiResponse<List<Map<String, Object>>>> call, Throwable t) {
                 progress.setVisibility(View.GONE);
                 empty.setText("Unable to load orders");
                 empty.setVisibility(View.VISIBLE);

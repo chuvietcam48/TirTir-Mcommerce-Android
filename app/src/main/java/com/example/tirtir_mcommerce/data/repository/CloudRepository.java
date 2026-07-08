@@ -144,13 +144,13 @@ public class CloudRepository {
             data.put("displayName", user.getName());
             data.put("fullName", user.getName());
             data.put("phone", user.getPhone());
-            data.put("role", user.getRole() != null ? user.getRole() : "user");
+            
+            // role, loyaltyPoints, loyaltyTier are server-managed
+            // We should NOT set them from client to avoid PERMISSION_DENIED
             
             // Set defaults only if document does not exist, done using merge or set
             data.put("skinType", null);
             data.put("knownAllergies", new ArrayList<String>());
-            data.put("loyaltyPoints", 0);
-            data.put("loyaltyTier", "Bronze");
             data.put("createdAt", FieldValue.serverTimestamp());
             data.put("updatedAt", FieldValue.serverTimestamp());
             data.put("lastLoginAt", FieldValue.serverTimestamp());
@@ -207,7 +207,8 @@ public class CloudRepository {
                         userUpdate.put("deviceToken", token);
                         userUpdate.put("updatedAt", FieldValue.serverTimestamp());
                         firestore.collection("users").document(firebaseUid)
-                                .set(userUpdate, SetOptions.merge());
+                                .set(userUpdate, SetOptions.merge())
+                                .addOnFailureListener(e -> Log.e(TAG, "Error updating deviceToken on user document", e));
 
                         // b. Gửi lên Node.js Backend API
                         sendFcmTokenToBackend(token, firebaseUid, deviceModel, appVersion);

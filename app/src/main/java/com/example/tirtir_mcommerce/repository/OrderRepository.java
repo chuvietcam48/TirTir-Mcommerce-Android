@@ -114,13 +114,17 @@ public class OrderRepository {
     public void getMyOrders(Consumer<List<OrderResponse>> onSuccess, Consumer<String> onError) {
         ApiService apiService = RetrofitClient.getAuthClient(context).create(ApiService.class);
 
-        apiService.getMyOrders().enqueue(new Callback<ApiResponse<List<OrderResponse>>>() {
+        apiService.getMyOrders().enqueue(new Callback<ApiResponse<List<java.util.Map<String, Object>>>>() {
             @Override
-            public void onResponse(Call<ApiResponse<List<OrderResponse>>> call,
-                                   Response<ApiResponse<List<OrderResponse>>> response) {
+            public void onResponse(Call<ApiResponse<List<java.util.Map<String, Object>>>> call,
+                                   Response<ApiResponse<List<java.util.Map<String, Object>>>> response) {
                 List<OrderResponse> merged = new ArrayList<>(new SharedPrefsManager(context).getLocalOrders());
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    List<OrderResponse> remote = response.body().getData();
+                    List<java.util.Map<String, Object>> remoteMaps = response.body().getData();
+                    List<OrderResponse> remote = new ArrayList<>();
+                    for (java.util.Map<String, Object> map : remoteMaps) {
+                        remote.add(mapToOrderResponse(map));
+                    }
                     for (OrderResponse r : remote) {
                         boolean exists = false;
                         for (OrderResponse l : merged) {
@@ -144,7 +148,7 @@ public class OrderRepository {
             }
 
             @Override
-            public void onFailure(Call<ApiResponse<List<OrderResponse>>> call, Throwable t) {
+            public void onFailure(Call<ApiResponse<List<java.util.Map<String, Object>>>> call, Throwable t) {
                 List<OrderResponse> local = new SharedPrefsManager(context).getLocalOrders();
                 if (!local.isEmpty()) {
                     onSuccess.accept(local);
@@ -153,6 +157,27 @@ public class OrderRepository {
                 }
             }
         });
+    }
+
+    private OrderResponse mapToOrderResponse(java.util.Map<String, Object> map) {
+        OrderResponse o = new OrderResponse();
+        o.setId(String.valueOf(map.get("_id")));
+        o.setStatus(String.valueOf(map.get("status")));
+        o.setCreatedAt(String.valueOf(map.get("createdAt")));
+        o.setPaymentMethod(String.valueOf(map.get("paymentMethod")));
+        o.setInvoiceUrl(String.valueOf(map.get("invoiceUrl")));
+        
+        Object total = map.get("totalPrice");
+        if (total == null) total = map.get("totalAmount");
+        if (total instanceof Number) o.setTotalPrice(((Number) total).doubleValue());
+        else if (total instanceof String) {
+            try { o.setTotalPrice(Double.parseDouble((String) total)); } catch (Exception ignored) {}
+        }
+        
+        Object paid = map.get("isPaid");
+        if (paid instanceof Boolean) o.setPaid((Boolean) paid);
+        
+        return o;
     }
 
     // ===========================

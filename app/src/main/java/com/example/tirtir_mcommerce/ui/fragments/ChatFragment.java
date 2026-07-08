@@ -422,7 +422,7 @@ public class ChatFragment extends Fragment {
                 return;
             }
             if (node != null && node.intentCode != null && !node.intentCode.isEmpty()) {
-                dispatchMessage(node.title, node.intentCode);
+                dispatchMessage(node.title, node.intentCode, null);
                 return;
             }
 
@@ -445,7 +445,7 @@ public class ChatFragment extends Fragment {
                 adapter.addMessage(ChatMessageAdapter.ChatMessage.options(productQuestionOptions()));
                 scrollToBottom();
             } else if (currentMode == ChatMode.BEAUTY_ADVISOR) {
-                dispatchMessage(clean.isEmpty() ? option : clean, null);
+                dispatchMessage(clean.isEmpty() ? option : clean, null, null);
             }
         }
     }

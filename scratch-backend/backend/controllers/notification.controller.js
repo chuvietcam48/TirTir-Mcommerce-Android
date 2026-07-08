@@ -138,11 +138,16 @@ exports.createNotification = async (userId, type, title, message, link, image) =
 // @access  Private
 exports.registerFcmToken = async (req, res, next) => {
     try {
+        console.log('--- FCM TOKEN REGISTRATION REQUEST ---');
+        console.log('req.user:', req.user);
+        console.log('req.body:', req.body);
+        
         const reqUserId = req.user?.id || req.body.userId;
         const incomingToken = req.body.token || req.body.fcmToken;
         const { platform, firebaseUid, deviceModel, appVersion } = req.body;
 
         if (!incomingToken) {
+            console.log('FAILED: No token provided');
             return next(new ErrorResponse('Please provide an FCM token', 400));
         }
 
@@ -150,11 +155,17 @@ exports.registerFcmToken = async (req, res, next) => {
         if (reqUserId) {
             const mongoose = require('mongoose');
             if (mongoose.Types.ObjectId.isValid(reqUserId)) {
+                console.log(`Looking up user by ID: ${reqUserId}`);
                 user = await User.findById(reqUserId);
+                console.log(`Result of User.findById:`, user ? `Found user ${user.email}` : `NOT FOUND`);
+            } else {
+                console.log(`reqUserId ${reqUserId} is not a valid ObjectId`);
             }
         }
         if (!user && firebaseUid) {
+            console.log(`Looking up user by firebaseUid: ${firebaseUid}`);
             user = await User.findOne({ firebaseUid });
+            console.log(`Result of User.findOne:`, user ? `Found user ${user.email}` : `NOT FOUND`);
         }
         if (!user && reqUserId) {
             user = await User.findOne({ firebaseUid: reqUserId });
@@ -198,7 +209,9 @@ exports.registerFcmToken = async (req, res, next) => {
             user.firebaseUid = firebaseUid;
         }
 
+        console.log('Saving user with fcmTokens count:', user.fcmTokens.length);
         await user.save({ validateBeforeSave: false });
+        console.log('Successfully saved user to MongoDB!');
 
         // Sync FCM token to Firestore
         const effectiveUid = firebaseUid || user.firebaseUid;

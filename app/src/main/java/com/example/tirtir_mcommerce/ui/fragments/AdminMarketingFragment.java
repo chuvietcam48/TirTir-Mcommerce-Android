@@ -83,61 +83,29 @@ public class AdminMarketingFragment extends Fragment {
     private void loadMarketingData() {
         ApiService apiService = RetrofitClient.getAuthClient(getContext()).create(ApiService.class);
         
-        // Sử dụng API stats/cart-recovery đã có sẵn trên server của bạn
-        apiService.getCartRecoveryStats().enqueue(new Callback<Map<String, Object>>() {
+        apiService.getMarketingOverview().enqueue(new Callback<ApiResponse<MarketingOverviewResponse>>() {
             @Override
-            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Map<String, Object> data = response.body();
-                    
-                    NumberFormat format = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-                    
-                    // Lấy dữ liệu từ Map trả về
-                    double recoveredRevenue = 0;
-                    if (data.get("recoveredRevenue") instanceof Number) {
-                        recoveredRevenue = ((Number) data.get("recoveredRevenue")).doubleValue();
-                    }
-                    
-                    int abandonedCount = 0;
-                    if (data.get("totalAbandoned") instanceof Number) {
-                        abandonedCount = ((Number) data.get("totalAbandoned")).intValue();
-                    }
-                    
-                    double rate = 0;
-                    if (data.get("conversionRate") instanceof Number) {
-                        rate = ((Number) data.get("conversionRate")).doubleValue();
-                    }
-
-                    tvRevenueRecovered.setText(format.format(recoveredRevenue));
-                    tvAtRiskCustomers.setText(abandonedCount + " users");
-                    tvVouchersUsed.setText((abandonedCount / 2) + " codes");
-                    tvConversionRate.setText(rate + "%");
-                    
-                    // Hiển thị một số dữ liệu mẫu cho Campaigns và Activities nếu API overview không có
-                    setupMockData();
+            public void onResponse(Call<ApiResponse<MarketingOverviewResponse>> call, Response<ApiResponse<MarketingOverviewResponse>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess() && response.body().getData() != null) {
+                    updateUI(response.body().getData());
                 } else {
-                    // Nếu lỗi 404, dùng dữ liệu giả lập để không bị trống màn hình
                     setupMockData();
                 }
             }
 
             @Override
-            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+            public void onFailure(Call<ApiResponse<MarketingOverviewResponse>> call, Throwable t) {
                 setupMockData();
             }
         });
     }
 
     private void setupMockData() {
-        // Mock Campaigns
-        java.util.ArrayList<Campaign> mocks = new java.util.ArrayList<>();
-        // Bạn có thể thêm dữ liệu giả ở đây để test UI
-        
         // Cập nhật giao diện với dữ liệu mặc định
         tvRevenueRecovered.setText("0₫");
-        tvAtRiskCustomers.setText("12 users");
-        tvVouchersUsed.setText("5 codes");
-        tvConversionRate.setText("8.5%");
+        tvAtRiskCustomers.setText("0 users");
+        tvVouchersUsed.setText("0 codes");
+        tvConversionRate.setText("0.0%");
     }
 
     private void updateUI(MarketingOverviewResponse data) {

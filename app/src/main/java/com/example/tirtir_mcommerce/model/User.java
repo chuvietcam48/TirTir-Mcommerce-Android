@@ -76,6 +76,17 @@ public class User implements Serializable {
         public String getSkinType() { return skinType; }
         public List<String> getConcerns() { return concerns; }
         public List<String> getRecommendations() { return recommendations; }
+
+        public void setSkinTone(String skinTone) { this.skinTone = skinTone; }
+        public void setUndertone(String undertone) { this.undertone = undertone; }
+        public void setSkinHex(String skinHex) { this.skinHex = skinHex; }
+        public void setItaCategory(String itaCategory) { this.itaCategory = itaCategory; }
+        public void setTexture(String texture) { this.texture = texture; }
+        public void setPores(String pores) { this.pores = pores; }
+        public void setHydration(String hydration) { this.hydration = hydration; }
+        public void setSkinType(String skinType) { this.skinType = skinType; }
+        public void setConcerns(List<String> concerns) { this.concerns = concerns; }
+        public void setRecommendations(List<String> recommendations) { this.recommendations = recommendations; }
     }
 
     // ===== Constructors =====

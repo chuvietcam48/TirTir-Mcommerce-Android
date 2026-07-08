@@ -5,6 +5,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.app.ActivityCompat;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -43,11 +49,29 @@ public class MainActivity extends AppCompatActivity {
     // Track currently active tab id
     private int activeTabId = R.id.navTabHome;
 
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    Log.d("MainActivity", "Notification permission granted");
+                    // Sync token now that we have permission
+                    new com.example.tirtir_mcommerce.data.repository.CloudRepository(this).syncFcmToken();
+                } else {
+                    Log.w("MainActivity", "Notification permission denied");
+                }
+            });
+
+    @Override
+    protected void attachBaseContext(android.content.Context newBase) {
+        super.attachBaseContext(com.example.tirtir_mcommerce.utils.LocaleHelper.onAttach(newBase, "en"));
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+        askNotificationPermission();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -161,6 +185,8 @@ public class MainActivity extends AppCompatActivity {
             } else if (id == R.id.nav_drawer_notifications) {
                 startActivity(new android.content.Intent(this,
                         com.example.tirtir_mcommerce.ui.activities.NotificationCenterActivity.class));
+            } else if (id == R.id.nav_drawer_language) {
+                showLanguageDialog();
             } else if (id == R.id.nav_drawer_settings) {
                 startActivity(new android.content.Intent(this,
                         com.example.tirtir_mcommerce.ui.activities.NotificationSettingsActivity.class));
@@ -198,6 +224,24 @@ public class MainActivity extends AppCompatActivity {
                         }, error -> android.widget.Toast.makeText(this, error,
                                 android.widget.Toast.LENGTH_SHORT).show()))
                 .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void showLanguageDialog() {
+        String[] languages = {"English", "Tiếng Việt"};
+        String currentLang = com.example.tirtir_mcommerce.utils.LocaleHelper.getLanguage(this);
+        int checkedItem = currentLang.equals("vi") ? 1 : 0;
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Select Language / Chọn ngôn ngữ")
+                .setSingleChoiceItems(languages, checkedItem, (dialog, which) -> {
+                    String selectedLang = which == 1 ? "vi" : "en";
+                    if (!selectedLang.equals(currentLang)) {
+                        com.example.tirtir_mcommerce.utils.LocaleHelper.setLocale(this, selectedLang);
+                        recreate(); // Restart the activity to apply changes
+                    }
+                    dialog.dismiss();
+                })
                 .show();
     }
 
@@ -265,21 +309,46 @@ public class MainActivity extends AppCompatActivity {
     private boolean handleIntent(android.content.Intent intent) {
         if (intent == null) return false;
 
-        // Handle VNPAY return deep-link: tirtir://payment?status=success&orderId=...
+        // Handle VNPAY return deep-link: tirtir://payment?...
         android.net.Uri data = intent.getData();
-        if (data != null && "tirtir".equals(data.getScheme()) && "payment".equals(data.getHost())) {
-            String status  = data.getQueryParameter("status");
-            String orderId = data.getQueryParameter("orderId");
-            if ("success".equals(status) && orderId != null) {
-                android.content.Intent successIntent = new android.content.Intent(this,
-                        com.example.tirtir_mcommerce.ui.activities.OrderSuccessActivity.class);
-                successIntent.putExtra("ORDER_CODE", orderId);
-                startActivity(successIntent);
-            } else {
-                android.widget.Toast.makeText(this, "Payment cancelled or failed. Your order is pending.",
-                        android.widget.Toast.LENGTH_LONG).show();
+        if (data != null) {
+            if ("tirtir".equals(data.getScheme()) && "payment".equals(data.getHost())) {
+                String status  = data.getQueryParameter("status");
+                String orderId = data.getQueryParameter("orderId");
+                
+                // If it's a direct redirect from VNPAY, it uses vnp_ResponseCode and vnp_TxnRef
+                String vnpResponseCode = data.getQueryParameter("vnp_ResponseCode");
+                String txnRef = data.getQueryParameter("vnp_TxnRef");
+                
+                boolean isSuccess = "success".equals(status) || "00".equals(vnpResponseCode);
+                String finalOrderId = orderId != null ? orderId : txnRef;
+                
+                if (isSuccess && finalOrderId != null) {
+                    android.content.Intent successIntent = new android.content.Intent(this,
+                            com.example.tirtir_mcommerce.ui.activities.OrderSuccessActivity.class);
+                    successIntent.putExtra("ORDER_CODE", finalOrderId);
+                    startActivity(successIntent);
+                } else {
+                    android.widget.Toast.makeText(this, "Payment cancelled or failed. Your order is pending.",
+                            android.widget.Toast.LENGTH_LONG).show();
+                }
+                return true;
+            } 
+            // Handle direct interception of VNP_RETURN_URL (legacy http localhost intercept)
+            else if ("http".equals(data.getScheme()) && "10.0.2.2".equals(data.getHost()) && data.getPath() != null && data.getPath().contains("vnpay-return")) {
+                String vnpResponseCode = data.getQueryParameter("vnp_ResponseCode");
+                String txnRef = data.getQueryParameter("vnp_TxnRef");
+                if ("00".equals(vnpResponseCode) && txnRef != null) {
+                    android.content.Intent successIntent = new android.content.Intent(this,
+                            com.example.tirtir_mcommerce.ui.activities.OrderSuccessActivity.class);
+                    successIntent.putExtra("ORDER_CODE", txnRef);
+                    startActivity(successIntent);
+                } else {
+                    android.widget.Toast.makeText(this, "Payment cancelled or failed. Your order is pending.",
+                            android.widget.Toast.LENGTH_LONG).show();
+                }
+                return true;
             }
-            return true;
         }
 
         String navigateTo = intent.getStringExtra("NAVIGATE_TO");
@@ -356,6 +425,11 @@ public class MainActivity extends AppCompatActivity {
         updateDrawerHeader();
         updateCartBadge();
         com.example.tirtir_mcommerce.utils.HeaderHelper.updateNotificationBadge(findViewById(R.id.drawerLayoutMain), this);
+        
+        // Sync FCM token to ensure backend has it
+        if (prefs.isLoggedIn()) {
+            new com.example.tirtir_mcommerce.data.repository.CloudRepository(this).syncFcmToken();
+        }
     }
 
     @Override
@@ -377,5 +451,28 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragmentContainer, HomeFragment.newInstance(query))
                 .commit();
+    }
+
+    private void askNotificationPermission() {
+        // This is only necessary for API level >= 33 (Android 13)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+                    PackageManager.PERMISSION_GRANTED) {
+                // FCM SDK (and your app) can post notifications.
+            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                // TODO: display an educational UI explaining to the user why your app requires notifications
+                new androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setTitle("Bật thông báo")
+                        .setMessage("Hãy cho phép thông báo để nhận cập nhật về đơn hàng và ưu đãi mới nhất!")
+                        .setPositiveButton("Cho phép", (dialog, which) -> {
+                            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+                        })
+                        .setNegativeButton("Để sau", null)
+                        .show();
+            } else {
+                // Directly ask for the permission
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            }
+        }
     }
 }

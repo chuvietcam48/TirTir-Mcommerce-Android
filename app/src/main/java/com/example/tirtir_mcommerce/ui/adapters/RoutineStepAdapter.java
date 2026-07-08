@@ -35,15 +35,17 @@ public class RoutineStepAdapter extends ListAdapter<RoutineStep, RoutineStepAdap
         void onSkipToggled(RoutineStep step, boolean isSkipped);
     }
 
-    /**
-     * Callback được gọi khi user nhấn "Add to Cart".
-     */
     public interface OnAddToCartListener {
         void onAddToCart(RoutineStep step);
     }
 
+    public interface OnProductClickListener {
+        void onProductClick(RoutineStep step);
+    }
+
     private final OnSkipToggleListener skipListener;
     private final OnAddToCartListener addToCartListener;
+    private final OnProductClickListener productClickListener;
 
     private static final DiffUtil.ItemCallback<RoutineStep> DIFF_CALLBACK =
             new DiffUtil.ItemCallback<RoutineStep>() {
@@ -66,10 +68,12 @@ public class RoutineStepAdapter extends ListAdapter<RoutineStep, RoutineStepAdap
             };
 
     public RoutineStepAdapter(OnSkipToggleListener skipListener,
-                               OnAddToCartListener addToCartListener) {
+                               OnAddToCartListener addToCartListener,
+                               OnProductClickListener productClickListener) {
         super(DIFF_CALLBACK);
         this.skipListener = skipListener;
         this.addToCartListener = addToCartListener;
+        this.productClickListener = productClickListener;
     }
 
     @NonNull
@@ -243,6 +247,11 @@ public class RoutineStepAdapter extends ListAdapter<RoutineStep, RoutineStepAdap
             // Add to cart
             btnAddToCart.setOnClickListener(v -> {
                 if (addToCartListener != null) addToCartListener.onAddToCart(step);
+            });
+
+            // Product click
+            itemView.setOnClickListener(v -> {
+                if (productClickListener != null) productClickListener.onProductClick(step);
             });
         }
 

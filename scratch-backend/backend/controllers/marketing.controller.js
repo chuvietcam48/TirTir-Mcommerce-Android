@@ -1,6 +1,8 @@
 const User = require('../models/user.model');
 const Cart = require('../models/cart.model');
 const Order = require('../models/order.model');
+const Campaign = require('../models/campaign.model');
+const MarketingActivity = require('../models/marketing_activity.model');
 const { createNotification } = require('./notification.controller');
 const { ORDER_STATUS } = require('../constants');
 
@@ -46,28 +48,37 @@ exports.getMarketingOverview = async (req, res, next) => {
             conversionRate = totalUsers > 0 ? Number(((totalOrders / totalUsers) * 100).toFixed(1)) : 0;
         } catch (e) { console.error('Insights calculation error (Conv):', e.message); }
 
-        // 2. Campaigns (Always return at least empty array, never null)
-        const campaigns = [
-            {
-                _id: 'camp_demo_1',
-                title: 'Spring Glow Blast',
-                status: 'Active',
-                currentRevenue: revenueRecovered || 500000,
-                targetRevenue: 2000000,
-                endDate: new Date(Date.now() + 86400000 * 7).toISOString()
-            }
-        ];
+        // 2. Campaigns
+        let campaigns = await Campaign.find().sort({ startDate: -1 }).limit(5);
+
+        // Default if empty
+        if (campaigns.length === 0) {
+            campaigns = [
+                {
+                    _id: 'camp_demo_1',
+                    title: 'Spring Glow Blast (Demo)',
+                    status: 'Active',
+                    currentRevenue: revenueRecovered || 500000,
+                    targetRevenue: 2000000,
+                    endDate: new Date(Date.now() + 86400000 * 7).toISOString()
+                }
+            ];
+        }
 
         // 3. Activities
-        const activities = [
-            {
-                _id: 'act_demo_1',
-                title: 'Cart Recovery Engine',
-                targetOrStatus: `Active - Processed ${revenueRecovered > 0 ? 'recent' : '0'} items`,
-                type: 'system',
-                createdAt: new Date().toISOString()
-            }
-        ];
+        let activities = await MarketingActivity.find().sort({ createdAt: -1 }).limit(10);
+
+        if (activities.length === 0) {
+            activities = [
+                {
+                    _id: 'act_demo_1',
+                    title: 'Cart Recovery Engine',
+                    targetOrStatus: `Active - Processed ${revenueRecovered > 0 ? 'recent' : '0'} items`,
+                    type: 'system',
+                    createdAt: new Date().toISOString()
+                }
+            ];
+        }
 
         console.log('[MARKETING] Data compiled successfully.');
 
@@ -134,6 +145,34 @@ exports.sendFlashSale = async (req, res, next) => {
         // 3. Bulk Insert (Using Model directly for performance)
         const Notification = require('../models/notification.model');
         await Notification.insertMany(notifications);
+
+        // 4. Send actual Push Notifications via Firebase Admin
+        const firebaseAdmin = require('../services/firebaseAdmin.service');
+        if (firebaseAdmin.isFirebaseEnabled()) {
+            const admin = require('firebase-admin');
+            const allUsers = await User.find({ role: 'user', 'fcmTokens.0': { $exists: true } });
+            const tokens = [];
+            allUsers.forEach(u => {
+                u.fcmTokens.forEach(t => {
+                    if (t.token) tokens.push(t.token);
+                });
+            });
+
+            if (tokens.length > 0) {
+                // Firebase Admin send() requires a loop now due to /batch deprecation
+                for (const token of tokens) {
+                    try {
+                        await admin.messaging().send({
+                            notification: { title, body: message },
+                            data: { type: 'PROMOTION', screen: link || '/products' },
+                            token: token
+                        });
+                    } catch (e) {
+                        console.error('Error sending flash sale push to token:', token, e.message);
+                    }
+                }
+            }
+        }
 
         res.status(200).json({
             success: true,

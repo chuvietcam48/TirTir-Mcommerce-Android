@@ -40,6 +40,17 @@ const userSchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true },
     resetPasswordOTP: { type: String, select: false },
     resetPasswordExpires: { type: Date, select: false },
+    firebaseUid: { type: String, default: null },
+    fcmTokens: [{
+      token: String,
+      platform: String,
+      firebaseUid: String,
+      deviceModel: String,
+      appVersion: String,
+      active: { type: Boolean, default: true },
+      lastSeenAt: Date,
+      createdAt: { type: Date, default: Date.now }
+    }],
     // ===== SKIN PROFILE (Latest AI Analysis Snapshot) =====
     skinProfile: {
         skinTone:       { type: String, default: null },
@@ -49,7 +60,7 @@ const userSchema = new mongoose.Schema(
         texture:        { type: String, default: null },
         pores:          { type: String, default: null },
         hydration:      { type: String, default: null },
-        skinType:       { type: String, default: null },
+        skinType:       { type: String, enum: ['Dry', 'Oily', 'Combination', 'Normal', 'Sensitive'], default: null },
         concerns:       { type: [String], default: [] },
         recommendations:{ type: [String], default: [] },
         confidence:     { type: Number, default: null },
@@ -59,10 +70,9 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
   this.password = await bcrypt.hash(this.password, 12);
-  next();
 });
 
 userSchema.methods.comparePassword = async function (candidate) {
@@ -84,7 +94,7 @@ userSchema.methods.toClientJSON = function () {
 
   return {
     _id: this._id,
-    name: `${this.firstName} ${this.lastName}`.trim(),
+    name: (`${this.firstName === 'undefined' ? '' : (this.firstName || '')} ${this.lastName === 'undefined' ? '' : (this.lastName || '')}`.trim()) || (this.name === 'undefined' ? '' : (this.name || '')) || 'Người dùng TirTir',
     email: this.email,
     phone: this.phone,
     avatar: this.avatar,

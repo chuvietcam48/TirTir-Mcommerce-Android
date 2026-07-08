@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middlewares/auth');
+const { protect, optionalProtect } = require('../middlewares/auth');
 const { uploadAvatar: uploadMiddleware } = require('../middlewares/upload.middleware');
 const {
     getProfile,
@@ -47,6 +47,6 @@ router.patch('/addresses/:id/set-default', protect, setDefaultAddress);
 
 // FCM token registration for authenticated/anonymous users
 const { registerFcmToken } = require('../controllers/notification.controller');
-router.post('/fcm-token', registerFcmToken);
+router.post('/fcm-token', optionalProtect, registerFcmToken);
 
 module.exports = router;

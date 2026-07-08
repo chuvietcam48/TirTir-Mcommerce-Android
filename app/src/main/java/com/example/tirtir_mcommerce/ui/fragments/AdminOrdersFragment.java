@@ -65,15 +65,15 @@ public class AdminOrdersFragment extends Fragment implements AdminOrderAdapter.O
     private void loadOrders() {
         progress.setVisibility(View.VISIBLE);
         empty.setVisibility(View.GONE);
-        api.getAdminOrders(100).enqueue(new Callback<List<Map<String, Object>>>() {
+        api.getAdminOrders(100).enqueue(new Callback<com.example.tirtir_mcommerce.model.ApiResponse<List<Map<String, Object>>>>() {
             @Override
-            public void onResponse(Call<List<Map<String, Object>>> call,
-                                   Response<List<Map<String, Object>>> response) {
+            public void onResponse(Call<com.example.tirtir_mcommerce.model.ApiResponse<List<Map<String, Object>>>> call,
+                                   Response<com.example.tirtir_mcommerce.model.ApiResponse<List<Map<String, Object>>>> response) {
                 if (!isAdded()) return;
                 progress.setVisibility(View.GONE);
                 orders.clear();
-                if (response.isSuccessful() && response.body() != null) {
-                    for (Map<String, Object> row : response.body()) orders.add(mapOrder(row));
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    for (Map<String, Object> row : response.body().getData()) orders.add(mapOrder(row));
                 }
                 adapter.notifyDataSetChanged();
                 empty.setVisibility(orders.isEmpty() ? View.VISIBLE : View.GONE);
@@ -83,7 +83,7 @@ public class AdminOrdersFragment extends Fragment implements AdminOrderAdapter.O
             }
 
             @Override
-            public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) {
+            public void onFailure(Call<com.example.tirtir_mcommerce.model.ApiResponse<List<Map<String, Object>>>> call, Throwable t) {
                 if (!isAdded()) return;
                 progress.setVisibility(View.GONE);
                 empty.setText("Unable to load orders");

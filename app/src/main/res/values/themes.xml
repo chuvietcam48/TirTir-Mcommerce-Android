@@ -5,7 +5,7 @@
         <!-- Brand red as primary (chips, active states, links) -->
         <item name="colorPrimary">@color/tirtir_red_primary</item>
         <item name="colorPrimaryDark">@color/tirtir_red_dark</item>
-        <item name="colorPrimaryContainer">@color/tirtir_red_surface</item>
+        <item name="colorPrimaryContainer">#FFFFFF</item>
 
         <!-- Black for text on primary backgrounds -->
         <item name="colorOnPrimary">@color/tirtir_white</item>
@@ -14,7 +14,7 @@
         <!-- Secondary = black (main CTA buttons) -->
         <item name="colorSecondary">@color/tirtir_black</item>
         <item name="colorOnSecondary">@color/tirtir_white</item>
-        <item name="colorSecondaryContainer">@color/tirtir_red_surface</item>
+        <item name="colorSecondaryContainer">#F8F8F8</item>
         <item name="colorOnSecondaryContainer">@color/tirtir_red_primary</item>
 
         <!-- Surfaces: white + off-white -->
@@ -159,6 +159,17 @@
         <item name="cornerSizeTopRight">32dp</item>
         <item name="cornerSizeBottomLeft">0dp</item>
         <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <style name="TransparentActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@android:color/transparent</item>
+    </style>
+
+    <style name="Widget.TirTir.AdminBottomNav" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:background">@android:color/white</item>
+        <item name="backgroundTint">@android:color/white</item>
+        <item name="elevation">0dp</item>
+        <item name="itemActiveIndicatorStyle">@style/TransparentActiveIndicator</item>
     </style>
 
 </resources>

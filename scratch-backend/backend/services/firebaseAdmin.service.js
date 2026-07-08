@@ -38,15 +38,30 @@ try {
         }
     }
 
+    if (!credential) {
+        const fallbackPath = path.join(__dirname, '../../config/serviceAccountKey.json');
+        if (fs.existsSync(fallbackPath)) {
+            try {
+                const parsed = JSON.parse(fs.readFileSync(fallbackPath, 'utf8'));
+                credential = admin.credential.cert(parsed);
+                console.log(`Firebase Admin: Initializing via fallback JSON file at: ${fallbackPath}`);
+            } catch (e) {
+                console.error('Firebase Admin: Error reading fallback config file:', e.message);
+            }
+        }
+    }
+
     const storageBucket = process.env.FIREBASE_STORAGE_BUCKET;
     if (credential) {
-        admin.initializeApp({
-            credential,
-            projectId,
-            ...(storageBucket ? { storageBucket } : {})
-        });
+        if (!admin.apps.length) {
+            admin.initializeApp({
+                credential,
+                projectId,
+                ...(storageBucket ? { storageBucket } : {})
+            });
+        }
         firebaseEnabled = true;
-        console.log('Firebase Admin SDK initialized successfully.');
+        console.log('Firebase Admin: Ready and configured.');
     } else if (projectId) {
         // Fallback to application default credentials if project ID is provided
         try {

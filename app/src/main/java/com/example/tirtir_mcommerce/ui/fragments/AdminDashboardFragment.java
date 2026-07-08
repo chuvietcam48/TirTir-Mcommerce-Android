@@ -159,13 +159,14 @@ public class AdminDashboardFragment extends Fragment {
         });
         
         // Load Orders via API
-        apiService.getAdminOrders(1000).enqueue(new Callback<List<Map<String, Object>>>() {
+        apiService.getAdminOrders(1000).enqueue(new Callback<com.example.tirtir_mcommerce.model.ApiResponse<List<Map<String, Object>>>>() {
             @Override
-            public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> response) {
+            public void onResponse(Call<com.example.tirtir_mcommerce.model.ApiResponse<List<Map<String, Object>>>> call,
+                                   Response<com.example.tirtir_mcommerce.model.ApiResponse<List<Map<String, Object>>>> response) {
                 if (!isAdded()) return;
                 int orderCount = 0;
-                if (response.isSuccessful() && response.body() != null) {
-                    orderCount = response.body().size();
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    orderCount = response.body().getData().size();
                 }
                 
                 tvOrders.setText(String.valueOf(orderCount));
@@ -173,16 +174,16 @@ public class AdminDashboardFragment extends Fragment {
                 int progress = (int) ((orderCount / (float) target) * 100);
                 if (progress > 100) progress = 100;
                 pbTargetOrders.setProgress(progress);
-                tvTargetProgress.setText(progress + "%");
-                tvTargetMessage.setText("You Completed " + progress + "% of your target orders this week than last week");
+                tvTargetProgress.setText(orderCount + " / " + target);
+                tvTargetMessage.setText(progress + "% of monthly order target achieved");
             }
 
             @Override
-            public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) {
+            public void onFailure(Call<com.example.tirtir_mcommerce.model.ApiResponse<List<Map<String, Object>>>> call, Throwable t) {
                 if (!isAdded()) return;
                 tvOrders.setText("0");
                 pbTargetOrders.setProgress(0);
-                tvTargetProgress.setText("0%");
+                tvTargetProgress.setText("0 / 150");
                 tvTargetMessage.setText("Cannot load order data");
             }
         });

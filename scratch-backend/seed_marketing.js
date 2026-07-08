@@ -1,52 +1,63 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const Campaign = require('./models/Campaign');
-const MarketingActivity = require('./models/MarketingActivity');
 
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/TirTir')
-    .then(async () => {
-        console.log('Connected to DB');
+async function seed() {
+  await mongoose.connect(process.env.MONGO_URI);
+  console.log('Connected to DB');
 
-        await Campaign.deleteMany({});
-        await MarketingActivity.deleteMany({});
+  const Campaign = require('./models/Campaign');
+  const MarketingActivity = require('./models/MarketingActivity');
 
-        // Add 2 campaigns
-        await Campaign.create([
-            {
-                title: 'Summer Skincare Flash Sale',
-                startDate: new Date(Date.now() - 24 * 60 * 60 * 1000), // Started yesterday
-                endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // Ends in 5 days
-                status: 'LIVE',
-                targetRevenue: 50000000,
-                currentRevenue: 12500000, // 25% progress
-                message: '50% OFF All Skincare!',
-                path: '/products',
-                targetAudience: 'All users'
-            },
-            {
-                title: 'Autumn Radiance Launch',
-                startDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // Starts in 10 days
-                endDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000),
-                status: 'SCHEDULED',
-                targetRevenue: 200000000,
-                currentRevenue: 0,
-                message: 'New autumn collection launch.',
-                path: '/products/autumn',
-                targetAudience: 'Premium Segment'
-            }
-        ]);
+  await Campaign.deleteMany({});
+  await MarketingActivity.deleteMany({});
 
-        // Add 3 activities
-        await MarketingActivity.create([
-            { type: 'success', title: 'Flash Sale Notification Sent', targetOrStatus: 'Target: 12.4k recipients' },
-            { type: 'system', title: 'Voucher "LUNAR24" Created', targetOrStatus: 'Status: Active' },
-            { type: 'draft', title: 'Abandoned Cart Email Drafted', targetOrStatus: 'Target: At-risk users' }
-        ]);
+  await Campaign.insertMany([
+    {
+      title: 'Summer Glow Flash Sale',
+      startDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      endDate:   new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+      status: 'LIVE',
+      targetRevenue:   50000000,
+      currentRevenue:  18500000,
+      message: '50% OFF All Skincare — Today Only!',
+      path: '/products',
+      targetAudience: 'All users'
+    },
+    {
+      title: 'Lunar New Year Giveaway',
+      startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      endDate:   new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+      status: 'LIVE',
+      targetRevenue:   30000000,
+      currentRevenue:  27500000,
+      message: 'Lucky draws every hour — Join now!',
+      path: '/home',
+      targetAudience: 'Loyalty Tier Gold+'
+    },
+    {
+      title: 'Spring Radiance New Launch',
+      startDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000),
+      endDate:   new Date(Date.now() + 20 * 24 * 60 * 60 * 1000),
+      status: 'SCHEDULED',
+      targetRevenue:   200000000,
+      currentRevenue:  0,
+      message: 'Exclusive spring collection — Coming soon.',
+      path: '/products',
+      targetAudience: 'Premium Segment'
+    }
+  ]);
 
-        console.log('Seed completed successfully!');
-        process.exit(0);
-    })
-    .catch((err) => {
-        console.error('Seed error:', err);
-        process.exit(1);
-    });
+  await MarketingActivity.insertMany([
+    { type: 'success', title: 'Flash Sale Notification Sent',       targetOrStatus: 'Target: 12,400 recipients' },
+    { type: 'success', title: 'Voucher "SUMMER25" Activated',        targetOrStatus: 'Status: 248 uses so far' },
+    { type: 'system',  title: 'Abandoned Cart Email Scheduled',      targetOrStatus: 'Target: At-risk users (307)' },
+    { type: 'draft',   title: 'Re-engagement Campaign Drafted',      targetOrStatus: 'Status: Awaiting approval' },
+    { type: 'success', title: 'Product Review Push Sent',            targetOrStatus: 'Target: Recent buyers' }
+  ]);
+
+  console.log('✅ Marketing data seeded successfully');
+  await mongoose.disconnect();
+  process.exit(0);
+}
+
+seed().catch(e => { console.error(e); process.exit(1); });

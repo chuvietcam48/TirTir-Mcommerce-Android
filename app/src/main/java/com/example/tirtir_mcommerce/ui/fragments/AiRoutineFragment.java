@@ -19,6 +19,7 @@ import retrofit2.Response;
 import com.example.tirtir_mcommerce.model.ApiResponse;
 import com.example.tirtir_mcommerce.network.ApiService;
 import com.example.tirtir_mcommerce.network.RetrofitClient;
+import com.example.tirtir_mcommerce.ui.activities.ProductDetailActivity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -96,7 +97,8 @@ public class AiRoutineFragment extends Fragment {
 
         adapter = new RoutineStepAdapter(
                 this::onStepSkipToggled,
-                this::onAddToCart
+                this::onAddToCart,
+                this::onProductClicked
         );
         rvRoutineSteps.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvRoutineSteps.setAdapter(adapter);
@@ -215,6 +217,16 @@ public class AiRoutineFragment extends Fragment {
         repository.syncItemToServer(item, null, error -> {});
         Toast.makeText(requireContext(), step.getStepName() + " product added to cart!",
                 Toast.LENGTH_SHORT).show();
+    }
+
+    private void onProductClicked(RoutineStep step) {
+        if (step.getProductId() == null || step.getProductId().isEmpty()) {
+            Toast.makeText(requireContext(), "Product details unavailable.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Intent intent = new Intent(requireContext(), ProductDetailActivity.class);
+        intent.putExtra("PRODUCT_ID", step.getProductId());
+        startActivity(intent);
     }
 
     private void addAllToCart() {
